@@ -1,0 +1,27 @@
+{
+  "url": "https://horoscopes.astro-seek.com/calculate-birth-chart-horoscope-online/?input_natal=1&send_calculation=1&narozeni_den=15&narozeni_mesic=1&narozeni_rok=2024&narozeni_hodina=08&narozeni_minuta=00&narozeni_sekunda=00&narozeni_city=Sydney%2C+Australia%2C+NSW&narozeni_mesto_hidden=Sydney&narozeni_stat_hidden=AU&narozeni_podstat_kratky_hidden=NSW&narozeni_tzid_id=306&narozeni_sirka_stupne=33&narozeni_sirka_minuty=52&narozeni_sirka_smer=1&narozeni_delka_stupne=151&narozeni_delka_minuty=12&narozeni_delka_smer=0&narozeni_timezone_form=auto&narozeni_timezone_dst_form=auto&house_system=placidus&hid_fortune=1&hid_vertex=1&hid_chiron=1&hid_chiron_check=on&hid_lilith=1&hid_lilith_check=on&hid_uzel=1&hid_uzel_check=on&tolerance=1&aya=&tolerance_paral=0&zmena_nastaveni=1&aktivni_tab=&hide_aspects=0&dominanta_metoda=1&dominanta_rulership=1#tabs_redraw",
+  "input": {
+    "text": "Date of Birth (local time):\n15 January 2024 - 08:00  (AEDT, DST)\nUniversal Time (UT/GMT):\n14 January 2024 - 21:00  \nLocal Sidereal Time (LST):\n14:40:06\nHouse system:\nPlacidus system\nLatitude, Longitude:\n33°52'S, 151°12'E"
+  },
+  "capturedAt": "2026-10-31T19:57:54.479Z",
+  "capture": {
+    "lines": 965,
+    "headerLine": 197,
+    "labelCounts": {
+      "Date of Birth (local time):": 1,
+      "Universal Time (UT/GMT):": 1,
+      "Latitude, Longitude:": 1
+    }
+  },
+  "expected": {
+    "kind": "natal",
+    "local": "2024-01-15T08:00:00",
+    "zoneLabel": "AEDT, DST",
+    "utc": "2024-01-14T21:00:00Z",
+    "utcSource": "printed",
+    "offsetMinutes": 660,
+    "lat": -33.866667,
+    "lng": 151.2
+  },
+  "notes": "UT falls on the previous day; S/E confirmed by page text; Extended settings panel open, header starts at line 197."
+}

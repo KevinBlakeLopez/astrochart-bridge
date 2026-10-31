@@ -1,0 +1,21 @@
+{
+  "url": "https://horoscopes.astro-seek.com/calculate-transit-chart/?muz_narozeni_den=15&muz_narozeni_mesic=1&muz_narozeni_rok=2024&muz_narozeni_hodina=08&muz_narozeni_minuta=00&muz_narozeni_mesto_hidden=Sydney&muz_narozeni_stat_hidden=AU&muz_narozeni_podstat_kratky_hidden=NSW&muz_narozeni_tzid_id=306&muz_narozeni_city=Sydney,%20Australia,%20NSW&muz_narozeni_sirka_stupne=33&muz_narozeni_sirka_minuty=52&muz_narozeni_sirka_smer=1&muz_narozeni_delka_stupne=151&muz_narozeni_delka_minuty=12&muz_narozeni_delka_smer=0&muz_narozeni_timezone_form=auto&muz_narozeni_timezone_dst_form=auto&zena_narozeni_den=1&zena_narozeni_mesic=11&zena_narozeni_rok=2026&zena_narozeni_hodina=06&zena_narozeni_minuta=57&zena_narozeni_mesto_hidden=Sydney&zena_narozeni_stat_hidden=AU&zena_narozeni_podstat_kratky_hidden=NSW&zena_narozeni_tzid_id=&zena_narozeni_city=Sydney,%20Australia,%20NSW&zena_narozeni_sirka_stupne=33&zena_narozeni_sirka_minuty=52&zena_narozeni_sirka_smer=1&zena_narozeni_delka_stupne=151&zena_narozeni_delka_minuty=12&zena_narozeni_delka_smer=0&zena_narozeni_timezone_form=auto&zena_narozeni_timezone_dst_form=auto&house_system=placidus&styl_graf=&hid_fortune=on&hid_fortune_check=&hid_vertex=on&hid_vertex_check=&hid_chiron=&hid_chiron_check=on&hid_lilith=&hid_lilith_check=on&hid_uzel=&hid_uzel_check=on&aya=&nick=&hide_aspects=0&rocni_pohyb=1&&orb2=3",
+  "input": {
+    "text": "Birth chart (local time):\n15 January 2024 - 08:00  (AEDT, DST)\nUniversal Time (UT/GMT):\n14 January 2024 - 21:00  \nHouse system:\nPlacidus system\nLatitude, Longitude:\n33°52'S, 151°12'E\nCity (Country):\n Sydney (AU)\nTransit chart (local time):\n1 Nov 2026 - 06:57  (AEDT, DST)\nUniversal Time (UT/GMT):\n31 Oct 2026 - 19:57  (PROG, PW)\nLatitude, Longitude:\n33°52'S, 151°12'E"
+  },
+  "capturedAt": "2026-10-31T20:07:01.326Z",
+  "capture": {
+    "lines": 1014,
+    "headerLine": 17,
+    "labelCounts": {
+      "Date of Birth (local time):": 0,
+      "Universal Time (UT/GMT):": 2,
+      "Latitude, Longitude:": 2
+    }
+  },
+  "expected": {
+    "kind": "refused",
+    "reason": "transit"
+  },
+  "notes": "Path /calculate-transit-chart/; natal data in muz_narozeni_*, transit moment in zena_narozeni_*; no bare narozeni_*, but url.includes('narozeni_den') is true; page text has 'Birth chart (local time)' and two Universal Time lines."
+}

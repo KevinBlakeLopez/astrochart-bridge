@@ -1,0 +1,21 @@
+{
+  "url": "https://horoscopes.astro-seek.com/calculate-love-compatibility/?send_calculation=1&muz_narozeni_den=15&muz_narozeni_mesic=1&muz_narozeni_rok=1970&muz_narozeni_hodina=08&muz_narozeni_minuta=00&muz_narozeni_city=Sydney%2C+Australia%2C+NSW&muz_narozeni_mesto_hidden=Sydney&muz_narozeni_stat_hidden=AU&muz_narozeni_podstat_kratky_hidden=NSW&muz_narozeni_tzid_id=306&muz_narozeni_sirka_stupne=33&muz_narozeni_sirka_minuty=52&muz_narozeni_sirka_smer=1&muz_narozeni_delka_stupne=151&muz_narozeni_delka_minuty=12&muz_narozeni_delka_smer=0&muz_narozeni_timezone_form=auto&muz_narozeni_timezone_dst_form=auto&send_calculation=1&zena_narozeni_den=17&zena_narozeni_mesic=4&zena_narozeni_rok=2024&zena_narozeni_hodina=08&zena_narozeni_minuta=00&zena_narozeni_city=New+York%2C+USA%2C+New+York&zena_narozeni_mesto_hidden=New+York&zena_narozeni_stat_hidden=US&zena_narozeni_podstat_kratky_hidden=NY&zena_narozeni_tzid_id=0&zena_narozeni_sirka_stupne=40&zena_narozeni_sirka_minuty=43&zena_narozeni_sirka_smer=0&zena_narozeni_delka_stupne=74&zena_narozeni_delka_minuty=0&zena_narozeni_delka_smer=1&zena_narozeni_timezone_form=auto&zena_narozeni_timezone_dst_form=auto&switch_interpretations=3&house_system=placidus&hid_fortune=1&hid_vertex=1&hid_chiron=1&hid_chiron_check=on&hid_lilith=1&hid_lilith_check=on&hid_uzel=1&hid_uzel_check=on&uhel_orbis=&hide_aspects=0&zmena_nastaveni=1&aktivni_tab=#tabs_redraw",
+  "input": {
+    "text": "Partner A\n15 Jan 1970 - 08:00  (AEST)\n Sydney (AU)\n+\nPartner B\n17 Apr 2024 - 08:00  (EDT, DST)\n New York (US), NY"
+  },
+  "capturedAt": "2026-10-31T21:06:16.850Z",
+  "capture": {
+    "lines": 844,
+    "headerLine": 17,
+    "labelCounts": {
+      "Date of Birth (local time):": 0,
+      "Universal Time (UT/GMT):": 0,
+      "Latitude, Longitude:": 0
+    }
+  },
+  "expected": {
+    "kind": "refused",
+    "reason": "synastry"
+  },
+  "notes": "Love Compatibility page; partners in muz_/zena_; no Date of Birth or Universal Time labels; Partner A entered as 1970."
+}

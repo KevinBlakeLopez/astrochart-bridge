@@ -1,0 +1,39 @@
+{
+  "url": "https://horoscopes.astro-seek.com/calculate-birth-chart-horoscope-online/?input_natal=1&send_calculation=1&narozeni_den=14&narozeni_mesic=3&narozeni_rok=2021&narozeni_hodina=02&narozeni_minuta=30&narozeni_sekunda=00&narozeni_city=New+York%2C+USA%2C+New+York&narozeni_mesto_hidden=New+York&narozeni_stat_hidden=US&narozeni_podstat_kratky_hidden=NY&narozeni_tzid_id=156&narozeni_sirka_stupne=40&narozeni_sirka_minuty=43&narozeni_sirka_smer=0&narozeni_delka_stupne=74&narozeni_delka_minuty=0&narozeni_delka_smer=1&narozeni_timezone_form=auto&narozeni_timezone_dst_form=auto&house_system=placidus&hid_fortune=1&hid_vertex=1&hid_chiron=1&hid_chiron_check=on&hid_lilith=1&hid_lilith_check=on&hid_uzel=1&hid_uzel_check=on&tolerance=1&aya=&tolerance_paral=0&zmena_nastaveni=1&aktivni_tab=&hide_aspects=0&dominanta_metoda=1&dominanta_rulership=1#tabs_redraw",
+  "input": {
+    "text": "Date of Birth (local time):\n14 March 2021 - 02:30  (EST)\nUniversal Time (UT/GMT):\n14 March 2021 - 06:30  \nLocal Sidereal Time (LST):\n13:02:23\nHouse system:\nPlacidus system\nLatitude, Longitude:\n40°43'N, 74°0'W"
+  },
+  "capturedAt": "2026-10-31T20:51:10.487Z",
+  "capture": {
+    "lines": 938,
+    "headerLine": 197,
+    "labelCounts": {
+      "Date of Birth (local time):": 1,
+      "Universal Time (UT/GMT):": 1,
+      "Latitude, Longitude:": 1
+    }
+  },
+  "expected": {
+    "kind": "natal",
+    "local": "2021-03-14T02:30:00",
+    "zoneLabel": "EST",
+    "utc": null,
+    "utcSource": "needs-choice",
+    "reason": "zone-label-mismatch",
+    "candidates": [
+      {
+        "utc": "2021-03-14T06:30:00Z",
+        "offsetMinutes": -240,
+        "basis": "printed UT"
+      },
+      {
+        "utc": "2021-03-14T07:30:00Z",
+        "offsetMinutes": -300,
+        "basis": "zone label EST"
+      }
+    ],
+    "lat": 40.716667,
+    "lng": -74
+  },
+  "notes": "Clocks jumped 02:00→03:00, so 02:30 never happened. The page labels it EST but prints 06:30 UT, which implies −4. No warning on the page. Stock PHP gives 07:30Z."
+}
