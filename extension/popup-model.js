@@ -2,6 +2,14 @@ import { parseOffset, utcFromOffset } from "./core/civiltime.js";
 
 const CLOCK_NOTE = "Stellarium Web's clock shows your computer's time zone and keeps running.";
 
+// Seen on 2026-10-31: stellarium-web.org's Google Ads tag sent the full link,
+// date and coordinates included, as its url= parameter.
+const PRIVACY_NOTE =
+  "Opening the sky sends this date, time and place to stellarium-web.org, and its page passes the link on to Google's advertising tags.";
+
+// Shown on every screen that can open the sky, the privacy note last, just above Open sky.
+const NOTES = [CLOCK_NOTE, PRIVACY_NOTE];
+
 const REFUSALS = {
   transit: "This is a transit chart. Chart Bridge opens natal charts only.",
   synastry: "This is a synastry or compatibility chart. Chart Bridge opens natal charts only.",
@@ -56,7 +64,7 @@ export function viewFor(result) {
           `(${offsetText(candidate.offsetMinutes)})`,
         sky: sky(candidate.utc),
       })),
-      notes: [CLOCK_NOTE],
+      notes: [...NOTES],
     };
   }
 
@@ -65,7 +73,7 @@ export function viewFor(result) {
       state: "enter-offset",
       rows: [localRow, placeRow],
       message: "Astro-Seek didn't print a Universal Time. Enter the UTC offset at the birth place, as ±HH:MM.",
-      notes: [CLOCK_NOTE],
+      notes: [...NOTES],
       chart: { local, lat, lng },
     };
   }
@@ -74,7 +82,7 @@ export function viewFor(result) {
     state: "ready",
     rows: [localRow, ["Offset", offsetText(result.offsetMinutes)], ["UTC", utcText(result.utc)], placeRow],
     warnings: (result.warnings ?? []).map((code) => WARNINGS[code]?.(result) ?? code),
-    notes: [CLOCK_NOTE],
+    notes: [...NOTES],
     sky: sky(result.utc),
   };
 }

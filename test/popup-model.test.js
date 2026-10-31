@@ -12,6 +12,10 @@ const analyze = (name) => {
 };
 
 const CLOCK_NOTE = "Stellarium Web's clock shows your computer's time zone and keeps running.";
+const PRIVACY_NOTE =
+  "Opening the sky sends this date, time and place to stellarium-web.org, and its page passes the link on to Google's advertising tags.";
+// Every screen that can open the sky shows both, the privacy note last, just above Open sky.
+const NOTES = [CLOCK_NOTE, PRIVACY_NOTE];
 const NY_PLACE = ["Place", "40°43'N, 74°0'W"];
 
 test("ready: New York", () => {
@@ -24,7 +28,7 @@ test("ready: New York", () => {
       NY_PLACE,
     ],
     warnings: [],
-    notes: [CLOCK_NOTE],
+    notes: NOTES,
     sky: { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 },
   });
 });
@@ -69,7 +73,7 @@ test("choose: the skipped time offers both readings and opens nothing yet", () =
         sky: { utc: "2021-03-14T07:30:00Z", lat: 40.716667, lng: -74 },
       },
     ],
-    notes: [CLOCK_NOTE],
+    notes: NOTES,
   });
 });
 
@@ -81,7 +85,7 @@ test("enter-offset: no printed UT asks for the offset and previews the UTC", () 
   assert.equal(view.state, "enter-offset");
   assert.deepEqual(view.rows, [["Local time", "17 Apr 2024, 08:00 (EDT, DST)"], NY_PLACE]);
   assert.equal(view.message, "Astro-Seek didn't print a Universal Time. Enter the UTC offset at the birth place, as ±HH:MM.");
-  assert.deepEqual(view.notes, [CLOCK_NOTE]);
+  assert.deepEqual(view.notes, NOTES);
   assert.deepEqual(offsetPreview(view, " -04:00 "), {
     utcText: "2024-04-17 12:00",
     sky: { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 },
