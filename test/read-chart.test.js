@@ -1,0 +1,94 @@
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { readChart } from "../extension/core/astroseek.js";
+
+const fixture = (name) =>
+  JSON.parse(readFileSync(new URL(`../fixtures/astroseek/${name}.json`, import.meta.url), "utf8"));
+
+const refused = (reason) => ({ kind: "refused", reason });
+
+test("reads the four natal fixtures", () => {
+  const cases = {
+    "ny-2024-04-17": { local: "2024-04-17T08:00:00", zoneLabel: "EDT, DST", printedUt: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 },
+    "sydney-2024-01-15": { local: "2024-01-15T08:00:00", zoneLabel: "AEDT, DST", printedUt: "2024-01-14T21:00:00Z", lat: -33.866667, lng: 151.2 },
+    "ny-1944-01-10": { local: "1944-01-10T12:00:00", zoneLabel: "EWT, DST", printedUt: "1944-01-10T16:00:00Z", lat: 40.716667, lng: -74 },
+    "ny-2021-03-14-gap": { local: "2021-03-14T02:30:00", zoneLabel: "EST", printedUt: "2021-03-14T06:30:00Z", lat: 40.716667, lng: -74 },
+  };
+  for (const [name, expected] of Object.entries(cases)) {
+    const { url, input } = fixture(name);
+    assert.deepEqual(readChart({ url, text: input.text }), expected, name);
+  }
+});
+
+// Made-up variations on the New York header block, one change per test.
+const NY = fixture("ny-2024-04-17");
+const NY_RESULT = { local: "2024-04-17T08:00:00", zoneLabel: "EDT, DST", printedUt: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 };
+const LOCAL_LINE = "17 April 2024 - 08:00  (EDT, DST)";
+const UT_BLOCK = "Universal Time (UT/GMT):\n17 April 2024 - 12:00  \n";
+const TEXT = [
+  "Date of Birth (local time):",
+  LOCAL_LINE,
+  "Universal Time (UT/GMT):",
+  "17 April 2024 - 12:00  ",
+  "Local Sidereal Time (LST):",
+  "20:48:26",
+  "Latitude, Longitude:",
+  "40°43'N, 74°0'W",
+  "City:",
+  "New York",
+].join("\n");
+
+const withParams = (changes) => {
+  const url = new URL(NY.url);
+  for (const [key, value] of Object.entries(changes)) {
+    if (value === null) url.searchParams.delete(key);
+    else url.searchParams.set(key, value);
+  }
+  return url.href;
+};
+
+test("the made-up header reads like the real page", () => {
+  assert.deepEqual(readChart({ url: NY.url, text: TEXT }), NY_RESULT);
+});
+
+test("a URL missing a birth field is incomplete", () => {
+  assert.deepEqual(readChart({ url: withParams({ narozeni_hodina: null }), text: TEXT }), refused("incomplete-url"));
+});
+
+test("an unknown direction code is incomplete", () => {
+  assert.deepEqual(readChart({ url: withParams({ narozeni_sirka_smer: "2" }), text: TEXT }), refused("incomplete-url"));
+});
+
+test("a missing seconds field counts as zero", () => {
+  assert.deepEqual(readChart({ url: withParams({ narozeni_sekunda: null }), text: TEXT }), NY_RESULT);
+});
+
+test("a page local time that disagrees with the URL is a mismatch", () => {
+  assert.deepEqual(readChart({ url: NY.url, text: TEXT.replace("08:00", "09:00") }), refused("page-url-mismatch"));
+});
+
+test("page coordinates that disagree with the URL are a mismatch", () => {
+  assert.deepEqual(readChart({ url: NY.url, text: TEXT.replace("40°43'N", "40°43'S") }), refused("page-url-mismatch"));
+});
+
+test("a second Universal Time line makes the page ambiguous", () => {
+  assert.deepEqual(readChart({ url: NY.url, text: `${TEXT}\n${UT_BLOCK}` }), refused("ambiguous-page"));
+});
+
+test("a page without the Date of Birth line is unreadable", () => {
+  const text = TEXT.replace(`Date of Birth (local time):\n${LOCAL_LINE}\n`, "");
+  assert.deepEqual(readChart({ url: NY.url, text }), refused("unreadable-page"));
+});
+
+test("a page without a Universal Time line has no printed UT", () => {
+  assert.deepEqual(readChart({ url: NY.url, text: TEXT.replace(UT_BLOCK, "") }), { ...NY_RESULT, printedUt: null });
+});
+
+test("short month names read like full ones", () => {
+  assert.deepEqual(readChart({ url: NY.url, text: TEXT.replaceAll("April", "Apr") }), NY_RESULT);
+});
+
+test("a local line without a zone label has no zoneLabel", () => {
+  assert.deepEqual(readChart({ url: NY.url, text: TEXT.replace("  (EDT, DST)", "") }), { ...NY_RESULT, zoneLabel: null });
+});
