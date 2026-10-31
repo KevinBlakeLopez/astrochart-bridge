@@ -14,12 +14,15 @@ const analyze = (name) => {
 const CLOCK_NOTE = "Stellarium Web's clock shows your computer's time zone and keeps running.";
 const PRIVACY_NOTE =
   "Opening the sky sends this date, time and place to stellarium-web.org, and its page passes the link on to Google's advertising tags.";
-// Every screen that can open the sky shows both, the privacy note last, just above Open sky.
+// The choose and enter-offset screens show both, the privacy note last, just above Open sky.
+// The ready screen replaces the general clock note with the exact time Stellarium will show.
 const NOTES = [CLOCK_NOTE, PRIVACY_NOTE];
+const RUNNING = "The clock starts running at once; its pause button stops it.";
+const LOS_ANGELES = { timeZone: "America/Los_Angeles" };
 const NY_PLACE = ["Place", "40°43'N, 74°0'W"];
 
-test("ready: New York", () => {
-  assert.deepEqual(viewFor(analyze("ny-2024-04-17")), {
+test("ready: New York, seen from Los Angeles", () => {
+  assert.deepEqual(viewFor(analyze("ny-2024-04-17"), LOS_ANGELES), {
     state: "ready",
     rows: [
       ["Local time", "17 Apr 2024, 08:00 (EDT, DST)"],
@@ -28,9 +31,26 @@ test("ready: New York", () => {
       NY_PLACE,
     ],
     warnings: [],
-    notes: NOTES,
+    notes: [
+      `Stellarium Web's clock will show 05:00 on 17 Apr, your computer's time. That's 08:00 on 17 Apr at the birthplace. ${RUNNING}`,
+      PRIVACY_NOTE,
+    ],
     sky: { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 },
   });
+});
+
+test("ready: the clock note gives both dates when they differ", () => {
+  assert.equal(
+    viewFor(analyze("sydney-2024-01-15"), LOS_ANGELES).notes[0],
+    `Stellarium Web's clock will show 13:00 on 14 Jan, your computer's time. That's 08:00 on 15 Jan at the birthplace. ${RUNNING}`,
+  );
+});
+
+test("ready: seen from the birthplace's own time zone, the clock matches", () => {
+  assert.equal(
+    viewFor(analyze("ny-2024-04-17"), { timeZone: "America/New_York" }).notes[0],
+    `Stellarium Web's clock will show 08:00 on 17 Apr, the same as the birthplace. ${RUNNING}`,
+  );
 });
 
 test("ready: Sydney, with a positive offset and UTC on the previous day", () => {

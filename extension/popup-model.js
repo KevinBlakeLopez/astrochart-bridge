@@ -7,8 +7,11 @@ const CLOCK_NOTE = "Stellarium Web's clock shows your computer's time zone and k
 const PRIVACY_NOTE =
   "Opening the sky sends this date, time and place to stellarium-web.org, and its page passes the link on to Google's advertising tags.";
 
-// Shown on every screen that can open the sky, the privacy note last, just above Open sky.
+// Shown on the choose and enter-offset screens, the privacy note last, just above
+// Open sky. The ready screen knows its UTC, so it names the exact clock time instead.
 const NOTES = [CLOCK_NOTE, PRIVACY_NOTE];
+
+const RUNNING = "The clock starts running at once; its pause button stops it.";
 
 const REFUSALS = {
   transit: "This is a transit chart. Chart Bridge opens natal charts only.",
@@ -35,8 +38,11 @@ const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "
  * screen is made here, so popup.js only renders it.
  *
  * @param {ReturnType<typeof import("./core/index.js").analyzePage>} result
+ * @param {{ timeZone?: string }} [options]  the computer's time zone; when left
+ *   out, Intl uses the one this code runs in, which the popup shares with the
+ *   Stellarium tab. Tests pass it so they give the same result anywhere.
  */
-export function viewFor(result) {
+export function viewFor(result, { timeZone } = {}) {
   if (result.kind === "refused") {
     return Object.hasOwn(REFUSALS, result.reason)
       ? { state: "refused", message: REFUSALS[result.reason] }
@@ -82,7 +88,7 @@ export function viewFor(result) {
     state: "ready",
     rows: [localRow, ["Offset", offsetText(result.offsetMinutes)], ["UTC", utcText(result.utc)], placeRow],
     warnings: (result.warnings ?? []).map((code) => WARNINGS[code]?.(result) ?? code),
-    notes: [...NOTES],
+    notes: [clockNote(result.utc, local, timeZone), PRIVACY_NOTE],
     sky: sky(result.utc),
   };
 }
@@ -114,6 +120,32 @@ function localText(local, zoneLabel) {
 
 // "2024-04-17T12:00:00Z" → "2024-04-17 12:00"
 const utcText = (utc) => `${utc.slice(0, 10)} ${utc.slice(11, 16)}`;
+
+// What Stellarium Web's clock will show (the UTC instant in the computer's time
+// zone) next to the birth time. Both carry their date, since they can differ.
+function clockNote(utc, local, timeZone) {
+  const parts = Object.fromEntries(
+    new Intl.DateTimeFormat("en-US", {
+      timeZone,
+      month: "numeric",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hourCycle: "h23",
+    })
+      .formatToParts(new Date(utc))
+      .map(({ type, value }) => [type, value]),
+  );
+  const clock = timeOnDay(`${parts.hour}:${parts.minute}`, parts.month, parts.day);
+  const birth = timeOnDay(local.slice(11, 16), local.slice(5, 7), local.slice(8, 10));
+  return clock === birth
+    ? `Stellarium Web's clock will show ${clock}, the same as the birthplace. ${RUNNING}`
+    : `Stellarium Web's clock will show ${clock}, your computer's time. That's ${birth} at the birthplace. ${RUNNING}`;
+}
+
+// "05:00", "4", "17" → "05:00 on 17 Apr". The month name comes from MONTHS, not
+// the locale, so it always matches the Local time row.
+const timeOnDay = (time, month, day) => `${time} on ${Number(day)} ${MONTHS[Number(month) - 1]}`;
 
 // -240 → "UTC-04:00"
 function offsetText(minutes) {
