@@ -1,0 +1,113 @@
+:root {
+  color-scheme: light dark;
+  --text: #1d1d1f;
+  --muted: #6e6e73;
+  --warning: #9a5b00;
+  --line: #d2d2d7;
+  --accent: #0b57d0;
+  --on-accent: #ffffff;
+  --background: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text: #f5f5f7;
+    --muted: #a1a1a6;
+    --warning: #ffb340;
+    --line: #48484a;
+    --accent: #8ab4f8;
+    --on-accent: #0b1d3a;
+    --background: #1c1c1e;
+  }
+}
+
+body {
+  margin: 0;
+  width: 360px;
+  font: 13px/1.4 system-ui, sans-serif;
+  color: var(--text);
+  background: var(--background);
+}
+
+main {
+  padding: 12px 14px;
+}
+
+p {
+  margin: 0 0 8px;
+}
+
+dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 4px 10px;
+  margin: 0 0 10px;
+}
+
+dt {
+  color: var(--muted);
+}
+
+dd {
+  margin: 0;
+}
+
+.warning {
+  color: var(--warning);
+}
+
+.note {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.code {
+  color: var(--muted);
+  font: 11px ui-monospace, monospace;
+}
+
+fieldset {
+  display: grid;
+  gap: 6px;
+  margin: 0 0 10px;
+  padding: 0;
+  border: 0;
+}
+
+label {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+input[type="text"] {
+  width: 8em;
+  padding: 4px 6px;
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
+
+.preview {
+  min-height: 1.4em;
+  margin-top: 6px;
+}
+
+button {
+  width: 100%;
+  padding: 8px;
+  font: inherit;
+  font-weight: 600;
+  color: var(--on-accent);
+  background: var(--accent);
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
