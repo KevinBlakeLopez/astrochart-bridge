@@ -1,7 +1,8 @@
 // The screenshot page. Reads a pasted, dropped or chosen screenshot of an
-// Astro-Seek chart page, an astro.com chart image or a Solar Fire wheel with Tesseract.js, on this
-// computer, and shows the popup's screens for it. Every decision about the chart is made in core/ and
-// screenshot-model.js; this file handles the image and the page.
+// Astro-Seek chart page, an astro.com chart image, a Solar Fire wheel or
+// Astro Gold's chart details with Tesseract.js, on this computer, and shows
+// the popup's screens for it. Every decision about the chart is made in core/
+// and screenshot-model.js; this file handles the image and the page.
 import Tesseract from "./vendor/tesseract/tesseract.esm.min.js";
 import { analyzeScreenshot } from "./core/index.js";
 import { holdForTab } from "./pending.js";

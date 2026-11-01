@@ -4,7 +4,9 @@ import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, viewFor } from "./popup-model.js"
 // like the popup's unreadable pages, so a bug report says which check failed.
 const REFUSALS = {
   "unreadable-screenshot":
-    "Chart Bridge couldn't find the birth data in this screenshot. From Astro-Seek, include everything from Date of Birth to Latitude, Longitude; from astro.com, the chart's header from the date to Sid. Time; from Solar Fire, the chart details from the date to the coordinates. Take it at full size.",
+    "Chart Bridge couldn't find the birth data in this screenshot. From Astro-Seek, include everything from Date of Birth to Latitude, Longitude; from astro.com, the chart's header from the date to Sid. Time; from Solar Fire or Astro Gold, the chart details from the date to the coordinates. Take it at full size.",
+  "no-coordinates":
+    "This screenshot has no coordinates. Astro Gold's chart wheel doesn't print them: take its Chart Details panel or Edit Chart screen instead. From Solar Fire, include the chart details down to the coordinates.",
   "ambiguous-screenshot": "This screenshot shows more than one chart. Chart Bridge opens natal charts only.",
   "sidereal-mismatch":
     "The sidereal time in this screenshot doesn't match its Universal Time and longitude, so one of them was probably misread. Try a larger screenshot.",
@@ -19,7 +21,13 @@ const REFUSALS = {
 };
 
 // The name each desktop program's reader gives as its site.
-const PROGRAMS = { "solar-fire": "Solar Fire" };
+// Solar Fire and Astro Gold print the same block, so a screenshot without its
+// type line could be either.
+const PROGRAMS = {
+  "solar-fire": "Solar Fire",
+  "astro-gold": "Astro Gold",
+  "solar-fire-or-astro-gold": "Solar Fire or Astro Gold",
+};
 
 // Warnings only a screenshot's chart can have, shown in place of their codes.
 const WARNINGS = {

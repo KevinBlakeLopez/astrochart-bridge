@@ -98,6 +98,8 @@ test("a Solar Fire chart with nothing to check its offset says so, after the pop
   ]);
   assert.deepEqual(view.buttons, ASTRO_SEEK_BUTTONS);
   assert.deepEqual(view.notes.slice(-ASTRO_SEEK_NOTES.length), ASTRO_SEEK_NOTES);
+  const either = viewForScreenshot({ ...streisand, site: "solar-fire-or-astro-gold" }, LA);
+  assert.match(either.warnings[0], /^Solar Fire or Astro Gold prints no Universal Time/);
 });
 
 const REASONS = [
@@ -107,6 +109,7 @@ const REASONS = [
   "offset-out-of-range",
   "weekday-mismatch",
   "zone-offset-mismatch",
+  "no-coordinates",
 ];
 for (const reason of REASONS) {
   test(`${reason} has its own message and keeps its code`, () => {

@@ -1,7 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { analyzeScreenshot } from "../extension/core/index.js";
-import { detect, read } from "../extension/core/solarfire.js";
+import { read as readEditChart } from "../extension/core/astrogold.js";
+import { detect, read } from "../extension/core/esotech.js";
 
 // Solar Fire's chart details blocks as its Solar Fire 9 User Guide (2014) and
 // a chart exported from Solar Fire v9.0.19 print them. Solar Fire's own text,
@@ -161,7 +162,92 @@ test("values that don't fit are refused, not guessed", () => {
   assert.deepEqual(read(ocr(STREISAND.filter((line) => line !== "24 Apr 1942"))), unreadable);
 });
 
-test("a block is recognised by its time with an offset and its coordinates", () => {
+test("a block is recognised by its time with an offset", () => {
   assert.equal(detect(ocr(STREISAND)), true);
-  assert.equal(detect(ocr(STREISAND.filter((line) => !line.startsWith("40°N")))), false);
+  assert.equal(detect(ocr(STREISAND.filter((line) => !line.startsWith("5:04")))), false);
+});
+
+test("Solar Fire's type line names Solar Fire", () => {
+  assert.equal(read(ocr(STREISAND)).site, "solar-fire");
+  assert.equal(read(ocr(DENVER)).site, "solar-fire");
+});
+
+test("a block cut off above the date could be either program", () => {
+  assert.equal(read(ocr(NEW_YORK)).site, "solar-fire-or-astro-gold");
+});
+
+// Astro Gold's blocks as its macOS, Windows and iOS user guides show them.
+// The Chart Details panel, which joins the type and the house system:
+const JOLIE = ["1 - Chart", "Angelina Jolie", "Female - Equal", "4 Jun 1975, Wed", "9:09 AM PDT +7:00", "Los Angeles, California", "34°N03'08\" 118°W14'34\""];
+// The wheel, which prints no coordinates; the coordinates are the panel's for Melbourne.
+const SAMPLE_WHEEL = ["Sample", "Natal", "16 Aug 1984, Thu", "3:00:36 PM AEST -10:00", "Melbourne, Australia", "Geocentric", "Tropical", "Placidus"];
+
+test("Astro Gold's Chart Details panel reads as Astro Gold", () => {
+  assert.deepEqual(analyzeScreenshot(ocr(JOLIE)), {
+    kind: "natal",
+    site: "astro-gold",
+    local: "1975-06-04T09:09:00",
+    zoneLabel: "PDT",
+    lat: 34.052222,
+    lng: -118.242778,
+    utc: "1975-06-04T16:09:00Z",
+    utcSource: "declared",
+    offsetMinutes: -420,
+    warnings: ["offset-unchecked"],
+  });
+});
+
+test("Astro Gold's wheel is refused for the coordinates it doesn't print", () => {
+  assert.deepEqual(analyzeScreenshot(ocr(SAMPLE_WHEEL)), { kind: "refused", reason: "no-coordinates" });
+  // The iOS wheel, with a local-mean-time offset and no zone label.
+  const einstein = ["Albert Einstein", "Male", "14 Mar 1879, Fri", "11:30 AM -0:40", "Ulm, Germany", "Tropical", "Porphyry"];
+  assert.deepEqual(analyzeScreenshot(ocr(einstein)), { kind: "refused", reason: "no-coordinates" });
+});
+
+test("Astro Gold's wheel with the panel's coordinates checks AEST and keeps the seconds", () => {
+  const chart = analyzeScreenshot(ocr([...SAMPLE_WHEEL, "37°S49' 144°E58'"]));
+  assert.equal(chart.site, "astro-gold");
+  assert.equal(chart.utc, "1984-08-16T05:00:36Z");
+  assert.equal(chart.offsetMinutes, 600);
+  assert.equal(chart.warnings, undefined);
+});
+
+// The iOS Edit Chart screen, one labelled field a row.
+const EDIT_CHART = [
+  "Name Sample",
+  "Date 23 Nov 1963",
+  "Time 7:12 AM",
+  "Place Melbourne",
+  "Country or US State Australia",
+  "Latitude 37°S49'",
+  "Longitude 144°E58'",
+  "Timezone AEST -10:00",
+];
+
+test("Astro Gold's Edit Chart screen reads its labelled fields", () => {
+  assert.deepEqual(analyzeScreenshot(ocr(EDIT_CHART)), {
+    kind: "natal",
+    site: "astro-gold",
+    local: "1963-11-23T07:12:00",
+    zoneLabel: "AEST",
+    lat: -37.816667,
+    lng: 144.966667,
+    utc: "1963-11-22T21:12:00Z",
+    utcSource: "declared",
+    offsetMinutes: 600,
+  });
+});
+
+test("an Edit Chart offset alone, as in the macOS dialog, is unchecked", () => {
+  const chart = analyzeScreenshot(swap(EDIT_CHART, "Timezone", "Timezone: -10:00"));
+  assert.equal(chart.utc, "1963-11-22T21:12:00Z");
+  assert.deepEqual(chart.warnings, ["offset-unchecked"]);
+});
+
+test("an Edit Chart screen missing a field, or with one twice, is refused", () => {
+  assert.deepEqual(readEditChart(ocr(EDIT_CHART.filter((line) => !line.startsWith("Longitude")))), {
+    kind: "refused",
+    reason: "unreadable-screenshot",
+  });
+  assert.deepEqual(readEditChart(ocr([...EDIT_CHART, "Date 24 Nov 1963"])), { kind: "refused", reason: "ambiguous-screenshot" });
 });

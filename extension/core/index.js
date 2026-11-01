@@ -2,8 +2,9 @@ import * as astroseek from "./astroseek.js";
 import * as astrocom from "./astrocom.js";
 import { readHeader, resolveHeaderUtc } from "./chart-image.js";
 import { resolveUtc, utcFromOffset } from "./civiltime.js";
+import * as astrogold from "./astrogold.js";
+import * as esotech from "./esotech.js";
 import { resolvePrinted } from "./printed-chart.js";
-import * as solarfire from "./solarfire.js";
 import { SIDEREAL_TOLERANCE_SECONDS, siderealGap } from "./sidereal.js";
 
 const refused = (reason) => ({ kind: "refused", reason });
@@ -122,16 +123,18 @@ const printedBy = (reader) => (text) => {
 const SCREENSHOT_READERS = [
   { shows: (text) => ASTRO_SEEK_LABELS.test(text), analyze: analyzeAstroSeekScreenshot },
   { shows: (text) => ASTRO_COM_LABELS.test(text), analyze: analyzeChartImage },
-  { shows: solarfire.detect, analyze: printedBy(solarfire) },
+  { shows: esotech.detect, analyze: printedBy(esotech) },
+  { shows: astrogold.detect, analyze: printedBy(astrogold) },
 ];
 
 /**
  * The same as analyzePage, for the OCR text of a screenshot of an Astro-Seek
- * chart page, an astro.com chart image or a Solar Fire wheel. With no URL to
- * check the text against, the checks are whatever the screenshot prints: a
- * sidereal time that must fit the UT and longitude, a weekday that must fall on
- * the date, a zone label that must give the offset, and a local time a real
- * UTC offset away from the UT. Nothing checks the latitude.
+ * chart page, an astro.com chart image, a Solar Fire wheel, or Astro Gold's
+ * chart details or Edit Chart screen. With no URL to check the text against,
+ * the checks are whatever the screenshot prints: a sidereal time that must fit
+ * the UT and longitude, a weekday that must fall on the date, a zone label that
+ * must give the offset, and a local time a real UTC offset away from the UT.
+ * Nothing checks the latitude.
  *
  * @param {string} text  OCR output
  * @returns {ReturnType<typeof analyzePage> | ReturnType<typeof resolvePrinted>}
