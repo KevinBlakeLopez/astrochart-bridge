@@ -19,20 +19,26 @@ const LMT_TOLERANCE_MINUTES = 1;
  * The checks are only what the record allows: a weekday must fall on the
  * date, a zone label Chart Bridge knows must give the printed offset, and
  * "LMT" must fit the longitude. A record with none of them comes back with
- * the offset-unchecked warning.
+ * the offset-unchecked warning. A record without an offset, from a program
+ * that prints none, comes back for the user to enter one, as an Astro-Seek
+ * page without a Universal Time does.
  *
  * @param {{ site: string, local: string, lat: number, lng: number, zoneLabel: string | null,
- *   offsetMinutes: number, weekday?: number }} chart
+ *   offsetMinutes?: number, weekday?: number }} chart
  *   local is the wall-clock time, e.g. "2024-04-17T08:00:00"; offsetMinutes is
  *   minutes east of UTC and runs to the second, as a fraction, when the program
  *   printed seconds; weekday is 0 for Sunday, as Date#getUTCDay counts
- * @returns {{ kind: "natal", site: string, local: string, zoneLabel: string | null, lat: number, lng: number,
- *     utc: string, utcSource: "declared", offsetMinutes: number, warnings?: ["offset-unchecked"] }
+ * @returns {{ kind: "natal", site: string, local: string, zoneLabel: string | null, lat: number, lng: number }
+ *     & ({ utc: string, utcSource: "declared", offsetMinutes: number, warnings?: ["offset-unchecked"] }
+ *       | { utc: null, utcSource: "needs-offset", reason: "no-printed-offset" })
  *   | { kind: "refused", reason: "weekday-mismatch" | "zone-offset-mismatch" | "offset-out-of-range" }}
  */
 export function resolvePrinted({ site, local, lat, lng, zoneLabel, offsetMinutes, weekday }) {
   if (weekday !== undefined && new Date(`${local.slice(0, 10)}T00:00:00Z`).getUTCDay() !== weekday) {
     return refused("weekday-mismatch");
+  }
+  if (offsetMinutes === undefined) {
+    return { kind: "natal", site, local, zoneLabel, lat, lng, utc: null, utcSource: "needs-offset", reason: "no-printed-offset" };
   }
   // -12:00 to +14:00 is the range parseOffset accepts. A local-mean-time
   // offset falls inside it too: 180° is 12 hours.
@@ -86,7 +92,9 @@ export function weekdayNumber(name) {
  * @param {{ year: number, month: number, day: number, hour: number, minute: number, second?: number }} time
  */
 export function localIso({ year, month, day, hour, minute, second = 0 }) {
-  const date = new Date(Date.UTC(year, month - 1, day));
+  // Date.UTC takes years 0 to 99 for 1900 to 1999, so the year is set apart.
+  const date = new Date(0);
+  date.setUTCFullYear(year, month - 1, day);
   const onCalendar = date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
   if (!onCalendar || hour > 23 || minute > 59 || second > 59) return null;
   return `${pad(year, 4)}-${pad(month)}-${pad(day)}T${pad(hour)}:${pad(minute)}:${pad(second)}`;
@@ -103,5 +111,12 @@ export function angle({ deg, min, sec = 0, negative, limit }) {
   if (value > limit) return null;
   return negative ? 0 - value : value;
 }
+
+/** The text's lines with their spaces closed up, and no empty ones. */
+export const linesOf = (text) =>
+  text
+    .split("\n")
+    .map((line) => line.replace(/\s+/g, " ").trim())
+    .filter(Boolean);
 
 const pad = (n, width = 2) => String(n).padStart(width, "0");

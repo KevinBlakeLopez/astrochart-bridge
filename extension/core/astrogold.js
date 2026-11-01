@@ -1,4 +1,5 @@
-import { chartRecord, linesOf, readClock, readDate, readLatitude, readLongitude, readZone } from "./esotech.js";
+import { chartRecord, readClock, readDate, readLatitude, readLongitude, readZone } from "./esotech.js";
+import { linesOf } from "./printed-chart.js";
 
 const refused = (reason) => ({ kind: "refused", reason });
 

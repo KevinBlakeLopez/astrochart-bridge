@@ -1,4 +1,4 @@
-import { angle, localIso, monthNumber, weekdayNumber } from "./printed-chart.js";
+import { angle, linesOf, localIso, monthNumber, weekdayNumber } from "./printed-chart.js";
 
 const refused = (reason) => ({ kind: "refused", reason });
 
@@ -54,13 +54,6 @@ const COORDS_LINE = new RegExp(`^(?<lat>${LATITUDE}) (?<lng>${LONGITUDE})$`);
 // The line above the date says the chart's kind, in each program's words.
 const SOLAR_FIRE_TYPE = /^(?:Natal|Event|Horary) Chart(?: \(\d+\))?$/;
 const ASTRO_GOLD_TYPE = /^(?:Natal|Female|Male|Event|Horary)(?: - .+)?$/;
-
-/** The text's lines with their spaces closed up, and no empty ones. */
-export const linesOf = (text) =>
-  text
-    .split("\n")
-    .map((line) => line.replace(/\s+/g, " ").trim())
-    .filter(Boolean);
 
 /**
  * Whether a screenshot's text has a Solar Fire or Astro Gold chart details
