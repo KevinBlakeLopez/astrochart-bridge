@@ -8,7 +8,7 @@ import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, SHARE_BUTTON, viewFor } from "./p
 const REFUSALS = {
   "too-long": `This text is too long. Paste only the part with the birth data, up to ${MAX_TEXT_LENGTH.toLocaleString("en-US")} characters.`,
   "no-birth-data":
-    'Chart Bridge found no birth data in this text. It reads labelled lines such as "Date of Birth: 15 June 1985" or "latitude=47.6062".',
+    'AstroChart Bridge found no birth data in this text. It reads labelled lines such as "Date of Birth: 15 June 1985" or "latitude=47.6062".',
   "several-records":
     "This text has more than one birth date or name, so it may hold more than one chart. Paste one chart at a time.",
 };
@@ -34,7 +34,7 @@ const INFO_FIELDS = [
 ];
 
 const FORM_NOTE = "Check each value against the text. Nothing is sent until you open the sky or the chart.";
-const PLACE_NOTE = "Chart Bridge doesn't look places up: it uses the latitude and longitude, not the place name.";
+const PLACE_NOTE = "AstroChart Bridge doesn't look places up: it uses the latitude and longitude, not the place name.";
 
 // First on the screen that opens the sky. The offset is the one value the form
 // can't check: that needs the zone's history at the birthplace.
@@ -132,7 +132,7 @@ export function checkField(name, text) {
   }
   if (read.value === null) {
     const { example } = ENTRY_FIELDS.find((field) => field.name === name);
-    return { value: null, message: `Chart Bridge can't read this. Try ${example}.` };
+    return { value: null, message: `AstroChart Bridge can't read this. Try ${example}.` };
   }
   return { value: read.value, message: meaning(name, read.value) };
 }
@@ -190,7 +190,7 @@ function settingWarnings({ houses, zodiac }) {
     warnings.push(`The text uses ${houses.text} houses, but Astro-Seek's chart will open with Placidus houses.`);
   }
   if (zodiac?.value === "sidereal") {
-    warnings.push("The text uses the sidereal zodiac. Chart Bridge doesn't pass it on, so set it in Astro-Seek's chart.");
+    warnings.push("The text uses the sidereal zodiac. AstroChart Bridge doesn't pass it on, so set it in Astro-Seek's chart.");
   }
   return warnings;
 }

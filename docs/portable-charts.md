@@ -1,6 +1,6 @@
 # Portable charts
 
-Chart Bridge can pass a chart to another device that doesn't have the extension: as a link, a QR code of that link, a `.astrochart.json` file, or through the system's share sheet. The other device opens the link or file on the receiving page, `chart.html`, which shows the chart and opens it in Stellarium Web or Astro-Seek. There is no server, account, database or tracking: the chart travels inside the link or file, and every page that reads it runs on the device.
+AstroChart Bridge can pass a chart to another device that doesn't have the extension: as a link, a QR code of that link, a `.astrochart.json` file, or through the system's share sheet. The other device opens the link or file on the receiving page, `chart.html`, which shows the chart and opens it in Stellarium Web or Astro-Seek. There is no server, account, database or tracking: the chart travels inside the link or file, and every page that reads it runs on the device.
 
 ## How it fits together
 

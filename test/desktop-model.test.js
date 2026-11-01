@@ -156,15 +156,15 @@ test("unreachable: a note that the server is open to the network while it's on",
   assert.ok(notes.some((note) => note.includes("other devices on your network")));
 });
 
-test("no permission: says what Chart Bridge asks for and where it connects", () => {
+test("no permission: says what AstroChart Bridge asks for and where it connects", () => {
   const view = viewForDesktopSend({ state: "no-permission" }, NY);
-  assert.equal(view.heading, "Chart Bridge needs your permission");
+  assert.equal(view.heading, "AstroChart Bridge needs your permission");
   assert.match(view.message, /127\.0\.0\.1/);
   assert.deepEqual(view.buttons, [{ label: "Try again", does: "send-to-desktop" }]);
   assert.equal(view.steps, undefined);
 });
 
-test("auth-required: how to turn the password off, since Chart Bridge doesn't use one", () => {
+test("auth-required: how to turn the password off, since AstroChart Bridge doesn't use one", () => {
   const view = viewForDesktopSend({ state: "auth-required" }, NY);
   assert.equal(view.heading, "Stellarium asks for a password");
   for (const label of ["Access requires authentication", "Save settings", "Server enabled"]) assert.ok(view.message.includes(label), label);
@@ -189,14 +189,14 @@ test("a mismatch names what Stellarium shows differently, and keeps the codes", 
   assert.equal(view.code, "time,clock-running,latitude");
 });
 
-test("refusals: another planet, and dates Chart Bridge doesn't send", () => {
+test("refusals: another planet, and dates AstroChart Bridge doesn't send", () => {
   assert.equal(
     viewForDesktopSend({ state: "refused", reason: "stellarium-not-earth" }, NY).message,
     "Stellarium's observer is on another planet. Choose a place on Earth in its Location window (F6), then try again.",
   );
   assert.equal(
     viewForDesktopSend({ state: "refused", reason: "stellarium-date-out-of-range" }, NY).message,
-    "Chart Bridge sends Stellarium dates from 15 October 1582 to the year 9999.",
+    "AstroChart Bridge sends Stellarium dates from 15 October 1582 to the year 9999.",
   );
 });
 
@@ -226,7 +226,7 @@ test("import: the sky Stellarium shows, opening in Astro-Seek or Stellarium Web,
 test("desktopHint: one line under the button for each probe result", () => {
   assert.equal(desktopHint({ state: "connected" }), "Stellarium Desktop is open and ready.");
   assert.equal(desktopHint({ state: "unavailable" }), "Stellarium Desktop isn't reachable right now. The button shows how to set it up.");
-  assert.equal(desktopHint({ state: "auth-required" }), "Stellarium asks for a password, which Chart Bridge doesn't use. The button shows how to turn it off.");
+  assert.equal(desktopHint({ state: "auth-required" }), "Stellarium asks for a password, which AstroChart Bridge doesn't use. The button shows how to turn it off.");
   assert.equal(desktopHint({ state: "invalid-response" }), "Something other than Stellarium is answering on port 8090.");
   assert.equal(desktopHint({ state: "refused", reason: "stellarium-not-earth" }), "Stellarium's observer is on another planet.");
   assert.equal(desktopHint({ state: "request-failed", code: "timeout" }), "Stellarium Desktop didn't answer.");
@@ -248,6 +248,6 @@ test("import problems retry the import, and an out-of-range date reads as Stella
   assert.equal(view.sky, null);
   assert.equal(
     viewForDesktopImport({ state: "refused", reason: "stellarium-date-out-of-range" }).message,
-    "Stellarium is showing a date before 15 October 1582 or after the year 9999, which Chart Bridge can't read.",
+    "Stellarium is showing a date before 15 October 1582 or after the year 9999, which AstroChart Bridge can't read.",
   );
 });

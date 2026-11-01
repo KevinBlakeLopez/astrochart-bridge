@@ -1,4 +1,4 @@
-// The receiving page for a Chart Bridge link or chart file. It works without
+// The receiving page for an AstroChart Bridge link or chart file. It works without
 // the extension: the chart is read from the link's fragment, which the browser
 // never sends to the server, or from a file chosen or dropped here, and
 // nothing is stored or sent until a button is clicked. Every decision is made
@@ -128,7 +128,7 @@ async function onButton({ url, does }) {
     return;
   }
   if (does === "share-file") {
-    share({ title: "Chart Bridge chart", files: [shareableFile] });
+    share({ title: "AstroChart Bridge chart", files: [shareableFile] });
     return;
   }
   if (url) window.open(url, "_blank", "noopener,noreferrer");
@@ -143,7 +143,7 @@ async function copyLink() {
     await navigator.clipboard.writeText(link);
     status.textContent = "Link copied.";
   } catch {
-    status.textContent = "This browser didn't let Chart Bridge copy the link. Copy it from here instead:";
+    status.textContent = "This browser didn't let AstroChart Bridge copy the link. Copy it from here instead:";
     linkField.value = link;
     linkField.hidden = false;
     linkField.select();
@@ -210,6 +210,6 @@ function hideQr() {
 function share(data) {
   navigator.share(data).catch((error) => {
     if (error?.name === "AbortError") return;
-    status.textContent = "Chart Bridge couldn't open the share sheet. Use Copy link or Download file instead.";
+    status.textContent = "AstroChart Bridge couldn't open the share sheet. Use Copy link or Download file instead.";
   });
 }

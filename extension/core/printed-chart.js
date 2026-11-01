@@ -18,7 +18,7 @@ const LMT_TOLERANCE_MINUTES = 1;
  * nothing here knows which way round the program printed it.
  *
  * The checks are only what the record allows: a weekday must fall on the
- * date, a zone label Chart Bridge knows must give the printed offset, "LMT"
+ * date, a zone label AstroChart Bridge knows must give the printed offset, "LMT"
  * must fit the longitude, and a sidereal time must fit the UTC and longitude.
  * A record with none of them comes back with the offset-unchecked warning. A
  * record with a Universal Time takes its offset from it, and one that also

@@ -37,7 +37,7 @@ export function classifyUrl(url) {
  * The town a chart's address names, for astro.com's birth town field, or null.
  * The page header doesn't print it, so it is taken from the address unchecked:
  * astro.com's own atlas lookup and the coordinates it shows are the check. A
- * chart placed by coordinates, such as one Chart Bridge opens, names no country
+ * chart placed by coordinates, such as one AstroChart Bridge opens, names no country
  * and puts "Manually place: °'N, °'E" where the city goes.
  *
  * @param {string} url

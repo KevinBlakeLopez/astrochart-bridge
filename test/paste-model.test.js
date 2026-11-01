@@ -98,7 +98,7 @@ test("house systems and zodiacs Astro-Seek won't get are warned about", () => {
   const form = formOf("Date of Birth: 15 June 1985\nHouses: Whole Sign\nZodiac: Sidereal (Lahiri)");
   assert.deepEqual(form.warnings, [
     "The text uses Whole Sign houses, but Astro-Seek's chart will open with Placidus houses.",
-    "The text uses the sidereal zodiac. Chart Bridge doesn't pass it on, so set it in Astro-Seek's chart.",
+    "The text uses the sidereal zodiac. AstroChart Bridge doesn't pass it on, so set it in Astro-Seek's chart.",
   ]);
 });
 

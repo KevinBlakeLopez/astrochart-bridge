@@ -20,7 +20,7 @@ for (const site of sites.sort()) {
   }
 }
 
-// Astro-Seek fixtures keep only the page's header block, the lines Chart Bridge
+// Astro-Seek fixtures keep only the page's header block, the lines AstroChart Bridge
 // reads; tools/trim-fixture.mjs trims a new capture and records what the whole
 // page showed in capture. On every natal page, each label readChart looks for
 // appeared exactly once.

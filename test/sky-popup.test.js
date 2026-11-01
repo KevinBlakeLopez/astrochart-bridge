@@ -44,6 +44,6 @@ test("a Stellarium sky becomes a screen that opens the Astro-Seek chart", () => 
 test("a Stellarium tab whose sky can't be read says so", () => {
   assert.deepEqual(viewFor({ kind: "refused", reason: "stellarium-unreadable" }), {
     state: "refused",
-    message: "Chart Bridge couldn't read the sky from this Stellarium Web tab.",
+    message: "AstroChart Bridge couldn't read the sky from this Stellarium Web tab.",
   });
 });

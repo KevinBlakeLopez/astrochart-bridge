@@ -1,8 +1,8 @@
 # AAF files
 
-Chart Bridge opens charts from AAF files and saves the charts it reads as AAF. AAF, the Astrologisches Austauschformat, is a plain-text format for birth data that several astrology programs read and write. Chart Bridge follows AAF'97, the last published version, plus the forms Astrolog 8.00 writes.
+AstroChart Bridge opens charts from AAF files and saves the charts it reads as AAF. AAF, the Astrologisches Austauschformat, is a plain-text format for birth data that several astrology programs read and write. AstroChart Bridge follows AAF'97, the last published version, plus the forms Astrolog 8.00 writes.
 
-AAF is not Solar Fire's `.SFcht` format and not Astro-Databank's XML. Chart Bridge reads neither.
+AAF is not Solar Fire's `.SFcht` format and not Astro-Databank's XML. AstroChart Bridge reads neither.
 
 The parser and writer are in `extension/core/aaf.js`; the screens are in `extension/aaf-model.js`.
 
@@ -27,7 +27,7 @@ It doesn't appear while you still have to choose between readings or type an off
 
 The file is named `chart-YYYY-MM-DD.aaf` after the date it gives. It is made in the browser, saved through the browser's own download, and holds one chart.
 
-## What Chart Bridge reads
+## What AstroChart Bridge reads
 
 A file is a stream of records. Each starts with a line `#A93:` and may go on with `#B93:`, `#ZNAM:` and other chunks.
 
@@ -62,13 +62,13 @@ AAF gives the local civil time in `#A93`, then in `#B93` the offset from Greenwi
 
 The UTC is the local time minus the offset and the daylight saving.
 
-AAF'97 says a Julian Day in `#B93`, when it isn't `*`, takes precedence over the date, time and time type. Chart Bridge doesn't pick one: when the Julian Day and the UTC worked out from the other fields differ by more than a minute, the chart is refused as `julian-day-mismatch`.
+AAF'97 says a Julian Day in `#B93`, when it isn't `*`, takes precedence over the date, time and time type. AstroChart Bridge doesn't pick one: when the Julian Day and the UTC worked out from the other fields differ by more than a minute, the chart is refused as `julian-day-mismatch`.
 
-`#ZNAM` is only a label. AAF'97 notes that no standard defines zone abbreviations, so Chart Bridge shows it and never uses it to decide the time.
+`#ZNAM` is only a label. AAF'97 notes that no standard defines zone abbreviations, so AstroChart Bridge shows it and never uses it to decide the time.
 
 ## Unknown and approximate birth times
 
-- **A time of `*`:** the chart is listed but refused as `no-birth-time`. Chart Bridge never fills in noon or any other time.
+- **A time of `*`:** the chart is listed but refused as `no-birth-time`. AstroChart Bridge never fills in noon or any other time.
 - **A time given only to the hour, such as `19h`:** opened at the hour, with a warning that the file gives the hour only.
 - **"Approximate" times:** AAF has no field for them. A rating or note in `#SRC` or `#COM` isn't read, so a chart is never marked as more or less certain than its fields say.
 
@@ -83,19 +83,19 @@ Each of these is refused with its own message and code, rather than guessed:
 | `no-offset` | The offset is `*`. Never treated as UTC. |
 | `unknown-daylight-saving` | The time type is `*`. |
 | `local-mean-time`, `meridian-time` | Time type `L` or `m`, as the astro.com reader refuses local mean time. |
-| `offset-seconds` | An offset such as `0he21:48`, which Chart Bridge can't send to Stellarium or Astro-Seek yet. |
+| `offset-seconds` | An offset such as `0he21:48`, which AstroChart Bridge can't send to Stellarium or Astro-Seek yet. |
 | `offset-out-of-range` | Offset and daylight saving together outside -12:00 to +14:00. |
 | `julian-calendar` | A Julian date, marked `j` or before 15 October 1582. |
 | `pre-gregorian-date` | A Gregorian date (marked `g`) before 15 October 1582. |
 | `julian-day-mismatch` | See [Time zones](#time-zones). |
 
-## What Chart Bridge writes
+## What AstroChart Bridge writes
 
 - **Chunks:** only `#A93` and `#B93`, in the AAF'97 forms (`40n43`, `74w00:15`, `5hw00`, `5he30`, `0h`).
 - **Julian Day:** written as `*`, as AAF'97 recommends.
 - **Unknown names and places:** written as `*`. Nothing is filled in.
 - **The time:**
-  - **Local time with the standard offset and a time type**, when the source states both: a chart opened from AAF, or an Astro-Seek chart whose zone label Chart Bridge checks against the printed UT (EST, EDT, EWT, AEST, AEDT).
+  - **Local time with the standard offset and a time type**, when the source states both: a chart opened from AAF, or an Astro-Seek chart whose zone label AstroChart Bridge checks against the printed UT (EST, EDT, EWT, AEST, AEDT).
   - **Universal Time** (`0h`, time type `0`) for every other chart, and the screen and a `#:` comment in the file say so. That covers an astro.com chart (astro.com states only the total offset, daylight saving included), a Stellarium Web tab (no birthplace time zone) and an Astro-Seek chart whose label isn't checked. The UTC is the same either way; only the local wall-clock time is lost.
 - **War time** is written as `1`. AAF'97 calls `w` and `1` the same, and Astrolog 8.00 reads `1` but not `w`. Time types `2` and `h` from an imported file are written as they are.
 - **A `#ZNAM` zone name** goes in a `#: Zone name:` comment, because Astrolog 8.00 refuses any file that contains `#ZNAM`. Other chunks of an imported file (`#SRC`, `#COM` and the rest) aren't written.
@@ -108,8 +108,8 @@ Each of these is refused with its own message and code, rather than guessed:
 
 **Astrolog 8.00**, built from its published source (`ast80src.zip`) on 2026-11-01 without X11:
 
-- **Reading Chart Bridge's files:** it loaded every file Chart Bridge saved from the Astro-Seek fixtures (New York 2024, Sydney 2024, New York 1944 war time), from an astro.com-style chart and a Stellarium sky in Universal Time, and from AAF charts with seconds, a half-hour offset, Unicode names and two records in one file. For each, the Julian Day it wrote back matched Chart Bridge's UTC to within 0.03 seconds. With two records it shows the last one, as its documentation says.
-- **Chart Bridge reading Astrolog's files:** Chart Bridge reads the files Astrolog writes, kept in `fixtures/aaf/`.
+- **Reading AstroChart Bridge's files:** it loaded every file AstroChart Bridge saved from the Astro-Seek fixtures (New York 2024, Sydney 2024, New York 1944 war time), from an astro.com-style chart and a Stellarium sky in Universal Time, and from AAF charts with seconds, a half-hour offset, Unicode names and two records in one file. For each, the Julian Day it wrote back matched AstroChart Bridge's UTC to within 0.03 seconds. With two records it shows the last one, as its documentation says.
+- **AstroChart Bridge reading Astrolog's files:** AstroChart Bridge reads the files Astrolog writes, kept in `fixtures/aaf/`.
 - **Astrolog's limits:**
   - It refuses a file with a `#ZNAM` line ("has a line that can't be parsed").
   - With time types `w`, `h`, `m` or `*` it computed a different instant: an April 2024 chart came back with a Julian Day in February 2023. It handled `0`, `1` and `2`.

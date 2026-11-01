@@ -10,7 +10,7 @@ const astroSeek = (name) => analyzePage(JSON.parse(readFileSync(new URL(`astrose
 const aaf = (name) => readFileSync(new URL(`aaf/${name}`, root), "utf8");
 const charts = (text) => parseAaf(text).map(chartFromRecord);
 
-const HEADER = "#: Chart Bridge";
+const HEADER = "#: AstroChart Bridge";
 const UT_NOTE =
   "#: Universal Time: the source doesn't say how its offset splits into standard time and daylight saving.";
 
@@ -68,7 +68,7 @@ test("each zone label's standard offset and daylight saving add up to its offset
 });
 
 // Astro-Seek's printed UT is used, with a warning, when its label isn't one
-// Chart Bridge can check; the split is unknown, so the file is in UT.
+// AstroChart Bridge can check; the split is unknown, so the file is in UT.
 test("an Astro-Seek chart whose zone label can't be checked is written in Universal Time", () => {
   const chart = astroSeek("manual-ut-2024-04-17-0000.json");
   assert.deepEqual(chart.warnings, ["zone-label-unknown"]);
@@ -134,7 +134,7 @@ test("writes offsets in the AAF'97 form", () => {
 });
 
 // AAF has no way to escape a comma or a line break in a field. Astrolog 8.00
-// writes a semicolon for a comma; Chart Bridge does the same.
+// writes a semicolon for a comma; AstroChart Bridge does the same.
 test("a comma or line break in a name or place can't be written, so it is replaced", () => {
   const [chart] = charts(NY_TEXT);
   const record = { ...exportRecord(chart), lastName: "Test, Jr.", place: "New\nYork" };

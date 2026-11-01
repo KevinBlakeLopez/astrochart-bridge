@@ -159,7 +159,7 @@ function field(name, value = "", options = null) {
   return element;
 }
 
-// The parts of ade.cgi's page that Chart Bridge reads, as seen signed out on
+// The parts of ade.cgi's page that AstroChart Bridge reads, as seen signed out on
 // 2026-11-01. Signed in, the same blank form has the same fields, a cid 25
 // characters long, and a greeting other than "Hello [not logged in]".
 const SIGNED_IN = { hello: ["Hello Test User"], cid: "x".repeat(25) };
@@ -191,7 +191,7 @@ test("astro.com's signed-out greeting is read as signed out", () => {
   assert.deepEqual(runInPage(readFormPage, formPage()), { auth: "signed-out", form: "blank" });
 });
 
-test("any other greeting, or none, is unknown: Chart Bridge never decides a browser is signed in", () => {
+test("any other greeting, or none, is unknown: AstroChart Bridge never decides a browser is signed in", () => {
   for (const hello of [["Hello Test User"], [], ["Hallo [nicht angemeldet]"]]) {
     assert.deepEqual(runInPage(readFormPage, formPage({ hello })), { auth: "unknown", form: "blank" }, String(hello));
   }
@@ -276,15 +276,15 @@ const CANCEL = { label: "Cancel", does: "release", secondary: true };
 const OPEN_FORM_HERE = { label: "Open astro.com's form", url: FORM_URL, here: true };
 
 test("a browser not seen signed out goes straight to filling in, with no sign-in prompt", () => {
-  // A signed-in browser and one whose state is unknown look the same to Chart Bridge.
+  // A signed-in browser and one whose state is unknown look the same to AstroChart Bridge.
   assert.deepEqual(viewForAstroComTab(NY_SKY, { kind: "form", auth: "unknown", form: "blank" }), {
     state: "astro-com-fill",
     rows: ROWS,
     warnings: [],
     message: "Fill in astro.com's form with these values?",
     notes: [
-      "Chart Bridge fills in the birthday, hour, minute and the 00:00 GMT / UT time zone. Choose the town nearest this place yourself, and check the coordinates astro.com shows.",
-      "Chart Bridge doesn't submit the form, and forgets these values once it has filled them in.",
+      "AstroChart Bridge fills in the birthday, hour, minute and the 00:00 GMT / UT time zone. Choose the town nearest this place yourself, and check the coordinates astro.com shows.",
+      "AstroChart Bridge doesn't submit the form, and forgets these values once it has filled them in.",
     ],
     sky: NY_SKY,
     buttons: [{ label: "Fill in the form", does: "fill" }, CANCEL],
@@ -300,7 +300,7 @@ test("a signed-out browser is asked to sign in or create an account, and can sti
     message:
       "astro.com requires an account to generate charts. Sign in to your existing account or create a free account to continue.",
     notes: [
-      "Chart Bridge keeps these values for the astro.com tab while you sign in. Afterwards, open astro.com's form there and click the Chart Bridge icon in the toolbar again.",
+      "AstroChart Bridge keeps these values for the astro.com tab while you sign in. Afterwards, open astro.com's form there and click the AstroChart Bridge icon in the toolbar again.",
     ],
     sky: NY_SKY,
     buttons: [
@@ -314,7 +314,7 @@ test("a signed-out browser is asked to sign in or create an account, and can sti
 
 test("a form with a date or time in it is never filled: the popup offers a blank one instead", () => {
   const typed = viewForAstroComTab(NY_SKY, { kind: "form", auth: "unknown", form: "typed" });
-  assert.equal(typed.message, "This form already has a date or time in it. Chart Bridge fills in only a blank form, so it won't change what's there.");
+  assert.equal(typed.message, "This form already has a date or time in it. AstroChart Bridge fills in only a blank form, so it won't change what's there.");
   assert.deepEqual(typed.buttons, [{ label: "Open a blank form", url: FORM_URL, here: true }, CANCEL]);
 
 
@@ -324,7 +324,7 @@ test("a form with a date or time in it is never filled: the popup offers a blank
 
 test("an unrecognised form shows the values to type, with its code", () => {
   const view = viewForAstroComTab(NY_SKY, { kind: "form", auth: "unknown", form: "unrecognised" });
-  assert.equal(view.message, "Chart Bridge doesn't recognise this astro.com form, so it can't fill it in. Enter the values above yourself.");
+  assert.equal(view.message, "AstroChart Bridge doesn't recognise this astro.com form, so it can't fill it in. Enter the values above yourself.");
   assert.equal(view.code, "unrecognised-form");
   assert.deepEqual(view.rows, ROWS);
   assert.deepEqual(view.buttons, [CANCEL]);
@@ -336,8 +336,8 @@ test("on any other astro.com page, such as after a failed sign-in, the values wa
     state: "astro-com-waiting",
     rows: ROWS,
     warnings: [],
-    message: "Chart Bridge is keeping these values for this tab.",
-    notes: ["When you're signed in, open astro.com's birth data form in this tab and click the Chart Bridge icon in the toolbar again to fill it in."],
+    message: "AstroChart Bridge is keeping these values for this tab.",
+    notes: ["When you're signed in, open astro.com's birth data form in this tab and click the AstroChart Bridge icon in the toolbar again to fill it in."],
     sky: NY_SKY,
     buttons: [OPEN_FORM_HERE, CANCEL],
   });
@@ -350,7 +350,7 @@ test("a kept town is shown on the astro.com tab and named in what gets filled in
   assert.deepEqual(view.rows[4], ["Town", "Sydney"]);
   assert.equal(
     view.notes[0],
-    "Chart Bridge fills in the birthday, hour, minute, the 00:00 GMT / UT time zone and the town Sydney. Choose astro.com's match nearest this place, and check the coordinates it shows.",
+    "AstroChart Bridge fills in the birthday, hour, minute, the 00:00 GMT / UT time zone and the town Sydney. Choose astro.com's match nearest this place, and check the coordinates it shows.",
   );
 });
 

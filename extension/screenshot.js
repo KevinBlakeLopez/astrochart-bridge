@@ -76,7 +76,7 @@ async function readImage(file) {
     showChart(analyzeScreenshot(text));
   } catch (error) {
     if (id !== latest) return;
-    const view = { state: "refused", message: "Chart Bridge couldn't read this image.", code: String(error?.message ?? error) };
+    const view = { state: "refused", message: "AstroChart Bridge couldn't read this image.", code: String(error?.message ?? error) };
     render(app, view, openLink);
   }
 }
@@ -135,7 +135,7 @@ async function openForm(url, values) {
   const { outcome, tabId } = await openAndFill(browser, { url, values });
   const showTab = () => chrome.tabs.update(tabId, { active: true });
   if (outcome === "filled") {
-    app.replaceChildren(paragraph("Chart Bridge filled in astro.com's form in its tab.", "note"));
+    app.replaceChildren(paragraph("AstroChart Bridge filled in astro.com's form in its tab.", "note"));
     await showTab();
     return;
   }

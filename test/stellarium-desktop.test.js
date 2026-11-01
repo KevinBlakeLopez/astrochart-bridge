@@ -78,7 +78,7 @@ test("utcFromJulianDay rounds to the nearest second", () => {
   assert.equal(utcFromJulianDay(2460418 + 0.6 / 86400), "2024-04-17T12:00:01Z");
 });
 
-test("readStatus keeps only what Chart Bridge uses", () => {
+test("readStatus keeps only what AstroChart Bridge uses", () => {
   assert.deepEqual(readStatus(STATUS), {
     jday: 2460418,
     timerate: 0,
@@ -134,7 +134,7 @@ test("skyFromStatus refuses an observer on another planet", () => {
 });
 
 // Before 15 October 1582 Stellarium's dates are Julian-calendar dates, and
-// Chart Bridge's are Gregorian, so the same day would read differently.
+// AstroChart Bridge's are Gregorian, so the same day would read differently.
 test("skyFromStatus refuses a date before the Gregorian calendar or after 9999", () => {
   for (const jday of [2299160.4, 5373484.5]) {
     assert.deepEqual(skyFromStatus({ ...readStatus(STATUS), jday }), {

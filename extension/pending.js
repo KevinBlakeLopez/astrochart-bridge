@@ -1,4 +1,4 @@
-// The values kept for an astro.com tab that Chart Bridge opened for a chart,
+// The values kept for an astro.com tab that AstroChart Bridge opened for a chart,
 // so the popup on that tab can fill in astro.com's form after the popup that
 // opened it has closed. Each takes the storage area to use: the browser passes
 // chrome.storage.session, which the browser empties when it quits, and tests

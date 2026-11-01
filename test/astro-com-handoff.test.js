@@ -14,15 +14,15 @@ const NY_SKY = { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 };
 // chart names one, the town to fill in.
 const NY_HELD = { ...NY_SKY, town: null };
 
-// Chart Bridge can't tell from this tab whether the browser is signed in to
+// AstroChart Bridge can't tell from this tab whether the browser is signed in to
 // astro.com, so the sign-in advice is a note beside the form button, never a
 // step before it. test/astro-com-form.test.js covers the astro.com tab itself.
 const SIGN_IN_NOTE =
-  "astro.com draws the chart only for a signed-in account. If it asks you to sign in or create a free account, do it in that tab: Chart Bridge keeps these values for it.";
+  "astro.com draws the chart only for a signed-in account. If it asks you to sign in or create a free account, do it in that tab: AstroChart Bridge keeps these values for it.";
 const ACCESS_NOTE =
-  "The first time, your browser asks to let Chart Bridge read and change www.astro.com pages. It uses that only to fill in the form in the tab it opens. If you say no, it shows the values to fill in yourself.";
+  "The first time, your browser asks to let AstroChart Bridge read and change www.astro.com pages. It uses that only to fill in the form in the tab it opens. If you say no, it shows the values to fill in yourself.";
 const HOLD_NOTE =
-  "Chart Bridge keeps them for 30 minutes, until it fills them in, or until you cancel or close the browser. Filling in puts them in astro.com's page, and its town search sends a town to astro.com at once; submitting sends the rest.";
+  "AstroChart Bridge keeps them for 30 minutes, until it fills them in, or until you cancel or close the browser. Filling in puts them in astro.com's page, and its town search sends a town to astro.com at once; submitting sends the rest.";
 
 test("the astro.com screen lists the form's values in Universal Time", () => {
   assert.deepEqual(viewForAstroCom(NY_SKY), {
@@ -34,7 +34,7 @@ test("the astro.com screen lists the form's values in Universal Time", () => {
       ["Place", "40°43'N, 74°0'W"],
     ],
     warnings: [],
-    message: "Chart Bridge opens astro.com's form and fills it in as it opens. It doesn't submit the form.",
+    message: "AstroChart Bridge opens astro.com's form and fills it in as it opens. It doesn't submit the form.",
     notes: [
       "The date and time are Universal Time, so they can differ from the local birth date and time.",
       "astro.com asks for a country and town, not coordinates. Choose the town nearest this place and check the coordinates astro.com shows.",
@@ -76,7 +76,7 @@ test("a chart that names its town shows it, says it will be filled in, and keeps
   assert.deepEqual(view.rows[4], ["Town", "New York"]);
   assert.equal(
     view.notes[1],
-    "astro.com asks for a country and town, not coordinates. Chart Bridge fills in the town New York; choose the match nearest this place and check the coordinates astro.com shows.",
+    "astro.com asks for a country and town, not coordinates. AstroChart Bridge fills in the town New York; choose the match nearest this place and check the coordinates astro.com shows.",
   );
   assert.deepEqual(view.buttons.map((button) => button.holds), Array(3).fill({ ...NY_SKY, town: "New York" }));
   assert.equal(viewForAstroCom(NY_SKY).rows.length, 4);
