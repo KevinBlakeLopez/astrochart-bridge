@@ -1,4 +1,5 @@
 import { utcFromOffset, ZONE_OFFSETS } from "./civiltime.js";
+import { SIDEREAL_TOLERANCE_SECONDS, siderealGap } from "./sidereal.js";
 
 const refused = (reason) => ({ kind: "refused", reason });
 
@@ -17,29 +18,34 @@ const LMT_TOLERANCE_MINUTES = 1;
  * nothing here knows which way round the program printed it.
  *
  * The checks are only what the record allows: a weekday must fall on the
- * date, a zone label Chart Bridge knows must give the printed offset, and
- * "LMT" must fit the longitude. A record with none of them comes back with
- * the offset-unchecked warning. A record without an offset, from a program
- * that prints none, comes back for the user to enter one, as an Astro-Seek
- * page without a Universal Time does.
+ * date, a zone label Chart Bridge knows must give the printed offset, "LMT"
+ * must fit the longitude, and a sidereal time must fit the UTC and longitude.
+ * A record with none of them comes back with the offset-unchecked warning. A
+ * record with a Universal Time takes its offset from it. A record with neither
+ * an offset nor a Universal Time, from a program that prints none, comes back
+ * for the user to enter the offset, as an Astro-Seek page without a Universal
+ * Time does.
  *
  * @param {{ site: string, local: string, lat: number, lng: number, zoneLabel: string | null,
- *   offsetMinutes?: number, weekday?: number }} chart
+ *   offsetMinutes?: number, utc?: string, siderealSeconds?: number, weekday?: number }} chart
  *   local is the wall-clock time, e.g. "2024-04-17T08:00:00"; offsetMinutes is
  *   minutes east of UTC and runs to the second, as a fraction, when the program
- *   printed seconds; weekday is 0 for Sunday, as Date#getUTCDay counts
+ *   printed seconds; utc is a printed Universal Time, e.g. "2024-04-17T12:00:00Z";
+ *   siderealSeconds is a printed local sidereal time, counted from midnight;
+ *   weekday is 0 for Sunday, as Date#getUTCDay counts
  * @returns {{ kind: "natal", site: string, local: string, zoneLabel: string | null, lat: number, lng: number }
- *     & ({ utc: string, utcSource: "declared", offsetMinutes: number, warnings?: ["offset-unchecked"] }
+ *     & ({ utc: string, utcSource: "declared" | "printed", offsetMinutes: number, warnings?: ["offset-unchecked"] }
  *       | { utc: null, utcSource: "needs-offset", reason: "no-printed-offset" })
- *   | { kind: "refused", reason: "weekday-mismatch" | "zone-offset-mismatch" | "offset-out-of-range" }}
+ *   | { kind: "refused", reason: "weekday-mismatch" | "zone-offset-mismatch" | "offset-out-of-range" | "sidereal-mismatch" }}
  */
-export function resolvePrinted({ site, local, lat, lng, zoneLabel, offsetMinutes, weekday }) {
+export function resolvePrinted({ site, local, lat, lng, zoneLabel, offsetMinutes: declared, utc: printedUtc, siderealSeconds, weekday }) {
   if (weekday !== undefined && new Date(`${local.slice(0, 10)}T00:00:00Z`).getUTCDay() !== weekday) {
     return refused("weekday-mismatch");
   }
-  if (offsetMinutes === undefined) {
+  if (declared === undefined && printedUtc === undefined) {
     return { kind: "natal", site, local, zoneLabel, lat, lng, utc: null, utcSource: "needs-offset", reason: "no-printed-offset" };
   }
+  const offsetMinutes = printedUtc === undefined ? declared : (Date.parse(`${local}Z`) - Date.parse(printedUtc)) / 60_000;
   // -12:00 to +14:00 is the range parseOffset accepts. A local-mean-time
   // offset falls inside it too: 180° is 12 hours.
   if (offsetMinutes < -720 || offsetMinutes > 840) return refused("offset-out-of-range");
@@ -53,6 +59,12 @@ export function resolvePrinted({ site, local, lat, lng, zoneLabel, offsetMinutes
     checked = true;
   }
 
+  const utc = printedUtc ?? utcFromOffset(local, offsetMinutes);
+  if (siderealSeconds !== undefined) {
+    if (siderealGap(utc, lng, siderealSeconds) > SIDEREAL_TOLERANCE_SECONDS) return refused("sidereal-mismatch");
+    checked = true;
+  }
+
   return {
     kind: "natal",
     site,
@@ -60,11 +72,26 @@ export function resolvePrinted({ site, local, lat, lng, zoneLabel, offsetMinutes
     zoneLabel,
     lat,
     lng,
-    utc: utcFromOffset(local, offsetMinutes),
-    utcSource: "declared",
+    utc,
+    utcSource: printedUtc === undefined ? "declared" : "printed",
     offsetMinutes,
     ...(checked ? {} : { warnings: ["offset-unchecked"] }),
   };
+}
+
+/**
+ * resolvePrinted for each of the readings a reader couldn't choose between,
+ * such as a date that reads as 3 February or 2 March: the one reading whose
+ * checks pass, or the first reading's refusal when none do.
+ *
+ * @param {Parameters<typeof resolvePrinted>[0][]} readings
+ * @returns {ReturnType<typeof resolvePrinted> | { kind: "refused", reason: "ambiguous-screenshot" }}
+ */
+export function resolveReadings(readings) {
+  const results = readings.map(resolvePrinted);
+  const fitting = results.filter((result) => result.kind !== "refused");
+  if (fitting.length > 1) return refused("ambiguous-screenshot");
+  return fitting[0] ?? results[0];
 }
 
 const MONTHS = [

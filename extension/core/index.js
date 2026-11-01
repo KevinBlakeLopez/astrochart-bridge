@@ -5,7 +5,8 @@ import { resolveUtc, utcFromOffset } from "./civiltime.js";
 import * as astrogold from "./astrogold.js";
 import * as esotech from "./esotech.js";
 import * as morinus from "./morinus.js";
-import { resolvePrinted } from "./printed-chart.js";
+import * as planetdance from "./planetdance.js";
+import { resolvePrinted, resolveReadings } from "./printed-chart.js";
 import { SIDEREAL_TOLERANCE_SECONDS, siderealGap } from "./sidereal.js";
 
 const refused = (reason) => ({ kind: "refused", reason });
@@ -115,9 +116,11 @@ export function analyzePage({ url, input }) {
 const ASTRO_SEEK_LABELS = /^(Date of Birth|Universal Time)/m;
 const ASTRO_COM_LABELS = /Univ\W*Time/;
 
-// Programs whose readers return a record for resolvePrinted.
+// Programs whose readers return a record for resolvePrinted, or several
+// readings of one for resolveReadings to choose between.
 const printedBy = (reader) => (text) => {
   const chart = reader.read(text);
+  if (Array.isArray(chart)) return resolveReadings(chart);
   return chart.kind === "refused" ? chart : resolvePrinted(chart);
 };
 
@@ -127,17 +130,18 @@ const SCREENSHOT_READERS = [
   { shows: esotech.detect, analyze: printedBy(esotech) },
   { shows: astrogold.detect, analyze: printedBy(astrogold) },
   { shows: morinus.detect, analyze: printedBy(morinus) },
+  { shows: planetdance.detect, analyze: printedBy(planetdance) },
 ];
 
 /**
  * The same as analyzePage, for the OCR text of a screenshot of an Astro-Seek
  * chart page, an astro.com chart image, a Solar Fire wheel, Astro Gold's chart
- * details or Edit Chart screen, a Morinus status bar or square chart, or a
- * Valens wheel. With no URL to check the text against,
- * the checks are whatever the screenshot prints: a sidereal time that must
- * fit the UT and longitude, a weekday that must fall on the date, a zone label
- * that must give the offset, and a local time a real UTC offset away from the
- * UT. Nothing checks the latitude.
+ * details or Edit Chart screen, a Morinus status bar or square chart, a Valens
+ * wheel, or Planetdance's wheel, data screen or Vedic screen. With no URL to
+ * check the text against, the checks are whatever the screenshot prints: a
+ * sidereal time that must fit the UT and longitude, a weekday that must fall
+ * on the date, a zone label that must give the offset, and a local time a real
+ * UTC offset away from the UT. Nothing checks the latitude.
  *
  * @param {string} text  OCR output
  * @returns {ReturnType<typeof analyzePage> | ReturnType<typeof resolvePrinted>}
