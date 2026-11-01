@@ -2,13 +2,14 @@
 // the chart is read from the link's fragment, which the browser never sends to
 // the server, and nothing is stored or sent until a button is clicked. Every
 // decision is made in import-model.js and drawn by view.js.
-import { fileFor, linkBase, linkFor, readLink, viewForImport } from "./import-model.js";
+import { fileFor, linkBase, linkFor, qrViewFor, readLink, viewForImport } from "./import-model.js";
 import { RECEIVER_URL } from "./share-config.js";
-import { render } from "./view.js";
+import { paragraph, render } from "./view.js";
 
 const app = document.getElementById("app");
 const status = document.getElementById("status");
 const linkField = document.getElementById("link");
+const qrArea = document.getElementById("qr");
 
 // Where a copied link points: this page on the web, the receiving page when
 // this is the extension's copy, or nowhere, which hides Copy link.
@@ -32,6 +33,7 @@ function show() {
   status.textContent = "";
   linkField.hidden = true;
   linkField.value = "";
+  hideQr();
   render(app, viewForImport(result, { canCopy: base !== null }), onButton);
 }
 
@@ -44,6 +46,10 @@ async function onButton({ url, does }) {
   }
   if (does === "download") {
     download();
+    return;
+  }
+  if (does === "qr") {
+    showQr();
     return;
   }
   if (url) window.open(url, "_blank", "noopener,noreferrer");
@@ -77,4 +83,44 @@ function download() {
   link.download = name;
   link.click();
   setTimeout(() => URL.revokeObjectURL(url), 10_000);
+}
+
+const SVG = "http://www.w3.org/2000/svg";
+
+// The code is built element by element, with no markup parsed and no image
+// loaded, so the page's policy needs nothing more. It is always black on
+// white, even in dark mode: many scanners can't read a light code on dark.
+function showQr() {
+  if (chart === null || base === null) return;
+  const view = qrViewFor(base, chart);
+  if (view.state === "qr-refused") {
+    qrArea.replaceChildren(paragraph(view.message, "warning"));
+  } else {
+    const svg = document.createElementNS(SVG, "svg");
+    svg.setAttribute("viewBox", `0 0 ${view.size} ${view.size}`);
+    svg.setAttribute("role", "img");
+    svg.setAttribute("aria-label", view.label);
+    svg.setAttribute("shape-rendering", "crispEdges");
+    const background = document.createElementNS(SVG, "rect");
+    background.setAttribute("width", String(view.size));
+    background.setAttribute("height", String(view.size));
+    background.setAttribute("fill", "#fff");
+    const modules = document.createElementNS(SVG, "path");
+    modules.setAttribute("d", view.path);
+    modules.setAttribute("fill", "#000");
+    svg.append(background, modules);
+
+    const hide = document.createElement("button");
+    hide.className = "secondary";
+    hide.textContent = "Hide QR code";
+    hide.addEventListener("click", hideQr);
+    qrArea.replaceChildren(svg, paragraph(view.note, "note"), hide);
+  }
+  qrArea.hidden = false;
+  qrArea.scrollIntoView({ block: "nearest" });
+}
+
+function hideQr() {
+  qrArea.hidden = true;
+  qrArea.replaceChildren();
 }

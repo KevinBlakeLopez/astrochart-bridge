@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { fromFragment, parse, toFragment, toPortable } from "../extension/core/portable.js";
-import { fileFor, linkBase, linkFor, readLink, viewForImport } from "../extension/import-model.js";
+import { fileFor, linkBase, linkFor, qrViewFor, readLink, viewForImport } from "../extension/import-model.js";
 import { ASTRO_SEEK_NOTES } from "../extension/popup-model.js";
 
 const PRIVACY_NOTE =
@@ -23,6 +23,7 @@ const BUTTONS = [
   { label: "Open sky", opens: "stellarium" },
   { label: "Open chart in Astro-Seek", opens: "astro-seek" },
   { label: "Copy link", does: "copy", secondary: true },
+  { label: "Show QR code", does: "qr", secondary: true },
   { label: "Download file", does: "download", secondary: true },
 ];
 
@@ -207,9 +208,9 @@ test("in the extension, a copied link points at the receiving page", () => {
   assert.equal(linkBase(extensionPage, null), null);
 });
 
-test("with nowhere to point a link, there is no Copy link", () => {
+test("with nowhere to point a link, there is no Copy link and no QR code", () => {
   const view = viewForImport(received(NY, NY_SOURCE), { ...LOS_ANGELES, canCopy: false });
-  assert.deepEqual(view.buttons, BUTTONS.filter((button) => button.does !== "copy"));
+  assert.deepEqual(view.buttons, BUTTONS.filter((button) => button.does !== "copy" && button.does !== "qr"));
 });
 
 // --- Download file ---
@@ -245,4 +246,27 @@ test("the file is the link's JSON, indented, and reads back as the same chart", 
 `,
   );
   assert.deepEqual(parse(text), { kind: "portable", chart });
+});
+
+// --- QR code ---
+
+test("the QR code is the copied link's, with a note on who can read it", () => {
+  const { chart } = received(NY, NY_SOURCE);
+  const view = qrViewFor("https://example.org/import.html", chart);
+  assert.equal(view.state, "qr");
+  assert.equal(view.link, `https://example.org/import.html#${toFragment(chart)}`);
+  assert.equal(view.label, "QR code for the link to this chart");
+  assert.equal(
+    view.note,
+    "Scan this with a phone or tablet's camera to open the chart there. Anyone who can see the code can read the chart.",
+  );
+  assert.ok(view.size > 0 && view.path.length > 0);
+});
+
+test("a link too long for a QR code points to the other ways to share", () => {
+  const { chart } = received(NY, NY_SOURCE);
+  assert.deepEqual(qrViewFor(`https://example.org/${"x".repeat(700)}.html`, chart), {
+    state: "qr-refused",
+    message: "This link is too long for a QR code that scans reliably. Use Copy link or Download file instead.",
+  });
 });

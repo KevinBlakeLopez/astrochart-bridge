@@ -227,7 +227,7 @@ http://127.0.0.1:8766/import.html#v1=eyJmb3JtYXQiOiJjaGFydC1icmlkZ2UiLCJ2ZXJzaW9
 
 ### A: desktop
 
-- [ ] The page shows Local time `17 Apr 2024, 08:00 (EDT, DST)`, Offset `UTC-04:00`, UTC `2024-04-17 12:00`, Place `40°43'N, 74°0'W` and From `Astro-Seek page`, four grey notes, **Open sky**, **Open chart in Astro-Seek**, **Copy link** and **Download file**. There is no **Enter in astro.com…** or **Share…**.
+- [ ] The page shows Local time `17 Apr 2024, 08:00 (EDT, DST)`, Offset `UTC-04:00`, UTC `2024-04-17 12:00`, Place `40°43'N, 74°0'W` and From `Astro-Seek page`, four grey notes, **Open sky**, **Open chart in Astro-Seek**, **Copy link**, **Show QR code** and **Download file**. There is no **Enter in astro.com…** or **Share…**.
 - [ ] The address bar shows `import.html` with nothing after it, and **Back** doesn't bring the `#v1=…` part back.
 - [ ] Nothing opens by itself. **Open sky** opens the same Stellarium address as test 1; **Open chart in Astro-Seek** opens a chart for 17 April 2024 12:00 UT at 40°43'N, 74°0'W.
 - [ ] **Copy link** says "Link copied.", and pasting gives exactly the link above. If the browser refuses, the link appears selected in a field below the message instead.
@@ -258,6 +258,16 @@ Copied links point at `RECEIVER_URL` in `extension/share-config.js`, the receivi
 - [ ] On the screenshot page from test 13, **Share…** opens a tab showing From `Astro-Seek screenshot` and the warning to compare the rows. The screenshot page stays open.
 - [ ] On a Stellarium Web tab (test 12) and on astro.com's form tab (test 14), the popup has no **Share…**.
 - [ ] Each Console stays empty: the popup's, and the new tab's (right-click → Inspect).
+
+## Test 17: scanning a QR code
+
+Scanning needs a phone or tablet whose camera app reads QR codes. On the desktop, open a chart's tab with **Share…** (test 16), or the test 15 link. A code from the extension's tab holds the GitHub Pages address, which opens nothing until that page is deployed: check the address the camera shows before opening it. A code from the test 15 page holds `127.0.0.1`, which only that computer can open; to open it on the device too, serve the page with `--bind 0.0.0.0` and open it at the Mac's network address, as in test 15 B.
+
+- [ ] **Show QR code** draws a black-on-white code with a white border under the buttons, the note about who can read it, and **Hide QR code**, which removes it. In dark mode the code stays black on white.
+- [ ] At the browser's normal size, from about 30 cm, the camera on an iPhone, an iPad and an Android phone each recognises the code within a few seconds. Note the device and the distance.
+- [ ] The address each camera shows is the whole link, ending in the same characters as **Copy link**'s.
+- [ ] The same at 200% browser zoom, and with the window narrowed until the code is at its smallest.
+- [ ] Opened on the device, the link shows the same rows as on the desktop.
 
 ## Not covered by hand yet
 

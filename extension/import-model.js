@@ -4,11 +4,14 @@
 // Every decision is made here, so import.js only reads the link and renders.
 import { fromFragment, serialize, skyFor, toFragment } from "./core/portable.js";
 import { ASTRO_SEEK_NOTES, ASTRO_SEEK_BUTTONS, viewFor } from "./popup-model.js";
+import { qrFor } from "./qr.js";
 
 // The receiving page works without the extension, so the popup's
 // "Enter in astro.com…" step, which keeps the values for the tab it opens,
 // isn't offered: nothing here could keep them.
 const COPY_LINK = { label: "Copy link", does: "copy", secondary: true };
+// The same link as Copy link, so it is offered only with it.
+const SHOW_QR = { label: "Show QR code", does: "qr", secondary: true };
 const DOWNLOAD_FILE = { label: "Download file", does: "download", secondary: true };
 
 const SITE_NAMES = { "astro-seek": "Astro-Seek", "astro-com": "astro.com" };
@@ -84,7 +87,7 @@ export function viewForImport(result, { canCopy = true, ...options } = {}) {
     rows: from === "" ? view.rows : [...view.rows, ["From", from]],
     warnings: source.via === "screenshot" ? [SCREENSHOT_WARNING] : [],
     notes: [...view.notes, ...ASTRO_SEEK_NOTES],
-    buttons: [...ASTRO_SEEK_BUTTONS, ...(canCopy ? [COPY_LINK] : []), DOWNLOAD_FILE].map((button) => ({ ...button })),
+    buttons: [...ASTRO_SEEK_BUTTONS, ...(canCopy ? [COPY_LINK, SHOW_QR] : []), DOWNLOAD_FILE].map((button) => ({ ...button })),
   };
 }
 
@@ -125,4 +128,30 @@ export function linkFor(pageUrl, chart) {
  */
 export function fileFor(chart) {
   return { name: `chart-${chart.chart.local.slice(0, 10)}.astrochart.json`, text: `${serialize(chart, 2)}\n` };
+}
+
+/**
+ * What the page draws for Show QR code: the copied link's code, or why there
+ * is none.
+ *
+ * @param {string} base  linkBase's address
+ * @param {object} chart  a portable chart
+ */
+export function qrViewFor(base, chart) {
+  const link = linkFor(base, chart);
+  const qr = qrFor(link);
+  if (qr.kind === "refused") {
+    return {
+      state: "qr-refused",
+      message: "This link is too long for a QR code that scans reliably. Use Copy link or Download file instead.",
+    };
+  }
+  return {
+    state: "qr",
+    link,
+    size: qr.size,
+    path: qr.path,
+    label: "QR code for the link to this chart",
+    note: "Scan this with a phone or tablet's camera to open the chart there. Anyone who can see the code can read the chart.",
+  };
 }

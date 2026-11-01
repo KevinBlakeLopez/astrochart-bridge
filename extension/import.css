@@ -38,6 +38,20 @@ dd {
   font-size: 16px;
 }
 
+/* The QR code: about 4 px a module at full width, crisp on any screen. The
+   white is part of the code, so it stays white in dark mode. */
+#qr {
+  margin: 0 0 16px;
+}
+
+#qr svg {
+  display: block;
+  width: 100%;
+  max-width: 360px;
+  height: auto;
+  margin: 0 auto 8px;
+}
+
 /* At least 44 px tall, the touch target Apple and Google ask for. */
 button {
   min-height: 44px;
