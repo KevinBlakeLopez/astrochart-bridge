@@ -4,7 +4,9 @@
 # the files in extension/, so it isn't kept in the repo: run this again
 # whenever you need it. Needs Xcode 26 or later.
 #
-#   tools/package-safari.sh [bundle-identifier]
+#   npm run package:safari -- [bundle-identifier]
+#
+# or tools/package-safari.sh [bundle-identifier].
 #
 # The project is written to build/safari/, replacing what was there. The
 # bundle identifier defaults to com.example.chartbridge; signing needs one

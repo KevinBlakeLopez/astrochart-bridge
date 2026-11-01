@@ -31,10 +31,10 @@ TestFlight and the App Store need the paid Apple Developer Program.
 ## Make the Xcode project
 
 ```bash
-tools/package-safari.sh com.yourname.chartbridge
+npm run package:safari -- com.yourname.chartbridge
 ```
 
-Use a bundle identifier that your Apple team can register; `com.example.chartbridge` is only a placeholder. The project is written to `build/safari/`, which git ignores.
+This runs `tools/package-safari.sh`, which you can also run directly. Use a bundle identifier that your Apple team can register; `com.example.chartbridge` is only a placeholder. The project is written to `build/safari/`, which git ignores.
 
 The project points at the files in `extension/` instead of copying them, so a change to an existing file is in the next build. **Run the script again after adding, removing or renaming a file in `extension/`**, because the project lists each file by name.
 
