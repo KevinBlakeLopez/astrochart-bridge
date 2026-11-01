@@ -4,7 +4,7 @@
 
 The chart URLs below are the `url` fields of the fixtures in `fixtures/astroseek/`, plus the asteroids example from `docs/astroseek-known-issues.md`. All of them use invented birth data.
 
-Natal charts are read from two Astro-Seek pages: the birth chart (`/calculate-birth-chart-horoscope-online/`, tests 1 to 4) and the traditional chart (`/calculate-traditional-chart/`, test 11).
+Natal charts are read from three Astro-Seek pages: the birth chart (`/calculate-birth-chart-horoscope-online/`, tests 1 to 4), the asteroids chart (`/calculate-asteroids/`, test 7) and the traditional chart (`/calculate-traditional-chart/`, test 11).
 
 ## Setup (once)
 
@@ -81,19 +81,19 @@ https://horoscopes.astro-seek.com/calculate-love-compatibility/?send_calculation
 https://horoscopes.astro-seek.com/calculate-asteroids/?narozeni_den=17&narozeni_mesic=4&narozeni_rok=2024&narozeni_hodina=08&narozeni_minuta=00&narozeni_sekunda=00&narozeni_mesto_hidden=New%20York&narozeni_stat_hidden=US&narozeni_podstat_kratky_hidden=NY&narozeni_tzid_id=156&narozeni_city=New%20York,%20USA,%20New%20York&narozeni_sirka_stupne=40&narozeni_sirka_minuty=43&narozeni_sirka_smer=0&narozeni_delka_stupne=74&narozeni_delka_minuty=0&narozeni_delka_smer=1&narozeni_timezone_form=auto&narozeni_timezone_dst_form=auto&house_system=placidus&styl_graf=&hid_fortune=on&hid_fortune_check=&hid_spirit=&hid_spirit_check=on&hid_syzygy=&hid_syzygy_check=on&hid_vertex=on&hid_vertex_check=&hid_chiron=&hid_chiron_check=on&hid_lilith=&hid_lilith_check=on&hid_uzel=&hid_uzel_check=on&tolerance=1&tolerance_paral=0&nick=&hide_aspects=0&duha=&hide_trans=&display_trans=&aya=&house_start=&naksha_posun=&naksha_nasobek=&custom_aya=&&&radix=1&aktivni_tab=1&ast_symbol=text&asteroidy_ukazat=1
 ```
 
-- [ ] The popup shows only "Open an Astro-Seek birth chart to use Chart Bridge."
+- [ ] The popup shows the same rows and notes as test 1, and **Open sky** opens an address containing `date=2024-04-17T12%3A00%3A00Z&lat=40.716667&lng=-74`.
 
 ## Test 8: another website
 
 Go to `https://example.com`.
 
-- [ ] The popup shows the same sentence as test 7, and the Console has no errors.
+- [ ] The popup shows only "Open an Astro-Seek birth chart to use Chart Bridge.", and the Console has no errors.
 
 ## Test 9: a Chrome page
 
 Go to `chrome://extensions`.
 
-- [ ] The popup shows the same sentence again, and the Console has no errors.
+- [ ] The popup shows the same sentence as test 8, and the Console has no errors.
 
 ## Test 10: light and dark mode
 
@@ -127,4 +127,4 @@ https://horoscopes.astro-seek.com/calculate-traditional-chart/?narozeni_den=14&n
 
 ## If a check fails
 
-Note the test number, take a screenshot of the popup, copy anything in its Console, and for tests 1, 4 and 11 copy the Stellarium tab's full address.
+Note the test number, take a screenshot of the popup, copy anything in its Console, and for tests 1, 4, 7 and 11 copy the Stellarium tab's full address.

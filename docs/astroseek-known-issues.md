@@ -6,10 +6,10 @@ Behaviour of astro-seek.com that Chart Bridge has to work around or that should 
 
 - **Page:** `/calculate-asteroids/`
 - **Symptom:** when viewing the asteroids chart, the Vertex is sometimes displayed at an equinoctial degree (0° Aries or 0° Libra). For the same birth data, the natal page shows the Vertex at Scorpio 0°24′ (`fixtures/astroseek/ny-2024-04-17.json`, page text line 405).
-- **Status:** known defect, deferred. Observed manually in the browser. Not yet captured as a fixture, and not checked against an independent Vertex calculation.
+- **Status:** known defect, deferred. Observed manually in the browser. Not yet captured in the defective state, and not checked against an independent Vertex calculation. The asteroids capture in `fixtures/astroseek/asteroids-ny-2024-04-17.json` shows the Vertex at 0°24′ in its text, the same as the natal page, so the defect did not appear that time; it may only show in the drawn chart or only sometimes.
 - **Not yet known:** which tab or view state shows it, and whether it affects every chart or only some.
 - **Hypothesis (unverified):** the asteroids URL sends `hid_vertex=on&hid_vertex_check=`, while the natal URL sends `hid_vertex=1`. A longitude of exactly 0° or 180° would fit a Vertex that was never calculated.
-- **Impact on Chart Bridge:** none on the sky, since Chart Bridge only uses the birth date, time, place and Universal Time. The page does matter for refusal: it carries the bare `narozeni_*` parameters on a different path, so natal pages must be recognised by their path (`/calculate-birth-chart-horoscope-online/` or `/calculate-traditional-chart/`), not by their parameters. Chart Bridge does not accept this page.
+- **Impact on Chart Bridge:** none. Chart Bridge reads only the birth date, time, place and Universal Time, never the Vertex, and it accepts the asteroids page as a natal chart. The page's header uses the same format as the natal page.
 - **When picked up:**
   1. Capture the page in the defective state with the download snippet.
   2. Compare its Vertex with an independent calculation.

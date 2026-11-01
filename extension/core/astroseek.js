@@ -2,13 +2,14 @@ const HOST = "horoscopes.astro-seek.com";
 
 const refused = (reason) => ({ kind: "refused", reason });
 
-// Pages are recognised by path, never by parameters: specialised views such as
-// /calculate-asteroids/ reuse the bare narozeni_* parameters, and transit pages
-// contain "narozeni_" inside muz_narozeni_* and zena_narozeni_*. A path is added
-// as natal only once a captured fixture shows readChart can read its page.
+// Pages are recognised by path, never by parameters: specialised views reuse the
+// bare narozeni_* parameters, and transit pages contain "narozeni_" inside
+// muz_narozeni_* and zena_narozeni_*. A path is added as natal only once a
+// captured fixture shows readChart can read its page.
 const PAGES = new Map([
   ["/calculate-birth-chart-horoscope-online/", { kind: "natal" }],
   ["/calculate-traditional-chart/", { kind: "natal" }],
+  ["/calculate-asteroids/", { kind: "natal" }],
   ["/calculate-transit-chart/", { kind: "refused", reason: "transit" }],
   ["/calculate-love-compatibility/", { kind: "refused", reason: "synastry" }],
 ]);

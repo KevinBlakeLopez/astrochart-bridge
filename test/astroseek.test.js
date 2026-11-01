@@ -14,8 +14,8 @@ test("natal chart pages are natal", () => {
   }
 });
 
-test("traditional chart pages are natal too", () => {
-  for (const name of ["traditional-ny-2024-04-17", "traditional-ny-2021-03-14-gap"]) {
+test("traditional and asteroids chart pages are natal too", () => {
+  for (const name of ["traditional-ny-2024-04-17", "traditional-ny-2021-03-14-gap", "asteroids-ny-2024-04-17"]) {
     assert.deepEqual(classifyUrl(fixtureUrl(name)), { kind: "natal" }, name);
   }
 });
@@ -31,9 +31,10 @@ test("a love-compatibility page is refused as synastry", () => {
 });
 
 test("other Astro-Seek pages are unsupported, even with bare natal parameters", () => {
-  const asteroids =
-    "https://horoscopes.astro-seek.com/calculate-asteroids/?narozeni_den=17&narozeni_mesic=4&narozeni_rok=2024";
-  assert.deepEqual(classifyUrl(asteroids), unsupported);
+  // A made-up path: no other specialised page has been captured yet.
+  const other =
+    "https://horoscopes.astro-seek.com/calculate-example-chart/?narozeni_den=17&narozeni_mesic=4&narozeni_rok=2024";
+  assert.deepEqual(classifyUrl(other), unsupported);
   assert.deepEqual(classifyUrl("https://horoscopes.astro-seek.com/birth-chart-horoscope-online"), unsupported);
 });
 

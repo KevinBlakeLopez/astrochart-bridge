@@ -8,7 +8,7 @@ const fixture = (name) =>
 
 const refused = (reason) => ({ kind: "refused", reason });
 
-test("reads the natal and traditional fixtures", () => {
+test("reads the natal, traditional and asteroids fixtures", () => {
   const cases = {
     "ny-2024-04-17": { local: "2024-04-17T08:00:00", zoneLabel: "EDT, DST", printedUt: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 },
     "sydney-2024-01-15": { local: "2024-01-15T08:00:00", zoneLabel: "AEDT, DST", printedUt: "2024-01-14T21:00:00Z", lat: -33.866667, lng: 151.2 },
@@ -16,6 +16,7 @@ test("reads the natal and traditional fixtures", () => {
     "ny-2021-03-14-gap": { local: "2021-03-14T02:30:00", zoneLabel: "EST", printedUt: "2021-03-14T06:30:00Z", lat: 40.716667, lng: -74 },
     "traditional-ny-2024-04-17": { local: "2024-04-17T08:00:00", zoneLabel: "EDT, DST", printedUt: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 },
     "traditional-ny-2021-03-14-gap": { local: "2021-03-14T02:30:00", zoneLabel: "EST", printedUt: "2021-03-14T06:30:00Z", lat: 40.716667, lng: -74 },
+    "asteroids-ny-2024-04-17": { local: "2024-04-17T08:00:00", zoneLabel: "EDT, DST", printedUt: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 },
   };
   for (const [name, expected] of Object.entries(cases)) {
     const { url, input } = fixture(name);
