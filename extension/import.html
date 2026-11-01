@@ -19,7 +19,9 @@
       <p id="status" class="note" role="status"></p>
       <input id="link" type="text" readonly hidden aria-label="Link to this chart">
       <div id="qr" hidden></div>
-      <p class="note">The chart is in the link itself and is read on this device. Anyone with the link can read it, so share it only with people who should see this birth data. This page keeps nothing and sends nothing until you open the sky or the chart.</p>
+      <button id="open-file" type="button">Open a chart file</button>
+      <input id="file" type="file" accept=".json,application/json" hidden aria-label="Chart file">
+      <p class="note">A chart's link holds the chart itself, and so does its file. Anyone with either can read it, so share them only with people who should see this birth data. This page reads them on this device, keeps nothing, and sends nothing until you open the sky or the chart.</p>
     </main>
   </body>
 </html>

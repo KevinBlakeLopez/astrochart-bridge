@@ -1,8 +1,19 @@
-// The receiving page for a Chart Bridge link. It works without the extension:
-// the chart is read from the link's fragment, which the browser never sends to
-// the server, and nothing is stored or sent until a button is clicked. Every
-// decision is made in import-model.js and drawn by view.js.
-import { fileFor, linkBase, linkFor, qrViewFor, readLink, viewForImport } from "./import-model.js";
+// The receiving page for a Chart Bridge link or chart file. It works without
+// the extension: the chart is read from the link's fragment, which the browser
+// never sends to the server, or from a file chosen or dropped here, and
+// nothing is stored or sent until a button is clicked. Every decision is made
+// in import-model.js and drawn by view.js.
+import {
+  MAX_FILE_BYTES,
+  fileFor,
+  linkBase,
+  linkFor,
+  qrViewFor,
+  readChartFile,
+  readLink,
+  shareDataFor,
+  viewForImport,
+} from "./import-model.js";
 import { RECEIVER_URL } from "./share-config.js";
 import { paragraph, render } from "./view.js";
 
@@ -10,31 +21,91 @@ const app = document.getElementById("app");
 const status = document.getElementById("status");
 const linkField = document.getElementById("link");
 const qrArea = document.getElementById("qr");
+const openFileButton = document.getElementById("open-file");
+const fileInput = document.getElementById("file");
 
 // Where a copied link points: this page on the web, the receiving page when
 // this is the extension's copy, or nowhere, which hides Copy link.
 const base = linkBase(location.href, RECEIVER_URL);
 
-// The chart on screen, for Copy link and Download file. Kept only in this variable.
-let chart = null;
+// Whether the browser's share sheet takes a link. Firefox on the desktop has
+// no share sheet, and neither has every embedded browser.
+const canShare = base !== null && typeof navigator.share === "function" && (navigator.canShare?.({ url: base }) ?? true);
 
-show();
+// The chart on screen, for the buttons, and its file when the share sheet
+// takes it. Kept only in these variables.
+let chart = null;
+let shareableFile = null;
+
+// Counts the links and files read, so a slow file read that finishes after a
+// newer link or file is dropped.
+let latest = 0;
+
+showLink();
 // A link pasted into this tab's address bar changes only the fragment, which
 // doesn't reload the page.
-window.addEventListener("hashchange", show);
+window.addEventListener("hashchange", showLink);
 
-function show() {
+openFileButton.addEventListener("click", () => fileInput.click());
+fileInput.addEventListener("change", () => {
+  const [file] = fileInput.files;
+  // Cleared so choosing the same file again reads it again.
+  fileInput.value = "";
+  openFile(file);
+});
+// A file dropped anywhere on the page opens, instead of the browser leaving
+// the page to show it.
+document.addEventListener("dragover", (event) => event.preventDefault());
+document.addEventListener("drop", (event) => {
+  event.preventDefault();
+  openFile(event.dataTransfer?.files[0]);
+});
+
+function showLink() {
+  latest++;
   const result = readLink(location.hash);
   // The chart comes out of the address and this history entry as soon as it
   // is read, whether or not it was valid: a damaged link can still be read.
   // replaceState doesn't fire hashchange.
   if (location.hash !== "") history.replaceState(null, "", `${location.pathname}${location.search}`);
+  show(result, "link");
+}
+
+// A file never touches the address, so it never reaches the browser's history.
+async function openFile(file) {
+  if (!file) return;
+  const id = ++latest;
+  const result =
+    file.size > MAX_FILE_BYTES ? { kind: "refused", reason: "too-large" } : readChartFile(new Uint8Array(await file.arrayBuffer()));
+  if (id !== latest) return;
+  show(result, "file");
+  if (result.kind === "portable") status.textContent = `Opened ${file.name}.`;
+}
+
+function show(result, from) {
   chart = result?.kind === "portable" ? result.chart : null;
+  shareableFile = chart === null ? null : fileForSharing(chart);
   status.textContent = "";
   linkField.hidden = true;
   linkField.value = "";
   hideQr();
-  render(app, viewForImport(result, { canCopy: base !== null }), onButton);
+  // The main action while there is no chart; one among several once there is.
+  openFileButton.className = chart === null ? "" : "secondary";
+  const options = { canCopy: base !== null, canShare, canShareFiles: shareableFile !== null, from };
+  render(app, viewForImport(result, options), onButton);
+}
+
+// The chart's file, when this browser's share sheet says it takes it. Asked
+// of the real file, since browsers differ in the kinds of file they share.
+function fileForSharing(chart) {
+  if (typeof navigator.share !== "function" || typeof navigator.canShare !== "function") return null;
+  const { name, text } = fileFor(chart);
+  const file = new File([text], name, { type: "application/json" });
+  try {
+    return navigator.canShare({ files: [file] }) ? file : null;
+  } catch {
+    return null;
+  }
 }
 
 // The click is the confirmation: the notes above the buttons say what each
@@ -50,6 +121,14 @@ async function onButton({ url, does }) {
   }
   if (does === "qr") {
     showQr();
+    return;
+  }
+  if (does === "share-link") {
+    share(shareDataFor(base, chart));
+    return;
+  }
+  if (does === "share-file") {
+    share({ title: "Chart Bridge chart", files: [shareableFile] });
     return;
   }
   if (url) window.open(url, "_blank", "noopener,noreferrer");
@@ -123,4 +202,14 @@ function showQr() {
 function hideQr() {
   qrArea.hidden = true;
   qrArea.replaceChildren();
+}
+
+// Called straight from the click, with nothing awaited first, so the browser
+// counts the click as the reason for the share sheet. Closing the sheet
+// without sharing is no error.
+function share(data) {
+  navigator.share(data).catch((error) => {
+    if (error?.name === "AbortError") return;
+    status.textContent = "Chart Bridge couldn't open the share sheet. Use Copy link or Download file instead.";
+  });
 }

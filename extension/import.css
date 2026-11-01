@@ -52,6 +52,10 @@ dd {
   margin: 0 auto 8px;
 }
 
+#open-file {
+  margin: 0 0 16px;
+}
+
 /* At least 44 px tall, the touch target Apple and Google ask for. */
 button {
   min-height: 44px;

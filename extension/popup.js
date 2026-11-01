@@ -127,9 +127,11 @@ function astroComTabButtons(tab, sky) {
   };
 }
 
+// A page Chart Bridge doesn't read can still lead to a chart: a screenshot of
+// one, or a .astrochart.json file, each opened in a tab of its own.
 function show(view, { offerScreenshot = false, onButton = openLink } = {}) {
   render(app, view, onButton);
-  if (offerScreenshot) app.append(screenshotButton());
+  if (offerScreenshot) app.append(screenshotButton(), chartFileButton());
 }
 
 async function openLink({ url, holds }, sky) {
@@ -147,11 +149,21 @@ async function openLink({ url, holds }, sky) {
 }
 
 function screenshotButton() {
+  return pageButton("Read a screenshot instead", "screenshot.html");
+}
+
+// The receiving page, with no link, opens files. The file chooser isn't opened
+// from the popup itself, which can close when the chooser takes the focus.
+function chartFileButton() {
+  return pageButton("Open a chart file", "import.html");
+}
+
+function pageButton(label, page) {
   const button = document.createElement("button");
   button.className = "secondary";
-  button.textContent = "Read a screenshot instead";
+  button.textContent = label;
   button.addEventListener("click", async () => {
-    await chrome.tabs.create({ url: chrome.runtime.getURL("screenshot.html") });
+    await chrome.tabs.create({ url: chrome.runtime.getURL(page) });
     window.close();
   });
   return button;

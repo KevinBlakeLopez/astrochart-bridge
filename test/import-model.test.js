@@ -1,7 +1,17 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { fromFragment, parse, toFragment, toPortable } from "../extension/core/portable.js";
-import { fileFor, linkBase, linkFor, qrViewFor, readLink, viewForImport } from "../extension/import-model.js";
+import {
+  MAX_FILE_BYTES,
+  fileFor,
+  linkBase,
+  linkFor,
+  qrViewFor,
+  readChartFile,
+  readLink,
+  shareDataFor,
+  viewForImport,
+} from "../extension/import-model.js";
 import { ASTRO_SEEK_NOTES } from "../extension/popup-model.js";
 
 const PRIVACY_NOTE =
@@ -111,7 +121,7 @@ test("a chart read from a screenshot carries a warning to compare it", () => {
   const view = viewForImport(received(NY, { site: "astro-com", via: "screenshot" }), LOS_ANGELES);
   assert.deepEqual(view.rows.at(-1), ["From", "astro.com screenshot"]);
   assert.deepEqual(view.warnings, [
-    "This chart was read from a screenshot by OCR on the device that made this link. Compare these rows with the chart before opening it: nothing checked the latitude.",
+    "This chart was read from a screenshot by OCR on the device that shared it. Compare these rows with the chart before opening it: nothing checked the latitude.",
   ]);
 });
 
@@ -136,7 +146,7 @@ test("markup in a zone label comes through as the same text", () => {
 test("no link explains what the page is for, with no buttons", () => {
   assert.deepEqual(viewForImport(null), {
     state: "empty",
-    message: "Open a Chart Bridge link to see its chart here.",
+    message: "Open a Chart Bridge link or chart file to see its chart here.",
     notes: [],
     buttons: [],
   });
@@ -268,5 +278,103 @@ test("a link too long for a QR code points to the other ways to share", () => {
   assert.deepEqual(qrViewFor(`https://example.org/${"x".repeat(700)}.html`, chart), {
     state: "qr-refused",
     message: "This link is too long for a QR code that scans reliably. Use Copy link or Download file instead.",
+  });
+});
+
+// --- Opening a chart file ---
+
+const encode = (text) => new TextEncoder().encode(text);
+
+test("a downloaded file opens as the same chart", () => {
+  const { chart } = received(NY, NY_SOURCE);
+  assert.deepEqual(readChartFile(encode(fileFor(chart).text)), { kind: "portable", chart });
+});
+
+test("a byte-order mark before the JSON is allowed", () => {
+  const { chart } = received(NY, NY_SOURCE);
+  const bytes = new Uint8Array([0xef, 0xbb, 0xbf, ...encode(fileFor(chart).text)]);
+  assert.deepEqual(readChartFile(bytes), { kind: "portable", chart });
+});
+
+test("bytes that aren't UTF-8 are refused, not replaced", () => {
+  const { chart } = received(NY, { zoneLabel: "été" });
+  const bytes = encode(fileFor(chart).text);
+  // é is C3 A9 in UTF-8; a lone A9 is invalid.
+  const at = bytes.indexOf(0xc3);
+  const broken = new Uint8Array([...bytes.slice(0, at), 0xa9, ...bytes.slice(at + 2)]);
+  assert.deepEqual(readChartFile(broken), { kind: "refused", reason: "malformed" });
+});
+
+test("a file over the limit is refused before it is decoded", () => {
+  assert.equal(MAX_FILE_BYTES, 16_384);
+  assert.deepEqual(readChartFile(new Uint8Array(MAX_FILE_BYTES + 1)), { kind: "refused", reason: "too-large" });
+});
+
+test("a file that isn't a chart is refused with the parser's reason", () => {
+  assert.deepEqual(readChartFile(encode("hello")), { kind: "refused", reason: "malformed" });
+  assert.deepEqual(readChartFile(encode("{}")), { kind: "refused", reason: "not-chart-bridge" });
+  assert.deepEqual(readChartFile(new Uint8Array(0)), { kind: "refused", reason: "malformed" });
+  const newer = fileFor(received(NY).chart).text.replace('"version": 1', '"version": 2');
+  assert.deepEqual(readChartFile(encode(newer)), { kind: "refused", reason: "unsupported-version" });
+});
+
+test("a file's refusals are worded for a file and keep their code", () => {
+  const expected = {
+    malformed: "This file isn't a Chart Bridge chart, or it is damaged.",
+    "too-large": "This file is too large to be a Chart Bridge chart.",
+    "not-chart-bridge": "This file isn't a Chart Bridge chart.",
+    "unsupported-version": "This file was made by a newer version of Chart Bridge, which this page can't read.",
+    "unknown-field": "This file was made by a newer version of Chart Bridge, which this page can't read.",
+    "unsupported-calendar": "This file was made by a newer version of Chart Bridge, which this page can't read.",
+    "before-gregorian": "This chart's date is before 15 October 1582, which Chart Bridge can't open yet.",
+    "invalid-date": "This file's chart isn't valid.",
+    "something-new": "This file's chart isn't valid.",
+  };
+  for (const [reason, message] of Object.entries(expected)) {
+    assert.deepEqual(viewForImport({ kind: "refused", reason }, { from: "file" }), { state: "refused", message, code: reason }, reason);
+  }
+});
+
+test("a chart from a file shows as it would from a link", () => {
+  const result = received(NY, NY_SOURCE);
+  assert.deepEqual(viewForImport(result, { ...LOS_ANGELES, from: "file" }), viewForImport(result, LOS_ANGELES));
+});
+
+// --- The system share sheet ---
+
+const SHARE_LINK = { label: "Share link…", does: "share-link", secondary: true };
+const SHARE_FILE = { label: "Share file…", does: "share-file", secondary: true };
+const SHARE_NOTE = "Share link… and Share file… send the chart to the app you choose.";
+
+test("Share link… comes before Copy link, where the browser can share links", () => {
+  const view = viewForImport(received(NY, NY_SOURCE), { ...LOS_ANGELES, canShare: true });
+  assert.deepEqual(view.buttons, [...BUTTONS.slice(0, 2), SHARE_LINK, ...BUTTONS.slice(2)]);
+  assert.equal(view.notes.at(-1), SHARE_NOTE);
+});
+
+test("Share file… comes last, where the browser can share this file", () => {
+  const view = viewForImport(received(NY, NY_SOURCE), { ...LOS_ANGELES, canShareFiles: true });
+  assert.deepEqual(view.buttons, [...BUTTONS, SHARE_FILE]);
+  assert.equal(view.notes.at(-1), SHARE_NOTE);
+});
+
+test("neither share button, and no note, where the browser can't share", () => {
+  const view = viewForImport(received(NY, NY_SOURCE), LOS_ANGELES);
+  assert.deepEqual(view.buttons, BUTTONS);
+  assert.ok(!view.notes.includes(SHARE_NOTE));
+});
+
+test("with nowhere to point a link, Share link… goes too, but Share file… stays", () => {
+  const view = viewForImport(received(NY, NY_SOURCE), { ...LOS_ANGELES, canCopy: false, canShare: true, canShareFiles: true });
+  assert.deepEqual(view.buttons.map((button) => button.label), [
+    "Open sky", "Open chart in Astro-Seek", "Download file", "Share file…",
+  ]);
+});
+
+test("the link is shared under a title with no birth data in it", () => {
+  const { chart } = received(NY, NY_SOURCE);
+  assert.deepEqual(shareDataFor("https://example.org/import.html", chart), {
+    title: "Chart Bridge chart",
+    url: `https://example.org/import.html#${toFragment(chart)}`,
   });
 });

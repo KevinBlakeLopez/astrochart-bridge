@@ -227,14 +227,14 @@ http://127.0.0.1:8766/import.html#v1=eyJmb3JtYXQiOiJjaGFydC1icmlkZ2UiLCJ2ZXJzaW9
 
 ### A: desktop
 
-- [ ] The page shows Local time `17 Apr 2024, 08:00 (EDT, DST)`, Offset `UTC-04:00`, UTC `2024-04-17 12:00`, Place `40°43'N, 74°0'W` and From `Astro-Seek page`, four grey notes, **Open sky**, **Open chart in Astro-Seek**, **Copy link**, **Show QR code** and **Download file**. There is no **Enter in astro.com…** or **Share…**.
+- [ ] The page shows Local time `17 Apr 2024, 08:00 (EDT, DST)`, Offset `UTC-04:00`, UTC `2024-04-17 12:00`, Place `40°43'N, 74°0'W` and From `Astro-Seek page`, four grey notes, **Open sky**, **Open chart in Astro-Seek**, **Copy link**, **Show QR code**, **Download file** and **Open a chart file**. In a browser with a share sheet (test 18), **Share link…** and possibly **Share file…** are there too. There is no **Enter in astro.com…** or **Share…**.
 - [ ] The address bar shows `import.html` with nothing after it, and **Back** doesn't bring the `#v1=…` part back.
 - [ ] Nothing opens by itself. **Open sky** opens the same Stellarium address as test 1; **Open chart in Astro-Seek** opens a chart for 17 April 2024 12:00 UT at 40°43'N, 74°0'W.
 - [ ] **Copy link** says "Link copied.", and pasting gives exactly the link above. If the browser refuses, the link appears selected in a field below the message instead.
 - [ ] **Download file** saves `chart-2024-04-17.astrochart.json`. Opened in a text editor, it shows the chart's fields indented, with `"utcOffsetSeconds": -14400`.
 - [ ] Open the browser's History list. Note whether it shows the address with `#v1=…`: the page removes it from the tab's address and its Back entry, but whether a browser's History list keeps the original address hasn't been checked in any browser.
 - [ ] Delete the last ten characters of the link and open it: the page says the link is incomplete or damaged, shows `Code: malformed`, and has no buttons.
-- [ ] Open `http://127.0.0.1:8766/import.html` with nothing after it: the page asks for a Chart Bridge link, with no buttons.
+- [ ] Open `http://127.0.0.1:8766/import.html` with nothing after it: the page asks for a Chart Bridge link or chart file, and its only button is a blue **Open a chart file**.
 - [ ] The Console stays empty throughout.
 
 ### B: phones and tablets (needs the devices)
@@ -268,6 +268,28 @@ Scanning needs a phone or tablet whose camera app reads QR codes. On the desktop
 - [ ] The address each camera shows is the whole link, ending in the same characters as **Copy link**'s.
 - [ ] The same at 200% browser zoom, and with the window narrowed until the code is at its smallest.
 - [ ] Opened on the device, the link shows the same rows as on the desktop.
+
+## Test 18: opening chart files and the share sheet
+
+Use the file **Download file** saved in test 15, `chart-2024-04-17.astrochart.json`.
+
+### A: opening a file
+
+- [ ] On the test 15 page, **Open a chart file** and choose the file: the page shows the test 15 rows, "Opened chart-2024-04-17.astrochart.json." under the buttons, and the address has nothing after `import.html`.
+- [ ] Drag the file from Finder onto the page: the same. The browser doesn't leave the page to show the file.
+- [ ] Choose any other file, such as a photo: the page says it isn't a Chart Bridge chart, with its code, and **Open a chart file** is still there.
+- [ ] In the popup on a page Chart Bridge doesn't read (test 8), **Open a chart file** opens the extension's page in a tab, where choosing the file shows the chart. Chrome and Firefox.
+- [ ] On an iPhone and an iPad, send the file to the device (AirDrop or Files), open the test 15 page there (test 15 B), and choose the file from Files. On Android, from Downloads. Each shows the chart.
+
+### B: the share sheet
+
+Note which buttons each browser shows: the page offers each only where the browser says it can share that thing.
+
+- [ ] Desktop Firefox: neither **Share link…** nor **Share file…**.
+- [ ] Desktop Safari and desktop Chrome: note whether each appears. **Share link…** opens the system's share sheet with the link; closing the sheet without sharing shows no message.
+- [ ] iPhone and iPad Safari: **Share link…** opens the share sheet, and AirDrop to a Mac opens the link there with the same chart. Note whether **Share file…** appears; if it does, AirDrop the file and open it as in A.
+- [ ] Chrome for Android and Firefox for Android: **Share link…** opens the share sheet; sending the link to yourself in a messaging app and opening it shows the same chart. Note whether **Share file…** appears.
+- [ ] On the extension's page (test 16), note whether either appears in Chrome and Firefox.
 
 ## Not covered by hand yet
 
