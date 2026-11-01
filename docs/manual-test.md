@@ -129,6 +129,7 @@ https://horoscopes.astro-seek.com/calculate-asteroids/?narozeni_den=17&narozeni_
 Go to `https://example.com`.
 
 - [ ] The popup shows "Open an Astro-Seek or astro.com birth chart to use Chart Bridge." and a **Read a screenshot instead** button, and the Console has no errors.
+- [ ] Chart Bridge's toolbar button shows its icon, a gold star above a blue arch, and Chart Bridge's card on the browser's extensions page shows it too.
 
 ## Test 9: a browser page
 
