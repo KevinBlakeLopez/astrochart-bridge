@@ -300,7 +300,7 @@ test("a signed-out browser is asked to sign in or create an account, and can sti
     message:
       "astro.com requires an account to generate charts. Sign in to your existing account or create a free account to continue.",
     notes: [
-      "Chart Bridge keeps these values for this tab while you sign in. Afterwards, open astro.com's form in this tab and click Chart Bridge again.",
+      "Chart Bridge keeps these values for the astro.com tab while you sign in. Afterwards, open astro.com's form there and click the Chart Bridge icon in the toolbar again.",
     ],
     sky: NY_SKY,
     buttons: [
@@ -337,7 +337,7 @@ test("on any other astro.com page, such as after a failed sign-in, the values wa
     rows: ROWS,
     warnings: [],
     message: "Chart Bridge is keeping these values for this tab.",
-    notes: ["When you're signed in, open astro.com's birth data form in this tab and click Chart Bridge again to fill it in."],
+    notes: ["When you're signed in, open astro.com's birth data form in this tab and click the Chart Bridge icon in the toolbar again to fill it in."],
     sky: NY_SKY,
     buttons: [OPEN_FORM_HERE, CANCEL],
   });

@@ -4,8 +4,10 @@
 // the popup's screens for it. Every decision about the chart is made in core/
 // and screenshot-model.js; this file handles the image and the page.
 import Tesseract from "./vendor/tesseract/tesseract.esm.min.js";
+import { ASTRO_COM_ACCESS, openAndFill } from "./astro-com-open.js";
 import { analyzeScreenshot } from "./core/index.js";
 import { holdForTab } from "./pending.js";
+import { viewForAstroComManual, viewForAstroComNotFilled } from "./popup-model.js";
 import { viewForScreenshot } from "./screenshot-model.js";
 import { paragraph, render } from "./view.js";
 
@@ -93,11 +95,32 @@ async function recognize(file) {
 }
 
 // An astro.com button keeps the values for the tab it opens, as in the popup.
-async function openLink({ url, holds }) {
+async function openLink({ url, holds, fills }) {
+  if (fills) return openForm(url, holds);
   if (!holds) {
     window.open(url, "_blank", "noopener");
     return;
   }
   const tab = await chrome.tabs.create({ url });
   await holdForTab(chrome.storage.session, tab.id, holds);
+}
+
+// The form button, as in the popup: access is asked for first, while the click
+// still counts as the user's. This page stays open, so a form that needs a
+// choice first is left to the popup on its tab, and this page says so.
+async function openForm(url, values) {
+  if (!(await chrome.permissions.request(ASTRO_COM_ACCESS).catch(() => false))) {
+    render(app, viewForAstroComManual(values), openLink);
+    return;
+  }
+  app.replaceChildren(paragraph("Opening astro.com's form to fill it in…", "note"));
+  const browser = { tabs: chrome.tabs, scripting: chrome.scripting, storage: chrome.storage.session };
+  const { outcome, tabId } = await openAndFill(browser, { url, values });
+  const showTab = () => chrome.tabs.update(tabId, { active: true });
+  if (outcome === "filled") {
+    app.replaceChildren(paragraph("Chart Bridge filled in astro.com's form in its tab.", "note"));
+    await showTab();
+    return;
+  }
+  render(app, viewForAstroComNotFilled(values, outcome), showTab);
 }

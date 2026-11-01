@@ -19,6 +19,8 @@ const NY_HELD = { ...NY_SKY, town: null };
 // step before it. test/astro-com-form.test.js covers the astro.com tab itself.
 const SIGN_IN_NOTE =
   "astro.com draws the chart only for a signed-in account. If it asks you to sign in or create a free account, do it in that tab: Chart Bridge keeps these values for it.";
+const ACCESS_NOTE =
+  "The first time, your browser asks to let Chart Bridge read and change www.astro.com pages. It uses that only to fill in the form in the tab it opens. If you say no, it shows the values to fill in yourself.";
 const HOLD_NOTE =
   "Chart Bridge keeps them for 30 minutes, until it fills them in, or until you cancel or close the browser. Filling in puts them in astro.com's page, and its town search sends a town to astro.com at once; submitting sends the rest.";
 
@@ -32,17 +34,19 @@ test("the astro.com screen lists the form's values in Universal Time", () => {
       ["Place", "40°43'N, 74°0'W"],
     ],
     warnings: [],
-    message: "Open astro.com's form, then click Chart Bridge on it to fill in these values. Chart Bridge doesn't submit the form.",
+    message: "Chart Bridge opens astro.com's form and fills it in as it opens. It doesn't submit the form.",
     notes: [
       "The date and time are Universal Time, so they can differ from the local birth date and time.",
       "astro.com asks for a country and town, not coordinates. Choose the town nearest this place and check the coordinates astro.com shows.",
       SIGN_IN_NOTE,
       HOLD_NOTE,
+      ACCESS_NOTE,
     ],
     sky: NY_SKY,
     buttons: [
       // Each keeps the values for the tab it opens, so the popup there can fill them in.
-      { label: "Open astro.com's form", url: "https://www.astro.com/cgi/ade.cgi", holds: NY_HELD },
+      // Only the form button fills in; it asks for access to www.astro.com first.
+      { label: "Open astro.com's form", url: "https://www.astro.com/cgi/ade.cgi", holds: NY_HELD, fills: true },
       { label: "Sign in", url: "https://www.astro.com/cgi/awd.cgi?lang=e", holds: NY_HELD },
       { label: "Create account", url: "https://www.astro.com/cgi/scus.cgi?act=new&", holds: NY_HELD },
     ],
