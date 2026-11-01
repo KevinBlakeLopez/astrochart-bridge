@@ -1,8 +1,15 @@
 // Draws a view from popup-model.js. Shared by the toolbar popup and the
 // screenshot page, which each pass their own way of opening a link. Text read
 // from a page or a screenshot is only ever inserted with textContent.
+import { astroSeekUrl } from "./core/astroseek.js";
 import { stellariumUrl } from "./core/stellarium.js";
 import { offsetPreview } from "./popup-model.js";
+
+// What a button can open for the decided sky, by the name a view gives it.
+const LINKS = { stellarium: stellariumUrl, "astro-seek": astroSeekUrl };
+
+// The button every screen with a sky has, unless the view lists its own.
+const OPEN_SKY = [{ label: "Open sky", opens: "stellarium" }];
 
 /**
  * @param {HTMLElement} container  its children are replaced
@@ -17,23 +24,23 @@ export function render(container, view, openLink) {
   if (view.code) parts.push(paragraph(`Code: ${view.code}`, "code"));
 
   if (view.state !== "refused") {
-    // The sky to open: set from the start on a ready screen, and only once
-    // a reading is picked or a valid offset is typed on the others. A view
+    // The sky the buttons open: set from the start on a ready screen, and only
+    // once a reading is picked or a valid offset is typed on the others. A view
     // with its own url (the Astro-Seek chart from a Stellarium tab) opens that.
     let sky = view.sky ?? null;
-    const open = document.createElement("button");
-    open.textContent = view.button ?? "Open sky";
-    open.addEventListener("click", () => openLink(view.url ?? stellariumUrl(sky)));
+    const buttons = view.url
+      ? [linkButton(view.button, () => openLink(view.url))]
+      : (view.buttons ?? OPEN_SKY).map(({ label, opens }) => linkButton(label, () => openLink(LINKS[opens](sky))));
     const setSky = (next) => {
       sky = next;
-      open.disabled = !view.url && sky === null;
+      for (const button of buttons) button.disabled = !view.url && sky === null;
     };
 
     if (view.state === "choose") parts.push(choiceList(view.choices, setSky));
     if (view.state === "enter-offset") parts.push(...offsetField(view, setSky));
     for (const note of view.notes) parts.push(paragraph(note, "note"));
     setSky(sky);
-    parts.push(open);
+    parts.push(...buttons);
   }
 
   container.replaceChildren(...parts);
@@ -44,6 +51,13 @@ export function paragraph(text, className) {
   if (className) p.className = className;
   p.textContent = text;
   return p;
+}
+
+function linkButton(label, onClick) {
+  const button = document.createElement("button");
+  button.textContent = label;
+  button.addEventListener("click", onClick);
+  return button;
 }
 
 function rowList(rows) {

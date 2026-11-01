@@ -110,7 +110,8 @@ export function offsetPreview(view, text) {
   return { utcText: utcText(utc), sky: { utc, lat, lng } };
 }
 
-const SKY_NOTES = [
+// Shown wherever a button opens an Astro-Seek chart: here and on the screenshot page.
+export const ASTRO_SEEK_NOTES = [
   "Astro-Seek will draw this chart in UT/GMT at these coordinates, rounded to the minute, with no city.",
   "Opening the chart sends this date, time and place to astro-seek.com.",
 ];
@@ -134,7 +135,7 @@ export function viewForSky(sky, { timeZone } = {}) {
       ["UTC", utcText(sky.utc)],
       ["Place", placeText(sky.lat, sky.lng)],
     ],
-    notes: [...SKY_NOTES],
+    notes: [...ASTRO_SEEK_NOTES],
     button: "Open chart in Astro-Seek",
     url: astroSeekUrl(sky),
   };
