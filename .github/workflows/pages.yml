@@ -1,5 +1,5 @@
-# Publishes the receiving page, extension/import.html and the files it loads,
-# to GitHub Pages at https://kevinblakelopez.github.io/chart-bridge/import.html,
+# Publishes the receiving page, extension/chart.html and the files it loads,
+# to GitHub Pages at https://kevinblakelopez.github.io/chart-bridge/chart.html,
 # the address in extension/share-config.js. Only main deploys: GitHub's
 # github-pages environment allows the default branch alone. Pages must be set
 # to deploy from GitHub Actions (Settings → Pages → Source) before the first run.
@@ -42,7 +42,7 @@ jobs:
         with:
           node-version: 24
       # The tests include test/site.test.js, which checks the site's file list
-      # against what import.html loads.
+      # against what chart.html loads.
       - run: npm test
       - run: node tools/site.mjs _site
       - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
@@ -55,7 +55,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}import.html
+      url: ${{ steps.deployment.outputs.page_url }}chart.html
     steps:
       - id: deployment
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

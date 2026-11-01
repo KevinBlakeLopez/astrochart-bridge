@@ -1,10 +1,10 @@
-// Builds the receiving page's static site: the files import.html loads, and
+// Builds the receiving page's static site: the files chart.html loads, and
 // the licence of what they vendor, copied unchanged from extension/. Nothing
 // else from the extension is published. The Pages workflow runs it as
 //
 //   node tools/site.mjs _site
 //
-// test/site.test.js checks the list against what import.html actually loads,
+// test/site.test.js checks the list against what chart.html actually loads,
 // so a new import can't be left out and an unused file can't be published.
 import { copyFileSync, mkdirSync, readdirSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -13,11 +13,11 @@ import { fileURLToPath } from "node:url";
 const EXTENSION = fileURLToPath(new URL("../extension/", import.meta.url));
 
 export const SITE_FILES = Object.freeze([
-  "import.html",
+  "chart.html",
   "popup.css",
-  "import.css",
-  "import.js",
-  "import-model.js",
+  "chart.css",
+  "chart.js",
+  "chart-model.js",
   "share-config.js",
   "view.js",
   "popup-model.js",

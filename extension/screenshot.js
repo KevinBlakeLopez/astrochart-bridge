@@ -4,7 +4,7 @@
 // screenshot-model.js; this file handles the image and the page.
 import Tesseract from "./vendor/tesseract/tesseract.esm.min.js";
 import { analyzeScreenshot } from "./core/index.js";
-import { linkFor } from "./import-model.js";
+import { linkFor } from "./chart-model.js";
 import { holdForTab } from "./pending.js";
 import { chartToShare, viewForShareRefusal } from "./popup-model.js";
 import { viewForScreenshot } from "./screenshot-model.js";
@@ -104,7 +104,7 @@ function showChart(result) {
       render(app, viewForShareRefusal(shared.reason), onButton, view);
       return;
     }
-    await chrome.tabs.create({ url: linkFor(chrome.runtime.getURL("import.html"), shared.chart) });
+    await chrome.tabs.create({ url: linkFor(chrome.runtime.getURL("chart.html"), shared.chart) });
   };
   render(app, view, onButton);
 }

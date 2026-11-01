@@ -8,7 +8,7 @@ import { buildSite, SITE_FILES } from "../tools/site.mjs";
 const extension = new URL("../extension/", import.meta.url).pathname;
 const read = (file) => readFileSync(join(extension, file), "utf8");
 
-// Every file import.html loads: its scripts and stylesheets, then every
+// Every file chart.html loads: its scripts and stylesheets, then every
 // module those scripts import. Comments are dropped first, so a JSDoc
 // type such as import("./core/index.js") isn't counted as a load.
 function loadedBy(page) {
@@ -34,7 +34,7 @@ function loadedBy(page) {
 const LICENSES = ["vendor/lean-qr/LICENSE"];
 
 test("the site is exactly the files the receiving page loads, and the licence for what it vendors", () => {
-  const expected = [...loadedBy("import.html"), "import.html", ...LICENSES].sort();
+  const expected = [...loadedBy("chart.html"), "chart.html", ...LICENSES].sort();
   assert.deepEqual([...SITE_FILES].sort(), [...new Set(expected)].sort());
 });
 
@@ -45,7 +45,7 @@ test("nothing of the extension's own pages is published", () => {
 });
 
 test("the receiving page's own files are in it", () => {
-  for (const file of ["import.html", "import.js", "import-model.js", "core/portable.js", "qr.js", "vendor/lean-qr/index.mjs"]) {
+  for (const file of ["chart.html", "chart.js", "chart-model.js", "core/portable.js", "qr.js", "vendor/lean-qr/index.mjs"]) {
     assert.ok(SITE_FILES.includes(file), file);
   }
 });

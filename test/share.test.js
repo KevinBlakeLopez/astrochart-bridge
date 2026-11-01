@@ -127,7 +127,7 @@ test("shared links open the receiving page on https, by its file name", () => {
   const url = new URL(RECEIVER_URL);
   assert.equal(url.protocol, "https:");
   // A folder address would be redirected, and a redirect carries the fragment along.
-  assert.match(url.pathname, /\/import\.html$/);
+  assert.match(url.pathname, /\/chart\.html$/);
   assert.equal(url.search, "");
   assert.equal(url.hash, "");
 });

@@ -2,7 +2,7 @@
 // the extension: the chart is read from the link's fragment, which the browser
 // never sends to the server, or from a file chosen or dropped here, and
 // nothing is stored or sent until a button is clicked. Every decision is made
-// in import-model.js and drawn by view.js.
+// in chart-model.js and drawn by view.js.
 import {
   MAX_FILE_BYTES,
   fileFor,
@@ -13,7 +13,7 @@ import {
   readLink,
   shareDataFor,
   viewForImport,
-} from "./import-model.js";
+} from "./chart-model.js";
 import { RECEIVER_URL } from "./share-config.js";
 import { paragraph, render } from "./view.js";
 

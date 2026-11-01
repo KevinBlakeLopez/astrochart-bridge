@@ -4,7 +4,7 @@
 import { fillForm, formValues, isAstroComPage, isBirthDataForm, readFormPage } from "./core/astrocom.js";
 import { analyzePage, classifyUrl, extractorFor } from "./core/index.js";
 import { isStellariumWeb, skyFromEngine } from "./core/stellarium.js";
-import { linkFor } from "./import-model.js";
+import { linkFor } from "./chart-model.js";
 import { heldForTab, holdForTab, releaseTab } from "./pending.js";
 import { chartToShare, viewFor, viewForAstroComTab, viewForShareRefusal, viewForSky } from "./popup-model.js";
 import { render } from "./view.js";
@@ -77,7 +77,7 @@ function showChart(result) {
       render(app, viewForShareRefusal(shared.reason), onButton, view);
       return;
     }
-    await chrome.tabs.create({ url: linkFor(chrome.runtime.getURL("import.html"), shared.chart) });
+    await chrome.tabs.create({ url: linkFor(chrome.runtime.getURL("chart.html"), shared.chart) });
     window.close();
   };
   show(view, { onButton });
@@ -155,7 +155,7 @@ function screenshotButton() {
 // The receiving page, with no link, opens files. The file chooser isn't opened
 // from the popup itself, which can close when the chooser takes the focus.
 function chartFileButton() {
-  return pageButton("Open a chart file", "import.html");
+  return pageButton("Open a chart file", "chart.html");
 }
 
 function pageButton(label, page) {

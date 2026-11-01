@@ -1,7 +1,7 @@
 // What the receiving page shows for a Chart Bridge link or chart file. It is
 // the popup's ready screen, from viewFor, for a chart that arrived in a link
 // or a file rather than from a page: it can open in Stellarium Web and
-// Astro-Seek, and be passed on. Every decision is made here, so import.js only
+// Astro-Seek, and be passed on. Every decision is made here, so chart.js only
 // reads the link or file and renders.
 import { fromFragment, parse, serialize, skyFor, toFragment } from "./core/portable.js";
 import { ASTRO_SEEK_NOTES, ASTRO_SEEK_BUTTONS, viewFor } from "./popup-model.js";

@@ -11,7 +11,7 @@ import {
   readLink,
   shareDataFor,
   viewForImport,
-} from "../extension/import-model.js";
+} from "../extension/chart-model.js";
 import { ASTRO_SEEK_NOTES } from "../extension/popup-model.js";
 
 const PRIVACY_NOTE =
@@ -184,22 +184,22 @@ test("a refusal the page doesn't know still shows its code", () => {
 test("the copied link is this page's address and the chart's fragment", () => {
   const { chart } = received(NY, NY_SOURCE);
   assert.equal(
-    linkFor("http://127.0.0.1:8766/import.html", chart),
-    `http://127.0.0.1:8766/import.html#${toFragment(chart)}`,
+    linkFor("http://127.0.0.1:8766/chart.html", chart),
+    `http://127.0.0.1:8766/chart.html#${toFragment(chart)}`,
   );
 });
 
 test("the copied link drops the address's own query and fragment", () => {
   const { chart } = received(NY, NY_SOURCE);
   assert.equal(
-    linkFor("https://example.org/chart-bridge/import.html?utm=x#v1=old", chart),
-    `https://example.org/chart-bridge/import.html#${toFragment(chart)}`,
+    linkFor("https://example.org/chart-bridge/chart.html?utm=x#v1=old", chart),
+    `https://example.org/chart-bridge/chart.html#${toFragment(chart)}`,
   );
 });
 
 test("a received link is copied back exactly", () => {
   const { chart } = received(NY, NY_SOURCE);
-  const link = `https://example.org/import.html#${toFragment(chart)}`;
+  const link = `https://example.org/chart.html#${toFragment(chart)}`;
   const again = readLink(new URL(link).hash);
   assert.equal(linkFor(link, again.chart), link);
 });
@@ -207,14 +207,14 @@ test("a received link is copied back exactly", () => {
 // --- Where Copy link points ---
 
 test("on the web, a copied link points at the page it was copied from", () => {
-  assert.equal(linkBase("https://example.org/import.html", "https://other.example/import.html"), "https://example.org/import.html");
-  assert.equal(linkBase("http://127.0.0.1:8766/import.html", null), "http://127.0.0.1:8766/import.html");
+  assert.equal(linkBase("https://example.org/chart.html", "https://other.example/chart.html"), "https://example.org/chart.html");
+  assert.equal(linkBase("http://127.0.0.1:8766/chart.html", null), "http://127.0.0.1:8766/chart.html");
 });
 
 test("in the extension, a copied link points at the receiving page", () => {
-  const extensionPage = "chrome-extension://abcdefghijklmnop/import.html";
-  assert.equal(linkBase(extensionPage, "https://example.org/import.html"), "https://example.org/import.html");
-  assert.equal(linkBase("moz-extension://1234-5678/import.html", "https://example.org/import.html"), "https://example.org/import.html");
+  const extensionPage = "chrome-extension://abcdefghijklmnop/chart.html";
+  assert.equal(linkBase(extensionPage, "https://example.org/chart.html"), "https://example.org/chart.html");
+  assert.equal(linkBase("moz-extension://1234-5678/chart.html", "https://example.org/chart.html"), "https://example.org/chart.html");
   assert.equal(linkBase(extensionPage, null), null);
 });
 
@@ -262,9 +262,9 @@ test("the file is the link's JSON, indented, and reads back as the same chart", 
 
 test("the QR code is the copied link's, with a note on who can read it", () => {
   const { chart } = received(NY, NY_SOURCE);
-  const view = qrViewFor("https://example.org/import.html", chart);
+  const view = qrViewFor("https://example.org/chart.html", chart);
   assert.equal(view.state, "qr");
-  assert.equal(view.link, `https://example.org/import.html#${toFragment(chart)}`);
+  assert.equal(view.link, `https://example.org/chart.html#${toFragment(chart)}`);
   assert.equal(view.label, "QR code for the link to this chart");
   assert.equal(
     view.note,
@@ -373,8 +373,8 @@ test("with nowhere to point a link, Share link… goes too, but Share file… st
 
 test("the link is shared under a title with no birth data in it", () => {
   const { chart } = received(NY, NY_SOURCE);
-  assert.deepEqual(shareDataFor("https://example.org/import.html", chart), {
+  assert.deepEqual(shareDataFor("https://example.org/chart.html", chart), {
     title: "Chart Bridge chart",
-    url: `https://example.org/import.html#${toFragment(chart)}`,
+    url: `https://example.org/chart.html#${toFragment(chart)}`,
   });
 });

@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { correction, generate } from "../extension/vendor/lean-qr/index.mjs";
 import { toFragment, toPortable } from "../extension/core/portable.js";
-import { linkFor } from "../extension/import-model.js";
+import { linkFor } from "../extension/chart-model.js";
 import { MAX_QR_VERSION, QR_OPTIONS, QUIET_ZONE, qrFor } from "../extension/qr.js";
 import { RECEIVER_URL } from "../extension/share-config.js";
 
@@ -85,6 +85,6 @@ test("the same link always gives the same code", () => {
 
 test("a link from the web page encodes the same way", () => {
   const chart = toPortable(NY, NY_SOURCE).chart;
-  const qr = qrFor(`http://127.0.0.1:8766/import.html#${toFragment(chart)}`);
+  const qr = qrFor(`http://127.0.0.1:8766/chart.html#${toFragment(chart)}`);
   assert.equal(qr.kind, "qr");
 });

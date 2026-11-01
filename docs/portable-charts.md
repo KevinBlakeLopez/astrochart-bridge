@@ -1,6 +1,6 @@
 # Portable charts
 
-Chart Bridge can pass a chart to another device that doesn't have the extension: as a link, a QR code of that link, a `.astrochart.json` file, or through the system's share sheet. The other device opens the link or file on the receiving page, `import.html`, which shows the chart and opens it in Stellarium Web or Astro-Seek. There is no server, account, database or tracking: the chart travels inside the link or file, and every page that reads it runs on the device.
+Chart Bridge can pass a chart to another device that doesn't have the extension: as a link, a QR code of that link, a `.astrochart.json` file, or through the system's share sheet. The other device opens the link or file on the receiving page, `chart.html`, which shows the chart and opens it in Stellarium Web or Astro-Seek. There is no server, account, database or tracking: the chart travels inside the link or file, and every page that reads it runs on the device.
 
 ## How it fits together
 
@@ -23,8 +23,8 @@ screenshot ──────┘                                          │
 ```
 
 - `extension/core/portable.js` is the format: building, validating, serializing and reading charts, and link fragments. It uses no browser API and knows no site.
-- The popup and the screenshot page offer **Share…** on any screen with a chart of its own, once a reading or an offset decides the UTC. It opens the extension's copy of `import.html` with the chart in its link.
-- `import.html` is the same page in the extension and on the web. It reuses the popup's view model and `view.js`, so a received chart shows the popup's rows and notes, and opens through the same `stellariumUrl` and `astroSeekUrl` as the popup.
+- The popup and the screenshot page offer **Share…** on any screen with a chart of its own, once a reading or an offset decides the UTC. It opens the extension's copy of `chart.html` with the chart in its link.
+- `chart.html` is the same page in the extension and on the web. It reuses the popup's view model and `view.js`, so a received chart shows the popup's rows and notes, and opens through the same `stellariumUrl` and `astroSeekUrl` as the popup.
 - A source added later needs only to produce a decided chart; the format, page and sharing don't change. A destination added later needs only to take `skyFor`'s `{ utc, lat, lng }`.
 
 ## The format
@@ -118,7 +118,7 @@ The share buttons appear only where the browser says it can share that thing, so
 
 ## Deploying the receiving page
 
-The page is static: `node tools/site.mjs <folder>` copies the files `import.html` loads, and `lean-qr`'s licence, into an empty folder: 16 files, about 90 KB. `test/site.test.js` checks that list against what the page actually loads. Nothing else from `extension/` is published.
+The page is static: `node tools/site.mjs <folder>` copies the files `chart.html` loads, and `lean-qr`'s licence, into an empty folder: 16 files, about 90 KB. `test/site.test.js` checks that list against what the page actually loads. Nothing else from `extension/` is published.
 
 `.github/workflows/pages.yml` runs `npm test`, builds the site and deploys it to GitHub Pages on a push to `main` that touches the extension, tools, tests or fixtures, or when run by hand. Its actions are pinned to release commits.
 
@@ -126,11 +126,11 @@ Before the first deploy:
 
 1. In the repository's Settings → Pages, set **Source** to **GitHub Actions**.
 2. Merge the branches with this work into `main`. GitHub's `github-pages` environment deploys from the default branch only.
-3. After the workflow runs, check that `https://kevinblakelopez.github.io/chart-bridge/import.html` answers 200 with no redirect, and run manual test 15 against it.
+3. After the workflow runs, check that `https://kevinblakelopez.github.io/chart-bridge/chart.html` answers 200 with no redirect, and run manual test 15 against it.
 
-To host the page elsewhere, serve the same files at any https address and set `RECEIVER_URL` in `extension/share-config.js` to that address's `import.html`. Name the file, not the folder: a folder address would be redirected, and a redirect carries the fragment along. Links already shared keep pointing at the old address. Setting `RECEIVER_URL` to `null` hides Copy link, QR codes and Share link… in the extension.
+To host the page elsewhere, serve the same files at any https address and set `RECEIVER_URL` in `extension/share-config.js` to that address's `chart.html`. Name the file, not the folder: a folder address would be redirected, and a redirect carries the fragment along. Links already shared keep pointing at the old address. Setting `RECEIVER_URL` to `null` hides Copy link, QR codes and Share link… in the extension.
 
-To try the page locally, serve the `extension` folder (`python3 -m http.server 8766 --bind 127.0.0.1 --directory extension`, the launch config's `receiving-page` entry) and open `http://127.0.0.1:8766/import.html` with a link's fragment; manual test 15 has one.
+To try the page locally, serve the `extension` folder (`python3 -m http.server 8766 --bind 127.0.0.1 --directory extension`, the launch config's `receiving-page` entry) and open `http://127.0.0.1:8766/chart.html` with a link's fragment; manual test 15 has one.
 
 ## Tests
 
@@ -140,9 +140,9 @@ To try the page locally, serve the `extension` folder (`python3 -m http.server 8
 |---|---|
 | `test/portable.test.js` | Building, serializing and reading charts; round trips of every Astro-Seek fixture and of historical, local-mean-time, half-hour, southern, date-boundary and Unicode charts; refusals of malformed, truncated, corrupted, oversized, newer and invalid input. |
 | `test/share.test.js` | `chartToShare` for each popup screen and how its UTC was decided; where Share… is and isn't offered; the receiving page's address. |
-| `test/import-model.test.js` | The receiving page's screens, refusals for links and files, Copy link's address, file names and contents, `readChartFile`, the share buttons, QR views. |
+| `test/chart-model.test.js` | The receiving page's screens, refusals for links and files, Copy link's address, file names and contents, `readChartFile`, the share buttons, QR views. |
 | `test/qr.test.js` | QR versions and sizes, error correction, the SVG path against the code's modules, refusal of links too long to scan. |
-| `test/site.test.js` | The published file list against what `import.html` loads, and the site build. |
+| `test/site.test.js` | The published file list against what `chart.html` loads, and the site build. |
 
 The popup's and screenshot page's own scripts, the extension's Share… flow, and every physical device are covered by manual tests 15 to 18 in `docs/manual-test.md`.
 
