@@ -57,7 +57,7 @@ function only(params, key) {
  * @param {{ url: string, links: string[] }} page  as for readPgid
  * @returns {{ local: string, offsetMinutes: number, lat: number, lng: number }
  *   | { kind: "refused", reason: "unsupported" | "no-drawing-link" | "ambiguous-page" | "unreadable-link"
- *       | "page-url-mismatch" | "unreadable-record" | "local-mean-time" | "unseen-field-9" }}
+ *       | "page-url-mismatch" | "unreadable-record" | "calendar-unsupported" | "local-mean-time" | "unseen-field-9" }}
  */
 export function readChart({ url, links }) {
   const link = readPgid({ url, links });
@@ -65,6 +65,7 @@ export function readChart({ url, links }) {
 
   const chart = parseNd(link.nd);
   if (!chart) return refused("unreadable-record");
+  if (chart.local < GREGORIAN_START) return refused("calendar-unsupported");
   // Checked before field 9, which reads "gal" beside every local-mean-time
   // zone seen, so these charts get the reason that explains them.
   if (chart.zone.kind === "local-mean-time") return refused("local-mean-time");
@@ -82,6 +83,11 @@ export function readChart({ url, links }) {
 // text that follows, "L", then that text: the chart URL in base64url. Only the
 // unpadded form has been seen; the one sample needed no padding.
 const DRAWING_PATH = "/cgi/sub.cgi";
+
+// astro.com's AAF files take dates before the Gregorian calendar began as
+// Julian, as aaf.js reads them. Whether its nd records do hasn't been seen,
+// and nothing in the record would catch a date some days out, so they are refused.
+const GREGORIAN_START = "1582-10-15";
 const PGID = /^L(\d+)L([A-Za-z0-9_-]+)$/;
 
 /**
@@ -266,7 +272,9 @@ function degrees(deg, min, sec, negative, limit) {
 }
 
 function isCalendarDate({ year, month, day }) {
-  const date = new Date(Date.UTC(year, month - 1, day));
+  // Date.UTC takes years 0 to 99 for 1900 to 1999, so the year is set apart.
+  const date = new Date(0);
+  date.setUTCFullYear(year, month - 1, day);
   return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
 }
 

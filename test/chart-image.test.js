@@ -215,6 +215,13 @@ test("a date that doesn't exist is refused", () => {
   });
 });
 
+test("a date before the Gregorian calendar began is refused for its calendar, not as misread", () => {
+  for (const date of ["We., 26 July 1545", "We., 26 July 45", "Th., 14 Oct 1582"]) {
+    assert.deepEqual(readHeader(withLine("We.", `${date} Time: 7:30:03 a.m. LMT`)), { kind: "refused", reason: "calendar-unsupported" });
+  }
+  assert.equal(readHeader(withLine("We.", "Fr., 15 Oct 1582 Time: 7:30:03 a.m. LMT")).local, "1582-10-15T07:30:03");
+});
+
 test("two headers, as in a drawing of two charts, are refused", () => {
   assert.deepEqual(readHeader(ocr([...LILLY_OCR, ...NY_OCR])), { kind: "refused", reason: "ambiguous-screenshot" });
 });

@@ -16,7 +16,8 @@ const REFUSALS = {
     "The weekday in this screenshot doesn't fall on its date, so the date was probably misread. Try a larger screenshot.",
   "zone-offset-mismatch":
     "The time zone in this screenshot doesn't match its UTC offset, so one of them was probably misread. Try a larger screenshot.",
-  "calendar-unsupported": "This chart is dated Old Style or BC. Chart Bridge reads Gregorian dates only.",
+  "calendar-unsupported":
+    "This chart is dated before the Gregorian calendar began on 15 October 1582, or marked Old Style or BC. Chart Bridge reads Gregorian dates only.",
   "apparent-time": "This chart uses local apparent time, which Chart Bridge can't open yet.",
   "offset-off-quarter-hour":
     "The sidereal time in this screenshot gives a UTC offset that isn't on a quarter hour, so its longitude was probably misread. Try a larger screenshot. A chart in one of the few zones off the quarter hour, such as Amsterdam's before 1940, can't be read from a TimePassages screenshot yet.",
