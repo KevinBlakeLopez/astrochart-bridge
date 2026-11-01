@@ -132,7 +132,7 @@ https://horoscopes.astro-seek.com/calculate-asteroids/?narozeni_den=17&narozeni_
 
 Go to `https://example.com`.
 
-- [ ] The popup shows "Open an Astro-Seek or astro.com birth chart to use AstroChart Bridge." and five buttons, **Read a screenshot instead**, **Paste chart text instead**, **Open an AAF file**, **Open a chart file** and **Import from Stellarium Desktop**, and the Console has no errors. Until AstroChart Bridge has been allowed to connect to `127.0.0.1` (test 17), nothing connects there and no grey line follows the last button.
+- [ ] The popup shows "Open an Astro-Seek or astro.com birth chart to use AstroChart Bridge." and five buttons, **Read a screenshot instead**, **Paste chart text instead**, **Open an AAF or Morinus file**, **Open a chart file** and **Import from Stellarium Desktop**, and the Console has no errors. Until AstroChart Bridge has been allowed to connect to `127.0.0.1` (test 17), nothing connects there and no grey line follows the last button.
 - [ ] AstroChart Bridge's toolbar button shows its icon, a gold star above a blue arch, and AstroChart Bridge's card on the browser's extensions page shows it too.
 
 ## Test 9: a browser page
@@ -250,7 +250,7 @@ Open the test 1 URL and open the popup.
 
 ### Opening
 
-- [ ] On the test 8 popup (another website), below **Paste chart text instead**, is **Open an AAF file**. It opens the import page in a new tab and closes the popup.
+- [ ] On the test 8 popup (another website), below **Paste chart text instead**, is **Open an AAF or Morinus file**. It opens the import page in a new tab and closes the popup.
 - [ ] Choose `fixtures/aaf/astrolog-8.00-new-york.aaf`. The page says "1 chart in this file." and shows Name `New York Test`, Local time `17 Apr 2024, 08:00`, Offset `UTC-04:00`, UTC `2024-04-17 12:00`, Birthplace `New York, NY (US)` and Place `40°43'N, 74°0'W`. The Console is empty.
 - [ ] **Open sky** opens Stellarium Web with `date=2024-04-17T12%3A00%3A00Z&lat=40.716667&lng=-74` in the address. **Open chart in Astro-Seek** opens the same chart at 12:00 UT, as in test 12.
 - [ ] Drag `fixtures/aaf/astrolog-8.00-delhi-seconds.aaf` onto the page. It shows Local time `1 Mar 1990, 06:15`, Offset `UTC+05:30` and UTC `1990-03-01 00:45`.
@@ -455,6 +455,18 @@ Note which buttons each browser shows: the page offers each only where the brows
 - [ ] iPhone and iPad Safari: **Share link…** opens the share sheet, and AirDrop to a Mac opens the link there with the same chart. Note whether **Share file…** appears; if it does, AirDrop the file and open it as in A.
 - [ ] Chrome for Android and Firefox for Android: **Share link…** opens the share sheet; sending the link to yourself in a messaging app and opening it shows the same chart. Note whether **Share file…** appears.
 - [ ] On the extension's page (test 20), note whether either appears in Chrome and Firefox.
+
+## Test 23: Morinus files
+
+`docs/morinus-hor.md` explains what AstroChart Bridge reads. The files are `fixtures/morinus/` in this repo: invented charts, each saved with several pickle protocols. If Morinus is installed, also open a chart you saved in it yourself.
+
+- [ ] On the import page (test 15), choose `fixtures/morinus/ny-est-plus-dst.p2.hor`. The page says "1 chart in this file." and shows Name `Test`, Local time `17 Apr 2024, 08:00`, Offset `UTC-04:00`, Entered as `UTC-05:00 zone, with daylight saving`, UTC `2024-04-17 12:00`, Birthplace `New York` and Place `40°43'N, 74°0'W`, with a note that Morinus saves the offset entered, not the time zone. The Console is empty.
+- [ ] **Open sky** opens Stellarium Web with `date=2024-04-17T12%3A00%3A00Z&lat=40.716667&lng=-74` in the address. **Save as AAF file** saves a file whose `#B93` line is `#B93:*,40n43,74w00,5hw00,1`.
+- [ ] Drag `fixtures/morinus/sydney-south.p0.hor` onto the page. It shows Offset `UTC+11:00`, UTC `2024-01-14 21:00` and Place `33°52'S, 151°12'E`.
+- [ ] Choose `fixtures/morinus/greenwich-with-dst.p4.hor`. It shows Entered as `Greenwich time, with daylight saving`, UTC `2024-04-17 07:00` and a warning that Morinus takes an hour off.
+- [ ] Choose `fixtures/morinus/julian-1900.p4.hor`. It says the date is in the Julian calendar and shows `Code: julian-calendar`, with no buttons.
+- [ ] Choose any `.aaf` file from test 15 again. It still opens as AAF.
+- [ ] If Morinus is installed: save a chart in it, open the `.hor` here, and check the UTC against the one Morinus shows.
 
 ## Not covered by hand yet
 
