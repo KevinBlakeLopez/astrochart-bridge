@@ -2,6 +2,7 @@
 // check and correct, then the popup's ready screen for it. Every decision is
 // made in core/ and paste-model.js; this file handles the page. The text is
 // only ever inserted with textContent or an input's value, never as HTML.
+import { openLink as openPageLink } from "./astro-com-page.js";
 import { linkFor } from "./chart-model.js";
 import { readText } from "./core/text.js";
 import { chartForEntry, checkField, entryFor, formFor, viewForEntry } from "./paste-model.js";
@@ -126,9 +127,10 @@ function fieldElement(field, onValue) {
 // back to this screen.
 function showReady(formElementToKeep, entry, form) {
   const screen = document.createElement("div");
-  const view = viewForEntry(entry, { warnings: form.warnings });
+  const view = viewForEntry(entry, { warnings: form.warnings, name: form.name });
   const onButton = async (button) => {
-    if (button.does !== "share") return openLink(button);
+    // Links, and the astro.com buttons of the step after this screen, as on the screenshot page.
+    if (button.does !== "share") return openPageLink(screen, button);
     const shared = chartForEntry(entry, form.statedOffsets);
     if (shared.kind === "refused") {
       render(screen, viewForShareRefusal(shared.reason), onButton, view);

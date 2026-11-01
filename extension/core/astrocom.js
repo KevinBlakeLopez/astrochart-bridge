@@ -292,6 +292,8 @@ const isoDate = ({ year, month, day }) => `${pad(year, 4)}-${pad(month)}-${pad(d
 // cid doesn't tell a new entry from a saved chart and isn't read.
 // Typing in the town field, scit, makes astro.com's page look the town up at
 // once (adejs.cgi?…&func=place_query) and list its matches with coordinates.
+// The name is two text fields, sfnm (first name) and snam (last name), each
+// with a maxlength of 40 and neither required.
 const FORM_PATH = "/cgi/ade.cgi";
 
 /**
@@ -318,14 +320,16 @@ export function isBirthDataForm(url) {
 }
 
 /**
- * The values for ade.cgi's fields for a decided UTC and the chart's town, by
- * field name. The seconds are left out: the form takes whole minutes. The
- * town, when there is one, goes in the birth town field, scit.
+ * The values for ade.cgi's fields for a decided UTC and the chart's town and
+ * name, by field name. The seconds are left out: the form takes whole minutes.
+ * The town, when there is one, goes in the birth town field, scit, and the
+ * name, when there is one, in the first and last name fields, sfnm and snam.
  *
- * @param {{ utc: string, town?: string | null }} values
- * @returns {{ sday: string, imon: string, syar: string, ihou: string, smin: string, szon: "h0w", scit?: string }}
+ * @param {{ utc: string, town?: string | null, name?: { first: string, last: string } | null }} values
+ * @returns {{ sday: string, imon: string, syar: string, ihou: string, smin: string, szon: "h0w",
+ *   scit?: string, sfnm?: string, snam?: string }}
  */
-export function formValues({ utc, town = null }) {
+export function formValues({ utc, town = null, name = null }) {
   const [year, month, day] = utc.slice(0, 10).split("-");
   return {
     sday: String(Number(day)),
@@ -335,6 +339,7 @@ export function formValues({ utc, town = null }) {
     smin: utc.slice(14, 16),
     szon: "h0w",
     ...(town === null ? {} : { scit: town }),
+    ...(name === null ? {} : { sfnm: name.first, snam: name.last }),
   };
 }
 
@@ -366,9 +371,9 @@ export function readFormPage() {
  * Fills in a blank ade.cgi form with formValues' values, the way a person
  * would: the extended settings are opened so the time zone shows, each change
  * is announced to the page's own scripts, and the town field is focused for
- * the person to type in or pick astro.com's match. A town already typed is
- * kept. Never submits. Fills in nothing unless the form is still blank and
- * every value is one the form accepts.
+ * the person to type in or pick astro.com's match. A town or name already
+ * typed is kept. Never submits. Fills in nothing unless the form is still
+ * blank and every value is one the form accepts.
  *
  * @param {ReturnType<typeof formValues>} values
  * @returns {{ filled: true } | { filled: false, form: "typed" | "unrecognised" }}
@@ -377,7 +382,9 @@ export function fillForm(values) {
   const fields = document.forms.namedItem("start")?.elements;
   const field = (name) => fields?.namedItem(name) ?? null;
   if (![...Object.keys(values), "extset", "scit"].every(field)) return { filled: false, form: "unrecognised" };
-  const names = Object.keys(values).filter((name) => name !== "scit" || field(name).value === "");
+  // What the person typed in these is theirs: only empty ones are filled in.
+  const kept = ["scit", "sfnm", "snam"];
+  const names = Object.keys(values).filter((name) => !kept.includes(name) || field(name).value === "");
   if (["sday", "syar", "smin", "ihou"].some((name) => field(name).value !== "")) return { filled: false, form: "typed" };
 
   // A select ignores a value none of its options has, so each is tried and put

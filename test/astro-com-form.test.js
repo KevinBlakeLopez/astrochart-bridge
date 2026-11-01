@@ -10,9 +10,10 @@ import {
 import { HOLD_MINUTES, heldForTab, holdForTab, releaseTab } from "../extension/pending.js";
 import { viewForAstroComTab } from "../extension/popup-model.js";
 
-// What the astro.com screens keep for a tab: the sky, and a town or null.
-const NY_SKY = { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74, town: null };
-const SYDNEY_SKY = { utc: "2024-01-14T21:00:00Z", lat: -33.866667, lng: 151.2, town: "Sydney" };
+// What the astro.com screens keep for a tab: the sky, and a town and name or null.
+const NY_SKY = { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74, town: null, name: null };
+const SYDNEY_SKY = { utc: "2024-01-14T21:00:00Z", lat: -33.866667, lng: 151.2, town: "Sydney", name: null };
+const NAMED_SKY = { ...NY_SKY, name: { first: "Example", last: "Person" } };
 const FORM_URL = "https://www.astro.com/cgi/ade.cgi";
 const SIGN_IN_URL = "https://www.astro.com/cgi/awd.cgi?lang=e";
 const CREATE_ACCOUNT_URL = "https://www.astro.com/cgi/scus.cgi?act=new&";
@@ -64,6 +65,16 @@ test("a town goes in the birth town field, scit", () => {
   assert.equal("scit" in formValues(NY_SKY), false);
 });
 
+test("a name goes in the first and last name fields, sfnm and snam", () => {
+  assert.equal(formValues(NAMED_SKY).sfnm, "Example");
+  assert.equal(formValues(NAMED_SKY).snam, "Person");
+  // A name read as one string, such as an event's, is all last name, as astro.com's own records keep it.
+  const event = formValues({ ...NY_SKY, name: { first: "", last: "Moon landing" } });
+  assert.deepEqual([event.sfnm, event.snam], ["", "Moon landing"]);
+  assert.equal("sfnm" in formValues(NY_SKY), false);
+  assert.equal("snam" in formValues(NY_SKY), false);
+});
+
 // --- Values kept for the astro.com tab -------------------------------------
 
 test("the values survive the tab's navigation: what was kept for a tab comes back for it", async () => {
@@ -78,6 +89,20 @@ test("only the decided UTC, place and town are kept, with the time they were kep
   const storage = fakeStorage();
   await holdForTab(storage, 7, { ...SYDNEY_SKY, extra: "not kept" }, T0);
   assert.deepEqual(Object.values(storage.items), [{ values: SYDNEY_SKY, heldAt: T0 }]);
+});
+
+test("a name is kept as its two parts, and anything else with it is dropped", async () => {
+  const storage = fakeStorage();
+  await holdForTab(storage, 7, { ...NAMED_SKY, name: { ...NAMED_SKY.name, sex: "e" } }, T0);
+  assert.deepEqual(await heldForTab(storage, 7, T0), NAMED_SKY);
+});
+
+test("a name with both parts empty, or not two strings, comes back as no name", async () => {
+  const storage = fakeStorage();
+  for (const name of [{ first: "", last: "" }, { first: "Example" }, "Example Person", { first: 1, last: "Person" }]) {
+    await holdForTab(storage, 7, { ...NY_SKY, name }, T0);
+    assert.deepEqual(await heldForTab(storage, 7, T0), NY_SKY, JSON.stringify(name));
+  }
 });
 
 test("values kept with no town come back with a null town", async () => {
@@ -173,6 +198,8 @@ function formPage({ hello = ["Hello [not logged in]"], cid = "", typed = {}, mis
     field("ihou", "", options.ihou),
     field("smin", typed.smin ?? ""),
     field("scit", typed.scit ?? ""),
+    field("sfnm", typed.sfnm ?? ""),
+    field("snam", typed.snam ?? ""),
     field("extset", "close"),
     field("szon", "au", options.szon),
   ].filter((element) => !missing.includes(element.name));
@@ -237,6 +264,30 @@ test("a town typed in already is kept, and the rest is still filled in", () => {
   assert.deepEqual(runInPage(fillForm, page, formValues(SYDNEY_SKY)), { filled: true });
   assert.equal(page.field("scit").value, "Parramatta");
   assert.equal(page.field("sday").value, "14");
+});
+
+test("a name is filled in too, as typed, and the cursor still goes to the town", () => {
+  const page = formPage(SIGNED_IN);
+  assert.deepEqual(runInPage(fillForm, page, formValues(NAMED_SKY)), { filled: true });
+  assert.deepEqual([page.field("sfnm").value, page.field("snam").value], ["Example", "Person"]);
+  assert.ok(page.field("snam").events.includes("input"));
+  assert.equal(page.field("scit").focused, true);
+});
+
+test("a name typed in already is kept part by part, and the rest is still filled in", () => {
+  const page = formPage({ ...SIGNED_IN, typed: { sfnm: "Sam" } });
+  assert.deepEqual(runInPage(fillForm, page, formValues(NAMED_SKY)), { filled: true });
+  assert.deepEqual([page.field("sfnm").value, page.field("snam").value], ["Sam", "Person"]);
+  assert.equal(page.field("sday").value, "17");
+});
+
+test("a form without the name fields is unrecognised when there is a name, and filled in when there isn't", () => {
+  for (const missing of [["sfnm"], ["snam"]]) {
+    const page = formPage({ ...SIGNED_IN, missing });
+    assert.deepEqual(runInPage(fillForm, page, formValues(NAMED_SKY)), { filled: false, form: "unrecognised" }, missing[0]);
+    assert.equal(page.field("sday").value, "");
+    assert.deepEqual(runInPage(fillForm, formPage({ ...SIGNED_IN, missing }), formValues(NY_SKY)), { filled: true });
+  }
 });
 
 test("a signed-in browser's blank form is filled in, and its cid is left alone", () => {
@@ -343,6 +394,15 @@ test("on any other astro.com page, such as after a failed sign-in, the values wa
   });
   // Nothing in the view navigates on its own: there is no redirect for a failed sign-in to loop through.
   assert.deepEqual(Object.keys(view).filter((key) => !["state", "rows", "warnings", "message", "notes", "sky", "buttons"].includes(key)), []);
+});
+
+test("a kept name is shown on the astro.com tab and named in what gets filled in", () => {
+  const view = viewForAstroComTab({ ...SYDNEY_SKY, name: { first: "Example", last: "Person" } }, { kind: "form", auth: "unknown", form: "blank" });
+  assert.deepEqual(view.rows.slice(-2), [["First name", "Example"], ["Last name", "Person"]]);
+  assert.equal(
+    view.notes[0],
+    "AstroChart Bridge fills in the birthday, hour, minute, the 00:00 GMT / UT time zone, the name and the town Sydney. Choose astro.com's match nearest this place, and check the coordinates it shows.",
+  );
 });
 
 test("a kept town is shown on the astro.com tab and named in what gets filled in", () => {

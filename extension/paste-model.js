@@ -1,7 +1,7 @@
 import { analyzeEntry } from "./core/index.js";
 import { toPortable } from "./core/portable.js";
 import { MAX_TEXT_LENGTH, readField } from "./core/text.js";
-import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, SHARE_BUTTON, viewFor } from "./popup-model.js";
+import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, SHARE_BUTTON, astroComStep, viewFor } from "./popup-model.js";
 
 // Each refusal readText can return. They keep their code on screen, like the
 // screenshot page's, so a bug report says which check failed.
@@ -23,7 +23,8 @@ export const ENTRY_FIELDS = [
   { name: "offset", label: "UTC offset", example: "-07:00, daylight saving included" },
 ];
 
-// The other fields readText finds. They are shown as written and sent nowhere.
+// The other fields readText finds. They are shown as written, and only the
+// name goes anywhere: into astro.com's form, by the step after the form.
 const INFO_FIELDS = [
   ["name", "Name"],
   ["place", "Place"],
@@ -67,7 +68,15 @@ export function formFor(result) {
     warnings: settingWarnings(fields),
     notes: fields.place ? [FORM_NOTE, PLACE_NOTE] : [FORM_NOTE],
     statedOffsets: statedOffsets(fields.offset),
+    name: chartName(fields.name),
   };
+}
+
+// The name for astro.com's form: one string, so all of it is the last name, as
+// astro.com keeps an event's. Runs of spaces become one, as a person would type it.
+function chartName(read) {
+  const last = read?.value?.replace(/\s+/g, " ").trim() ?? "";
+  return last === "" ? null : { first: "", last };
 }
 
 // The offsets the text itself gives, in minutes, so a shared chart can say
@@ -151,18 +160,21 @@ export function entryFor({ date, time, lat, lng, offset }) {
 /**
  * The screen that opens the sky or the chart for a confirmed entry: the
  * popup's ready screen, with the form's warnings, a note that nothing checks
- * the offset, a second button that opens the chart in Astro-Seek, and Share….
+ * the offset, a second button that opens the chart in Astro-Seek, Share…, and
+ * the step to enter it in astro.com with the text's name.
  *
  * @param {ReturnType<typeof entryFor>} entry
- * @param {{ warnings?: string[], timeZone?: string }} [options]  timeZone is passed on to viewFor
+ * @param {{ warnings?: string[], timeZone?: string, name?: { first: string, last: string } | null }} [options]
+ *   timeZone is passed on to viewFor; name is formFor's
  */
-export function viewForEntry(entry, { warnings = [], timeZone } = {}) {
+export function viewForEntry(entry, { warnings = [], timeZone, name = null } = {}) {
   const view = viewFor(analyzeEntry(entry), { timeZone });
   return {
     ...view,
     warnings: [...view.warnings, ...warnings],
     notes: [OFFSET_NOTE, ...view.notes, ...ASTRO_SEEK_NOTES],
     buttons: [...ASTRO_SEEK_BUTTONS, SHARE_BUTTON].map((button) => ({ ...button })),
+    next: astroComStep(view.sky, { name }),
   };
 }
 

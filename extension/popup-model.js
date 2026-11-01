@@ -115,7 +115,7 @@ export function viewFor(result, { timeZone, town = null } = {}) {
   if (result.site === "astro-com") {
     return { ...ready, notes: [...ready.notes, ...ASTRO_SEEK_NOTES], buttons: chartButtons(ASTRO_SEEK_BUTTONS) };
   }
-  return result.site === "astro-seek" ? { ...ready, next: astroComStep(ready.sky, town) } : ready;
+  return result.site === "astro-seek" ? { ...ready, next: astroComStep(ready.sky, { town }) } : ready;
 }
 
 /**
@@ -228,7 +228,7 @@ export function viewForSky(sky, { timeZone, town = null } = {}) {
     notes: [...ASTRO_SEEK_NOTES],
     button: "Open chart in Astro-Seek",
     url: astroSeekUrl(sky),
-    next: astroComStep(sky, town),
+    next: astroComStep(sky, { town }),
   };
 }
 
@@ -316,18 +316,19 @@ const MONTH_NAMES = [
 ];
 
 // The secondary button on a screen whose chart can be entered in astro.com.
-export const astroComStep = (sky, town = null) => ({ label: "Enter in astro.com…", view: viewForAstroCom(sky, town) });
+export const astroComStep = (sky, chart = {}) => ({ label: "Enter in astro.com…", view: viewForAstroCom(sky, chart) });
 
 /**
  * The values to enter in astro.com's birth data form for a decided UTC and
  * place, in the form's own terms, and links to the form and to signing in.
  *
  * @param {{ utc: string, lat: number, lng: number }} sky
- * @param {string | null} [town]  the town the chart names, filled in with the rest
+ * @param {{ town?: string | null, name?: { first: string, last: string } | null }} [chart]  the town and
+ *   name the chart gives, filled in with the rest
  */
-export function viewForAstroCom({ utc, lat, lng }, town = null) {
+export function viewForAstroCom({ utc, lat, lng }, { town = null, name = null } = {}) {
   const sky = { utc, lat, lng };
-  const held = { ...sky, town };
+  const held = { ...sky, town, name };
   return {
     state: "to-astro-com",
     ...astroComValues(held),
@@ -371,7 +372,8 @@ const UNFILLABLE = {
  * start a loop. A browser not seen signed out may be signed in, so it is never
  * held up by a sign-in prompt.
  *
- * @param {{ utc: string, lat: number, lng: number, town: string | null }} sky  from heldForTab
+ * @param {{ utc: string, lat: number, lng: number, town: string | null, name: { first: string, last: string } | null }} sky
+ *   from heldForTab
  * @param {{ kind: "form" } & ReturnType<typeof import("./core/astrocom.js").readFormPage> | { kind: "other" }} page
  */
 export function viewForAstroComTab(sky, page) {
@@ -419,9 +421,10 @@ export function viewForAstroComTab(sky, page) {
     ...values,
     message: "Fill in astro.com's form with these values?",
     notes: [
-      sky.town === null
-        ? "AstroChart Bridge fills in the birthday, hour, minute and the 00:00 GMT / UT time zone. Choose the town nearest this place yourself, and check the coordinates astro.com shows."
-        : `AstroChart Bridge fills in the birthday, hour, minute, the 00:00 GMT / UT time zone and the town ${sky.town}. Choose astro.com's match nearest this place, and check the coordinates it shows.`,
+      `AstroChart Bridge fills in ${filledText(sky)}. ` +
+        (sky.town === null
+          ? "Choose the town nearest this place yourself, and check the coordinates astro.com shows."
+          : "Choose astro.com's match nearest this place, and check the coordinates it shows."),
       "AstroChart Bridge doesn't submit the form, and forgets these values once it has filled them in.",
     ],
     sky,
@@ -429,8 +432,17 @@ export function viewForAstroComTab(sky, page) {
   };
 }
 
+// What filling in sets: "the birthday, hour, minute, the 00:00 GMT / UT time zone and the town Sydney".
+function filledText({ town = null, name = null }) {
+  const parts = ["the birthday", "hour", "minute", "the 00:00 GMT / UT time zone"];
+  if (name !== null) parts.push("the name");
+  if (town !== null) parts.push(`the town ${town}`);
+  return `${parts.slice(0, -1).join(", ")} and ${parts.at(-1)}`;
+}
+
 // The rows and warnings every astro.com screen shows: the form's values in its own terms.
-function astroComValues({ utc, lat, lng, town = null }) {
+// An empty name part, such as the first name of an event, has no row.
+function astroComValues({ utc, lat, lng, town = null, name = null }) {
   const [year, month, day] = utc.slice(0, 10).split("-");
   const seconds = Number(utc.slice(17, 19));
   return {
@@ -440,6 +452,8 @@ function astroComValues({ utc, lat, lng, town = null }) {
       ["Time zone", "00:00 GMT / UT, under show / hide extended settings"],
       ["Place", placeText(lat, lng)],
       ...(town === null ? [] : [["Town", town]]),
+      ...(name === null || name.first === "" ? [] : [["First name", name.first]]),
+      ...(name === null || name.last === "" ? [] : [["Last name", name.last]]),
     ],
     warnings: seconds === 0 ? [] : [`astro.com takes whole minutes, so the ${seconds} seconds are left out.`],
   };

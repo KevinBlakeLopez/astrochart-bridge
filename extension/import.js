@@ -4,6 +4,7 @@
 // file handles the file and the page. Text from the file is only ever
 // inserted with textContent.
 import { decodeAafFile, viewForAafText } from "./aaf-model.js";
+import { openLink as openPageLink } from "./astro-com-page.js";
 import { paragraph, render } from "./view.js";
 
 const fileInput = document.getElementById("file");
@@ -50,6 +51,5 @@ function show(text, warning) {
   list.replaceChildren(...parts);
 }
 
-function openLink({ url }) {
-  window.open(url, "_blank", "noopener");
-}
+// Links, and the astro.com buttons, as on the screenshot and paste pages.
+const openLink = (button) => openPageLink(app, button);
