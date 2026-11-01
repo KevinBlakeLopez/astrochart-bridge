@@ -8,7 +8,7 @@ const fixture = (name) =>
   JSON.parse(readFileSync(new URL(`../fixtures/astroseek/${name}.json`, import.meta.url), "utf8"));
 const analyze = (name) => {
   const { url, input } = fixture(name);
-  return analyzePage({ url, text: input.text });
+  return analyzePage({ url, input });
 };
 
 const CLOCK_NOTE = "Stellarium Web's clock shows your computer's time zone and keeps running.";
@@ -122,7 +122,7 @@ test("refused: pages Chart Bridge doesn't open", () => {
     state: "refused",
     message: "This is a synastry or compatibility chart. Chart Bridge opens natal charts only.",
   });
-  assert.deepEqual(viewFor(analyzePage({ url: "https://example.com/", text: "" })), {
+  assert.deepEqual(viewFor(analyzePage({ url: "https://example.com/", input: { text: "" } })), {
     state: "refused",
     message: "Open an Astro-Seek birth chart to use Chart Bridge.",
   });
@@ -130,7 +130,7 @@ test("refused: pages Chart Bridge doesn't open", () => {
 
 test("refused: chart pages Chart Bridge couldn't read show their code", () => {
   const { url } = fixture("ny-2024-04-17");
-  assert.deepEqual(viewFor(analyzePage({ url, text: "" })), {
+  assert.deepEqual(viewFor(analyzePage({ url, input: { text: "" } })), {
     state: "refused",
     message: "Chart Bridge couldn't read this chart page.",
     code: "unreadable-page",
