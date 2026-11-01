@@ -6,6 +6,7 @@ import { viewForScreenshot } from "../extension/screenshot-model.js";
 
 const NY = {
   kind: "natal",
+  site: "astro-seek",
   local: "2024-04-17T08:00:00",
   zoneLabel: "EDT, DST",
   utc: "2024-04-17T12:00:00Z",

@@ -61,6 +61,7 @@ test("the astro.com extractor returns only the addresses of pgid links", () => {
 test("an astro.com chart opens at the offset astro.com states", () => {
   assert.deepEqual(analyzePage({ url: ASTRO_COM_URL, input: { links: [LINK] } }), {
     kind: "natal",
+    site: "astro-com",
     local: "2024-04-17T08:00:00",
     zoneLabel: null,
     lat: 40.716667,

@@ -1,4 +1,4 @@
-import { ASTRO_SEEK_NOTES, viewFor } from "./popup-model.js";
+import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, viewFor } from "./popup-model.js";
 
 // Each refusal analyzeScreenshot can return. They keep their code on screen,
 // like the popup's unreadable pages, so a bug report says which check failed.
@@ -15,12 +15,6 @@ const REFUSALS = {
 // First on every screen that opens the sky: OCR can misread, and the latitude is the one number no check covers.
 const COMPARE_NOTE = "Read from a screenshot. Compare these rows with it before opening the sky: nothing checks the latitude.";
 
-// Both open the same decided UTC and place: Astro-Seek's chart in UT/GMT, as from a Stellarium tab.
-const BUTTONS = [
-  { label: "Open sky", opens: "stellarium" },
-  { label: "Open chart in Astro-Seek", opens: "astro-seek" },
-];
-
 /**
  * What the screenshot page shows for an analyzeScreenshot result: the popup's
  * screens, with the screenshot's own refusals, a note to compare the rows, and
@@ -35,5 +29,5 @@ export function viewForScreenshot(result, options) {
   }
   const view = viewFor(result, options);
   if (view.state === "refused") return view;
-  return { ...view, notes: [COMPARE_NOTE, ...view.notes, ...ASTRO_SEEK_NOTES], buttons: BUTTONS };
+  return { ...view, notes: [COMPARE_NOTE, ...view.notes, ...ASTRO_SEEK_NOTES], buttons: [...ASTRO_SEEK_BUTTONS] };
 }

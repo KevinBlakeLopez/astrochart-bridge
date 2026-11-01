@@ -94,13 +94,17 @@ export function viewFor(result, { timeZone } = {}) {
     };
   }
 
-  return {
+  const ready = {
     state: "ready",
     rows: [localRow, ["Offset", offsetText(result.offsetMinutes)], ["UTC", utcText(result.utc)], placeRow],
     warnings: (result.warnings ?? []).map((code) => WARNINGS[code]?.(result) ?? code),
     notes: [clockNote(result.utc, local, timeZone), PRIVACY_NOTE],
     sky: sky(result.utc),
   };
+  // An astro.com chart can also open in Astro-Seek. An Astro-Seek page already shows its chart there.
+  return result.site === "astro-com"
+    ? { ...ready, notes: [...ready.notes, ...ASTRO_SEEK_NOTES], buttons: [...ASTRO_SEEK_BUTTONS] }
+    : ready;
 }
 
 /**
@@ -122,6 +126,13 @@ export function offsetPreview(view, text) {
 export const ASTRO_SEEK_NOTES = [
   "Astro-Seek will draw this chart in UT/GMT at these coordinates, rounded to the minute, with no city.",
   "Opening the chart sends this date, time and place to astro-seek.com.",
+];
+
+// The buttons of a screen whose chart can also open in Astro-Seek. Both open the
+// same decided UTC and place: Astro-Seek's chart in UT/GMT, as from a Stellarium tab.
+export const ASTRO_SEEK_BUTTONS = [
+  { label: "Open sky", opens: "stellarium" },
+  { label: "Open chart in Astro-Seek", opens: "astro-seek" },
 ];
 
 /**

@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { analyzePage } from "../extension/core/index.js";
-import { viewFor, offsetPreview } from "../extension/popup-model.js";
+import { ASTRO_SEEK_NOTES, viewFor, offsetPreview } from "../extension/popup-model.js";
 
 const fixture = (name) =>
   JSON.parse(readFileSync(new URL(`../fixtures/astroseek/${name}.json`, import.meta.url), "utf8"));
@@ -39,10 +39,12 @@ test("ready: New York, seen from Los Angeles", () => {
   });
 });
 
-test("ready: an astro.com chart shows its stated offset and no zone label", () => {
+// Astro-Seek charts, such as New York above, have only Open sky: they are already on Astro-Seek.
+test("ready: an astro.com chart shows its stated offset and no zone label, and can open in Astro-Seek", () => {
   // The analyzePage result for the captured astro.com account chart, as test/index.test.js checks it.
   const result = {
     kind: "natal",
+    site: "astro-com",
     local: "2024-04-17T08:00:00",
     zoneLabel: null,
     lat: 40.716667,
@@ -58,8 +60,14 @@ test("ready: an astro.com chart shows its stated offset and no zone label", () =
     notes: [
       `Stellarium Web's clock will show 05:00 on 17 Apr, your computer's time. That's 08:00 on 17 Apr at the birthplace. ${RUNNING}`,
       PRIVACY_NOTE,
+      ...ASTRO_SEEK_NOTES,
     ],
     sky: { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 },
+    // view.js opens stellariumUrl or astroSeekUrl of this sky, so Astro-Seek gets 12:00 UT.
+    buttons: [
+      { label: "Open sky", opens: "stellarium" },
+      { label: "Open chart in Astro-Seek", opens: "astro-seek" },
+    ],
   });
 });
 
@@ -88,7 +96,7 @@ test("ready: Sydney, with a positive offset and UTC on the previous day", () => 
 
 test("ready: an unknown zone label adds a warning", () => {
   const paris = {
-    kind: "natal", local: "2024-01-15T09:00:00", zoneLabel: "CET", lat: 48.85, lng: 2.35,
+    kind: "natal", site: "astro-seek", local: "2024-01-15T09:00:00", zoneLabel: "CET", lat: 48.85, lng: 2.35,
     utc: "2024-01-15T08:00:00Z", utcSource: "printed", offsetMinutes: 60, warnings: ["zone-label-unknown"],
   };
   assert.deepEqual(viewFor(paris).warnings, [
@@ -123,7 +131,7 @@ test("choose: the skipped time offers both readings and opens nothing yet", () =
 
 test("enter-offset: no printed UT asks for the offset and previews the UTC", () => {
   const view = viewFor({
-    kind: "natal", local: "2024-04-17T08:00:00", zoneLabel: "EDT, DST", lat: 40.716667, lng: -74,
+    kind: "natal", site: "astro-seek", local: "2024-04-17T08:00:00", zoneLabel: "EDT, DST", lat: 40.716667, lng: -74,
     utc: null, utcSource: "needs-offset", reason: "no-printed-ut",
   });
   assert.equal(view.state, "enter-offset");
