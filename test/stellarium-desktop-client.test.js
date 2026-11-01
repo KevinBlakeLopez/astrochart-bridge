@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { createServer } from "node:http";
 import { astroSeekUrl } from "../extension/core/astroseek.js";
 import { stellariumUrl } from "../extension/core/stellarium.js";
-import { readSky, sendSky } from "../extension/stellarium-desktop.js";
+import { probe, readSky, sendSky } from "../extension/stellarium-desktop.js";
 
 const SERVER = "Stellarium RemoteControl 0.0.3";
 
@@ -216,6 +216,31 @@ test("a status that isn't JSON, or isn't Stellarium's shape, is an invalid respo
     t.after(stellarium.close);
     assert.deepEqual(await readSky({ port: stellarium.port }), { state: "invalid-response" }, statusText);
   }
+});
+
+// The popup's check when it opens: whether a send could work now, so the
+// date Stellarium happens to show doesn't matter.
+test("probe: one GET, connected even when Stellarium shows a date Chart Bridge can't read", async (t) => {
+  const stellarium = await mockStellarium({ state: { jday: 2000000.5 } });
+  t.after(stellarium.close);
+  assert.deepEqual(await probe({ port: stellarium.port }), { state: "connected" });
+  assert.deepEqual(stellarium.requests.map(({ method, path }) => [method, path]), [["GET", "/api/main/status"]]);
+});
+
+test("probe: an observer on Mars, a password, another program and nothing listening", async (t) => {
+  const mars = await mockStellarium({ state: { planet: "Mars" } });
+  t.after(mars.close);
+  assert.deepEqual(await probe({ port: mars.port }), { state: "refused", reason: "stellarium-not-earth" });
+
+  const locked = await mockStellarium({ status: 401 });
+  t.after(locked.close);
+  assert.deepEqual(await probe({ port: locked.port }), { state: "auth-required" });
+
+  const other = await mockStellarium({ serverHeader: "nginx/1.25.3" });
+  t.after(other.close);
+  assert.deepEqual(await probe({ port: other.port }), { state: "invalid-response" });
+
+  assert.deepEqual(await probe({ port: await closedPort() }), { state: "unavailable" });
 });
 
 test("only a port on this machine can be given", async () => {

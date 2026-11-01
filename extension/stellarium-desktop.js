@@ -26,6 +26,20 @@ export async function readSky(options = {}) {
 }
 
 /**
+ * Whether a send could work now: Stellarium answers, and its observer is on
+ * Earth. The date it shows doesn't matter, since a send replaces it. Sends
+ * one GET and changes nothing.
+ *
+ * @param {{ port?: number, timeoutMs?: number }} [options]  as for readSky
+ * @returns {Promise<{ state: "connected" } | Failure>}
+ */
+export async function probe(options = {}) {
+  const status = await getStatus(connection(options));
+  if (status.state !== "ok") return status;
+  return status.status.planet === "Earth" ? { state: "connected" } : { state: "refused", reason: "stellarium-not-earth" };
+}
+
+/**
  * Puts a sky on Stellarium, pausing its clock, and checks from Stellarium's
  * own status that it took. Stops at the first request that fails.
  *

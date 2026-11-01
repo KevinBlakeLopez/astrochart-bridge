@@ -18,6 +18,30 @@ export function withDesktopSend(view) {
   return SENDS.has(view.state) ? { ...view, desktop: { label: "Send to Stellarium Desktop" } } : view;
 }
 
+// The line under the desktop buttons once the popup has checked Stellarium
+// on opening, by probe's result. Every button stays clickable: a click shows
+// the full screen for whatever is wrong.
+const HINTS = {
+  connected: "Stellarium Desktop is open and ready.",
+  unavailable: "Stellarium Desktop isn't reachable right now. The button shows how to set it up.",
+  "auth-required": "Stellarium asks for a password, which Chart Bridge doesn't use. The button shows how to turn it off.",
+  "invalid-response": "Something other than Stellarium is answering on port 8090.",
+  "stellarium-not-earth": "Stellarium's observer is on another planet.",
+};
+
+/**
+ * The line to show under the desktop buttons, or null when the popup didn't
+ * check: it checks only once Chart Bridge has access to 127.0.0.1.
+ *
+ * @param {Awaited<ReturnType<typeof import("./stellarium-desktop.js").probe>> | null} result
+ * @returns {string | null}
+ */
+export function desktopHint(result) {
+  if (result === null) return null;
+  const key = result.state === "refused" ? result.reason : result.state;
+  return HINTS[key] ?? "Stellarium Desktop didn't answer.";
+}
+
 // Shown while a request is on its way, without buttons. The plugin answers
 // within milliseconds, or the request times out after three seconds.
 export const BUSY = {

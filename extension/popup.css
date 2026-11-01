@@ -75,6 +75,14 @@ dd {
   font-size: 12px;
 }
 
+.desktop-hint {
+  margin-top: 6px;
+}
+
+.desktop-hint:empty {
+  display: none;
+}
+
 .code {
   color: var(--muted);
   font: 11px ui-monospace, monospace;

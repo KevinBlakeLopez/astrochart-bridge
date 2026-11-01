@@ -132,7 +132,7 @@ https://horoscopes.astro-seek.com/calculate-asteroids/?narozeni_den=17&narozeni_
 
 Go to `https://example.com`.
 
-- [ ] The popup shows "Open an Astro-Seek or astro.com birth chart to use Chart Bridge." and four buttons, **Read a screenshot instead**, **Paste chart text instead**, **Open an AAF file** and **Import from Stellarium Desktop**, and the Console has no errors. Nothing connects to `127.0.0.1` until the last one is clicked.
+- [ ] The popup shows "Open an Astro-Seek or astro.com birth chart to use Chart Bridge." and four buttons, **Read a screenshot instead**, **Paste chart text instead**, **Open an AAF file** and **Import from Stellarium Desktop**, and the Console has no errors. Until Chart Bridge has been allowed to connect to `127.0.0.1` (test 17), nothing connects there and no grey line follows the last button.
 - [ ] Chart Bridge's toolbar button shows its icon, a gold star above a blue arch, and Chart Bridge's card on the browser's extensions page shows it too.
 
 ## Test 9: a browser page
@@ -313,13 +313,14 @@ Needs Stellarium 25.1 or later with its Remote Control server on: the setup step
 2. If Chart Bridge already has access to `127.0.0.1`, remove it first: in Chrome, the extension's **Details** → **Site access**; in Firefox, `about:addons` → Chart Bridge → **Permissions**.
 3. Open the test 3 URL (New York 1944) and click the Chart Bridge icon.
 
-- [ ] Below **Open sky** is a **Send to Stellarium Desktop** button with the secondary style.
+- [ ] Below **Open sky** is a **Send to Stellarium Desktop** button with the secondary style, and no grey line under it: without access, the popup doesn't check Stellarium.
 - [ ] Clicking it makes the browser ask whether Chart Bridge may connect to `127.0.0.1`. Note whether the popup stays open while it asks, in each browser. Click **Deny**: the popup says "Chart Bridge needs your permission", with **Try again** and **Cancel**.
 - [ ] **Try again**, then allow it. The popup says "Sent to Stellarium Desktop" with UTC `1944-01-10 16:00` and Place `40°43'N, 74°0'W`. In Stellarium the clock is paused at 16:00 UTC on 10 January 1944, shown in Stellarium's own time zone, and the location is named `40.7167, -74`.
 - [ ] **Done** closes the popup. Nothing else in Stellarium changed: the view, landscape and selected object are as they were.
-- [ ] In Stellarium, untick **Server enabled** in Remote Control's settings. Open the popup on test 2 (Sydney) and click **Send to Stellarium Desktop**. Without asking again, the popup says "Stellarium Desktop isn't reachable", with six numbered steps, a grey note about other devices on the network, **Try again** and **Cancel**. **Cancel** shows the Sydney chart again.
+- [ ] Open the popup on test 3 again. Within a second, a grey line under **Send to Stellarium Desktop** says "Stellarium Desktop is open and ready." Stellarium's time and place don't change.
+- [ ] In Stellarium, untick **Server enabled** in Remote Control's settings. Open the popup on test 2 (Sydney): the grey line says "Stellarium Desktop isn't reachable right now. The button shows how to set it up." Click **Send to Stellarium Desktop**. Without asking again, the popup says "Stellarium Desktop isn't reachable", with six numbered steps, a grey note about other devices on the network, **Try again** and **Cancel**. **Cancel** shows the Sydney chart again.
 - [ ] Tick **Server enabled** again and click **Try again** on that screen. Stellarium shows 21:00 UTC on 14 January 2024 at 33°52'S, 151°12'E.
-- [ ] Go to `https://example.com` and click the Chart Bridge icon. **Import from Stellarium Desktop** is the last button. It shows "From Stellarium Desktop" with UTC `2024-01-14 21:00` and Place `33°52'S, 151°12'E`, then **Open chart in Astro-Seek**, **Open sky** and **Enter in astro.com…**.
+- [ ] Go to `https://example.com` and click the Chart Bridge icon. **Import from Stellarium Desktop** is the last button, with "Stellarium Desktop is open and ready." under it. It shows "From Stellarium Desktop" with UTC `2024-01-14 21:00` and Place `33°52'S, 151°12'E`, then **Open chart in Astro-Seek**, **Open sky** and **Enter in astro.com…**.
 - [ ] **Open sky** opens a Stellarium Web tab whose address contains `date=2024-01-14T21%3A00%3A00Z&lat=-33.86667&lng=151.2`.
 - [ ] In Stellarium's Remote Control settings, tick **Access requires authentication**, type any password, click **Save settings**, then untick and tick **Server enabled**. **Import from Stellarium Desktop** says "Stellarium asks for a password", and the browser doesn't show its own password box. Untick it again the same way.
 - [ ] The Console stays empty throughout.

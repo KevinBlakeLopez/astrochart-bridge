@@ -5,11 +5,11 @@ import { withAafExport } from "./aaf-model.js";
 import { fillForm, formValues, isAstroComPage, isBirthDataForm, readFormPage } from "./core/astrocom.js";
 import { analyzePage, classifyUrl, extractorFor } from "./core/index.js";
 import { isStellariumWeb, skyFromEngine } from "./core/stellarium.js";
-import { BUSY, viewForDesktopImport, viewForDesktopSend, withDesktopSend } from "./desktop-model.js";
+import { BUSY, desktopHint, viewForDesktopImport, viewForDesktopSend, withDesktopSend } from "./desktop-model.js";
 import { heldForTab, holdForTab, releaseTab } from "./pending.js";
 import { viewFor, viewForAstroComTab, viewForSky } from "./popup-model.js";
-import { HOST_PERMISSION, readSky, sendSky } from "./stellarium-desktop.js";
-import { render } from "./view.js";
+import { HOST_PERMISSION, probe, readSky, sendSky } from "./stellarium-desktop.js";
+import { desktopHintLine, render } from "./view.js";
 
 const app = document.getElementById("app");
 
@@ -128,8 +128,21 @@ function show(view, { offerScreenshot = false, onButton = chartButtons(view) } =
       pageButton("Paste chart text instead", "paste.html"),
       pageButton("Open an AAF file", "import.html"),
       fromDesktop,
+      desktopHintLine(),
     );
   }
+  checkDesktop(app.querySelector(".desktop-hint")).catch(() => {});
+}
+
+// Once Chart Bridge has access to 127.0.0.1, the popup checks Stellarium as
+// it opens and says what it found under the desktop button. Without access it
+// doesn't check: the request would fail like a closed Stellarium. The screen
+// is drawn first and the line filled in when the answer comes, so nothing
+// waits on it; a line whose screen has since been replaced is left alone.
+async function checkDesktop(hint) {
+  if (!hint || !(await chrome.permissions.contains(HOST_PERMISSION))) return;
+  const text = desktopHint(await probe({ timeoutMs: 1000 }));
+  if (hint.isConnected) hint.textContent = text;
 }
 
 // What a chart screen's buttons do: open a link, or send the sky to

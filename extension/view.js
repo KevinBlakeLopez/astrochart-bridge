@@ -52,6 +52,8 @@ export function render(container, view, onButton, back = null) {
     for (const note of view.notes) parts.push(paragraph(note, "note"));
     setSky(sky);
     parts.push(...buttons);
+    // Empty until the popup has checked Stellarium, which may be after this is drawn.
+    if (view.desktop) parts.push(desktopHintLine());
 
     // The chart as an AAF file, made by aaf-model.js. Saving it sends nothing anywhere.
     if (view.download) {
@@ -106,6 +108,16 @@ function linkButton(label, onClick) {
   button.textContent = label;
   button.addEventListener("click", onClick);
   return button;
+}
+
+/**
+ * The line under a Stellarium Desktop button that the popup fills in after
+ * checking Stellarium. Hidden while empty.
+ *
+ * @returns {HTMLParagraphElement}
+ */
+export function desktopHintLine() {
+  return paragraph("", "note desktop-hint");
 }
 
 function stepList(steps) {

@@ -33,6 +33,20 @@ What changes in Stellarium, and what doesn't:
 
 The button is on every chart screen with a sky: a chart page's, once its UTC is decided, and a Stellarium Web tab's. The screenshot, pasted-text and AAF pages don't have it yet.
 
+## Checking whether Stellarium is ready
+
+Once you've allowed Chart Bridge to connect to `127.0.0.1`, the popup checks Stellarium each time it opens on a chart, or on a page that isn't one. It asks Stellarium for its status, changes nothing, and gives up after a second. A grey line under the button then says what it found:
+
+| Line | Meaning |
+|---|---|
+| Stellarium Desktop is open and ready. | Sending should work. |
+| Stellarium Desktop isn't reachable right now. | Stellarium is closed, or its server is off. The button shows the setup steps. |
+| Stellarium asks for a password… | The plugin's password is on. The button shows how to turn it off. |
+| Something other than Stellarium is answering on port 8090. | Another program has the port. |
+| Stellarium's observer is on another planet. | Pick a place on Earth first. |
+
+Until you've allowed the connection, the popup doesn't check and shows no line: without permission the browser blocks the request, which would look like a closed Stellarium. The button works either way, and the line can be out of date if Stellarium opens or closes while the popup is open.
+
 ## Importing from Stellarium
 
 On a page that isn't a chart, the popup offers **Import from Stellarium Desktop**. It reads the moment and place Stellarium is showing and offers **Open chart in Astro-Seek**, **Open sky** and **Enter in astro.com…**.

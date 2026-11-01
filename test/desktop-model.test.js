@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { analyzePage } from "../extension/core/index.js";
-import { BUSY, SETUP_STEPS, viewForDesktopImport, viewForDesktopSend, withDesktopSend } from "../extension/desktop-model.js";
+import { BUSY, SETUP_STEPS, desktopHint, viewForDesktopImport, viewForDesktopSend, withDesktopSend } from "../extension/desktop-model.js";
 import { viewFor, viewForSky } from "../extension/popup-model.js";
 
 const fixture = (name) =>
@@ -155,6 +155,20 @@ test("import: the sky Stellarium shows, opening in Astro-Seek or Stellarium Web,
   assert.equal(view.next.label, "Enter in astro.com…");
   assert.ok(view.notes.some((note) => note.startsWith("If Stellarium's clock is running")));
   assert.ok(view.notes.some((note) => note.includes("stellarium-web.org")));
+});
+
+test("desktopHint: one line under the button for each probe result", () => {
+  assert.equal(desktopHint({ state: "connected" }), "Stellarium Desktop is open and ready.");
+  assert.equal(desktopHint({ state: "unavailable" }), "Stellarium Desktop isn't reachable right now. The button shows how to set it up.");
+  assert.equal(desktopHint({ state: "auth-required" }), "Stellarium asks for a password, which Chart Bridge doesn't use. The button shows how to turn it off.");
+  assert.equal(desktopHint({ state: "invalid-response" }), "Something other than Stellarium is answering on port 8090.");
+  assert.equal(desktopHint({ state: "refused", reason: "stellarium-not-earth" }), "Stellarium's observer is on another planet.");
+  assert.equal(desktopHint({ state: "request-failed", code: "timeout" }), "Stellarium Desktop didn't answer.");
+});
+
+// Before access is granted the popup doesn't check, so it has nothing to say.
+test("desktopHint: no line without a check", () => {
+  assert.equal(desktopHint(null), null);
 });
 
 test("the busy screens have no buttons", () => {
