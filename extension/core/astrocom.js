@@ -1,6 +1,52 @@
 const ORIGIN = "https://www.astro.com";
+const CHART_PATH = "/cgi/chart.cgi";
 
 const refused = (reason) => ({ kind: "refused", reason });
+
+// astro.com serves every chart, natal or not, from one path and names the
+// chart type in its parameters, so unlike Astro-Seek's pages these are
+// recognised by parameters. A btyp and mth pair is added as natal only once a
+// captured page shows readPgid can read its drawing link.
+const NATAL = [{ btyp: "2", mth: "gw" }];
+
+/**
+ * Decides from the address alone whether a page is an account chart Chart
+ * Bridge can open. Whether its drawing link can be read is readPgid's job.
+ * Other parameters, such as the dates, lang= and pa=, aren't checked: a chart
+ * page links to itself with several different sets of them.
+ *
+ * @param {string} url
+ * @returns {{ kind: "natal" } | { kind: "refused", reason: "databank" | "unsupported" }}
+ */
+export function classifyUrl(url) {
+  let page;
+  try {
+    page = new URL(url);
+  } catch {
+    return refused("unsupported");
+  }
+  if (page.origin !== ORIGIN) return refused("unsupported");
+  // Astro-Databank pages, and their charts, which carry the birth data in wgid
+  // instead of naming a chart saved in the account.
+  if (page.pathname.startsWith("/astro-databank/")) return refused("databank");
+  if (page.pathname !== CHART_PATH) return refused("unsupported");
+  const params = page.searchParams;
+  if (params.has("wgid")) return refused("databank");
+
+  // nhor names the saved chart. pdf= opens the chart as a PDF, where the
+  // extension can't run.
+  const nhor = only(params, "nhor");
+  if (nhor === null || !/^\d+$/.test(nhor) || params.has("pdf")) return refused("unsupported");
+  const btyp = only(params, "btyp");
+  const mth = only(params, "mth");
+  return NATAL.some((type) => type.btyp === btyp && type.mth === mth) ? { kind: "natal" } : refused("unsupported");
+}
+
+// A parameter's value when it appears exactly once, else null.
+function only(params, key) {
+  const values = params.getAll(key);
+  return values.length === 1 ? values[0] : null;
+}
 
 // An account chart's page draws the birth data into the chart image, but its
 // "Drawing (for subscribers)" link, /cgi/sub.cgi?…&pgid=…, carries the chart's
@@ -8,7 +54,6 @@ const refused = (reason) => ({ kind: "refused", reason });
 // text that follows, "L", then that text: the chart URL in base64url. Only the
 // unpadded form has been seen; the one sample needed no padding.
 const DRAWING_PATH = "/cgi/sub.cgi";
-const CHART_PATH = "/cgi/chart.cgi";
 const PGID = /^L(\d+)L([A-Za-z0-9_-]+)$/;
 
 /**

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseNd, readPgid } from "../extension/core/astrocom.js";
+import { classifyUrl, parseNd, readPgid } from "../extension/core/astrocom.js";
 
 // The nd= record of a captured astro.com account chart, "Test", which uses the
 // invented New York birth data of the Astro-Seek fixtures.
@@ -206,4 +206,58 @@ test("a key on one side only is fine", () => {
 
 test("a page address that isn't a URL is unsupported", () => {
   assert.deepEqual(read([LINK], "not a url"), refused("unsupported"));
+});
+
+// classifyUrl
+
+const CHART = "https://www.astro.com/cgi/chart.cgi";
+
+test("account charts of a seen type are natal", () => {
+  for (const url of [
+    PAGE_URL,
+    // Links on the captured page that reach the same chart with other extras.
+    `${CHART}?smon=11&nhor=26&sday=1&btyp=2&nho2=1&pa=nmo&syr=2026&lang=e&gm=a1&mth=gw`,
+    `${PAGE_URL}&lang=g`,
+    `${PAGE_URL}#top`,
+  ]) {
+    assert.deepEqual(classifyUrl(url), { kind: "natal" }, url);
+  }
+});
+
+test("Astro-Databank pages and charts are refused as databank", () => {
+  for (const url of [
+    `${CHART}?wgid=wgeJw9TsEKgzAU`,
+    `${PAGE_URL}&wgid=wgeJw9TsEKgzAU`,
+    "https://www.astro.com/astro-databank/Stallone,_Sylvester",
+  ]) {
+    assert.deepEqual(classifyUrl(url), refused("databank"), url);
+  }
+});
+
+test("every other page is unsupported", () => {
+  for (const url of [
+    // Seen on astro.com, but not with a readable drawing link.
+    `${CHART}?btyp=w2gw&rs=2&;&nhor=26`,
+    `${CHART}?btyp=w2gw&rs=2&usechpref=1&nhor=26&nho2=1`,
+    `${CHART}?btyp=vip&nhor=26&nho2=1`,
+    `${CHART}?pdf=d&gm=a1&nhor=26&nho2=1&btyp=2&mth=gw&sday=1&smon=11&syr=2026&rs=0`,
+    `${CHART}?showgif&lang=e&gif=chart.png&res=100`,
+    "https://www.astro.com/cgi/genchart.cgi?nhor=26&nho2=1",
+    // Made-up variations on the natal page.
+    PAGE_URL.replace("nhor=26&", ""),
+    PAGE_URL.replace("nhor=26", "nhor=x"),
+    `${PAGE_URL}&nhor=27`,
+    PAGE_URL.replace("mth=gw", "mth=atw"),
+    PAGE_URL.replace("&mth=gw", ""),
+    `${PAGE_URL}&btyp=3`,
+    PAGE_URL.replace("https://", "http://"),
+    PAGE_URL.replace("www.astro.com", "astro.com"),
+    // Not astro.com at all.
+    "https://horoscopes.astro-seek.com/calculate-birth-chart-horoscope-online/",
+    "chrome://extensions",
+    "not a url",
+    "",
+  ]) {
+    assert.deepEqual(classifyUrl(url), refused("unsupported"), url);
+  }
 });
