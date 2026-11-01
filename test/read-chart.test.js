@@ -8,12 +8,14 @@ const fixture = (name) =>
 
 const refused = (reason) => ({ kind: "refused", reason });
 
-test("reads the four natal fixtures", () => {
+test("reads the natal and traditional fixtures", () => {
   const cases = {
     "ny-2024-04-17": { local: "2024-04-17T08:00:00", zoneLabel: "EDT, DST", printedUt: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 },
     "sydney-2024-01-15": { local: "2024-01-15T08:00:00", zoneLabel: "AEDT, DST", printedUt: "2024-01-14T21:00:00Z", lat: -33.866667, lng: 151.2 },
     "ny-1944-01-10": { local: "1944-01-10T12:00:00", zoneLabel: "EWT, DST", printedUt: "1944-01-10T16:00:00Z", lat: 40.716667, lng: -74 },
     "ny-2021-03-14-gap": { local: "2021-03-14T02:30:00", zoneLabel: "EST", printedUt: "2021-03-14T06:30:00Z", lat: 40.716667, lng: -74 },
+    "traditional-ny-2024-04-17": { local: "2024-04-17T08:00:00", zoneLabel: "EDT, DST", printedUt: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 },
+    "traditional-ny-2021-03-14-gap": { local: "2021-03-14T02:30:00", zoneLabel: "EST", printedUt: "2021-03-14T06:30:00Z", lat: 40.716667, lng: -74 },
   };
   for (const [name, expected] of Object.entries(cases)) {
     const { url, input } = fixture(name);
@@ -87,6 +89,23 @@ test("a page without a Universal Time line has no printed UT", () => {
 
 test("short month names read like full ones", () => {
   assert.deepEqual(readChart({ url: NY.url, text: TEXT.replaceAll("April", "Apr") }), NY_RESULT);
+});
+
+// Traditional chart pages print seconds: "08:00:00" where the natal page prints "08:00".
+const WITH_SECONDS = TEXT.replace("08:00  (", "08:00:00  (").replace("12:00  ", "12:00:00  ");
+
+test("printed seconds that disagree with the URL are a mismatch", () => {
+  const text = WITH_SECONDS.replace("08:00:00", "08:00:30");
+  assert.deepEqual(readChart({ url: NY.url, text }), refused("page-url-mismatch"));
+});
+
+test("printed seconds carry into the local time and the printed UT", () => {
+  const text = WITH_SECONDS.replace("08:00:00", "08:00:30").replace("12:00:00", "12:00:30");
+  assert.deepEqual(readChart({ url: withParams({ narozeni_sekunda: "30" }), text }), {
+    ...NY_RESULT,
+    local: "2024-04-17T08:00:30",
+    printedUt: "2024-04-17T12:00:30Z",
+  });
 });
 
 test("a local line without a zone label has no zoneLabel", () => {

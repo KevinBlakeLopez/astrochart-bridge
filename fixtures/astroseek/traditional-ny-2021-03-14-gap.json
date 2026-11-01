@@ -1,0 +1,39 @@
+{
+  "url": "https://horoscopes.astro-seek.com/calculate-traditional-chart/?narozeni_den=14&narozeni_mesic=3&narozeni_rok=2021&narozeni_hodina=02&narozeni_minuta=30&narozeni_sekunda=00&narozeni_mesto_hidden=New%20York&narozeni_stat_hidden=US&narozeni_podstat_kratky_hidden=NY&narozeni_tzid_id=156&narozeni_city=New%20York,%20USA,%20New%20York&narozeni_sirka_stupne=40&narozeni_sirka_minuty=43&narozeni_sirka_smer=0&narozeni_delka_stupne=74&narozeni_delka_minuty=0&narozeni_delka_smer=1&narozeni_timezone_form=auto&narozeni_timezone_dst_form=auto&house_system=placidus&styl_graf=&hid_fortune=on&hid_fortune_check=&hid_spirit=&hid_spirit_check=on&hid_syzygy=&hid_syzygy_check=on&hid_vertex=on&hid_vertex_check=&hid_chiron=&hid_chiron_check=on&hid_lilith=&hid_lilith_check=on&hid_uzel=&hid_uzel_check=on&tolerance=1&tolerance_paral=0&nick=&hide_aspects=0&duha=&hide_trans=&display_trans=&aya=&house_start=&naksha_posun=&naksha_nasobek=&custom_aya=&&radix=1&aktivni_tab=1&house_system=whole_horizon&terms=",
+  "input": {
+    "text": "Date of Birth (local time):\n14 March 2021 - 02:30:00  (EST)\nUniversal Time (UT/GMT):\n14 March 2021 - 06:30:00  \nLocal Sidereal Time (LST):\n13:02:23\nHouse system, Terms:\nWhole Sign system, Egyptian\nLatitude, Longitude:\n40°43'N, 74°0'W"
+  },
+  "capturedAt": "2026-11-01T11:50:31.719Z",
+  "capture": {
+    "lines": 703,
+    "headerLine": 17,
+    "labelCounts": {
+      "Date of Birth (local time):": 1,
+      "Universal Time (UT/GMT):": 1,
+      "Latitude, Longitude:": 1
+    }
+  },
+  "expected": {
+    "kind": "natal",
+    "local": "2021-03-14T02:30:00",
+    "zoneLabel": "EST",
+    "utc": null,
+    "utcSource": "needs-choice",
+    "reason": "zone-label-mismatch",
+    "candidates": [
+      {
+        "utc": "2021-03-14T06:30:00Z",
+        "offsetMinutes": -240,
+        "basis": "printed UT"
+      },
+      {
+        "utc": "2021-03-14T07:30:00Z",
+        "offsetMinutes": -300,
+        "basis": "zone label EST"
+      }
+    ],
+    "lat": 40.716667,
+    "lng": -74
+  },
+  "notes": "Traditional chart page; same contradiction as the natal page: labelled EST but UT 06:30:00 implies −4."
+}

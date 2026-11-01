@@ -9,7 +9,7 @@ Behaviour of astro-seek.com that Chart Bridge has to work around or that should 
 - **Status:** known defect, deferred. Observed manually in the browser. Not yet captured as a fixture, and not checked against an independent Vertex calculation.
 - **Not yet known:** which tab or view state shows it, and whether it affects every chart or only some.
 - **Hypothesis (unverified):** the asteroids URL sends `hid_vertex=on&hid_vertex_check=`, while the natal URL sends `hid_vertex=1`. A longitude of exactly 0° or 180° would fit a Vertex that was never calculated.
-- **Impact on Chart Bridge:** none on the sky, since Chart Bridge only uses the birth date, time, place and Universal Time. The page does matter for refusal: it carries the bare `narozeni_*` parameters on a different path, so a natal page must be recognised by its path (`/calculate-birth-chart-horoscope-online/`), not by its parameters. Version one does not accept this page.
+- **Impact on Chart Bridge:** none on the sky, since Chart Bridge only uses the birth date, time, place and Universal Time. The page does matter for refusal: it carries the bare `narozeni_*` parameters on a different path, so natal pages must be recognised by their path (`/calculate-birth-chart-horoscope-online/` or `/calculate-traditional-chart/`), not by their parameters. Chart Bridge does not accept this page.
 - **When picked up:**
   1. Capture the page in the defective state with the download snippet.
   2. Compare its Vertex with an independent calculation.

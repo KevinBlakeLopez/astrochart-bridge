@@ -4,9 +4,11 @@ const refused = (reason) => ({ kind: "refused", reason });
 
 // Pages are recognised by path, never by parameters: specialised views such as
 // /calculate-asteroids/ reuse the bare narozeni_* parameters, and transit pages
-// contain "narozeni_" inside muz_narozeni_* and zena_narozeni_*.
+// contain "narozeni_" inside muz_narozeni_* and zena_narozeni_*. A path is added
+// as natal only once a captured fixture shows readChart can read its page.
 const PAGES = new Map([
   ["/calculate-birth-chart-horoscope-online/", { kind: "natal" }],
+  ["/calculate-traditional-chart/", { kind: "natal" }],
   ["/calculate-transit-chart/", { kind: "refused", reason: "transit" }],
   ["/calculate-love-compatibility/", { kind: "refused", reason: "synastry" }],
 ]);
@@ -34,9 +36,10 @@ const LABEL_LOCAL = "Date of Birth (local time):";
 const LABEL_UT = "Universal Time (UT/GMT):";
 const LABEL_COORDS = "Latitude, Longitude:";
 
-// "17 April 2024 - 08:00  (EDT, DST)". The gap before the label includes a
-// no-break space, which \s matches. Some pages use three-letter month names.
-const DATE_LINE = /^(\d{1,2}) ([A-Za-z]+) (\d{4}) - (\d{1,2}):(\d{2})(?:\s+\((.+)\))?$/;
+// "17 April 2024 - 08:00  (EDT, DST)" on natal pages; traditional chart pages
+// add seconds, "08:00:00". The gap before the label includes a no-break space,
+// which \s matches. Some pages use three-letter month names.
+const DATE_LINE = /^(\d{1,2}) ([A-Za-z]+) (\d{4}) - (\d{1,2}):(\d{2})(?::(\d{2}))?(?:\s+\((.+)\))?$/;
 // "40°43'N, 74°0'W"
 const COORDS_LINE = /^(\d{1,2})°(\d{1,2})'([NS]), (\d{1,3})°(\d{1,2})'([EW])$/;
 
@@ -91,6 +94,7 @@ export function readChart({ url, text }) {
 
   if (
     !same(local, birth, ["year", "month", "day", "hour", "minute"]) ||
+    (local.second !== null && local.second !== birth.second) ||
     !same(coords, birth, ["latDeg", "latMin", "latSouth", "lngDeg", "lngMin", "lngWest"])
   ) {
     return refused("page-url-mismatch");
@@ -99,7 +103,8 @@ export function readChart({ url, text }) {
   return {
     local: `${isoDate(birth)}T${pad(birth.hour)}:${pad(birth.minute)}:${pad(birth.second)}`,
     zoneLabel: local.label,
-    printedUt: ut && `${isoDate(ut)}T${pad(ut.hour)}:${pad(ut.minute)}:00Z`,
+    // Natal pages print UT without seconds, so those read as :00.
+    printedUt: ut && `${isoDate(ut)}T${pad(ut.hour)}:${pad(ut.minute)}:${pad(ut.second ?? 0)}Z`,
     lat: degrees(birth.latDeg, birth.latMin, birth.latSouth),
     lng: degrees(birth.lngDeg, birth.lngMin, birth.lngWest),
   };
@@ -127,15 +132,19 @@ function readUrl(url) {
 function parseDateLine(line) {
   const match = DATE_LINE.exec(line ?? "");
   if (!match) return null;
-  const [, day, monthName, year, hour, minute, label] = match;
+  const [, day, monthName, year, hour, minute, second, label] = match;
   const date = {
     year: Number(year),
     month: monthNumber(monthName),
     day: Number(day),
     hour: Number(hour),
     minute: Number(minute),
+    // null when the page prints no seconds, so there is nothing to compare.
+    second: second === undefined ? null : Number(second),
   };
-  if (!date.month || date.hour > 23 || date.minute > 59 || !isCalendarDate(date)) return null;
+  if (!date.month || date.hour > 23 || date.minute > 59 || (date.second ?? 0) > 59 || !isCalendarDate(date)) {
+    return null;
+  }
   return { ...date, label: label ?? null };
 }
 

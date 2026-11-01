@@ -14,6 +14,12 @@ test("natal chart pages are natal", () => {
   }
 });
 
+test("traditional chart pages are natal too", () => {
+  for (const name of ["traditional-ny-2024-04-17", "traditional-ny-2021-03-14-gap"]) {
+    assert.deepEqual(classifyUrl(fixtureUrl(name)), { kind: "natal" }, name);
+  }
+});
+
 test("a transit page is refused even though its URL contains narozeni_den", () => {
   const url = fixtureUrl("transit-sydney-2026-11-01");
   assert.ok(url.includes("narozeni_den"));

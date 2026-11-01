@@ -4,6 +4,8 @@
 
 The chart URLs below are the `url` fields of the fixtures in `fixtures/astroseek/`, plus the asteroids example from `docs/astroseek-known-issues.md`. All of them use invented birth data.
 
+Natal charts are read from two Astro-Seek pages: the birth chart (`/calculate-birth-chart-horoscope-online/`, tests 1 to 4) and the traditional chart (`/calculate-traditional-chart/`, test 11).
+
 ## Setup (once)
 
 1. Go to `chrome://extensions` and turn on **Developer mode** (top right).
@@ -99,10 +101,30 @@ Switch the Mac's appearance (System Settings → Appearance) and reopen the popu
 
 - [ ] In both modes the text is readable and the **Open sky** button has clear contrast.
 
+## Test 11: traditional charts
+
+Traditional chart pages print times with seconds. They should behave exactly like the natal pages in tests 1 and 4.
+
+New York 2024:
+
+```
+https://horoscopes.astro-seek.com/calculate-traditional-chart/?narozeni_den=17&narozeni_mesic=4&narozeni_rok=2024&narozeni_hodina=08&narozeni_minuta=00&narozeni_sekunda=00&narozeni_mesto_hidden=New%20York&narozeni_stat_hidden=US&narozeni_podstat_kratky_hidden=NY&narozeni_tzid_id=156&narozeni_city=New%20York,%20USA,%20New%20York&narozeni_sirka_stupne=40&narozeni_sirka_minuty=43&narozeni_sirka_smer=0&narozeni_delka_stupne=74&narozeni_delka_minuty=0&narozeni_delka_smer=1&narozeni_timezone_form=auto&narozeni_timezone_dst_form=auto&house_system=placidus&styl_graf=&hid_fortune=on&hid_fortune_check=&hid_spirit=&hid_spirit_check=on&hid_syzygy=&hid_syzygy_check=on&hid_vertex=on&hid_vertex_check=&hid_chiron=&hid_chiron_check=on&hid_lilith=&hid_lilith_check=on&hid_uzel=&hid_uzel_check=on&tolerance=1&tolerance_paral=0&nick=&hide_aspects=0&duha=&hide_trans=&display_trans=&aya=&house_start=&naksha_posun=&naksha_nasobek=&custom_aya=&&radix=1&aktivni_tab=1&house_system=whole_horizon&terms=
+```
+
+- [ ] The popup shows the same rows and notes as test 1, and **Open sky** opens an address containing `date=2024-04-17T12%3A00%3A00Z&lat=40.716667&lng=-74`.
+
+The skipped time:
+
+```
+https://horoscopes.astro-seek.com/calculate-traditional-chart/?narozeni_den=14&narozeni_mesic=3&narozeni_rok=2021&narozeni_hodina=02&narozeni_minuta=30&narozeni_sekunda=00&narozeni_mesto_hidden=New%20York&narozeni_stat_hidden=US&narozeni_podstat_kratky_hidden=NY&narozeni_tzid_id=156&narozeni_city=New%20York,%20USA,%20New%20York&narozeni_sirka_stupne=40&narozeni_sirka_minuty=43&narozeni_sirka_smer=0&narozeni_delka_stupne=74&narozeni_delka_minuty=0&narozeni_delka_smer=1&narozeni_timezone_form=auto&narozeni_timezone_dst_form=auto&house_system=placidus&styl_graf=&hid_fortune=on&hid_fortune_check=&hid_spirit=&hid_spirit_check=on&hid_syzygy=&hid_syzygy_check=on&hid_vertex=on&hid_vertex_check=&hid_chiron=&hid_chiron_check=on&hid_lilith=&hid_lilith_check=on&hid_uzel=&hid_uzel_check=on&tolerance=1&tolerance_paral=0&nick=&hide_aspects=0&duha=&hide_trans=&display_trans=&aya=&house_start=&naksha_posun=&naksha_nasobek=&custom_aya=&&radix=1&aktivni_tab=1&house_system=whole_horizon&terms=
+```
+
+- [ ] The popup shows the same contradiction message and two readings as test 4, and each reading opens the same `date=` as there.
+
 ## Not covered by hand yet
 
 - **Enter offset**: no real Astro-Seek page has been seen without a Universal Time line, so this screen can't be reached in Chrome yet. `test/popup-model.test.js` covers what it shows and its preview.
 
 ## If a check fails
 
-Note the test number, take a screenshot of the popup, copy anything in its Console, and for tests 1 and 4 copy the Stellarium tab's full address.
+Note the test number, take a screenshot of the popup, copy anything in its Console, and for tests 1, 4 and 11 copy the Stellarium tab's full address.
