@@ -211,6 +211,38 @@ Open the test 1 URL and open the popup.
 - [ ] Open an existing saved chart's birth data for editing, if astro.com offers that from ade.cgi, then open the popup from a chart's **Enter in astro.com…** on a tab where that form is showing. Note whether the popup says the form changes a saved chart, and whether the address or form has a `cid`.
 - [ ] Sign out, open the form from test 1, choose **Sign in** in the popup, sign in, and note where astro.com goes afterwards. Open the form in that tab and check that the popup offers to fill it in.
 
+## Test 15: the receiving page
+
+The page that opens a Chart Bridge link, without the extension. Serve the `extension` folder (the launch config's `receiving-page` entry runs the same command):
+
+```
+python3 -m http.server 8766 --bind 127.0.0.1 --directory extension
+```
+
+The New York 2024 chart from test 1, as a link:
+
+```
+http://127.0.0.1:8766/import.html#v1=eyJmb3JtYXQiOiJjaGFydC1icmlkZ2UiLCJ2ZXJzaW9uIjoxLCJjaGFydCI6eyJjYWxlbmRhciI6ImdyZWdvcmlhbiIsImxvY2FsIjoiMjAyNC0wNC0xN1QwODowMDowMCIsInV0Y09mZnNldFNlY29uZHMiOi0xNDQwMCwibGF0aXR1ZGUiOjQwLjcxNjY2NywibG9uZ2l0dWRlIjotNzR9LCJzb3VyY2UiOnsic2l0ZSI6ImFzdHJvLXNlZWsiLCJ2aWEiOiJwYWdlIiwiem9uZUxhYmVsIjoiRURULCBEU1QiLCJ1dGNCYXNpcyI6InByaW50ZWQifX0
+```
+
+### A: desktop
+
+- [ ] The page shows Local time `17 Apr 2024, 08:00 (EDT, DST)`, Offset `UTC-04:00`, UTC `2024-04-17 12:00`, Place `40°43'N, 74°0'W` and From `Astro-Seek page`, four grey notes, **Open sky**, **Open chart in Astro-Seek** and **Copy link**. There is no **Enter in astro.com…**.
+- [ ] The address bar shows `import.html` with nothing after it, and **Back** doesn't bring the `#v1=…` part back.
+- [ ] Nothing opens by itself. **Open sky** opens the same Stellarium address as test 1; **Open chart in Astro-Seek** opens a chart for 17 April 2024 12:00 UT at 40°43'N, 74°0'W.
+- [ ] **Copy link** says "Link copied.", and pasting gives exactly the link above. If the browser refuses, the link appears selected in a field below the message instead.
+- [ ] Delete the last ten characters of the link and open it: the page says the link is incomplete or damaged, shows `Code: malformed`, and has no buttons.
+- [ ] Open `http://127.0.0.1:8766/import.html` with nothing after it: the page asks for a Chart Bridge link, with no buttons.
+- [ ] The Console stays empty throughout.
+
+### B: phones and tablets (needs the devices)
+
+A phone reaches the page through the Mac's address on the local network, which makes the folder visible to that network while the server runs. Serve it with `--bind 0.0.0.0` instead, find the Mac's address in System Settings → Network, and replace `127.0.0.1` in the link with it. That address is plain http, so browsers refuse **Copy link** there and show the field instead; only an https host can test copying.
+
+- [ ] On iPhone Safari, iPad Safari (portrait and landscape), Chrome for Android and Firefox for Android: the same rows and buttons as in A, nothing wider than the screen, and the buttons easy to tap.
+- [ ] **Open sky** opens Stellarium Web in a new tab at the same time and place.
+- [ ] **Copy link** shows the field with the link selected, and the system's copy works on it.
+
 ## Not covered by hand yet
 
 - **Enter offset**: no real Astro-Seek page has been seen without a Universal Time line, so this screen can't be reached in a browser yet. `test/popup-model.test.js` covers what it shows and its preview.
