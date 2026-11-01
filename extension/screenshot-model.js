@@ -4,7 +4,7 @@ import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, SHARE_BUTTON, viewFor } from "./p
 // like the popup's unreadable pages, so a bug report says which check failed.
 const REFUSALS = {
   "unreadable-screenshot":
-    "Chart Bridge couldn't find the birth data in this screenshot. From Astro-Seek, include everything from Date of Birth to Latitude, Longitude; from astro.com, the chart's header from the date to Sid. Time; from Solar Fire or Astro Gold, the chart details from the date to the coordinates; from Morinus, its status bar or the middle of its square chart; from Valens, the middle of its wheel; from Planetdance, the lines at the top left of the wheel, down to St:; from Jagannatha Hora, the birth data from Date to Sidereal Time; from Kepler or Sirius, the data block from the name to the Time Zone; from Janus, the middle of the wheel from the date to the coordinates. Take it at full size.",
+    "Chart Bridge couldn't find the birth data in this screenshot. From Astro-Seek, include everything from Date of Birth to Latitude, Longitude; from astro.com, the chart's header from the date to Sid. Time; from Solar Fire or Astro Gold, the chart details from the date to the coordinates; from Morinus, its status bar or the middle of its square chart; from Valens, the middle of its wheel; from Planetdance, the lines at the top left of the wheel, down to St:; from Jagannatha Hora, the birth data from Date to Sidereal Time; from Kepler or Sirius, the data block from the name to the Time Zone; from Janus, the middle of the wheel from the date to the coordinates; from Win*Star, the upper right of the wheel from the date to the latitude; from TimePassages, the whole chart, with its corners; from Astrolog, the top of the sidebar from the date to the Julian Day. Take it at full size.",
   "no-coordinates":
     "This screenshot has no coordinates. Astro Gold's chart wheel doesn't print them: take its Chart Details panel or Edit Chart screen instead. From Solar Fire, include the chart details down to the coordinates.",
   "ambiguous-screenshot": "This screenshot shows more than one chart. Chart Bridge opens natal charts only.",
@@ -16,8 +16,13 @@ const REFUSALS = {
     "The weekday in this screenshot doesn't fall on its date, so the date was probably misread. Try a larger screenshot.",
   "zone-offset-mismatch":
     "The time zone in this screenshot doesn't match its UTC offset, so one of them was probably misread. Try a larger screenshot.",
-  "calendar-unsupported": "This chart is dated Old Style or BC. Chart Bridge reads Gregorian dates only.",
+  "calendar-unsupported":
+    "This chart is dated before the Gregorian calendar began on 15 October 1582, or marked Old Style or BC. Chart Bridge reads Gregorian dates only.",
   "apparent-time": "This chart uses local apparent time, which Chart Bridge can't open yet.",
+  "offset-off-quarter-hour":
+    "The sidereal time in this screenshot gives a UTC offset that isn't on a quarter hour, so its longitude was probably misread. Try a larger screenshot. A chart in one of the few zones off the quarter hour, such as Amsterdam's before 1940, can't be read from a TimePassages screenshot yet.",
+  "true-local-time-mismatch":
+    "The TLT in this screenshot doesn't match its sidereal time and longitude, so one of them was probably misread. Try a larger screenshot.",
   "local-time-ambiguous":
     "This chart's time is marked LC, which Morinus and Valens print for both local mean time and local apparent time. Chart Bridge can't tell which, so it can't open it yet.",
   "chart-type-unsupported": "This is a return, profection or direction chart. Chart Bridge opens natal and horary charts only.",
@@ -38,6 +43,9 @@ const PROGRAMS = {
   sirius: "Sirius",
   "kepler-or-sirius": "Kepler or Sirius",
   janus: "Janus",
+  winstar: "Win*Star",
+  timepassages: "TimePassages",
+  astrolog: "Astrolog",
 };
 
 // Warnings only a screenshot's chart can have, shown in place of their codes.

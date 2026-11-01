@@ -214,6 +214,13 @@ test("refused: astro.com pages and charts Chart Bridge doesn't open name astro.c
   });
 });
 
+test("refused: an astro.com chart dated before 1582 says why", () => {
+  assert.deepEqual(viewFor({ kind: "refused", reason: "calendar-unsupported" }), {
+    state: "refused",
+    message: "This astro.com chart is dated before the Gregorian calendar began on 15 October 1582. Chart Bridge reads Gregorian dates only.",
+  });
+});
+
 test("refused: astro.com records Chart Bridge couldn't read show their code", () => {
   for (const reason of ["unreadable-link", "unreadable-record", "unseen-field-9"]) {
     assert.deepEqual(viewFor({ kind: "refused", reason }), {

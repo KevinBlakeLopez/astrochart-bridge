@@ -17,7 +17,7 @@ const NOTES = [CLOCK_NOTE, PRIVACY_NOTE];
 const RUNNING = "The clock starts running at once; its pause button stops it.";
 
 // A refusal's code says which site it came from (transit and synastry only
-// from Astro-Seek; databank and the three after it only from astro.com), so
+// from Astro-Seek; databank and the four after it only from astro.com), so
 // each message can name its site without being told it.
 const REFUSALS = {
   transit: "This is a transit chart. Chart Bridge opens natal charts only.",
@@ -28,6 +28,8 @@ const REFUSALS = {
   "no-drawing-link":
     "This astro.com page has no \"Drawing (for subscribers)\" link, which is where Chart Bridge reads the birth data.",
   "local-mean-time": "This chart uses local mean time, which Chart Bridge can't open yet.",
+  "calendar-unsupported":
+    "This astro.com chart is dated before the Gregorian calendar began on 15 October 1582. Chart Bridge reads Gregorian dates only.",
   "page-url-mismatch": "The page doesn't match its address. Reload the chart and try again.",
   "stellarium-unreadable": "Chart Bridge couldn't read the sky from this Stellarium Web tab.",
 };

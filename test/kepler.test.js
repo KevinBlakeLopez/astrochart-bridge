@@ -108,3 +108,9 @@ test("a block is recognised by its Time Zone in hours", () => {
   assert.equal(detect(ocr(CHOPIN)), true);
   assert.equal(detect(ocr(CHOPIN.map((line) => line.replace(/ Time Zone.*/, "")))), false);
 });
+
+test("a Time Zone that agrees with the G.M.T. counts as checked, without a sidereal time", () => {
+  const chart = analyzeScreenshot(ocr([...BACH, "G.M.T. 11:00:00"]));
+  assert.equal(chart.utc, "1685-03-31T11:00:00Z");
+  assert.equal(chart.warnings, undefined);
+});

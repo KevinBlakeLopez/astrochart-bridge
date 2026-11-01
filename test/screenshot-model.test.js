@@ -111,6 +111,8 @@ const REASONS = [
   "weekday-mismatch",
   "zone-offset-mismatch",
   "no-coordinates",
+  "true-local-time-mismatch",
+  "offset-off-quarter-hour",
 ];
 for (const reason of REASONS) {
   test(`${reason} has its own message and keeps its code`, () => {
