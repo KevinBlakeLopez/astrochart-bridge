@@ -3,7 +3,7 @@
 // from a page or a screenshot is only ever inserted with textContent.
 import { astroSeekUrl } from "./core/astroseek.js";
 import { stellariumUrl } from "./core/stellarium.js";
-import { offsetPreview } from "./popup-model.js";
+import { NAME_LENGTH, nameWarning, offsetPreview, withName } from "./popup-model.js";
 
 // What a button can open for the decided sky, by the name a view gives it.
 const LINKS = { stellarium: stellariumUrl, "astro-seek": astroSeekUrl };
@@ -33,10 +33,14 @@ export function render(container, view, onButton, back = null) {
     // with its own url (the Astro-Seek chart from a Stellarium tab) opens that.
     // A button with does names an action instead of a link, for onButton to take.
     let sky = view.sky ?? null;
+    // What the Name boxes hold: a button that keeps values for a tab keeps
+    // this name in place of the one the view gave it.
+    const typed = view.nameBoxes ? Object.fromEntries(view.nameBoxes.map(({ part, text }) => [part, text])) : null;
+    const withTyped = (button) => (typed && button.holds ? { ...button, holds: withName(button.holds, typed) } : button);
     const buttons = view.url
       ? [linkButton(view.button, () => onButton({ url: view.url }, sky))]
       : (view.buttons ?? OPEN_SKY).map(({ label, opens, secondary, ...button }) => {
-          const element = linkButton(label, () => onButton({ ...button, url: button.url ?? LINKS[opens]?.(sky) }, sky));
+          const element = linkButton(label, () => onButton(withTyped({ ...button, url: button.url ?? LINKS[opens]?.(sky) }), sky));
           if (secondary) element.className = "secondary";
           return element;
         });
@@ -54,6 +58,7 @@ export function render(container, view, onButton, back = null) {
 
     if (view.state === "choose") parts.push(choiceList(view.choices, setSky));
     if (view.state === "enter-offset") parts.push(...offsetField(view, setSky));
+    if (typed) parts.push(...nameFields(view.nameBoxes, typed));
     for (const note of view.notes) parts.push(paragraph(note, "note"));
     setSky(sky);
     parts.push(...buttons);
@@ -175,6 +180,33 @@ function choiceList(choices, setSky) {
     list.append(label);
   }
   return list;
+}
+
+// One labelled box per name part, editing typed in place, and a line under
+// them that says when a part is too long for astro.com.
+function nameFields(boxes, typed) {
+  const warning = paragraph("", "warning");
+  const check = () => {
+    warning.textContent = nameWarning(typed) ?? "";
+    warning.hidden = warning.textContent === "";
+  };
+  const fields = boxes.map(({ part, label, text }) => {
+    const input = document.createElement("input");
+    input.type = "text";
+    input.value = text;
+    input.maxLength = NAME_LENGTH;
+    input.autocomplete = "off";
+    input.addEventListener("input", () => {
+      typed[part] = input.value;
+      check();
+    });
+    const wrapper = document.createElement("label");
+    wrapper.className = "name-field";
+    wrapper.append(label, input);
+    return wrapper;
+  });
+  check();
+  return [...fields, warning];
 }
 
 function offsetField(view, setSky) {

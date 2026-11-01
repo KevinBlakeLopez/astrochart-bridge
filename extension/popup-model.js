@@ -315,6 +315,38 @@ const MONTH_NAMES = [
   "July", "August", "September", "October", "November", "December",
 ];
 
+// astro.com's first and last name fields, sfnm and snam, each have a maxlength
+// of 40, as seen signed out on 2026-11-01.
+export const NAME_LENGTH = 40;
+
+const NAME_NOTE =
+  "The name goes in astro.com's first and last name fields, and you can change it here first. An event's name goes in Last name, as astro.com keeps it.";
+
+/**
+ * The name the boxes on the astro.com screen give, in place of the one the
+ * buttons kept: each part trimmed, and no name when both are empty.
+ *
+ * @param {object} holds  a button's holds
+ * @param {{ first: string, last: string }} typed  the boxes' text
+ */
+export function withName(holds, { first, last }) {
+  const name = { first: first.trim(), last: last.trim() };
+  return { ...holds, name: name.first === "" && name.last === "" ? null : name };
+}
+
+/**
+ * Why the boxes' text won't fit astro.com's name fields, or null, for the line
+ * under the boxes. A box can't take more than NAME_LENGTH characters typed,
+ * but a name read from a chart can arrive longer.
+ *
+ * @param {{ first: string, last: string }} typed
+ */
+export function nameWarning({ first, last }) {
+  const long = [["First name", first], ["Last name", last]].filter(([, text]) => text.trim().length > NAME_LENGTH);
+  if (long.length === 0) return null;
+  return `astro.com's name fields take ${NAME_LENGTH} characters. Shorten ${long.map(([label]) => label).join(" and ")} here, or astro.com may cut it short.`;
+}
+
 // The secondary button on a screen whose chart can be entered in astro.com.
 export const astroComStep = (sky, chart = {}) => ({ label: "Enter in astro.com…", view: viewForAstroCom(sky, chart) });
 
@@ -331,11 +363,17 @@ export function viewForAstroCom({ utc, lat, lng }, { town = null, name = null } 
   const held = { ...sky, town, name };
   return {
     state: "to-astro-com",
-    ...astroComValues(held),
+    // The name is in its boxes, not the rows, so it shows once.
+    ...astroComValues({ ...held, name: null }),
     message: "AstroChart Bridge opens astro.com's form and fills it in as it opens. It doesn't submit the form.",
+    nameBoxes: [
+      { part: "first", label: "First name", text: name?.first ?? "" },
+      { part: "last", label: "Last name", text: name?.last ?? "" },
+    ],
     notes: [
       "The date and time are Universal Time, so they can differ from the local birth date and time.",
       townNote(town),
+      NAME_NOTE,
       ...ASTRO_COM_NOTES,
     ],
     sky,
