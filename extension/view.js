@@ -50,6 +50,12 @@ export function render(container, view, onButton, back = null) {
     setSky(sky);
     parts.push(...buttons);
 
+    // The chart as an AAF file, made by aaf-model.js. Saving it sends nothing anywhere.
+    if (view.download) {
+      parts.push(secondaryButton(view.download.label, () => saveFile(view.download)));
+      if (view.download.note) parts.push(paragraph(view.download.note, "note"));
+    }
+
     // A further screen, such as the values to enter in astro.com, is drawn in
     // place of this one, and Cancel draws this one again. Going there and back stores nothing.
     if (view.next) {
@@ -59,6 +65,18 @@ export function render(container, view, onButton, back = null) {
   }
 
   container.replaceChildren(...parts);
+}
+
+// A link to the text with download set saves it under filename, with no
+// downloads permission. The link is revoked a minute later, by when the
+// browser has the file; a popup that closes first takes it with it.
+function saveFile({ filename, text }) {
+  const url = URL.createObjectURL(new Blob([text], { type: "text/plain;charset=utf-8" }));
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
 
 function secondaryButton(label, onClick) {

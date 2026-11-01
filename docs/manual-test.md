@@ -226,6 +226,37 @@ Open the test 1 URL and open the popup.
 - [ ] Open an existing saved chart's birth data for editing, if astro.com offers that from ade.cgi, then open the popup from a chart's **Enter in astro.com…** on a tab where that form is showing. Note whether the popup says the form changes a saved chart, and whether the address or form has a `cid`.
 - [ ] Sign out, open the form from test 1, choose **Sign in** in the popup, sign in, and note where astro.com goes afterwards. Open the form in that tab and check that the popup offers to fill it in.
 
+## Test 15: AAF files
+
+`docs/aaf.md` explains what Chart Bridge reads and writes. The files are `fixtures/aaf/` in this repo, written by Astrolog 8.00 for invented charts.
+
+### Saving
+
+- [ ] On the test 1 popup, below **Open sky** and above **Enter in astro.com…**, is **Save as AAF file**. Clicking it saves `chart-2024-04-17.aaf` to the browser's downloads folder without asking for a permission. Note whether the popup stays open.
+- [ ] The saved file reads `#: Chart Bridge`, then `#A93:*,*,*,17.4.2024,8:00,*,*`, then `#B93:*,40n43,74w00,5hw00,1`.
+- [ ] On an astro.com account chart, if you have one, **Save as AAF file** has a grey note below it saying the file gives the chart in Universal Time, and the file's `#B93` line ends `,0h,0`.
+- [ ] On the Stellarium Web tab from test 12, the popup has **Save as AAF file** with a note that the file gives the moment in Universal Time.
+- [ ] On the test 4 popup (choose a reading), there is no **Save as AAF file**.
+- [ ] If Astrolog is installed, open each saved file in it (**File / Open Chart**). It shows the same date, time and place.
+
+### Opening
+
+- [ ] On the test 8 popup (another website), below **Read a screenshot instead**, is **Open an AAF file**. It opens the import page in a new tab and closes the popup.
+- [ ] Choose `fixtures/aaf/astrolog-8.00-new-york.aaf`. The page says "1 chart in this file." and shows Name `New York Test`, Local time `17 Apr 2024, 08:00`, Offset `UTC-04:00`, UTC `2024-04-17 12:00`, Birthplace `New York, NY (US)` and Place `40°43'N, 74°0'W`. The Console is empty.
+- [ ] **Open sky** opens Stellarium Web with `date=2024-04-17T12%3A00%3A00Z&lat=40.716667&lng=-74` in the address. **Open chart in Astro-Seek** opens the same chart at 12:00 UT, as in test 12.
+- [ ] Drag `fixtures/aaf/astrolog-8.00-delhi-seconds.aaf` onto the page. It shows Local time `1 Mar 1990, 06:15`, Offset `UTC+05:30` and UTC `1990-03-01 00:45`.
+- [ ] Paste these lines into the box and click **Read pasted text**:
+
+  ```
+  #A93:Test,Sydney,*,15.1.2024,8:00,Sydney,NSW (AU)
+  #B93:*,33s52,151e12,10he00,1
+  #A93:Test,No time,*,15.1.2024,*,Sydney,NSW (AU)
+  #B93:*,33s52,151e12,10he00,1
+  ```
+
+  The page lists both charts. Choosing the first shows UTC `2024-01-14 21:00`. Choosing the second says the chart has no birth time and shows `Code: no-birth-time`, with no buttons.
+- [ ] In light and dark mode the page is readable, like the screenshot page.
+
 ## Not covered by hand yet
 
 - **Enter offset**: no real Astro-Seek page has been seen without a Universal Time line, so this screen can't be reached in a browser yet. `test/popup-model.test.js` covers what it shows and its preview.
