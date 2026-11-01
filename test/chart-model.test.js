@@ -135,6 +135,22 @@ test("the From row names what the source gives, and is left out when it gives no
   assert.equal(from({}), undefined);
 });
 
+test("a chart from pasted text names it in words, and warns that nothing checked its offset", () => {
+  const view = viewForImport(received(NY, { via: "paste", utcBasis: "entered" }), LOS_ANGELES);
+  assert.deepEqual(view.rows.at(-1), ["From", "pasted text"]);
+  assert.deepEqual(view.warnings, [
+    "This chart was read from pasted text and checked by hand on the device that shared it. Nothing checked its UTC offset against the birthplace and date.",
+  ]);
+});
+
+// Any lower-case code is a valid site or via, and "constructor" is the one
+// that names a member of Object.prototype: a plain lookup printed its source.
+test("a site or via of constructor is shown as its code", () => {
+  const view = viewForImport(received(NY, { site: "constructor", via: "constructor" }), LOS_ANGELES);
+  assert.deepEqual(view.rows.at(-1), ["From", "constructor constructor"]);
+  assert.deepEqual(view.warnings, []);
+});
+
 test("markup in a zone label comes through as the same text", () => {
   const label = `<img src=x onerror="alert(1)">`;
   const view = viewForImport(received(NY, { zoneLabel: label }), LOS_ANGELES);

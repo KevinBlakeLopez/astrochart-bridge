@@ -2,7 +2,7 @@
 
 Chart Bridge can read birth data from text you copy out of an astrology program, a chart report, a PDF or your own notes. You check the values on a form, correct any that are wrong, and then open the sky in Stellarium Web or the chart in Astro-Seek.
 
-The text is read on your computer. Nothing is sent anywhere until you click **Open sky** or **Open chart in Astro-Seek**, and then only the date, time and coordinates go to that site. The text isn't saved: closing the tab forgets it.
+The text is read on your computer. Nothing is sent anywhere until you click **Open sky** or **Open chart in Astro-Seek**, and then only the date, time and coordinates go to that site. **Share…** sends nothing either: it opens a chart page in this browser, and the chart leaves it only if you copy, show or download it there. The text isn't saved: closing the tab forgets it.
 
 ## How to
 
@@ -15,7 +15,15 @@ The text is read on your computer. Nothing is sent anywhere until you click **Op
 3. Check each of the five boxes. Under each box, a grey line shows the line of your text it came from, and the line just below the box shows what Chart Bridge made of it, such as `122°19'56"W` or `22:30 at the birthplace`.
 4. Fill in any empty box. You can type a value in any form the text could have used.
 5. Click **Continue**. It stays faded until all five boxes read.
-6. Check the Local time, Offset, UTC and Place rows, then click **Open sky** or **Open chart in Astro-Seek**. **Back to the form** returns to the form as you left it.
+6. Check the Local time, Offset, UTC and Place rows, then click **Open sky** or **Open chart in Astro-Seek**, or **Share…** (see [Sharing](#sharing)). **Back to the form** returns to the form as you left it.
+
+## Sharing
+
+**Share…** opens Chart Bridge's chart page in a new tab with the chart in its link, as it does for a chart page or a screenshot. From there you can copy the link, show it as a QR code or download it as a `.astrochart.json` file. See `docs/portable-charts.md`.
+
+A shared chart holds only the local date and time, the UTC offset and the coordinates, and says it came from pasted text and whether the offset was one the text gave or one you typed. The name, place, time zone, house system and zodiac from the text aren't in it. Whoever opens it sees a warning that nothing checked its offset against the birthplace and date.
+
+A chart dated before 15 October 1582 opens the sky but can't be shared yet.
 
 ## What it reads
 

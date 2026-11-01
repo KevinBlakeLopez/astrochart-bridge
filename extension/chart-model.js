@@ -25,6 +25,19 @@ const SITE_NAMES = { "astro-seek": "Astro-Seek", "astro-com": "astro.com" };
 const SCREENSHOT_WARNING =
   "This chart was read from a screenshot by OCR on the device that shared it. Compare these rows with the chart before opening it: nothing checked the latitude.";
 
+// How a chart reached the device that shared it, where the code alone doesn't say it in words.
+const VIA_NAMES = { paste: "pasted text" };
+
+const VIA_WARNINGS = {
+  screenshot: SCREENSHOT_WARNING,
+  paste:
+    "This chart was read from pasted text and checked by hand on the device that shared it. Nothing checked its UTC offset against the birthplace and date.",
+};
+
+// source fields are any lower-case codes, so a lookup must not reach
+// Object.prototype: a link with site "constructor" would print its source code.
+const nameFor = (names, code) => (Object.hasOwn(names, code) ? names[code] : code);
+
 const NEWER = "This chart was made by a newer version of Chart Bridge, which this page can't read.";
 const NEWER_FILE = "This file was made by a newer version of Chart Bridge, which this page can't read.";
 const BEFORE_GREGORIAN = "This chart's date is before 15 October 1582, which Chart Bridge can't open yet.";
@@ -128,7 +141,7 @@ export function viewForImport(result, { canCopy = true, canShare = false, canSha
   );
 
   // Where the chart was first read, not how it travelled here.
-  const origin = [SITE_NAMES[source.site] ?? source.site, source.via].filter(Boolean).join(" ");
+  const origin = [nameFor(SITE_NAMES, source.site), nameFor(VIA_NAMES, source.via)].filter(Boolean).join(" ");
   const shareLink = canCopy && canShare;
   const buttons = [
     ...ASTRO_SEEK_BUTTONS,
@@ -140,7 +153,7 @@ export function viewForImport(result, { canCopy = true, canShare = false, canSha
   return {
     ...view,
     rows: origin === "" ? view.rows : [...view.rows, ["From", origin]],
-    warnings: source.via === "screenshot" ? [SCREENSHOT_WARNING] : [],
+    warnings: Object.hasOwn(VIA_WARNINGS, source.via) ? [VIA_WARNINGS[source.via]] : [],
     notes: [...view.notes, ...ASTRO_SEEK_NOTES, ...(shareLink || canShareFiles ? [SHARE_NOTE] : [])],
     buttons: buttons.map((button) => ({ ...button })),
   };

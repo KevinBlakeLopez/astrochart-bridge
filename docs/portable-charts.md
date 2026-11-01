@@ -23,7 +23,7 @@ screenshot ──────┘                                          │
 ```
 
 - `extension/core/portable.js` is the format: building, validating, serializing and reading charts, and link fragments. It uses no browser API and knows no site.
-- The popup and the screenshot page offer **Share…** on any screen with a chart of its own, once a reading or an offset decides the UTC. It opens the extension's copy of `chart.html` with the chart in its link.
+- The popup, the screenshot page and the paste page offer **Share…** on any screen with a chart of its own, once a reading or an offset decides the UTC. It opens the extension's copy of `chart.html` with the chart in its link.
 - `chart.html` is the same page in the extension and on the web. It reuses the popup's view model and `view.js`, so a received chart shows the popup's rows and notes, and opens through the same `stellariumUrl` and `astroSeekUrl` as the popup.
 - A source added later needs only to produce a decided chart; the format, page and sharing don't change. A destination added later needs only to take `skyFor`'s `{ utc, lat, lng }`.
 
@@ -53,9 +53,9 @@ screenshot ──────┘                                          │
 | `chart.utcOffsetSeconds` | yes | Seconds east of UTC, an integer from −43200 to +50400. Local-mean-time offsets run to the second. |
 | `chart.latitude`, `chart.longitude` | yes | Degrees north and east, as the readers round them (6 decimals). |
 | `source.site` | no | Where the chart was first read: `astro-seek`, `astro-com`, or a later site's code. |
-| `source.via` | no | `page` or `screenshot`. A screenshot's chart was read by OCR, and nothing checked its latitude. |
+| `source.via` | no | `page`, `screenshot` or `paste`. A screenshot's chart was read by OCR, and nothing checked its latitude. A pasted chart was read from text and checked by hand on the paste page's form, and has no `site`: nothing checked its offset against the birthplace. |
 | `source.zoneLabel` | no | The zone label as the page printed it, at most 64 characters, with no control or format characters. |
-| `source.utcBasis` | no | How the offset was decided: `printed`, `declared`, `zone-label` or `entered`. |
+| `source.utcBasis` | no | How the offset was decided: `printed`, `declared`, `zone-label` or `entered`. A pasted chart is `declared` when its offset is one the text gave and `entered` when it was typed on the form. |
 
 The UTC isn't written: `skyFor` works it out as `local − utcOffsetSeconds`, so a chart can't hold two times that disagree.
 
@@ -144,7 +144,7 @@ To try the page locally, serve the `extension` folder (`python3 -m http.server 8
 | `test/qr.test.js` | QR versions and sizes, error correction, the SVG path against the code's modules, refusal of links too long to scan. |
 | `test/site.test.js` | The published file list against what `chart.html` loads, and the site build. |
 
-The popup's and screenshot page's own scripts, the extension's Share… flow, and every physical device are covered by manual tests 19 to 22 in `docs/manual-test.md`.
+The popup's, screenshot page's and paste page's own scripts, the extension's Share… flow, and every physical device are covered by manual tests 16 and 19 to 22 in `docs/manual-test.md`.
 
 ## Remaining limitations
 

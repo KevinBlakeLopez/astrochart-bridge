@@ -1,9 +1,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readText } from "../extension/core/text.js";
-import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, viewFor } from "../extension/popup-model.js";
+import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, SHARE_BUTTON, viewFor } from "../extension/popup-model.js";
 import { analyzeEntry } from "../extension/core/index.js";
-import { checkField, entryFor, formFor, viewForEntry } from "../extension/paste-model.js";
+import { serialize, skyFor } from "../extension/core/portable.js";
+import { linkFor, readLink, viewForImport } from "../extension/chart-model.js";
+import { chartForEntry, checkField, entryFor, formFor, viewForEntry } from "../extension/paste-model.js";
 
 // Invented birth data, as a desktop program's labelled text might give it.
 const LABELLED = [
@@ -153,5 +155,58 @@ test("a confirmed entry opens the sky or the Astro-Seek chart, from the popup's 
   assert.deepEqual(view.warnings, ["a form warning"]);
   assert.match(view.notes[0], /Nothing checks that this offset/);
   assert.deepEqual(view.notes.slice(1), [...popup.notes, ...ASTRO_SEEK_NOTES]);
-  assert.deepEqual(view.buttons, ASTRO_SEEK_BUTTONS);
+  assert.deepEqual(view.buttons, [...ASTRO_SEEK_BUTTONS, SHARE_BUTTON]);
+});
+
+// --- Share… ---
+
+const ENTRY = { date: "1985-06-15", time: "10:30:00", lat: 47.6062, lng: -122.3321, offsetMinutes: -420 };
+
+test("the form knows which offsets the text itself gave", () => {
+  assert.deepEqual(formOf(LABELLED).statedOffsets, [-420]);
+  assert.deepEqual(formOf("Timezone: PDT (UTC-7)\nUTC Offset: -08:00").statedOffsets, [-420, -480]);
+  assert.deepEqual(formOf("Date of Birth: 15 June 1985\nTime Zone: PDT").statedOffsets, []);
+});
+
+test("a shared chart says it came from pasted text, with the offset as the text stated it", () => {
+  const shared = chartForEntry(ENTRY, [-420]);
+  assert.equal(shared.kind, "portable");
+  assert.deepEqual(shared.chart.chart, {
+    calendar: "gregorian",
+    local: "1985-06-15T10:30:00",
+    utcOffsetSeconds: -25200,
+    latitude: 47.6062,
+    longitude: -122.3321,
+  });
+  assert.deepEqual(shared.chart.source, { via: "paste", utcBasis: "declared" });
+  assert.deepEqual(skyFor(shared.chart), { utc: "1985-06-15T17:30:00Z", lat: 47.6062, lng: -122.3321 });
+});
+
+test("an offset typed on the form, or one the text didn't give, is shared as entered", () => {
+  assert.equal(chartForEntry(ENTRY, []).chart.source.utcBasis, "entered");
+  assert.equal(chartForEntry({ ...ENTRY, offsetMinutes: -480 }, [-420]).chart.source.utcBasis, "entered");
+  // Picking one of two offsets the text gave keeps it as the text's.
+  assert.equal(chartForEntry({ ...ENTRY, offsetMinutes: -480 }, [-420, -480]).chart.source.utcBasis, "declared");
+});
+
+test("nothing but the chart and where it came from is shared: no name, place or zone", () => {
+  const form = formOf(LABELLED);
+  const text = serialize(chartForEntry(ENTRY, form.statedOffsets).chart);
+  for (const kept of ["Example Person", "Seattle", "PDT", "Placidus", "Tropical"]) {
+    assert.ok(!text.includes(kept), kept);
+  }
+});
+
+test("the receiving page opens the shared link as the same sky, from pasted text", () => {
+  const link = linkFor("https://example.invalid/chart.html", chartForEntry(ENTRY, [-420]).chart);
+  const view = viewForImport(readLink(new URL(link).hash), LA);
+  assert.deepEqual(view.sky, viewForEntry(ENTRY, LA).sky);
+  assert.deepEqual(view.rows.at(-1), ["From", "pasted text"]);
+  assert.match(view.warnings[0], /read from pasted text and checked by hand/);
+});
+
+test("a date before 15 October 1582 opens the sky but isn't shared", () => {
+  const early = { ...ENTRY, date: "1500-06-15" };
+  assert.equal(viewForEntry(early, LA).state, "ready");
+  assert.deepEqual(chartForEntry(early, [-420]), { kind: "refused", reason: "before-gregorian" });
 });

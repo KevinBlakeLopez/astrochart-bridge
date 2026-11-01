@@ -2,8 +2,10 @@
 // check and correct, then the popup's ready screen for it. Every decision is
 // made in core/ and paste-model.js; this file handles the page. The text is
 // only ever inserted with textContent or an input's value, never as HTML.
+import { linkFor } from "./chart-model.js";
 import { readText } from "./core/text.js";
-import { checkField, entryFor, formFor, viewForEntry } from "./paste-model.js";
+import { chartForEntry, checkField, entryFor, formFor, viewForEntry } from "./paste-model.js";
+import { viewForShareRefusal } from "./popup-model.js";
 import { paragraph, render } from "./view.js";
 
 const textArea = document.getElementById("text");
@@ -68,7 +70,7 @@ function formElement(form) {
   element.addEventListener("submit", (event) => {
     event.preventDefault();
     const entry = entryFor(values);
-    if (entry) showReady(element, entry, form.warnings);
+    if (entry) showReady(element, entry, form);
   });
   return element;
 }
@@ -119,9 +121,22 @@ function fieldElement(field, onValue) {
   return wrapper;
 }
 
-function showReady(formElementToKeep, entry, warnings) {
+// As on the screenshot page: Share… opens the receiving page in a tab with the
+// chart in its link, and a chart the format can't carry says why, with Cancel
+// back to this screen.
+function showReady(formElementToKeep, entry, form) {
   const screen = document.createElement("div");
-  render(screen, viewForEntry(entry, { warnings }), openLink);
+  const view = viewForEntry(entry, { warnings: form.warnings });
+  const onButton = async (button) => {
+    if (button.does !== "share") return openLink(button);
+    const shared = chartForEntry(entry, form.statedOffsets);
+    if (shared.kind === "refused") {
+      render(screen, viewForShareRefusal(shared.reason), onButton, view);
+      return;
+    }
+    await chrome.tabs.create({ url: linkFor(chrome.runtime.getURL("chart.html"), shared.chart) });
+  };
+  render(screen, view, onButton);
   const back = document.createElement("button");
   back.className = "secondary";
   back.textContent = "Back to the form";

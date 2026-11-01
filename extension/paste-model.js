@@ -1,6 +1,7 @@
 import { analyzeEntry } from "./core/index.js";
+import { toPortable } from "./core/portable.js";
 import { MAX_TEXT_LENGTH, readField } from "./core/text.js";
-import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, viewFor } from "./popup-model.js";
+import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, SHARE_BUTTON, viewFor } from "./popup-model.js";
 
 // Each refusal readText can return. They keep their code on screen, like the
 // screenshot page's, so a bug report says which check failed.
@@ -65,7 +66,16 @@ export function formFor(result) {
     rows: INFO_FIELDS.filter(([name]) => fields[name]).map(([name, label]) => [label, asWritten(fields[name])]),
     warnings: settingWarnings(fields),
     notes: fields.place ? [FORM_NOTE, PLACE_NOTE] : [FORM_NOTE],
+    statedOffsets: statedOffsets(fields.offset),
   };
+}
+
+// The offsets the text itself gives, in minutes, so a shared chart can say
+// whether its offset came from the text or was typed on the form.
+function statedOffsets(read) {
+  if (!read) return [];
+  const values = read.problem === "conflict" ? read.sightings.map((s) => s.value) : [read.value];
+  return values.filter((value) => value !== null);
 }
 
 // What a field's box starts with (text), where that came from (source), and
@@ -141,7 +151,7 @@ export function entryFor({ date, time, lat, lng, offset }) {
 /**
  * The screen that opens the sky or the chart for a confirmed entry: the
  * popup's ready screen, with the form's warnings, a note that nothing checks
- * the offset, and a second button that opens the chart in Astro-Seek.
+ * the offset, a second button that opens the chart in Astro-Seek, and Share….
  *
  * @param {ReturnType<typeof entryFor>} entry
  * @param {{ warnings?: string[], timeZone?: string }} [options]  timeZone is passed on to viewFor
@@ -152,8 +162,24 @@ export function viewForEntry(entry, { warnings = [], timeZone } = {}) {
     ...view,
     warnings: [...view.warnings, ...warnings],
     notes: [OFFSET_NOTE, ...view.notes, ...ASTRO_SEEK_NOTES],
-    buttons: [...ASTRO_SEEK_BUTTONS],
+    buttons: [...ASTRO_SEEK_BUTTONS, SHARE_BUTTON].map((button) => ({ ...button })),
   };
+}
+
+/**
+ * The portable chart Share… sends for a confirmed entry. Pasted text has no
+ * site, so its source names only how it came, "paste", and whether the offset
+ * is one the text stated ("declared") or one typed on the form ("entered").
+ * No name, place or zone goes with it.
+ *
+ * @param {ReturnType<typeof entryFor>} entry
+ * @param {number[]} statedOffsets  formFor's, the offsets the text gives
+ * @returns {ReturnType<typeof toPortable>}
+ */
+export function chartForEntry(entry, statedOffsets) {
+  const { local, utc, lat, lng } = analyzeEntry(entry);
+  const utcBasis = statedOffsets.includes(entry.offsetMinutes) ? "declared" : "entered";
+  return toPortable({ local, utc, lat, lng }, { via: "paste", utcBasis });
 }
 
 // Astro-Seek's chart opens with the house system astroSeekUrl names, Placidus,

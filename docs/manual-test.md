@@ -287,7 +287,10 @@ Sun: 27°53' Aries
 - [ ] **Continue** shows Local time `17 Apr 2024, 08:00`, Offset `UTC-04:00`, UTC `2024-04-17 12:00` and Place `40°43'N, 74°0'W`. The first grey note says nothing checks the offset, and the last two are Astro-Seek's notes from test 13.
 - [ ] **Open sky** opens a Stellarium Web tab whose address contains `date=2024-04-17T12%3A00%3A00Z&lat=40.716667&lng=-74`, and the paste tab stays open.
 - [ ] **Open chart in Astro-Seek** opens the same chart as test 12: its header shows `17 Apr 2024 - 12:00  (Manually: GMT+00:00)`, Universal Time `17 Apr 2024 - 12:00` and `40°43'N, 74°0'W`.
-- [ ] **Back to the form** brings back the form with the same values.
+- [ ] Below the two blue buttons is **Share…**. It opens a Chart Bridge chart page in a new tab, and the paste tab stays open. That page shows the same Local time, Offset, UTC and Place rows, a From row reading `pasted text`, and an orange warning that the chart was read from pasted text and nothing checked its UTC offset.
+- [ ] On that page, **Download file** saves a `.astrochart.json` file. Open it in a text editor: it has the date, time, offset and coordinates, `"via": "paste"` and `"utcBasis": "declared"`, and no "New York", "EDT" or "Whole Sign".
+- [ ] **Back to the form** brings back the form with the same values. Change UTC offset to `-4` by typing it, **Continue**, **Share…**, and download the file again. It still says `"utcBasis": "declared"`, since -4 is the offset the text gave. Type `-5` instead and it says `"entered"`.
+- [ ] Change the Date to `1500-04-17` and **Continue**. **Open sky** still works, but **Share…** says Chart Bridge can't share a chart dated before 15 October 1582, with **Cancel** back to the chart.
 - [ ] Change Longitude to `74°0'E`. The line under it says `74°0'0"E`. **Continue** then shows Place `40°43'N, 74°0'E`. Change it back.
 - [ ] Clear the UTC offset box. **Continue** fades and does nothing when clicked. Type `-4` and it comes back.
 - [ ] Copy the sample again and click **Paste from clipboard**. Note which of these happens, in each browser: the form appears at once; the browser asks for permission first (allow it once, then try again and deny it); or an orange line says the browser didn't let Chart Bridge read the clipboard. If the browser refuses or you deny it, pasting with **Cmd+V** still works.
