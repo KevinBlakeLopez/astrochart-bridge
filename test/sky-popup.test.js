@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { astroSeekUrl } from "../extension/core/astroseek.js";
 import { isStellariumWeb } from "../extension/core/stellarium.js";
-import { viewFor, viewForSky } from "../extension/popup-model.js";
+import { viewFor, viewForAstroCom, viewForSky } from "../extension/popup-model.js";
 
 test("only stellarium-web.org tabs count as Stellarium Web", () => {
   assert.equal(isStellariumWeb("https://stellarium-web.org/?date=2024-04-17T12%3A00%3A00Z&lat=40.716667&lng=-74"), true);
@@ -13,6 +13,7 @@ test("only stellarium-web.org tabs count as Stellarium Web", () => {
     "https://stellarium-web.org.example.com/",
     "brave://extensions/",
     "edge://extensions/",
+    "about:debugging#/runtime/this-firefox",
     "not a url",
   ]) {
     assert.equal(isStellariumWeb(url), false, url);
@@ -34,6 +35,8 @@ test("a Stellarium sky becomes a screen that opens the Astro-Seek chart", () => 
     ],
     button: "Open chart in Astro-Seek",
     url: astroSeekUrl(sky),
+    // test/astro-com-handoff.test.js covers the astro.com screen itself.
+    next: { label: "Enter in astro.com…", view: viewForAstroCom(sky) },
   });
 });
 

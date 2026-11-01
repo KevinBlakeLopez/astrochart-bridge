@@ -1,6 +1,6 @@
 # Manual test checklist
 
-`popup.js` talks to the browser and has no automated tests, so run this list in Chrome, Brave and Microsoft Edge after changing it. Everything it calls, from `analyzePage` to the view model, is covered by `npm test`.
+`popup.js` talks to the browser and has no automated tests, so run this list in Chrome, Brave, Microsoft Edge and Firefox after changing it. Everything it calls, from `analyzePage` to the view model, is covered by `npm test`.
 
 The chart URLs below are the `url` fields of the fixtures in `fixtures/astroseek/`, plus the asteroids example from `docs/astroseek-known-issues.md`. All of them use invented birth data.
 
@@ -28,11 +28,23 @@ Brave's extensions page is the same as Chrome's. Follow the Chrome steps above a
 
 After changing any file in `extension/`, click **Reload** on the Chart Bridge card in `edge://extensions` before testing again.
 
+### Firefox
+
+Chart Bridge needs Firefox 128 or later.
+
+1. Go to `about:debugging#/runtime/this-firefox`.
+2. Click **Load Temporary Add-on…**. Press **Cmd+Shift+G**, paste the path to the same `extension` folder, press Return, select `manifest.json` inside it and click **Open**. Firefox asks for a file in the folder, not the folder itself.
+3. Click the Extensions button (a puzzle piece) in Firefox's toolbar, click the gear next to **Chart Bridge** and choose **Pin to Toolbar**.
+
+Firefox removes a temporary add-on when it quits, so load it again after restarting Firefox. After changing any file in `extension/`, click **Reload** on the Chart Bridge card in `about:debugging` before testing again.
+
 ## For every test
 
 1. Open the test's URL in a new tab and wait for the page to finish loading.
 2. Click the Chart Bridge icon in the toolbar. A small popup opens.
 3. Right-click inside the popup, choose **Inspect**, and open the **Console** tab. It must stay empty. While DevTools is open the popup stays open too, which makes it easier to read.
+
+   In Firefox, click **Inspect** on the Chart Bridge card in `about:debugging` instead. In the toolbox that opens, choose **Disable Popup Auto-Hide** from the **⋯** menu at the top right, open the popup, then pick `popup.html` with the frame-picker button next to that menu. The Console must stay empty.
 
 ## Test 1: New York 2024
 
@@ -105,7 +117,7 @@ Go to `https://example.com`.
 
 ## Test 9: a browser page
 
-Go to `chrome://extensions` in Chrome, `brave://extensions` in Brave, or `edge://extensions` in Edge.
+Go to `chrome://extensions` in Chrome, `brave://extensions` in Brave, `edge://extensions` in Edge, or `about:debugging` in Firefox.
 
 - [ ] The popup shows the same sentence and button as test 8, and the Console has no errors.
 
@@ -158,7 +170,7 @@ The screenshot page reads the image on this computer with the Tesseract.js files
 4. Press **Cmd+V**.
 
 - [ ] Within a few seconds the page shows the same rows as test 1. The first grey note says to compare the rows with the screenshot.
-- [ ] The Console is empty, and every request in the Network tab is a `chrome-extension://` address.
+- [ ] The Console is empty, and every request in the Network tab is a `chrome-extension://` address (`moz-extension://` in Firefox).
 - [ ] **What Chart Bridge read** opens to show the text read from the screenshot.
 - [ ] **Open sky** opens a Stellarium Web tab whose address contains `date=2024-04-17T12%3A00%3A00Z&lat=40.716667&lng=-74`, and the screenshot tab stays open.
 - [ ] Below it is **Open chart in Astro-Seek**, and the last two grey notes say Astro-Seek will draw the chart in UT/GMT with no city, and that opening it sends the date, time and place to astro-seek.com.
@@ -167,6 +179,27 @@ The screenshot page reads the image on this computer with the Tesseract.js files
 - [ ] Open the file in Preview, use **Tools → Adjust Size** to halve its width, and save. Dropping it gives the same result.
 - [ ] A screenshot of only the chart wheel shows "Chart Bridge couldn't find the birth data in this screenshot…" and `Code: unreadable-screenshot`.
 - [ ] In light and dark mode the page is readable, like the popup in test 10.
+
+## Test 14: entering a chart in astro.com
+
+Chart Bridge doesn't fill in astro.com's form or check whether you're signed in: it shows the values to type and links to astro.com's own pages. Run part A in a browser profile that isn't signed in to astro.com, and part B, if you have an astro.com account, in one that is. Never type a real birth date into astro.com for this test.
+
+### A: signed out
+
+Open the test 1 URL and open the popup.
+
+- [ ] Below **Open sky** is **Enter in astro.com…**. On an astro.com account chart, if you have one, it isn't there.
+- [ ] **Enter in astro.com…** replaces the popup's screen with Birthday `17 April 2024`, Hour, min `12:00`, Time zone `00:00 GMT / UT, under show / hide extended settings` and Place `40°43'N, 74°0'W`, three grey notes (the last about signing in), the buttons **Open astro.com's form**, **Sign in** and **Create account**, and **Cancel**.
+- [ ] **Cancel** brings back the test 1 screen.
+- [ ] **Open astro.com's form** opens `https://www.astro.com/cgi/ade.cgi`, "Step 1: Birth Data Entry", and closes the popup.
+- [ ] **Sign in** opens astro.com's "My Astro – Login" page, and **Create account** its "Edit Registration Data" page. Don't submit either.
+- [ ] Back on the test 1 tab, the popup and **Enter in astro.com…** show the same values again.
+- [ ] Open the test 12 Stellarium link: its popup also has **Enter in astro.com…**, with the same values.
+
+### B: signed in (needs an astro.com account)
+
+- [ ] **Open astro.com's form** opens the form without asking you to sign in first.
+- [ ] Enter the values from part A with an invented name and a New York town, set the time zone under **show / hide extended settings**, and continue. Note whether astro.com draws the chart, whether it adds an entry to your saved charts, and whether its header shows `Univ.Time: 12:00` and `74w00, 40n43`. Delete the entry afterwards if it was saved.
 
 ## Not covered by hand yet
 

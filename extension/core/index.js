@@ -6,9 +6,9 @@ import { SIDEREAL_TOLERANCE_SECONDS, siderealGap } from "./sidereal.js";
 const refused = (reason) => ({ kind: "refused", reason });
 
 // Every site Chart Bridge reads, by hostname. extract runs in the chart's tab
-// and returns the input its site's read takes. Chrome sends the tab only the
-// function's source, so it can't use anything else in this module. These are
-// the only lines that touch a page, so the browser checks them by hand.
+// and returns the input its site's read takes. The browser sends the tab only
+// the function's source, so it can't use anything else in this module. These
+// are the only lines that touch a page, so the browser checks them by hand.
 const SITES = new Map([
   [
     "horoscopes.astro-seek.com",
@@ -20,7 +20,7 @@ const SITES = new Map([
         if (chart.kind === "refused") return chart;
         // printedUt only feeds resolveUtc; the result carries the decided utc instead.
         const { local, zoneLabel, lat, lng } = chart;
-        return { kind: "natal", local, zoneLabel, lat, lng, ...resolveUtc(chart) };
+        return { kind: "natal", site: "astro-seek", local, zoneLabel, lat, lng, ...resolveUtc(chart) };
       },
     },
   ],
@@ -39,6 +39,7 @@ const SITES = new Map([
         const { local, offsetMinutes, lat, lng } = chart;
         return {
           kind: "natal",
+          site: "astro-com",
           local,
           zoneLabel: null,
           lat,
@@ -88,10 +89,12 @@ export function extractorFor(url) {
 /**
  * Everything Chart Bridge needs from one chart page, in the shape of a
  * fixture's expected block. Stops at the first refusal and returns it as is.
+ * site names the site whose chart was read, so the popup knows whether the
+ * chart is already on Astro-Seek.
  *
  * @param {{ url: string, input: object }} page  input is what extractorFor(url) returned in the tab
  * @returns {{ kind: "refused", reason: string }
- *   | { kind: "natal", local: string, zoneLabel: string | null, lat: number, lng: number }
+ *   | { kind: "natal", site: "astro-seek" | "astro-com", local: string, zoneLabel: string | null, lat: number, lng: number }
  *     & (ReturnType<typeof resolveUtc> | { utc: string, utcSource: "declared", offsetMinutes: number })}
  */
 export function analyzePage({ url, input }) {
@@ -122,6 +125,7 @@ export function analyzeScreenshot(text) {
   const offsetMinutes = (Date.parse(`${chart.local}Z`) - Date.parse(chart.printedUt)) / 60_000;
   if (offsetMinutes < -720 || offsetMinutes > 840) return { kind: "refused", reason: "offset-out-of-range" };
 
+  // The text is an Astro-Seek page's. The screenshot page adds its own Astro-Seek button.
   const { local, zoneLabel, lat, lng } = chart;
-  return { kind: "natal", local, zoneLabel, lat, lng, ...resolveUtc(chart) };
+  return { kind: "natal", site: "astro-seek", local, zoneLabel, lat, lng, ...resolveUtc(chart) };
 }

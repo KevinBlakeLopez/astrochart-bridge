@@ -11,6 +11,6 @@ Chart Bridge reads screenshots with Tesseract.js. Manifest V3 extensions can't l
 
 `eng.traineddata.gz` is the language data Tesseract.js 5.1.1 downloads by default when the LSTM engine is used.
 
-Only the SIMD core is included: `screenshot.js` names it directly instead of letting Tesseract.js choose, and Chrome has supported WebAssembly SIMD since version 91. The core embeds its WebAssembly, which is why the manifest allows `'wasm-unsafe-eval'`.
+Only the SIMD core is included: `screenshot.js` names it directly instead of letting Tesseract.js choose, and WebAssembly SIMD has been supported since Chrome 91 and Firefox 89. The core embeds its WebAssembly, which is why the manifest allows `'wasm-unsafe-eval'`.
 
 To update, install the new versions in a scratch folder, copy the same files over, and run the screenshot tests in `docs/manual-test.md`.

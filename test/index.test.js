@@ -32,8 +32,8 @@ test("pages on other sites are unsupported and get no extractor", () => {
   }
 });
 
-// Chrome sends the tab only an extractor's source, so each one is rebuilt from
-// its source here and run against a stand-in for the page's document.
+// The browser sends the tab only an extractor's source, so each one is rebuilt
+// from its source here and run against a stand-in for the page's document.
 function runInPage(extract, document) {
   const rebuilt = new Function("document", `return (${extract})();`);
   return rebuilt(document);
@@ -61,6 +61,7 @@ test("the astro.com extractor returns only the addresses of pgid links", () => {
 test("an astro.com chart opens at the offset astro.com states", () => {
   assert.deepEqual(analyzePage({ url: ASTRO_COM_URL, input: { links: [LINK] } }), {
     kind: "natal",
+    site: "astro-com",
     local: "2024-04-17T08:00:00",
     zoneLabel: null,
     lat: 40.716667,

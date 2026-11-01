@@ -47,8 +47,10 @@ async function main() {
 }
 
 // Runs inside the Stellarium Web page itself (world "MAIN"), where its engine
-// lives. Chrome copies this function into the page, so it can't use anything
-// else from this file. The path to the engine was read from frontend 1.16.0.
+// lives. Firefox runs scripts there from version 128, the manifest's
+// strict_min_version. The browser copies this function into the page, so it
+// can't use anything else from this file. The path to the engine was read from
+// frontend 1.16.0.
 function readEngine() {
   const core = document.querySelector("#app")?.__vue_app__?.config?.globalProperties?.$stel?.core;
   const engine = core && { utcMjd: core.utc, latitudeRad: core.latitude, longitudeRad: core.longitude };
