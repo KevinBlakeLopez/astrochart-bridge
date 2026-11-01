@@ -51,7 +51,7 @@ test("a fragment is read as a portable chart", () => {
 });
 
 test("a fragment that isn't a chart is a refusal, not no link", () => {
-  assert.deepEqual(readLink("#v1=e30"), { kind: "refused", reason: "not-chart-bridge" });
+  assert.deepEqual(readLink("#v1=e30"), { kind: "refused", reason: "not-astrochart" });
   assert.deepEqual(readLink("#top"), { kind: "refused", reason: "malformed" });
 });
 
@@ -172,7 +172,7 @@ test("every refusal has a message and keeps its code", () => {
   const expected = {
     malformed: "This link is incomplete or damaged. Copy the whole link again.",
     "too-large": "This link is too long to be an AstroChart Bridge chart.",
-    "not-chart-bridge": "This link doesn't hold an AstroChart Bridge chart.",
+    "not-astrochart": "This link doesn't hold an AstroChart Bridge chart.",
     "unsupported-version": "This chart was made by a newer version of AstroChart Bridge, which this page can't read.",
     "unknown-field": "This chart was made by a newer version of AstroChart Bridge, which this page can't read.",
     "unsupported-calendar": "This chart was made by a newer version of AstroChart Bridge, which this page can't read.",
@@ -208,8 +208,8 @@ test("the copied link is this page's address and the chart's fragment", () => {
 test("the copied link drops the address's own query and fragment", () => {
   const { chart } = received(NY, NY_SOURCE);
   assert.equal(
-    linkFor("https://example.org/chart-bridge/chart.html?utm=x#v1=old", chart),
-    `https://example.org/chart-bridge/chart.html#${toFragment(chart)}`,
+    linkFor("https://example.org/astrochart-bridge/chart.html?utm=x#v1=old", chart),
+    `https://example.org/astrochart-bridge/chart.html#${toFragment(chart)}`,
   );
 });
 
@@ -253,7 +253,7 @@ test("the file is the link's JSON, indented, and reads back as the same chart", 
   assert.equal(
     text,
     `{
-  "format": "chart-bridge",
+  "format": "astrochart",
   "version": 1,
   "chart": {
     "calendar": "gregorian",
@@ -328,7 +328,7 @@ test("a file over the limit is refused before it is decoded", () => {
 
 test("a file that isn't a chart is refused with the parser's reason", () => {
   assert.deepEqual(readChartFile(encode("hello")), { kind: "refused", reason: "malformed" });
-  assert.deepEqual(readChartFile(encode("{}")), { kind: "refused", reason: "not-chart-bridge" });
+  assert.deepEqual(readChartFile(encode("{}")), { kind: "refused", reason: "not-astrochart" });
   assert.deepEqual(readChartFile(new Uint8Array(0)), { kind: "refused", reason: "malformed" });
   const newer = fileFor(received(NY).chart).text.replace('"version": 1', '"version": 2');
   assert.deepEqual(readChartFile(encode(newer)), { kind: "refused", reason: "unsupported-version" });
@@ -338,7 +338,7 @@ test("a file's refusals are worded for a file and keep their code", () => {
   const expected = {
     malformed: "This file isn't an AstroChart Bridge chart, or it is damaged.",
     "too-large": "This file is too large to be an AstroChart Bridge chart.",
-    "not-chart-bridge": "This file isn't an AstroChart Bridge chart.",
+    "not-astrochart": "This file isn't an AstroChart Bridge chart.",
     "unsupported-version": "This file was made by a newer version of AstroChart Bridge, which this page can't read.",
     "unknown-field": "This file was made by a newer version of AstroChart Bridge, which this page can't read.",
     "unsupported-calendar": "This file was made by a newer version of AstroChart Bridge, which this page can't read.",

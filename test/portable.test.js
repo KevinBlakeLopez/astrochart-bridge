@@ -44,7 +44,7 @@ function edited(change) {
 
 test("a chart keeps the local time and the offset, not the UTC", () => {
   assert.deepEqual(portable(NY, NY_SOURCE), {
-    format: "chart-bridge",
+    format: "astrochart",
     version: 1,
     chart: { calendar: "gregorian", local: "2024-04-17T08:00:00", utcOffsetSeconds: -14400, latitude: 40.716667, longitude: -74 },
     source: { site: "astro-seek", via: "page", zoneLabel: "EDT, DST", utcBasis: "printed" },
@@ -57,12 +57,12 @@ test("serialize writes the same text whatever order the keys came in", () => {
     source: { utcBasis: "printed", zoneLabel: "EDT, DST", via: "page", site: "astro-seek" },
     chart: { longitude: -74, latitude: 40.716667, utcOffsetSeconds: -14400, local: "2024-04-17T08:00:00", calendar: "gregorian" },
     version: 1,
-    format: "chart-bridge",
+    format: "astrochart",
   };
   assert.equal(serialize(reordered), serialize(chart));
   assert.equal(
     serialize(chart),
-    '{"format":"chart-bridge","version":1,' +
+    '{"format":"astrochart","version":1,' +
       '"chart":{"calendar":"gregorian","local":"2024-04-17T08:00:00","utcOffsetSeconds":-14400,"latitude":40.716667,"longitude":-74},' +
       '"source":{"site":"astro-seek","via":"page","zoneLabel":"EDT, DST","utcBasis":"printed"}}',
   );
@@ -238,8 +238,8 @@ test("another version is refused", () => {
 });
 
 test("another format is refused", () => {
-  assert.deepEqual(parse(edited((d) => (d.format = "astrochart"))), refusal("not-chart-bridge"));
-  assert.deepEqual(parse(edited((d) => delete d.format)), refusal("not-chart-bridge"));
+  assert.deepEqual(parse(edited((d) => (d.format = "chart-bridge"))), refusal("not-astrochart"));
+  assert.deepEqual(parse(edited((d) => delete d.format)), refusal("not-astrochart"));
 });
 
 test("missing required fields are refused", () => {
@@ -315,7 +315,7 @@ test("a missing source is an empty one", () => {
 });
 
 test("text that isn't a JSON object is refused", () => {
-  for (const text of ["", "not json", "null", "[]", '"chart"', "1", "{", '{"format":"chart-bridge"'] ) {
+  for (const text of ["", "not json", "null", "[]", '"chart"', "1", "{", '{"format":"astrochart"'] ) {
     assert.deepEqual(parse(text), refusal("malformed"), text);
   }
   assert.deepEqual(parse(null), refusal("malformed"));
@@ -369,7 +369,7 @@ test("a corrupted fragment is refused", () => {
   assert.deepEqual(fromFragment(`${fragment.slice(0, 20)}%${fragment.slice(21)}`), refusal("malformed"));
   // Valid base64url, "__4", whose bytes FF FE aren't UTF-8.
   assert.deepEqual(fromFragment("v1=__4"), refusal("malformed"));
-  assert.deepEqual(fromFragment("v1=e30"), refusal("not-chart-bridge"));
+  assert.deepEqual(fromFragment("v1=e30"), refusal("not-astrochart"));
 });
 
 test("a fragment under another key or none is refused", () => {

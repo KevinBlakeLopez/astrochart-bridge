@@ -11,7 +11,7 @@ Natal charts are read from three Astro-Seek pages: the birth chart (`/calculate-
 ### Chrome
 
 1. Go to `chrome://extensions` and turn on **Developer mode** (top right).
-2. Click **Load unpacked**. Press **Cmd+Shift+G**, paste the path to this repo's `extension` folder (for example `/Users/you/code/chart-bridge/extension`), press Return and click **Select**. The folder you select must contain `manifest.json`.
+2. Click **Load unpacked**. Press **Cmd+Shift+G**, paste the path to this repo's `extension` folder (for example `/Users/you/code/astrochart-bridge/extension`), press Return and click **Select**. The folder you select must contain `manifest.json`.
 3. Click the puzzle-piece icon in Chrome's toolbar and click the pin next to **AstroChart Bridge**, so its icon stays in the toolbar.
 
 After changing any file in `extension/`, click the reload arrow on the AstroChart Bridge card in `chrome://extensions` before testing again.
@@ -415,7 +415,7 @@ A phone reaches the page through the Mac's address on the local network, which m
 Copied links point at `RECEIVER_URL` in `extension/share-config.js`, the receiving page on GitHub Pages. Until that page is deployed, a copied link opens a 404 there; check its address and contents instead.
 
 - [ ] On the test 1 chart, **Share…** opens a tab at `chrome-extension://…/chart.html` (`moz-extension://…` in Firefox) and closes the popup. The tab shows the same rows as test 19 A, From `Astro-Seek page`, and the address has nothing after `chart.html`.
-- [ ] **Copy link** says "Link copied.", and the pasted link starts `https://kevinblakelopez.github.io/chart-bridge/chart.html#v1=`. Pasting it after `http://127.0.0.1:8778/chart.html` in place of that address, with the test 19 server running, shows the same chart.
+- [ ] **Copy link** says "Link copied.", and the pasted link starts `https://kevinblakelopez.github.io/astrochart-bridge/chart.html#v1=`. Pasting it after `http://127.0.0.1:8778/chart.html` in place of that address, with the test 19 server running, shows the same chart.
 - [ ] **Download file** saves `chart-2024-04-17.astrochart.json`, in Chrome and in Firefox.
 - [ ] **Open sky** on that tab opens the same Stellarium address as test 1.
 - [ ] On the test 4 chart, **Share…** is faded until a reading is picked. Pick the second reading (the label EST), then **Share…**: the tab shows Offset `UTC-05:00` and UTC `2021-03-14 07:30`.
