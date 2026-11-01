@@ -1,6 +1,7 @@
 import * as astroseek from "./astroseek.js";
 import * as astrocom from "./astrocom.js";
 import { resolveUtc, utcFromOffset } from "./civiltime.js";
+import { SIDEREAL_TOLERANCE_SECONDS, siderealGap } from "./sidereal.js";
 
 const refused = (reason) => ({ kind: "refused", reason });
 
@@ -98,4 +99,29 @@ export function analyzePage({ url, input }) {
   if (page.kind === "refused") return page;
   // A script that returned nothing reads like an empty page.
   return siteFor(url).read({ url, input: input ?? {} });
+}
+
+/**
+ * The same as analyzePage, for the OCR text of a screenshot of an Astro-Seek
+ * chart page. With no URL to check the text against, two checks stand in for
+ * it: the printed sidereal time must fit the UT and longitude, and the local
+ * time must be a real UTC offset away from the UT. Nothing checks the latitude.
+ *
+ * @param {string} text  OCR output
+ * @returns {ReturnType<typeof analyzePage>}
+ */
+export function analyzeScreenshot(text) {
+  const chart = astroseek.readScreenshot(text);
+  if (chart.kind === "refused") return chart;
+
+  if (siderealGap(chart.printedUt, chart.lng, chart.siderealSeconds) > SIDEREAL_TOLERANCE_SECONDS) {
+    return { kind: "refused", reason: "sidereal-mismatch" };
+  }
+  // A misread local date would otherwise show up as an offset of days or years.
+  // -12:00 to +14:00 is the range parseOffset accepts.
+  const offsetMinutes = (Date.parse(`${chart.local}Z`) - Date.parse(chart.printedUt)) / 60_000;
+  if (offsetMinutes < -720 || offsetMinutes > 840) return { kind: "refused", reason: "offset-out-of-range" };
+
+  const { local, zoneLabel, lat, lng } = chart;
+  return { kind: "natal", local, zoneLabel, lat, lng, ...resolveUtc(chart) };
 }

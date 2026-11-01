@@ -111,6 +111,79 @@ export function readChart({ url, text }) {
   };
 }
 
+// The same labels as OCR reads them from a screenshot of the page, each on one
+// line with its value, and how to parse that value. Only the leading words are
+// matched: on a small screenshot, OCR loses the grey "(local time)", "(UT/GMT)"
+// and "(LST)", and reads the colon as "-", ";", "3" or nothing at all.
+const SCREENSHOT_FIELDS = {
+  local: ["Date of Birth", (value) => parseDateLine(value)],
+  ut: ["Universal Time", (value) => parseDateLine(value)],
+  sidereal: ["Local Sidereal Time", (value) => parseSiderealLine(value)],
+  coords: ["Latitude, Longitude", (value) => parseCoordsLine(value)],
+};
+// "20:48:26"
+const SIDEREAL_LINE = /^(\d{2}):(\d{2}):(\d{2})$/;
+
+/**
+ * Reads the OCR text of a screenshot of an Astro-Seek natal chart page. There
+ * is no URL to check it against, as readChart has, so the printed sidereal time
+ * comes back too: analyzeScreenshot checks the UT and longitude with it.
+ *
+ * @param {string} text  OCR output, one line of the image per line
+ * @returns {{ local: string, zoneLabel: string | null, printedUt: string, lat: number, lng: number, siderealSeconds: number }
+ *   | { kind: "refused", reason: "ambiguous-screenshot" | "unreadable-screenshot" }}
+ */
+export function readScreenshot(text) {
+  const lines = text.split("\n").map((line) => line.replace(/\s+/g, " ").trim());
+  const read = {};
+  for (const [field, [label, parse]] of Object.entries(SCREENSHOT_FIELDS)) {
+    const found = lines.filter((line) => line.startsWith(label));
+    // Two of a label means two charts, as on a synastry page.
+    if (found.length > 1) return refused("ambiguous-screenshot");
+    if (found.length === 0) return refused("unreadable-screenshot");
+    read[field] = valueAfter(found[0], label.length, parse);
+  }
+
+  const { local, ut, sidereal: siderealSeconds, coords } = read;
+  if (!local || !ut || !coords || !isPlace(coords) || siderealSeconds === null) {
+    return refused("unreadable-screenshot");
+  }
+
+  return {
+    local: `${isoDate(local)}T${pad(local.hour)}:${pad(local.minute)}:${pad(local.second ?? 0)}`,
+    zoneLabel: local.label,
+    printedUt: `${isoDate(ut)}T${pad(ut.hour)}:${pad(ut.minute)}:${pad(ut.second ?? 0)}Z`,
+    lat: degrees(coords.latDeg, coords.latMin, coords.latSouth),
+    lng: degrees(coords.lngDeg, coords.lngMin, coords.lngWest),
+    siderealSeconds,
+  };
+}
+
+// The value is the earliest rest of the line, after the label, that parses in
+// full, whatever OCR made of the text in between. It never starts inside a
+// number, so a misread "117" can't be taken as "17". null when nothing parses.
+function valueAfter(line, start, parse) {
+  for (let i = start; i < line.length; i++) {
+    if (/\d/.test(line[i - 1])) continue;
+    const value = parse(line.slice(i));
+    if (value !== null) return value;
+  }
+  return null;
+}
+
+// readChart gets these ranges from URL_FIELDS; a screenshot has only its text.
+function isPlace({ latDeg, latMin, lngDeg, lngMin }) {
+  return latMin <= 59 && lngMin <= 59 && latDeg + latMin / 60 <= 90 && lngDeg + lngMin / 60 <= 180;
+}
+
+// "20:48:26" → 74906, or null.
+function parseSiderealLine(line) {
+  const match = SIDEREAL_LINE.exec(line ?? "");
+  if (!match) return null;
+  const [hours, minutes, seconds] = match.slice(1).map(Number);
+  return hours > 23 || minutes > 59 || seconds > 59 ? null : hours * 3600 + minutes * 60 + seconds;
+}
+
 function readUrl(url) {
   let params;
   try {

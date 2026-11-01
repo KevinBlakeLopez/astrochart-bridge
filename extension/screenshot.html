@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Chart Bridge: read a screenshot</title>
+    <link rel="stylesheet" href="popup.css">
+    <link rel="stylesheet" href="screenshot.css">
+    <script type="module" src="screenshot.js"></script>
+  </head>
+  <body class="page">
+    <main>
+      <h1>Read a chart screenshot</h1>
+      <p>Paste (⌘V) or drop a screenshot of an Astro-Seek birth chart page anywhere on this page, or choose a file. It needs everything from Date of Birth to Latitude, Longitude; the whole page is fine.</p>
+      <p><input id="file" type="file" accept="image/*" aria-label="Choose a screenshot"></p>
+      <p class="note">The screenshot is read on this computer and isn't sent anywhere.</p>
+      <div id="app"></div>
+      <details id="read" hidden>
+        <summary>What Chart Bridge read</summary>
+        <pre id="read-text"></pre>
+      </details>
+    </main>
+  </body>
+</html>
