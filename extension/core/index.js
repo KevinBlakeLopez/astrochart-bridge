@@ -2,6 +2,14 @@ import * as astroseek from "./astroseek.js";
 import * as astrocom from "./astrocom.js";
 import { readHeader, resolveHeaderUtc } from "./chart-image.js";
 import { resolveUtc, utcFromOffset } from "./civiltime.js";
+import * as astrogold from "./astrogold.js";
+import * as esotech from "./esotech.js";
+import * as janus from "./janus.js";
+import * as jhora from "./jhora.js";
+import * as kepler from "./kepler.js";
+import * as morinus from "./morinus.js";
+import * as planetdance from "./planetdance.js";
+import { resolvePrinted, resolveReadings } from "./printed-chart.js";
 import { SIDEREAL_TOLERANCE_SECONDS, siderealGap } from "./sidereal.js";
 
 const refused = (reason) => ({ kind: "refused", reason });
@@ -159,24 +167,49 @@ export function analyzeEntry({ date, time, lat, lng, offsetMinutes }) {
 
 // How a screenshot shows its site: Astro-Seek's labels start their lines, and
 // astro.com's chart image prints "Univ.Time" where Astro-Seek spells it out.
+// A desktop program's reader says itself whether its block is in the text.
 const ASTRO_SEEK_LABELS = /^(Date of Birth|Universal Time)/m;
 const ASTRO_COM_LABELS = /Univ\W*Time/;
 
+// Programs whose readers return a record for resolvePrinted, or several
+// readings of one for resolveReadings to choose between.
+const printedBy = (reader) => (text) => {
+  const chart = reader.read(text);
+  if (Array.isArray(chart)) return resolveReadings(chart);
+  return chart.kind === "refused" ? chart : resolvePrinted(chart);
+};
+
+const SCREENSHOT_READERS = [
+  { shows: (text) => ASTRO_SEEK_LABELS.test(text), analyze: analyzeAstroSeekScreenshot },
+  { shows: (text) => ASTRO_COM_LABELS.test(text), analyze: analyzeChartImage },
+  { shows: esotech.detect, analyze: printedBy(esotech) },
+  { shows: astrogold.detect, analyze: printedBy(astrogold) },
+  { shows: morinus.detect, analyze: printedBy(morinus) },
+  { shows: planetdance.detect, analyze: printedBy(planetdance) },
+  { shows: jhora.detect, analyze: printedBy(jhora) },
+  { shows: kepler.detect, analyze: printedBy(kepler) },
+  { shows: janus.detect, analyze: printedBy(janus) },
+];
+
 /**
  * The same as analyzePage, for the OCR text of a screenshot of an Astro-Seek
- * chart page or of an astro.com chart image. With no URL to check the text
- * against, two checks stand in for it: the printed sidereal time must fit the
- * UT and longitude, and the local time must be a real UTC offset away from the
- * UT. Nothing checks the latitude.
+ * chart page, an astro.com chart image, a Solar Fire wheel, Astro Gold's chart
+ * details or Edit Chart screen, a Morinus status bar or square chart, a Valens
+ * wheel, Planetdance's wheel, data screen or Vedic screen, Jagannatha Hora's
+ * birth data, a Kepler or Sirius wheel, or a Janus wheel or report. With no
+ * URL to check the text against, the checks are whatever the screenshot
+ * prints: a sidereal time that must fit the UT and longitude, a weekday that
+ * must fall on the date, a zone label or zone that must give the offset, and a
+ * local time a real UTC offset away from the UT. Nothing checks the latitude.
  *
  * @param {string} text  OCR output
- * @returns {ReturnType<typeof analyzePage>}
+ * @returns {ReturnType<typeof analyzePage> | ReturnType<typeof resolvePrinted>}
  */
 export function analyzeScreenshot(text) {
-  const astroSeek = ASTRO_SEEK_LABELS.test(text);
-  const astroCom = ASTRO_COM_LABELS.test(text);
-  if (astroSeek && astroCom) return refused("ambiguous-screenshot");
-  return astroCom ? analyzeChartImage(text) : analyzeAstroSeekScreenshot(text);
+  const shown = SCREENSHOT_READERS.filter((reader) => reader.shows(text));
+  if (shown.length > 1) return refused("ambiguous-screenshot");
+  // With nothing recognised, Astro-Seek's reader refuses it as unreadable.
+  return (shown[0]?.analyze ?? analyzeAstroSeekScreenshot)(text);
 }
 
 function analyzeChartImage(text) {

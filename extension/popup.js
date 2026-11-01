@@ -3,12 +3,23 @@
 // the tab, renders the view and opens what its button links to.
 import { withAafExport } from "./aaf-model.js";
 import { linkFor } from "./chart-model.js";
+import { ASTRO_COM_ACCESS, openAndFill } from "./astro-com-open.js";
 import { fillForm, formValues, isAstroComPage, isBirthDataForm, readFormPage } from "./core/astrocom.js";
+import { townFromUrl } from "./core/astroseek.js";
 import { analyzePage, classifyUrl, extractorFor } from "./core/index.js";
 import { isStellariumWeb, skyFromEngine } from "./core/stellarium.js";
 import { BUSY, desktopHint, viewForDesktopImport, viewForDesktopSend, withDesktopSend } from "./desktop-model.js";
 import { heldForTab, holdForTab, releaseTab } from "./pending.js";
-import { chartToShare, viewFor, viewForAstroComTab, viewForShareRefusal, viewForSky } from "./popup-model.js";
+import {
+  ASTRO_COM_BUSY,
+  chartToShare,
+  viewFor,
+  viewForAstroComManual,
+  viewForAstroComNotFilled,
+  viewForAstroComTab,
+  viewForShareRefusal,
+  viewForSky,
+} from "./popup-model.js";
 import { desktopPreferred, setDesktopPreferred } from "./preference.js";
 import { HOST_PERMISSION, probe, readSky, sendSky } from "./stellarium-desktop.js";
 import { desktopHintLine, render } from "./view.js";
@@ -91,7 +102,8 @@ async function main() {
   // Share… needs the result the screen was drawn from: its local time, and
   // how its UTC was decided.
   sharing = result;
-  showChart(withAafExport(viewFor(result), result));
+  // An Astro-Seek chart's address names its town, which astro.com's form can take.
+  showChart(withAafExport(viewFor(result, { town: townFromUrl(url) }), result));
 }
 
 // Runs inside the Stellarium Web page itself (world "MAIN"), where its engine
@@ -117,7 +129,9 @@ async function showAstroComTab(tab, url, sky) {
 }
 
 // What the astro.com tab's buttons do. The values are forgotten once filled
-// in or cancelled; a form that changed since it was read is shown again as it now is.
+// in or cancelled; a form that changed since it was read is shown again as it
+// now is. The tab may be behind the popup, opened by openForm, so every button
+// brings it to the front: the popup closes as it does.
 function astroComTabButtons(tab, sky) {
   return async (button) => {
     if (button.does === "fill") {
@@ -133,9 +147,37 @@ function astroComTabButtons(tab, sky) {
       }
     }
     if (button.does === "fill" || button.does === "release") await releaseTab(held, tab.id);
-    if (button.here) await chrome.tabs.update(tab.id, { url: button.url });
+    await chrome.tabs.update(tab.id, button.here ? { url: button.url, active: true } : { active: true });
     window.close();
   };
+}
+
+// The form button: asks for access to www.astro.com first, while the click
+// still counts as the user's, then opens the form behind the popup and fills
+// it in. Declined, it shows the two-click way instead.
+async function openForm(url, values) {
+  const granted = await chrome.permissions.request(ASTRO_COM_ACCESS).catch(() => false);
+  if (!granted) {
+    show(viewForAstroComManual(values));
+    return;
+  }
+  show(ASTRO_COM_BUSY);
+  const result = await openAndFill({ tabs: chrome.tabs, scripting: chrome.scripting, storage: held }, { url, values });
+  const tab = { id: result.tabId };
+  if (result.outcome === "choose") {
+    show(viewForAstroComTab(values, result.page), { onButton: astroComTabButtons(tab, values) });
+    return;
+  }
+  if (result.outcome === "not-filled") {
+    show(viewForAstroComNotFilled(values), { onButton: () => showTab(tab) });
+    return;
+  }
+  await showTab(tab);
+}
+
+async function showTab(tab) {
+  await chrome.tabs.update(tab.id, { active: true });
+  window.close();
 }
 
 // A page Chart Bridge doesn't read can still lead to a chart: a screenshot,
@@ -253,7 +295,9 @@ function desktopButtons(back) {
   };
 }
 
-async function openLink({ url, holds }, sky) {
+// holds is what an astro.com button keeps for the tab it opens.
+async function openLink({ url, holds, fills }) {
+  if (fills) return openForm(url, holds);
   if (!holds) {
     await chrome.tabs.create({ url });
     window.close();
@@ -262,7 +306,7 @@ async function openLink({ url, holds }, sky) {
   // Opened behind the popup, which closes when the new tab comes to the front,
   // so the values are kept for the tab before it does.
   const tab = await chrome.tabs.create({ url, active: false });
-  await holdForTab(held, tab.id, sky);
+  await holdForTab(held, tab.id, holds);
   await chrome.tabs.update(tab.id, { active: true });
   window.close();
 }
