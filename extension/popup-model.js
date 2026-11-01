@@ -13,10 +13,18 @@ const NOTES = [CLOCK_NOTE, PRIVACY_NOTE];
 
 const RUNNING = "The clock starts running at once; its pause button stops it.";
 
+// A refusal's code says which site it came from (transit and synastry only
+// from Astro-Seek; databank and the three after it only from astro.com), so
+// each message can name its site without being told it.
 const REFUSALS = {
   transit: "This is a transit chart. Chart Bridge opens natal charts only.",
   synastry: "This is a synastry or compatibility chart. Chart Bridge opens natal charts only.",
-  unsupported: "Open an Astro-Seek birth chart to use Chart Bridge.",
+  unsupported: "Open an Astro-Seek or astro.com birth chart to use Chart Bridge.",
+  databank: "Astro-Databank charts aren't supported yet. Chart Bridge opens charts saved in your astro.com account.",
+  "unsupported-chart": "Chart Bridge can't read this kind of astro.com chart yet.",
+  "no-drawing-link":
+    "This astro.com page has no \"Drawing (for subscribers)\" link, which is where Chart Bridge reads the birth data.",
+  "local-mean-time": "This chart uses local mean time, which Chart Bridge can't open yet.",
   "page-url-mismatch": "The page doesn't match its address. Reload the chart and try again.",
 };
 

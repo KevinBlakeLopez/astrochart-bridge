@@ -261,7 +261,7 @@ test("Astro-Databank pages and charts are refused as databank", () => {
   }
 });
 
-test("every other page is unsupported", () => {
+test("other astro.com chart pages are refused as a chart type not supported yet", () => {
   for (const url of [
     // Seen on astro.com, but not with a readable drawing link.
     `${CHART}?btyp=w2gw&rs=2&;&nhor=26`,
@@ -269,7 +269,6 @@ test("every other page is unsupported", () => {
     `${CHART}?btyp=vip&nhor=26&nho2=1`,
     `${CHART}?pdf=d&gm=a1&nhor=26&nho2=1&btyp=2&mth=gw&sday=1&smon=11&syr=2026&rs=0`,
     `${CHART}?showgif&lang=e&gif=chart.png&res=100`,
-    "https://www.astro.com/cgi/genchart.cgi?nhor=26&nho2=1",
     // Made-up variations on the natal page.
     PAGE_URL.replace("nhor=26&", ""),
     PAGE_URL.replace("nhor=26", "nhor=x"),
@@ -277,6 +276,15 @@ test("every other page is unsupported", () => {
     PAGE_URL.replace("mth=gw", "mth=atw"),
     PAGE_URL.replace("&mth=gw", ""),
     `${PAGE_URL}&btyp=3`,
+  ]) {
+    assert.deepEqual(classifyUrl(url), refused("unsupported-chart"), url);
+  }
+});
+
+test("every other page is unsupported", () => {
+  for (const url of [
+    "https://www.astro.com/cgi/genchart.cgi?nhor=26&nho2=1",
+    "https://www.astro.com/",
     PAGE_URL.replace("https://", "http://"),
     PAGE_URL.replace("www.astro.com", "astro.com"),
     // Not astro.com at all.

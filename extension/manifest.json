@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Chart Bridge",
   "version": "0.1.0",
-  "description": "Open the sky for an Astro-Seek natal chart in Stellarium Web.",
+  "description": "Open the sky for an Astro-Seek or astro.com natal chart in Stellarium Web.",
   "action": {
     "default_title": "Chart Bridge",
     "default_popup": "popup.html"

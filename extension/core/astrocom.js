@@ -16,7 +16,7 @@ const NATAL = [{ btyp: "2", mth: "gw" }];
  * page links to itself with several different sets of them.
  *
  * @param {string} url
- * @returns {{ kind: "natal" } | { kind: "refused", reason: "databank" | "unsupported" }}
+ * @returns {{ kind: "natal" } | { kind: "refused", reason: "databank" | "unsupported-chart" | "unsupported" }}
  */
 export function classifyUrl(url) {
   let page;
@@ -33,13 +33,15 @@ export function classifyUrl(url) {
   const params = page.searchParams;
   if (params.has("wgid")) return refused("databank");
 
+  // Every other chart page is refused as a chart type of its own, so the
+  // popup doesn't ask someone already on an astro.com chart to open one.
   // nhor names the saved chart. pdf= opens the chart as a PDF, where the
   // extension can't run.
   const nhor = only(params, "nhor");
-  if (nhor === null || !/^\d+$/.test(nhor) || params.has("pdf")) return refused("unsupported");
+  if (nhor === null || !/^\d+$/.test(nhor) || params.has("pdf")) return refused("unsupported-chart");
   const btyp = only(params, "btyp");
   const mth = only(params, "mth");
-  return NATAL.some((type) => type.btyp === btyp && type.mth === mth) ? { kind: "natal" } : refused("unsupported");
+  return NATAL.some((type) => type.btyp === btyp && type.mth === mth) ? { kind: "natal" } : refused("unsupported-chart");
 }
 
 // A parameter's value when it appears exactly once, else null.
