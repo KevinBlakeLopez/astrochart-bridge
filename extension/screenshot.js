@@ -4,7 +4,9 @@
 // screenshot-model.js; this file handles the image and the page.
 import Tesseract from "./vendor/tesseract/tesseract.esm.min.js";
 import { analyzeScreenshot } from "./core/index.js";
+import { linkFor } from "./chart-model.js";
 import { holdForTab } from "./pending.js";
+import { chartToShare, viewForShareRefusal } from "./popup-model.js";
 import { viewForScreenshot } from "./screenshot-model.js";
 import { paragraph, render } from "./view.js";
 
@@ -69,7 +71,7 @@ async function readImage(file) {
     if (id !== latest) return;
     readText.textContent = text;
     readDetails.hidden = false;
-    render(app, viewForScreenshot(analyzeScreenshot(text)), openLink);
+    showChart(analyzeScreenshot(text));
   } catch (error) {
     if (id !== latest) return;
     const view = { state: "refused", message: "Chart Bridge couldn't read this image.", code: String(error?.message ?? error) };
@@ -89,6 +91,22 @@ async function recognize(file) {
   bitmap.close();
   const { data } = await (await getWorker()).recognize(canvas);
   return data.text;
+}
+
+// As in the popup: Share… opens the receiving page in a tab with the chart in
+// its link, and a chart the format can't carry says why.
+function showChart(result) {
+  const view = viewForScreenshot(result);
+  const onButton = async (button, sky) => {
+    if (button.does !== "share") return openLink(button, sky);
+    const shared = chartToShare(result, sky, "screenshot");
+    if (shared.kind === "refused") {
+      render(app, viewForShareRefusal(shared.reason), onButton, view);
+      return;
+    }
+    await chrome.tabs.create({ url: linkFor(chrome.runtime.getURL("chart.html"), shared.chart) });
+  };
+  render(app, view, onButton);
 }
 
 // An astro.com button keeps the values for the tab it opens, as in the popup.

@@ -1,5 +1,6 @@
 import { astroSeekUrl } from "./core/astroseek.js";
 import { parseOffset, utcFromOffset } from "./core/civiltime.js";
+import { toPortable } from "./core/portable.js";
 import { HOLD_MINUTES } from "./pending.js";
 
 const CLOCK_NOTE = "Stellarium Web's clock shows your computer's time zone and keeps running.";
@@ -82,6 +83,7 @@ export function viewFor(result, { timeZone } = {}) {
         sky: sky(candidate.utc),
       })),
       notes: [...NOTES],
+      buttons: chartButtons([OPEN_SKY_BUTTON]),
     };
   }
 
@@ -92,6 +94,7 @@ export function viewFor(result, { timeZone } = {}) {
       message: "Astro-Seek didn't print a Universal Time. Enter the UTC offset at the birth place, as ±HH:MM.",
       notes: [...NOTES],
       chart: { local, lat, lng },
+      buttons: chartButtons([OPEN_SKY_BUTTON]),
     };
   }
 
@@ -101,11 +104,12 @@ export function viewFor(result, { timeZone } = {}) {
     warnings: (result.warnings ?? []).map((code) => WARNINGS[code]?.(result) ?? code),
     notes: [clockNote(result.utc, local, timeZone), PRIVACY_NOTE],
     sky: sky(result.utc),
+    buttons: chartButtons([OPEN_SKY_BUTTON]),
   };
   // An astro.com chart can also open in Astro-Seek. An Astro-Seek page already
   // shows its chart there, and leads to the values to enter in astro.com instead.
   if (result.site === "astro-com") {
-    return { ...ready, notes: [...ready.notes, ...ASTRO_SEEK_NOTES], buttons: [...ASTRO_SEEK_BUTTONS] };
+    return { ...ready, notes: [...ready.notes, ...ASTRO_SEEK_NOTES], buttons: chartButtons(ASTRO_SEEK_BUTTONS) };
   }
   return result.site === "astro-seek" ? { ...ready, next: astroComStep(ready.sky) } : ready;
 }
@@ -137,6 +141,66 @@ export const ASTRO_SEEK_BUTTONS = [
   { label: "Open sky", opens: "stellarium" },
   { label: "Open chart in Astro-Seek", opens: "astro-seek" },
 ];
+
+const OPEN_SKY_BUTTON = { label: "Open sky", opens: "stellarium" };
+
+// Opens the receiving page in a tab, with the chart in its link, to copy the
+// link or download the file. Offered on every screen with a chart of its own;
+// like Open sky, it waits for a reading or offset to decide the UTC. A
+// Stellarium tab has no birthplace time, so its screen doesn't offer it.
+export const SHARE_BUTTON = { label: "Share…", does: "share", secondary: true };
+
+// A screen's buttons, then Share…, as copies the caller can change.
+const chartButtons = (buttons) => [...buttons, SHARE_BUTTON].map((button) => ({ ...button }));
+
+// How each candidate on the choose screen was worked out, by its basis.
+const CHOICE_BASES = { "printed UT": "printed" };
+
+/**
+ * The portable chart for a screen's result and the sky its buttons open: the
+ * result's, or the one decided by a reading or an offset.
+ *
+ * @param {ReturnType<typeof import("./core/index.js").analyzePage>} result  a natal result
+ * @param {{ utc: string, lat: number, lng: number }} sky
+ * @param {"page" | "screenshot"} via
+ * @returns {ReturnType<typeof toPortable>}
+ */
+export function chartToShare(result, sky, via) {
+  return toPortable(
+    { local: result.local, utc: sky.utc, lat: sky.lat, lng: sky.lng },
+    { site: result.site, via, zoneLabel: result.zoneLabel ?? undefined, utcBasis: utcBasis(result, sky) },
+  );
+}
+
+// "printed" or "declared" as the result says, "printed" or "zone-label" for
+// the reading picked, "entered" for a typed offset.
+function utcBasis(result, sky) {
+  if (result.utcSource === "needs-offset") return "entered";
+  if (result.utcSource === "needs-choice") {
+    const choice = result.candidates.find((candidate) => candidate.utc === sky.utc);
+    return choice && (CHOICE_BASES[choice.basis] ?? "zone-label");
+  }
+  return result.utcSource;
+}
+
+/**
+ * What the popup shows when chartToShare refuses. Cancel goes back to the
+ * chart, which still opens as before.
+ *
+ * @param {string} reason
+ */
+export function viewForShareRefusal(reason) {
+  return {
+    state: "share-refused",
+    message:
+      reason === "before-gregorian"
+        ? "Chart Bridge can't share a chart dated before 15 October 1582 yet: it can't tell which calendar the date is in."
+        : "Chart Bridge can't share this chart.",
+    code: reason,
+    notes: [],
+    buttons: [],
+  };
+}
 
 /**
  * What the popup shows on a Stellarium Web tab: the sky it is showing, and a

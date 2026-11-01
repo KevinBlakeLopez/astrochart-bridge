@@ -20,15 +20,16 @@ const LA = { timeZone: "America/Los_Angeles" };
 test("a ready screenshot shows the popup's screen, with the compare note first and Astro-Seek's notes last", () => {
   const popup = viewFor(NY, LA);
   const { notes, buttons, ...rest } = viewForScreenshot(NY, LA);
-  assert.deepEqual({ ...rest, notes: popup.notes }, popup);
+  assert.deepEqual({ ...rest, notes: popup.notes, buttons: popup.buttons }, popup);
   assert.match(notes[0], /nothing checks the latitude/);
   assert.deepEqual(notes.slice(1), [...popup.notes, ...ASTRO_SEEK_NOTES]);
 });
 
-test("a screenshot opens the sky or the Astro-Seek chart", () => {
+test("a screenshot opens the sky or the Astro-Seek chart, or shares it", () => {
   assert.deepEqual(viewForScreenshot(NY, LA).buttons, [
     { label: "Open sky", opens: "stellarium" },
     { label: "Open chart in Astro-Seek", opens: "astro-seek" },
+    { label: "Share…", does: "share", secondary: true },
   ]);
 });
 

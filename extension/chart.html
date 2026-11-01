@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Only this page's own files load. A meta policy can't set
+         frame-ancestors, so a host that can send headers should add it. -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; base-uri 'none'; form-action 'none'">
+    <meta name="referrer" content="no-referrer">
+    <title>Chart Bridge: open a chart</title>
+    <link rel="stylesheet" href="popup.css">
+    <link rel="stylesheet" href="chart.css">
+    <script type="module" src="chart.js"></script>
+  </head>
+  <body class="page">
+    <main>
+      <h1>Chart Bridge</h1>
+      <div id="app"><p class="note">Reading the link…</p></div>
+      <p id="status" class="note" role="status"></p>
+      <input id="link" type="text" readonly hidden aria-label="Link to this chart">
+      <div id="qr" hidden></div>
+      <button id="open-file" type="button">Open a chart file</button>
+      <input id="file" type="file" accept=".json,application/json" hidden aria-label="Chart file">
+      <p class="note">A chart's link holds the chart itself, and so does its file. Anyone with either can read it, so share them only with people who should see this birth data. This page reads them on this device, keeps nothing, and sends nothing until you open the sky or the chart.</p>
+    </main>
+  </body>
+</html>

@@ -86,7 +86,11 @@ test("with Stellarium Desktop the default, a ready screen leads with it and Open
   const view = viewFor(analyze("ny-2024-04-17"), { timeZone: "America/Los_Angeles" });
   const preferred = withDesktopSend(view, { preferred: true });
   assert.deepEqual(preferred.desktop, { ...SEND, primary: true });
-  assert.deepEqual(preferred.buttons, [{ label: "Open sky", opens: "stellarium", secondary: true }]);
+  // Share… stays where viewFor put it, after Open sky.
+  assert.deepEqual(preferred.buttons, [
+    { label: "Open sky", opens: "stellarium", secondary: true },
+    { label: "Share…", does: "share", secondary: true },
+  ]);
   assert.deepEqual(preferred.defaultChoice, {
     text: "Stellarium Desktop is your default for charts.",
     label: "Make Stellarium Web the default",
