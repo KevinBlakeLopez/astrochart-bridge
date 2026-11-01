@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { classifyUrl, parseNd, readPgid } from "../extension/core/astrocom.js";
+import { classifyUrl, parseNd, readChart, readPgid } from "../extension/core/astrocom.js";
 
 // The nd= record of a captured astro.com account chart, "Test", which uses the
 // invented New York birth data of the Astro-Seek fixtures.
@@ -206,6 +206,33 @@ test("a key on one side only is fine", () => {
 
 test("a page address that isn't a URL is unsupported", () => {
   assert.deepEqual(read([LINK], "not a url"), refused("unsupported"));
+});
+
+// readChart
+
+// A drawing link like LINK whose nd= record has some fields replaced, as variant() does.
+const linkWithNd = (changes) => linkWith(pgidFor(CHART_URL.replace(`&nd=${TEST}`, `&nd=${variant(changes)}`)));
+const chartFrom = (links) => readChart({ url: PAGE_URL, links });
+
+test("reads the captured chart as a local time, offset and place", () => {
+  assert.deepEqual(chartFrom([LINK]), { local: "2024-04-17T08:00:00", offsetMinutes: -240, lat: 40.716667, lng: -74 });
+});
+
+test("a drawing link refusal comes back unchanged", () => {
+  assert.deepEqual(chartFrom([]), refused("no-drawing-link"));
+});
+
+test("a record parseNd can't read is unreadable", () => {
+  assert.deepEqual(chartFrom([linkWithNd({ 8: "h5e30" })]), refused("unreadable-record"));
+});
+
+test("local mean time is refused, whatever field 9 says", () => {
+  assert.deepEqual(chartFrom([linkWithNd({ 8: "m74w0", 9: "gal" })]), refused("local-mean-time"));
+  assert.deepEqual(chartFrom([linkWithNd({ 8: "m74w0" })]), refused("local-mean-time"));
+});
+
+test("an offset zone beside field 9 gal is refused", () => {
+  assert.deepEqual(chartFrom([linkWithNd({ 9: "gal" })]), refused("unseen-field-9"));
 });
 
 // classifyUrl

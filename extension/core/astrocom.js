@@ -48,6 +48,32 @@ function only(params, key) {
   return values.length === 1 ? values[0] : null;
 }
 
+/**
+ * Reads a page that classifyUrl accepted as natal: the nd= record in its
+ * drawing link, limited to what Chart Bridge can open today.
+ *
+ * @param {{ url: string, links: string[] }} page  as for readPgid
+ * @returns {{ local: string, offsetMinutes: number, lat: number, lng: number }
+ *   | { kind: "refused", reason: "unsupported" | "no-drawing-link" | "ambiguous-page" | "unreadable-link"
+ *       | "page-url-mismatch" | "unreadable-record" | "local-mean-time" | "unseen-field-9" }}
+ */
+export function readChart({ url, links }) {
+  const link = readPgid({ url, links });
+  if (link.kind === "refused") return link;
+
+  const chart = parseNd(link.nd);
+  if (!chart) return refused("unreadable-record");
+  // Checked before field 9, which reads "gal" beside every local-mean-time
+  // zone seen, so these charts get the reason that explains them.
+  if (chart.zone.kind === "local-mean-time") return refused("local-mean-time");
+  // Field 9 is unexplained. Only "gad" has been seen beside an offset zone;
+  // "gal" there could mean another calendar, which would shift the sky.
+  if (chart.field9 !== "gad") return refused("unseen-field-9");
+
+  const { local, lat, lng } = chart;
+  return { local, offsetMinutes: chart.zone.offsetMinutes, lat, lng };
+}
+
 // An account chart's page draws the birth data into the chart image, but its
 // "Drawing (for subscribers)" link, /cgi/sub.cgi?…&pgid=…, carries the chart's
 // own URL with the birth data inline as nd=. pgid is "L", the length of the
