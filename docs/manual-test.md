@@ -467,6 +467,7 @@ Note which buttons each browser shows: the page offers each only where the brows
 
 - [ ] On the import page (test 15), choose `fixtures/morinus/ny-est-plus-dst.p2.hor`. The page says "1 chart in this file." and shows Name `Test`, Local time `17 Apr 2024, 08:00`, Offset `UTC-04:00`, Entered as `UTC-05:00 zone, with daylight saving`, UTC `2024-04-17 12:00`, Birthplace `New York` and Place `40°43'N, 74°0'W`, with a note that Morinus saves the offset entered, not the time zone. The Console is empty.
 - [ ] **Open sky** opens Stellarium Web with `date=2024-04-17T12%3A00%3A00Z&lat=40.716667&lng=-74` in the address. **Save as AAF file** saves a file whose `#B93` line is `#B93:*,40n43,74w00,5hw00,1`.
+- [ ] **Enter in astro.com…** shows the test 14 screen with First name empty and Last name `Test`. Choose `fixtures/morinus/unicode-text.p2.hor` and do the same: Last name is `Nagy Róbert 東京 \ test`, with its accents and Japanese letters intact.
 - [ ] Drag `fixtures/morinus/sydney-south.p0.hor` onto the page. It shows Offset `UTC+11:00`, UTC `2024-01-14 21:00` and Place `33°52'S, 151°12'E`.
 - [ ] Choose `fixtures/morinus/greenwich-with-dst.p4.hor`. It shows Entered as `Greenwich time, with daylight saving`, UTC `2024-04-17 07:00` and a warning that Morinus takes an hour off.
 - [ ] Choose `fixtures/morinus/julian-1900.p4.hor`. It says the date is in the Julian calendar and shows `Code: julian-calendar`, with no buttons.

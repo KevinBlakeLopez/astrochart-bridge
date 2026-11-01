@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { chartFromHor, parseHor } from "../extension/core/morinus-hor.js";
 import { viewForHorFile } from "../extension/hor-model.js";
-import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, viewFor } from "../extension/popup-model.js";
+import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, viewFor, viewForAstroCom } from "../extension/popup-model.js";
 
 const LA = { timeZone: "America/Los_Angeles" };
 const file = (key, protocol = 2) => new Uint8Array(readFileSync(new URL(`../fixtures/morinus/${key}.p${protocol}.hor`, import.meta.url)));
@@ -49,6 +49,19 @@ test("a Greenwich chart says so, needs no zone note, and saves in Universal Time
   assert.deepEqual(view.rows.find(([label]) => label === "Entered as"), ["Entered as", "Greenwich time"]);
   assert.equal(view.notes.includes(ZONE_NOTE), false);
   assert.ok(view.download.note);
+});
+
+test("a Morinus chart can be entered in astro.com, with its one name field as the last name", () => {
+  const { view } = viewOf("ny-est-plus-dst").items[0];
+  const name = { first: "", last: "Test" };
+  assert.deepEqual(view.next, { label: "Enter in astro.com…", view: viewForAstroCom(view.sky, { name }) });
+  // Accented and non-Latin letters reach the boxes as Morinus saved them.
+  const unicode = viewOf("unicode-text").items[0].view;
+  assert.deepEqual(unicode.next.view.nameBoxes.map((box) => box.text), ["", "Nagy Róbert 東京 \\ test"]);
+});
+
+test("a Morinus chart that can't open has no astro.com step", () => {
+  assert.equal("next" in viewOf("solar-return").items[0].view, false);
 });
 
 test("a horary chart says what kind it is", () => {

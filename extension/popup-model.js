@@ -323,6 +323,19 @@ const NAME_NOTE =
   "The name goes in astro.com's first and last name fields, and you can change it here first. An event's name goes in Last name, as astro.com keeps it.";
 
 /**
+ * The name for astro.com's form from a chart that keeps it as one string, as
+ * pasted text and Morinus do: all of it is the last name, as astro.com keeps
+ * an event's. Runs of spaces become one, as a person would type it.
+ *
+ * @param {string | null | undefined} text
+ * @returns {{ first: "", last: string } | null}
+ */
+export function nameFromText(text) {
+  const last = text?.replace(/\s+/g, " ").trim() ?? "";
+  return last === "" ? null : { first: "", last };
+}
+
+/**
  * The name the boxes on the astro.com screen give, in place of the one the
  * buttons kept: each part trimmed, and no name when both are empty.
  *

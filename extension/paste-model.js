@@ -1,7 +1,7 @@
 import { analyzeEntry, analyzeProgramText } from "./core/index.js";
 import { toPortable } from "./core/portable.js";
 import { MAX_TEXT_LENGTH, readField, readText } from "./core/text.js";
-import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, SHARE_BUTTON, astroComStep, viewFor } from "./popup-model.js";
+import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, SHARE_BUTTON, astroComStep, nameFromText, viewFor } from "./popup-model.js";
 import { PROGRAMS } from "./screenshot-model.js";
 
 // Each refusal readText can return. They keep their code on screen, like the
@@ -137,15 +137,8 @@ export function formFor(result, program = null) {
     warnings,
     notes,
     statedOffsets: [...statedOffsets(fields.offset), ...(values.offset == null ? [] : [values.offset])],
-    name: chartName(fields.name),
+    name: nameFromText(fields.name?.value),
   };
-}
-
-// The name for astro.com's form: one string, so all of it is the last name, as
-// astro.com keeps an event's. Runs of spaces become one, as a person would type it.
-function chartName(read) {
-  const last = read?.value?.replace(/\s+/g, " ").trim() ?? "";
-  return last === "" ? null : { first: "", last };
 }
 
 // A program reader's result as the form's five values: what readField gives
