@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseNd } from "../extension/core/astrocom.js";
+import { parseNd, readPgid } from "../extension/core/astrocom.js";
 
 // The nd= record of a captured astro.com account chart, "Test", which uses the
 // invented New York birth data of the Astro-Seek fixtures.
@@ -103,4 +103,107 @@ test("times and dates that don't exist are refused", () => {
   for (const [position, value] of cases) {
     assert.equal(parseNd(variant({ [position]: value })), null, `field ${position}: ${value}`);
   }
+});
+
+// readPgid
+
+// The captured account chart page, and the chart URL its drawing link carries,
+// with nd2 (the account's second chart slot) replaced by an invented record
+// and secc by zeros. Re-encoding the captured URL the way base64url() does
+// reproduced the captured pgid exactly.
+const PAGE_URL = "https://www.astro.com/cgi/chart.cgi?gm=a1&nhor=26&nho2=1&btyp=2&mth=gw&sday=1&smon=11&syr=2026&rs=0";
+const SLOT_2 = ",Other,e,15,1,2024,8:00,h11e,gad,0,Sydney,NSW (AU),151e12,33s52,f,0,0,0";
+const CHART_URL =
+  "https://www.astro.com/cgi/chart.cgi?gm=a1&btyp=2&mth=gw&sday=1&smon=11&syr=2026&rs=0&lang=e&refpl=go" +
+  `&nd=${TEST}&nd2=${SLOT_2}&tit=Free Astrology Chart&titn=Test &secc=${"0".repeat(32)}`;
+
+const base64url = (text) => btoa(text).replaceAll("+", "-").replaceAll("/", "_").replace(/=+$/, "");
+const pgidFor = (chartUrl) => {
+  const body = base64url(chartUrl);
+  return `L${body.length}L${body}`;
+};
+const linkWith = (pgid) => `https://www.astro.com/cgi/sub.cgi?&sumode=spg&lang=e&pgid=${pgid}&ajax=1`;
+const LINK = linkWith(pgidFor(CHART_URL));
+const read = (links, url = PAGE_URL) => readPgid({ url, links });
+const refused = (reason) => ({ kind: "refused", reason });
+
+test("reads nd from the drawing link, never nd2", () => {
+  assert.deepEqual(read([LINK]), { nd: TEST });
+});
+
+test("unpadded base64url of every length decodes", () => {
+  const remainders = new Set();
+  for (const name of ["Test", "Test1", "Test12"]) {
+    const chartUrl = CHART_URL.replace("titn=Test ", `titn=${name} `);
+    remainders.add(base64url(chartUrl).length % 4);
+    assert.deepEqual(read([linkWith(pgidFor(chartUrl))]), { nd: TEST }, name);
+  }
+  assert.equal(remainders.size, 3, "the names should cover every unpadded length");
+});
+
+test("the same pgid in two links is one link", () => {
+  assert.deepEqual(read([LINK, LINK.replace("lang=e", "lang=g")]), { nd: TEST });
+});
+
+test("a page without a drawing link is refused", () => {
+  assert.deepEqual(read([]), refused("no-drawing-link"));
+  for (const link of [
+    LINK.replace("/cgi/sub.cgi", "/cgi/other.cgi"),
+    LINK.replace("https://www.astro.com", "https://astro.example"),
+    LINK.replace("https://", "http://"),
+    "not a link",
+  ]) {
+    assert.deepEqual(read([link]), refused("no-drawing-link"), link);
+  }
+});
+
+test("two different drawing links make the page ambiguous", () => {
+  const other = linkWith(pgidFor(CHART_URL.replace("sday=1&", "sday=2&")));
+  assert.deepEqual(read([LINK, other]), refused("ambiguous-page"));
+});
+
+// The chart URL, lengthened until its base64 needs padding, written with the
+// padding and a length that counts it: everything right except the padding.
+function paddedPgid() {
+  let chartUrl = CHART_URL;
+  while (!btoa(chartUrl).endsWith("=")) chartUrl += "&x=1";
+  const body = btoa(chartUrl).replaceAll("+", "-").replaceAll("/", "_");
+  return `L${body.length}L${body}`;
+}
+
+test("a pgid that doesn't unwrap to one chart record is unreadable", () => {
+  const body = base64url(CHART_URL);
+  const cases = {
+    "length one too many": linkWith(`L${body.length + 1}L${body}`),
+    "padded, a form not seen": linkWith(paddedPgid()),
+    "a character outside base64url": linkWith(`L${body.length}L${body.slice(1)}.`),
+    "not a URL inside": linkWith(pgidFor("not a url")),
+    "another path inside": linkWith(pgidFor(CHART_URL.replace("/cgi/chart.cgi", "/cgi/sub.cgi"))),
+    "another site inside": linkWith(pgidFor(CHART_URL.replace("https://www.astro.com", "https://astro.example"))),
+    "no nd": linkWith(pgidFor(CHART_URL.replace(`&nd=${TEST}`, ""))),
+    "two nd": linkWith(pgidFor(`${CHART_URL}&nd=${TEST}`)),
+  };
+  for (const [name, link] of Object.entries(cases)) {
+    assert.deepEqual(read([link]), refused("unreadable-link"), name);
+  }
+});
+
+test("a key both URLs carry with different values is a mismatch", () => {
+  for (const [from, to] of [["btyp=2", "btyp=3"], ["sday=1&", "sday=2&"], ["gm=a1", "gm=a3"]]) {
+    assert.deepEqual(read([linkWith(pgidFor(CHART_URL.replace(from, to)))]), refused("page-url-mismatch"), to);
+  }
+});
+
+test("both URLs must carry btyp", () => {
+  assert.deepEqual(read([LINK], PAGE_URL.replace("&btyp=2", "")), refused("page-url-mismatch"));
+  assert.deepEqual(read([linkWith(pgidFor(CHART_URL.replace("&btyp=2", "")))]), refused("page-url-mismatch"));
+});
+
+test("a key on one side only is fine", () => {
+  assert.deepEqual(read([LINK], `${PAGE_URL}&pa=nmo&lang=e`), { nd: TEST });
+  assert.deepEqual(read([linkWith(pgidFor(CHART_URL.replace("&sday=1", "")))]), { nd: TEST });
+});
+
+test("a page address that isn't a URL is unsupported", () => {
+  assert.deepEqual(read([LINK], "not a url"), refused("unsupported"));
 });
