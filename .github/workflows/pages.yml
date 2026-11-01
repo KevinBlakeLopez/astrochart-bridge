@@ -1,0 +1,61 @@
+# Publishes the receiving page, extension/import.html and the files it loads,
+# to GitHub Pages at https://kevinblakelopez.github.io/chart-bridge/import.html,
+# the address in extension/share-config.js. Only main deploys: GitHub's
+# github-pages environment allows the default branch alone. Pages must be set
+# to deploy from GitHub Actions (Settings → Pages → Source) before the first run.
+#
+# Every action is pinned to the commit of the release named beside it, so a
+# moved tag can't change what runs. To update one, look up the new release's
+# commit with: gh api repos/<owner>/<action>/git/ref/tags/<tag>
+name: Receiving page
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "extension/**"
+      - "tools/**"
+      - "test/**"
+      - "fixtures/**"
+      - "package.json"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deployment at a time, and a running one is let finish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      # The tests include test/site.test.js, which checks the site's file list
+      # against what import.html loads.
+      - run: npm test
+      - run: node tools/site.mjs _site
+      - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}import.html
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
