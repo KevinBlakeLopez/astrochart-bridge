@@ -76,4 +76,4 @@ export function utcFromOffset(local, offsetMinutes) {
 }
 
 // "2021-03-14T07:30:00Z": the same form as printedUt, without milliseconds.
-const isoUtc = (ms) => new Date(ms).toISOString().replace(/\.\d{3}Z$/, "Z");
+export const isoUtc = (ms) => new Date(ms).toISOString().replace(/\.\d{3}Z$/, "Z");

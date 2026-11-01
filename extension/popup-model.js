@@ -368,10 +368,13 @@ function clockParts(utc, timeZone) {
 const timeOnDay = (time, month, day) => `${time} on ${Number(day)} ${MONTHS[Number(month) - 1]}`;
 
 // -240 → "UTC-04:00"
+// A local-mean-time offset runs to the second, as from an astro.com chart
+// image, and shows them: -40 s is "UTC-00:00:40".
 function offsetText(minutes) {
-  const size = Math.abs(minutes);
+  const size = Math.round(Math.abs(minutes) * 60);
   const pad = (n) => String(n).padStart(2, "0");
-  return `UTC${minutes < 0 ? "-" : "+"}${pad(Math.floor(size / 60))}:${pad(size % 60)}`;
+  const text = `UTC${minutes < 0 ? "-" : "+"}${pad(Math.floor(size / 3600))}:${pad(Math.floor(size / 60) % 60)}`;
+  return size % 60 === 0 ? text : `${text}:${pad(size % 60)}`;
 }
 
 // 40.716667, -74 → "40°43'N, 74°0'W", the way the Astro-Seek page writes it.

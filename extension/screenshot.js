@@ -1,6 +1,6 @@
 // The screenshot page. Reads a pasted, dropped or chosen screenshot of an
-// Astro-Seek chart page with Tesseract.js, on this computer, and shows the
-// popup's screens for it. Every decision about the chart is made in core/ and
+// Astro-Seek chart page or an astro.com chart image with Tesseract.js, on this
+// computer, and shows the popup's screens for it. Every decision about the chart is made in core/ and
 // screenshot-model.js; this file handles the image and the page.
 import Tesseract from "./vendor/tesseract/tesseract.esm.min.js";
 import { analyzeScreenshot } from "./core/index.js";
@@ -13,9 +13,14 @@ const VENDOR = new URL("vendor/tesseract/", import.meta.url).href;
 
 // OCR lost whole lines of a half-size screenshot (723 px wide). Scaled up on
 // this canvas, it read every value at 3x and 4x but garbled the zone label at
-// 2x, so narrower images are scaled up 3x before they are read.
-const MIN_WIDTH = 1200;
-const SMALL_SCALE = 3;
+// 2x, so narrower images are scaled up 3x before they are read. A 1344 px
+// screenshot of an astro.com chart image lost the "n" of its latitude unless
+// scaled up 2x; a full-size Astro-Seek screenshot (1446 px) read the same
+// either way, so images up to 2000 px are scaled up 2x.
+const SCALES = [
+  { below: 1200, scale: 3 },
+  { below: 2000, scale: 2 },
+];
 
 const app = document.getElementById("app");
 const fileInput = document.getElementById("file");
@@ -74,7 +79,7 @@ async function readImage(file) {
 
 async function recognize(file) {
   const bitmap = await createImageBitmap(file);
-  const scale = bitmap.width < MIN_WIDTH ? SMALL_SCALE : 1;
+  const scale = SCALES.find(({ below }) => bitmap.width < below)?.scale ?? 1;
   const canvas = document.createElement("canvas");
   canvas.width = bitmap.width * scale;
   canvas.height = bitmap.height * scale;

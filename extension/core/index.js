@@ -1,5 +1,6 @@
 import * as astroseek from "./astroseek.js";
 import * as astrocom from "./astrocom.js";
+import { readHeader, resolveHeaderUtc } from "./chart-image.js";
 import { resolveUtc, utcFromOffset } from "./civiltime.js";
 import { SIDEREAL_TOLERANCE_SECONDS, siderealGap } from "./sidereal.js";
 
@@ -104,16 +105,41 @@ export function analyzePage({ url, input }) {
   return siteFor(url).read({ url, input: input ?? {} });
 }
 
+// How a screenshot shows its site: Astro-Seek's labels start their lines, and
+// astro.com's chart image prints "Univ.Time" where Astro-Seek spells it out.
+const ASTRO_SEEK_LABELS = /^(Date of Birth|Universal Time)/m;
+const ASTRO_COM_LABELS = /Univ\W*Time/;
+
 /**
  * The same as analyzePage, for the OCR text of a screenshot of an Astro-Seek
- * chart page. With no URL to check the text against, two checks stand in for
- * it: the printed sidereal time must fit the UT and longitude, and the local
- * time must be a real UTC offset away from the UT. Nothing checks the latitude.
+ * chart page or of an astro.com chart image. With no URL to check the text
+ * against, two checks stand in for it: the printed sidereal time must fit the
+ * UT and longitude, and the local time must be a real UTC offset away from the
+ * UT. Nothing checks the latitude.
  *
  * @param {string} text  OCR output
  * @returns {ReturnType<typeof analyzePage>}
  */
 export function analyzeScreenshot(text) {
+  const astroSeek = ASTRO_SEEK_LABELS.test(text);
+  const astroCom = ASTRO_COM_LABELS.test(text);
+  if (astroSeek && astroCom) return refused("ambiguous-screenshot");
+  return astroCom ? analyzeChartImage(text) : analyzeAstroSeekScreenshot(text);
+}
+
+function analyzeChartImage(text) {
+  const header = readHeader(text);
+  if (header.kind === "refused") return header;
+  const resolved = resolveHeaderUtc(header);
+  if (resolved.kind === "refused") return resolved;
+  // astro.com prints Univ.Time, so the offset comes from it, and no zone label
+  // Chart Bridge could check. The screenshot page adds its own Astro-Seek button.
+  const { local, lat, lng } = header;
+  const { utc, utcSource, offsetMinutes } = resolved;
+  return { kind: "natal", site: "astro-com", local, zoneLabel: null, lat, lng, utc, utcSource, offsetMinutes };
+}
+
+function analyzeAstroSeekScreenshot(text) {
   const chart = astroseek.readScreenshot(text);
   if (chart.kind === "refused") return chart;
 
