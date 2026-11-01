@@ -53,7 +53,7 @@ https://horoscopes.astro-seek.com/calculate-birth-chart-horoscope-online/?input_
 ```
 
 - [ ] The popup shows Local time `17 Apr 2024, 08:00 (EDT, DST)`, Offset `UTC-04:00`, UTC `2024-04-17 12:00` and Place `40°43'N, 74°0'W`.
-- [ ] Below them are two grey notes, the one about Google last, then a blue **Open sky** button.
+- [ ] Below them are two grey notes, the one about Google last, then a blue **Open sky** button and an outlined **Share…** button (test 16).
 - [ ] The first note names the time Stellarium's clock will show in your computer's time zone, and says that's 08:00 on 17 Apr at the birthplace. On a Mac set to Pacific time it says 05:00 on 17 Apr.
 - [ ] After **Open sky**, Stellarium's clock (bottom right) shows the time the note named, give or take the seconds it has been running.
 - [ ] Clicking **Open sky** opens a Stellarium Web tab and closes the popup. The new tab's address contains `date=2024-04-17T12%3A00%3A00Z&lat=40.716667&lng=-74`.
@@ -80,7 +80,7 @@ https://horoscopes.astro-seek.com/calculate-birth-chart-horoscope-online/?input_
 https://horoscopes.astro-seek.com/calculate-birth-chart-horoscope-online/?input_natal=1&send_calculation=1&narozeni_den=14&narozeni_mesic=3&narozeni_rok=2021&narozeni_hodina=02&narozeni_minuta=30&narozeni_sekunda=00&narozeni_city=New+York%2C+USA%2C+New+York&narozeni_mesto_hidden=New+York&narozeni_stat_hidden=US&narozeni_podstat_kratky_hidden=NY&narozeni_tzid_id=156&narozeni_sirka_stupne=40&narozeni_sirka_minuty=43&narozeni_sirka_smer=0&narozeni_delka_stupne=74&narozeni_delka_minuty=0&narozeni_delka_smer=1&narozeni_timezone_form=auto&narozeni_timezone_dst_form=auto&house_system=placidus&hid_fortune=1&hid_vertex=1&hid_chiron=1&hid_chiron_check=on&hid_lilith=1&hid_lilith_check=on&hid_uzel=1&hid_uzel_check=on&tolerance=1&aya=&tolerance_paral=0&zmena_nastaveni=1&aktivni_tab=&hide_aspects=0&dominanta_metoda=1&dominanta_rulership=1#tabs_redraw
 ```
 
-- [ ] The popup shows "Astro-Seek's page contradicts itself…", two readings with round buttons, and a faded **Open sky** button.
+- [ ] The popup shows "Astro-Seek's page contradicts itself…", two readings with round buttons, and faded **Open sky** and **Share…** buttons.
 - [ ] Clicking the faded **Open sky** does nothing.
 - [ ] Pick the first reading (06:30) and click **Open sky**. The new tab's address contains `date=2021-03-14T06%3A30%3A00Z`.
 - [ ] Go back to the chart tab, open the popup again, pick the second reading (07:30) and click **Open sky**. The new tab's address contains `date=2021-03-14T07%3A30%3A00Z`.
@@ -189,7 +189,7 @@ Chart Bridge keeps a chart's values for the astro.com tab it opens, for 30 minut
 
 Open the test 1 URL and open the popup.
 
-- [ ] Below **Open sky** is **Enter in astro.com…**. On an astro.com account chart, if you have one, it isn't there.
+- [ ] Below **Open sky** and **Share…** is **Enter in astro.com…**. On an astro.com account chart, if you have one, it isn't there.
 - [ ] **Enter in astro.com…** replaces the popup's screen with Birthday `17 April 2024`, Hour, min `12:00`, Time zone `00:00 GMT / UT, under show / hide extended settings` and Place `40°43'N, 74°0'W`, four grey notes (the last two about signing in and how long the values are kept), the buttons **Open astro.com's form**, **Sign in** and **Create account**, and **Cancel**.
 - [ ] **Cancel** brings back the test 1 screen.
 - [ ] **Open astro.com's form** opens `https://www.astro.com/cgi/ade.cgi`, "Step 1: Birth Data Entry", in a new tab and closes the popup.
@@ -227,10 +227,12 @@ http://127.0.0.1:8766/import.html#v1=eyJmb3JtYXQiOiJjaGFydC1icmlkZ2UiLCJ2ZXJzaW9
 
 ### A: desktop
 
-- [ ] The page shows Local time `17 Apr 2024, 08:00 (EDT, DST)`, Offset `UTC-04:00`, UTC `2024-04-17 12:00`, Place `40°43'N, 74°0'W` and From `Astro-Seek page`, four grey notes, **Open sky**, **Open chart in Astro-Seek** and **Copy link**. There is no **Enter in astro.com…**.
+- [ ] The page shows Local time `17 Apr 2024, 08:00 (EDT, DST)`, Offset `UTC-04:00`, UTC `2024-04-17 12:00`, Place `40°43'N, 74°0'W` and From `Astro-Seek page`, four grey notes, **Open sky**, **Open chart in Astro-Seek**, **Copy link** and **Download file**. There is no **Enter in astro.com…** or **Share…**.
 - [ ] The address bar shows `import.html` with nothing after it, and **Back** doesn't bring the `#v1=…` part back.
 - [ ] Nothing opens by itself. **Open sky** opens the same Stellarium address as test 1; **Open chart in Astro-Seek** opens a chart for 17 April 2024 12:00 UT at 40°43'N, 74°0'W.
 - [ ] **Copy link** says "Link copied.", and pasting gives exactly the link above. If the browser refuses, the link appears selected in a field below the message instead.
+- [ ] **Download file** saves `chart-2024-04-17.astrochart.json`. Opened in a text editor, it shows the chart's fields indented, with `"utcOffsetSeconds": -14400`.
+- [ ] Open the browser's History list. Note whether it shows the address with `#v1=…`: the page removes it from the tab's address and its Back entry, but whether a browser's History list keeps the original address hasn't been checked in any browser.
 - [ ] Delete the last ten characters of the link and open it: the page says the link is incomplete or damaged, shows `Code: malformed`, and has no buttons.
 - [ ] Open `http://127.0.0.1:8766/import.html` with nothing after it: the page asks for a Chart Bridge link, with no buttons.
 - [ ] The Console stays empty throughout.
@@ -242,6 +244,20 @@ A phone reaches the page through the Mac's address on the local network, which m
 - [ ] On iPhone Safari, iPad Safari (portrait and landscape), Chrome for Android and Firefox for Android: the same rows and buttons as in A, nothing wider than the screen, and the buttons easy to tap.
 - [ ] **Open sky** opens Stellarium Web in a new tab at the same time and place.
 - [ ] **Copy link** shows the field with the link selected, and the system's copy works on it.
+
+## Test 16: sharing a chart from the extension
+
+Copied links point at `RECEIVER_URL` in `extension/share-config.js`, the receiving page on GitHub Pages. Until that page is deployed, a copied link opens a 404 there; check its address and contents instead.
+
+- [ ] On the test 1 chart, **Share…** opens a tab at `chrome-extension://…/import.html` (`moz-extension://…` in Firefox) and closes the popup. The tab shows the same rows as test 15 A, From `Astro-Seek page`, and the address has nothing after `import.html`.
+- [ ] **Copy link** says "Link copied.", and the pasted link starts `https://kevinblakelopez.github.io/chart-bridge/import.html#v1=`. Pasting it after `http://127.0.0.1:8766/import.html` in place of that address, with the test 15 server running, shows the same chart.
+- [ ] **Download file** saves `chart-2024-04-17.astrochart.json`, in Chrome and in Firefox.
+- [ ] **Open sky** on that tab opens the same Stellarium address as test 1.
+- [ ] On the test 4 chart, **Share…** is faded until a reading is picked. Pick the second reading (the label EST), then **Share…**: the tab shows Offset `UTC-05:00` and UTC `2021-03-14 07:30`.
+- [ ] On an astro.com account chart (test 14's), **Share…** opens a tab showing From `astro.com page`.
+- [ ] On the screenshot page from test 13, **Share…** opens a tab showing From `Astro-Seek screenshot` and the warning to compare the rows. The screenshot page stays open.
+- [ ] On a Stellarium Web tab (test 12) and on astro.com's form tab (test 14), the popup has no **Share…**.
+- [ ] Each Console stays empty: the popup's, and the new tab's (right-click → Inspect).
 
 ## Not covered by hand yet
 

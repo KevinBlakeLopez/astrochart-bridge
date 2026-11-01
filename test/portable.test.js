@@ -68,6 +68,13 @@ test("serialize writes the same text whatever order the keys came in", () => {
   );
 });
 
+test("serialize can indent, for a file, and still writes the keys in one order", () => {
+  const chart = portable(NY, NY_SOURCE);
+  const indented = serialize(chart, 2);
+  assert.equal(indented, JSON.stringify(JSON.parse(serialize(chart)), null, 2));
+  assert.deepEqual(parse(indented), { kind: "portable", chart });
+});
+
 test("source fields that weren't given are left out, not written as null", () => {
   const chart = portable(NY, { site: "astro-com" });
   assert.deepEqual(chart.source, { site: "astro-com" });

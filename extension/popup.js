@@ -4,8 +4,9 @@
 import { fillForm, formValues, isAstroComPage, isBirthDataForm, readFormPage } from "./core/astrocom.js";
 import { analyzePage, classifyUrl, extractorFor } from "./core/index.js";
 import { isStellariumWeb, skyFromEngine } from "./core/stellarium.js";
+import { linkFor } from "./import-model.js";
 import { heldForTab, holdForTab, releaseTab } from "./pending.js";
-import { viewFor, viewForAstroComTab, viewForSky } from "./popup-model.js";
+import { chartToShare, viewFor, viewForAstroComTab, viewForShareRefusal, viewForSky } from "./popup-model.js";
 import { render } from "./view.js";
 
 const app = document.getElementById("app");
@@ -60,7 +61,26 @@ async function main() {
     target: { tabId: tab.id },
     func: extractorFor(url),
   });
-  show(viewFor(analyzePage({ url, input })));
+  showChart(analyzePage({ url, input }));
+}
+
+// A chart page's screen. Share… opens the extension's copy of the receiving
+// page in a tab, with the chart in its link, for the sky the screen decided;
+// the other buttons open their links as before. A chart the format can't
+// carry says why, and Cancel goes back to it.
+function showChart(result) {
+  const view = viewFor(result);
+  const onButton = async (button, sky) => {
+    if (button.does !== "share") return openLink(button, sky);
+    const shared = chartToShare(result, sky, "page");
+    if (shared.kind === "refused") {
+      render(app, viewForShareRefusal(shared.reason), onButton, view);
+      return;
+    }
+    await chrome.tabs.create({ url: linkFor(chrome.runtime.getURL("import.html"), shared.chart) });
+    window.close();
+  };
+  show(view, { onButton });
 }
 
 // Runs inside the Stellarium Web page itself (world "MAIN"), where its engine

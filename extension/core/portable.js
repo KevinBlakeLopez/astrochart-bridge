@@ -93,13 +93,15 @@ export function toPortable({ local, utc, lat, lng }, source = {}) {
 
 /**
  * The chart as JSON, with its keys always in the same order, so the same chart
- * always gives the same text, link and QR code.
+ * always gives the same text, link and QR code. A file is indented to be read;
+ * a link isn't, to stay short. parse reads both.
  *
  * @param {object} chart  from toPortable or parse
+ * @param {number} [indent]  spaces per level, as JSON.stringify takes them
  * @returns {string}
  */
-export function serialize(chart) {
-  return JSON.stringify(canonical(chart));
+export function serialize(chart, indent) {
+  return JSON.stringify(canonical(chart), null, indent);
 }
 
 /**

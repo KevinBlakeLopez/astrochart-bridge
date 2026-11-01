@@ -20,6 +20,10 @@ const NOTES = [CLOCK_NOTE, PRIVACY_NOTE];
 const RUNNING = "The clock starts running at once; its pause button stops it.";
 const LOS_ANGELES = { timeZone: "America/Los_Angeles" };
 const NY_PLACE = ["Place", "40°43'N, 74°0'W"];
+// Every screen with a chart of its own can share it; the button opens the
+// receiving page in a tab once a UTC is decided.
+const SHARE = { label: "Share…", does: "share", secondary: true };
+const OPEN_SKY = { label: "Open sky", opens: "stellarium" };
 
 test("ready: New York, seen from Los Angeles", () => {
   assert.deepEqual(viewFor(analyze("ny-2024-04-17"), LOS_ANGELES), {
@@ -36,6 +40,7 @@ test("ready: New York, seen from Los Angeles", () => {
       PRIVACY_NOTE,
     ],
     sky: { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 },
+    buttons: [OPEN_SKY, SHARE],
     // test/astro-com-handoff.test.js covers the astro.com screen itself.
     next: { label: "Enter in astro.com…", view: viewForAstroCom({ utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 }) },
   });
@@ -69,6 +74,7 @@ test("ready: an astro.com chart shows its stated offset and no zone label, and c
     buttons: [
       { label: "Open sky", opens: "stellarium" },
       { label: "Open chart in Astro-Seek", opens: "astro-seek" },
+      SHARE,
     ],
   });
 });
@@ -149,6 +155,7 @@ test("choose: the skipped time offers both readings and opens nothing yet", () =
       },
     ],
     notes: NOTES,
+    buttons: [OPEN_SKY, SHARE],
   });
 });
 
@@ -161,6 +168,7 @@ test("enter-offset: no printed UT asks for the offset and previews the UTC", () 
   assert.deepEqual(view.rows, [["Local time", "17 Apr 2024, 08:00 (EDT, DST)"], NY_PLACE]);
   assert.equal(view.message, "Astro-Seek didn't print a Universal Time. Enter the UTC offset at the birth place, as ±HH:MM.");
   assert.deepEqual(view.notes, NOTES);
+  assert.deepEqual(view.buttons, [OPEN_SKY, SHARE]);
   assert.deepEqual(offsetPreview(view, " -04:00 "), {
     utcText: "2024-04-17 12:00",
     sky: { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 },

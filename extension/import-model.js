@@ -2,13 +2,14 @@
 // ready screen, from viewFor, for a chart that arrived in a link rather than
 // from a page: it can open in Stellarium Web and Astro-Seek, and be copied on.
 // Every decision is made here, so import.js only reads the link and renders.
-import { fromFragment, skyFor, toFragment } from "./core/portable.js";
+import { fromFragment, serialize, skyFor, toFragment } from "./core/portable.js";
 import { ASTRO_SEEK_NOTES, ASTRO_SEEK_BUTTONS, viewFor } from "./popup-model.js";
 
 // The receiving page works without the extension, so the popup's
 // "Enter in astro.com…" step, which keeps the values for the tab it opens,
 // isn't offered: nothing here could keep them.
-const BUTTONS = [...ASTRO_SEEK_BUTTONS, { label: "Copy link", does: "copy", secondary: true }];
+const COPY_LINK = { label: "Copy link", does: "copy", secondary: true };
+const DOWNLOAD_FILE = { label: "Download file", does: "download", secondary: true };
 
 const SITE_NAMES = { "astro-seek": "Astro-Seek", "astro-com": "astro.com" };
 
@@ -49,9 +50,10 @@ export function readLink(hash) {
  * What the receiving page shows for readLink's result.
  *
  * @param {ReturnType<typeof readLink>} result
- * @param {{ timeZone?: string }} [options]  passed on to viewFor
+ * @param {{ timeZone?: string, canCopy?: boolean }} [options]  timeZone is
+ *   passed on to viewFor; canCopy is false when linkBase has nowhere to point
  */
-export function viewForImport(result, options) {
+export function viewForImport(result, { canCopy = true, ...options } = {}) {
   if (result === null) return { ...EMPTY, notes: [], buttons: [] };
   if (result.kind === "refused") {
     return { state: "refused", message: REFUSALS[result.reason] ?? DAMAGED, code: result.reason };
@@ -82,19 +84,45 @@ export function viewForImport(result, options) {
     rows: from === "" ? view.rows : [...view.rows, ["From", from]],
     warnings: source.via === "screenshot" ? [SCREENSHOT_WARNING] : [],
     notes: [...view.notes, ...ASTRO_SEEK_NOTES],
-    buttons: BUTTONS.map((button) => ({ ...button })),
+    buttons: [...ASTRO_SEEK_BUTTONS, ...(canCopy ? [COPY_LINK] : []), DOWNLOAD_FILE].map((button) => ({ ...button })),
   };
 }
 
 /**
- * The link to copy for a chart: this page's own address, without its query
- * or fragment, and the chart's fragment.
+ * The address a copied link starts with. On the web, the page links to
+ * itself; the extension's copy of the page links to the receiving page on the
+ * web, since its own address opens only in this browser. null when the
+ * extension has no receiving page configured.
  *
  * @param {string} pageUrl  location.href
+ * @param {string | null} receiverUrl  share-config.js's RECEIVER_URL
+ * @returns {string | null}
+ */
+export function linkBase(pageUrl, receiverUrl) {
+  const { protocol } = new URL(pageUrl);
+  return protocol === "https:" || protocol === "http:" ? pageUrl : receiverUrl;
+}
+
+/**
+ * The link to copy for a chart: an address from linkBase, without its query
+ * or fragment, and the chart's fragment.
+ *
+ * @param {string} pageUrl  linkBase's address
  * @param {object} chart  a portable chart
  * @returns {string}
  */
 export function linkFor(pageUrl, chart) {
   const url = new URL(pageUrl);
   return `${url.origin}${url.pathname}#${toFragment(chart)}`;
+}
+
+/**
+ * The .astrochart.json file for a chart: the link's JSON, indented to be read,
+ * named for the local birth date so several can be told apart.
+ *
+ * @param {object} chart  a portable chart
+ * @returns {{ name: string, text: string }}
+ */
+export function fileFor(chart) {
+  return { name: `chart-${chart.chart.local.slice(0, 10)}.astrochart.json`, text: `${serialize(chart, 2)}\n` };
 }

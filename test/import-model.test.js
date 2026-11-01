@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { fromFragment, toFragment, toPortable } from "../extension/core/portable.js";
-import { linkFor, readLink, viewForImport } from "../extension/import-model.js";
+import { fromFragment, parse, toFragment, toPortable } from "../extension/core/portable.js";
+import { fileFor, linkBase, linkFor, readLink, viewForImport } from "../extension/import-model.js";
 import { ASTRO_SEEK_NOTES } from "../extension/popup-model.js";
 
 const PRIVACY_NOTE =
@@ -23,6 +23,7 @@ const BUTTONS = [
   { label: "Open sky", opens: "stellarium" },
   { label: "Open chart in Astro-Seek", opens: "astro-seek" },
   { label: "Copy link", does: "copy", secondary: true },
+  { label: "Download file", does: "download", secondary: true },
 ];
 
 // --- Reading the link ---
@@ -190,4 +191,58 @@ test("a received link is copied back exactly", () => {
   const link = `https://example.org/import.html#${toFragment(chart)}`;
   const again = readLink(new URL(link).hash);
   assert.equal(linkFor(link, again.chart), link);
+});
+
+// --- Where Copy link points ---
+
+test("on the web, a copied link points at the page it was copied from", () => {
+  assert.equal(linkBase("https://example.org/import.html", "https://other.example/import.html"), "https://example.org/import.html");
+  assert.equal(linkBase("http://127.0.0.1:8766/import.html", null), "http://127.0.0.1:8766/import.html");
+});
+
+test("in the extension, a copied link points at the receiving page", () => {
+  const extensionPage = "chrome-extension://abcdefghijklmnop/import.html";
+  assert.equal(linkBase(extensionPage, "https://example.org/import.html"), "https://example.org/import.html");
+  assert.equal(linkBase("moz-extension://1234-5678/import.html", "https://example.org/import.html"), "https://example.org/import.html");
+  assert.equal(linkBase(extensionPage, null), null);
+});
+
+test("with nowhere to point a link, there is no Copy link", () => {
+  const view = viewForImport(received(NY, NY_SOURCE), { ...LOS_ANGELES, canCopy: false });
+  assert.deepEqual(view.buttons, BUTTONS.filter((button) => button.does !== "copy"));
+});
+
+// --- Download file ---
+
+test("the file is named for the local birth date", () => {
+  assert.equal(fileFor(received(NY, NY_SOURCE).chart).name, "chart-2024-04-17.astrochart.json");
+  const sydney = received({ local: "2024-01-15T08:00:00", utc: "2024-01-14T21:00:00Z", lat: -33.866667, lng: 151.2 });
+  assert.equal(fileFor(sydney.chart).name, "chart-2024-01-15.astrochart.json");
+});
+
+test("the file is the link's JSON, indented, and reads back as the same chart", () => {
+  const { chart } = received(NY, NY_SOURCE);
+  const { text } = fileFor(chart);
+  assert.equal(
+    text,
+    `{
+  "format": "chart-bridge",
+  "version": 1,
+  "chart": {
+    "calendar": "gregorian",
+    "local": "2024-04-17T08:00:00",
+    "utcOffsetSeconds": -14400,
+    "latitude": 40.716667,
+    "longitude": -74
+  },
+  "source": {
+    "site": "astro-seek",
+    "via": "page",
+    "zoneLabel": "EDT, DST",
+    "utcBasis": "printed"
+  }
+}
+`,
+  );
+  assert.deepEqual(parse(text), { kind: "portable", chart });
 });
