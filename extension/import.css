@@ -1,0 +1,15 @@
+/* The import page: the screenshot page's look, with a box for pasted text. */
+textarea {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 6px;
+  font: 12px/1.4 ui-monospace, monospace;
+  color: inherit;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
+
+#list {
+  margin-top: 16px;
+}

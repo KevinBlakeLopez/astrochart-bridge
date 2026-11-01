@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Chart Bridge: paste chart text</title>
+    <link rel="stylesheet" href="popup.css">
+    <link rel="stylesheet" href="screenshot.css">
+    <link rel="stylesheet" href="paste.css">
+    <script type="module" src="paste.js"></script>
+  </head>
+  <body class="page">
+    <main>
+      <h1>Paste chart text</h1>
+      <p>Paste birth data copied from an astrology program, a report or a note, in labelled lines such as "Date of Birth: 15 June 1985" or "latitude=47.6062".</p>
+      <textarea id="text" rows="10" spellcheck="false" autocomplete="off" aria-label="Chart text"
+        placeholder="Date of Birth: 15 June 1985&#10;Time of Birth: 10:30 AM&#10;Latitude: 47°36'N&#10;Longitude: 122°19'W&#10;UTC Offset: -07:00"></textarea>
+      <p class="actions">
+        <button id="read">Read the text</button>
+        <button id="from-clipboard" class="secondary">Paste from clipboard</button>
+      </p>
+      <p class="note">The text is read on this computer and isn't sent or saved anywhere.</p>
+      <div id="app"></div>
+    </main>
+  </body>
+</html>
