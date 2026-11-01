@@ -101,7 +101,7 @@ https://horoscopes.astro-seek.com/calculate-asteroids/?narozeni_den=17&narozeni_
 
 Go to `https://example.com`.
 
-- [ ] The popup shows only "Open an Astro-Seek birth chart to use Chart Bridge.", and the Console has no errors.
+- [ ] The popup shows only "Open an Astro-Seek or astro.com birth chart to use Chart Bridge.", and the Console has no errors.
 
 ## Test 9: a browser page
 

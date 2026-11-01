@@ -62,6 +62,6 @@ test("a UTC without Z throws", () => {
 
 test("round trip: the chart it opens reads back as the same sky", () => {
   const sky = { utc: "2024-04-17T00:00:00Z", lat: 40.716667, lng: -74 };
-  const result = analyzePage({ url: astroSeekUrl(sky), text: fixture("manual-ut-2024-04-17-0000").input.text });
+  const result = analyzePage({ url: astroSeekUrl(sky), input: fixture("manual-ut-2024-04-17-0000").input });
   assert.deepEqual({ utc: result.utc, lat: result.lat, lng: result.lng }, sky);
 });

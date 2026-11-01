@@ -1,8 +1,7 @@
 // The only file that talks to the browser. Every decision about what to show
 // is made in popup-model.js; this file reads the tab, renders the view and
 // opens the sky. Page text is only ever inserted with textContent.
-import { classifyUrl } from "./core/astroseek.js";
-import { analyzePage } from "./core/index.js";
+import { analyzePage, classifyUrl, extractorFor } from "./core/index.js";
 import { isStellariumWeb, skyFromEngine, stellariumUrl } from "./core/stellarium.js";
 import { viewFor, viewForSky, offsetPreview } from "./popup-model.js";
 
@@ -35,11 +34,12 @@ async function main() {
     return;
   }
 
-  const [{ result: text }] = await chrome.scripting.executeScript({
+  // Each site's extractor reads only what that site's reader needs.
+  const [{ result: input }] = await chrome.scripting.executeScript({
     target: { tabId: tab.id },
-    func: () => document.body.innerText,
+    func: extractorFor(url),
   });
-  render(viewFor(analyzePage({ url, text: text ?? "" })));
+  render(viewFor(analyzePage({ url, input })));
 }
 
 // Runs inside the Stellarium Web page itself (world "MAIN"), where its engine

@@ -8,7 +8,7 @@ const fixture = (name) =>
   JSON.parse(readFileSync(new URL(`../fixtures/astroseek/${name}.json`, import.meta.url), "utf8"));
 const analyze = (name) => {
   const { url, input } = fixture(name);
-  return analyzePage({ url, text: input.text });
+  return analyzePage({ url, input });
 };
 
 const CLOCK_NOTE = "Stellarium Web's clock shows your computer's time zone and keeps running.";
@@ -30,6 +30,30 @@ test("ready: New York, seen from Los Angeles", () => {
       ["UTC", "2024-04-17 12:00"],
       NY_PLACE,
     ],
+    warnings: [],
+    notes: [
+      `Stellarium Web's clock will show 05:00 on 17 Apr, your computer's time. That's 08:00 on 17 Apr at the birthplace. ${RUNNING}`,
+      PRIVACY_NOTE,
+    ],
+    sky: { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 },
+  });
+});
+
+test("ready: an astro.com chart shows its stated offset and no zone label", () => {
+  // The analyzePage result for the captured astro.com account chart, as test/index.test.js checks it.
+  const result = {
+    kind: "natal",
+    local: "2024-04-17T08:00:00",
+    zoneLabel: null,
+    lat: 40.716667,
+    lng: -74,
+    utc: "2024-04-17T12:00:00Z",
+    utcSource: "declared",
+    offsetMinutes: -240,
+  };
+  assert.deepEqual(viewFor(result, LOS_ANGELES), {
+    state: "ready",
+    rows: [["Local time", "17 Apr 2024, 08:00"], ["Offset", "UTC-04:00"], ["UTC", "2024-04-17 12:00"], NY_PLACE],
     warnings: [],
     notes: [
       `Stellarium Web's clock will show 05:00 on 17 Apr, your computer's time. That's 08:00 on 17 Apr at the birthplace. ${RUNNING}`,
@@ -122,15 +146,48 @@ test("refused: pages Chart Bridge doesn't open", () => {
     state: "refused",
     message: "This is a synastry or compatibility chart. Chart Bridge opens natal charts only.",
   });
-  assert.deepEqual(viewFor(analyzePage({ url: "https://example.com/", text: "" })), {
+  assert.deepEqual(viewFor(analyzePage({ url: "https://example.com/", input: { text: "" } })), {
     state: "refused",
-    message: "Open an Astro-Seek birth chart to use Chart Bridge.",
+    message: "Open an Astro-Seek or astro.com birth chart to use Chart Bridge.",
   });
+});
+
+const ASTRO_COM = "https://www.astro.com/cgi/chart.cgi?gm=a1&nhor=26&nho2=1&btyp=2&mth=gw&sday=1&smon=11&syr=2026&rs=0";
+
+test("refused: astro.com pages and charts Chart Bridge doesn't open name astro.com", () => {
+  const cases = [
+    [
+      "https://www.astro.com/astro-databank/Stallone,_Sylvester",
+      "Astro-Databank charts aren't supported yet. Chart Bridge opens charts saved in your astro.com account.",
+    ],
+    ["https://www.astro.com/cgi/chart.cgi?btyp=w2gw&rs=2&;&nhor=26", "Chart Bridge can't read this kind of astro.com chart yet."],
+    [
+      ASTRO_COM,
+      "This astro.com page has no \"Drawing (for subscribers)\" link, which is where Chart Bridge reads the birth data.",
+    ],
+  ];
+  for (const [url, message] of cases) {
+    assert.deepEqual(viewFor(analyzePage({ url, input: { links: [] } })), { state: "refused", message }, url);
+  }
+  assert.deepEqual(viewFor({ kind: "refused", reason: "local-mean-time" }), {
+    state: "refused",
+    message: "This chart uses local mean time, which Chart Bridge can't open yet.",
+  });
+});
+
+test("refused: astro.com records Chart Bridge couldn't read show their code", () => {
+  for (const reason of ["unreadable-link", "unreadable-record", "unseen-field-9"]) {
+    assert.deepEqual(viewFor({ kind: "refused", reason }), {
+      state: "refused",
+      message: "Chart Bridge couldn't read this chart page.",
+      code: reason,
+    });
+  }
 });
 
 test("refused: chart pages Chart Bridge couldn't read show their code", () => {
   const { url } = fixture("ny-2024-04-17");
-  assert.deepEqual(viewFor(analyzePage({ url, text: "" })), {
+  assert.deepEqual(viewFor(analyzePage({ url, input: { text: "" } })), {
     state: "refused",
     message: "Chart Bridge couldn't read this chart page.",
     code: "unreadable-page",
