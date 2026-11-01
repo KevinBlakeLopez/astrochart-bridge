@@ -4,7 +4,7 @@ import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, viewFor } from "./popup-model.js"
 // like the popup's unreadable pages, so a bug report says which check failed.
 const REFUSALS = {
   "unreadable-screenshot":
-    "Chart Bridge couldn't find the birth data in this screenshot. From Astro-Seek, include everything from Date of Birth to Latitude, Longitude; from astro.com, the chart's header from the date to Sid. Time; from Solar Fire or Astro Gold, the chart details from the date to the coordinates; from Morinus, its status bar or the middle of its square chart; from Valens, the middle of its wheel; from Planetdance, the lines at the top left of the wheel, down to St:; from Jagannatha Hora, the birth data from Date to Sidereal Time; from Kepler or Sirius, the data block from the name to the Time Zone; from Janus, the middle of the wheel from the date to the coordinates. Take it at full size.",
+    "Chart Bridge couldn't find the birth data in this screenshot. From Astro-Seek, include everything from Date of Birth to Latitude, Longitude; from astro.com, the chart's header from the date to Sid. Time; from Solar Fire or Astro Gold, the chart details from the date to the coordinates; from Morinus, its status bar or the middle of its square chart; from Valens, the middle of its wheel; from Planetdance, the lines at the top left of the wheel, down to St:; from Jagannatha Hora, the birth data from Date to Sidereal Time; from Kepler or Sirius, the data block from the name to the Time Zone; from Janus, the middle of the wheel from the date to the coordinates; from Win*Star, the upper right of the wheel from the date to the latitude. Take it at full size.",
   "no-coordinates":
     "This screenshot has no coordinates. Astro Gold's chart wheel doesn't print them: take its Chart Details panel or Edit Chart screen instead. From Solar Fire, include the chart details down to the coordinates.",
   "ambiguous-screenshot": "This screenshot shows more than one chart. Chart Bridge opens natal charts only.",
@@ -38,6 +38,7 @@ const PROGRAMS = {
   sirius: "Sirius",
   "kepler-or-sirius": "Kepler or Sirius",
   janus: "Janus",
+  winstar: "Win*Star",
 };
 
 // Warnings only a screenshot's chart can have, shown in place of their codes.
