@@ -268,7 +268,7 @@ Open the test 1 URL and open the popup.
 
 ## Test 16: pasted chart text
 
-The paste page reads text with no help from the web. These steps check what only the installed extension can show: the page loads under the extension's script policy, the clipboard button behaves in each browser, and nothing is fetched. `test/paste-model.test.js` and `test/text.test.js` cover what the form shows for each kind of text. The sample uses test 1's invented New York data.
+The paste page reads text with no help from the web. These steps check what only the installed extension can show: the page loads under the extension's script policy, the clipboard button behaves in each browser, and nothing is fetched. `test/paste-model.test.js`, `test/paste-programs.test.js` and `test/text.test.js` cover what the form shows for each kind of text. The sample uses test 1's invented New York data.
 
 1. Go to `https://example.com`, click the Chart Bridge icon, then **Paste chart text instead**. A Chart Bridge tab opens and the popup closes.
 2. In that tab, open DevTools (**Cmd+Option+I**) on the **Network** tab, then reload the page.
@@ -306,6 +306,19 @@ Birth time: 22:15
 Latitude: 51.5074
 Longitude: -0.1278
 Time Zone: BST
+```
+
+- [ ] Replace the text with Jagannatha Hora's birth data block below and click **Read the text**. All five boxes fill (Date `1955-10-26`, Local time `21:17:59`, UTC offset `-08:00`), each grey line under them says "Read as Jagannatha Hora's text.", and a grey note below the form says the text was read as Jagannatha Hora's. **Continue** shows UTC `1955-10-27 05:17`. Then change `West of GMT` to `East of GMT` and read it again: the boxes are empty, and an orange warning ends with `(sidereal-mismatch)`.
+
+```
+Bill Gates
+Natal Chart
+Date:          October 26, 1955
+Time:          9:17:59 pm
+Time Zone:     8:00:00 (West of GMT)
+Place:         122 W 20' 30", 47 N 36' 32"
+               Seattle, Washington, USA
+Sidereal Time: 23:27:48
 ```
 
 - [ ] Replace the text with `Name: <b>Example</b>` and `Date of Birth: 15 June 1985` on two lines and click **Read the text**. The Name row shows the angle brackets as typed, not bold text.

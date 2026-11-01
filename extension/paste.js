@@ -3,8 +3,7 @@
 // made in core/ and paste-model.js; this file handles the page. The text is
 // only ever inserted with textContent or an input's value, never as HTML.
 import { linkFor } from "./chart-model.js";
-import { readText } from "./core/text.js";
-import { chartForEntry, checkField, entryFor, formFor, viewForEntry } from "./paste-model.js";
+import { chartForEntry, checkField, entryFor, formForText, viewForEntry } from "./paste-model.js";
 import { viewForShareRefusal } from "./popup-model.js";
 import { paragraph, render } from "./view.js";
 
@@ -35,7 +34,7 @@ document.getElementById("from-clipboard").addEventListener("click", async () => 
 });
 
 function read() {
-  const form = formFor(readText(textArea.value));
+  const form = formForText(textArea.value);
   if (form.state === "refused") render(app, form, openLink);
   else app.replaceChildren(formElement(form));
 }

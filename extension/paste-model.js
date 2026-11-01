@@ -1,7 +1,8 @@
-import { analyzeEntry } from "./core/index.js";
+import { analyzeEntry, analyzeProgramText } from "./core/index.js";
 import { toPortable } from "./core/portable.js";
-import { MAX_TEXT_LENGTH, readField } from "./core/text.js";
+import { MAX_TEXT_LENGTH, readField, readText } from "./core/text.js";
 import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, SHARE_BUTTON, viewFor } from "./popup-model.js";
+import { PROGRAMS } from "./screenshot-model.js";
 
 // Each refusal readText can return. They keep their code on screen, like the
 // screenshot page's, so a bug report says which check failed.
@@ -40,34 +41,155 @@ const PLACE_NOTE = "Chart Bridge doesn't look places up: it uses the latitude an
 // can't check: that needs the zone's history at the birthplace.
 const OFFSET_NOTE = "Nothing checks that this offset was in use at the birthplace on that date.";
 
+// Why a desktop program's reader turned down text laid out as its program's,
+// after "but". A layout that turned out not to be the program's,
+// "unreadable-screenshot", is most likely ordinary labelled text, so it gets
+// no warning.
+const PROGRAM_REFUSALS = {
+  "no-coordinates": "it has no coordinates",
+  "ambiguous-screenshot": "it can be read as more than one program's, or more than one chart",
+  "sidereal-mismatch": "its sidereal time doesn't fit its time, offset and longitude",
+  "offset-out-of-range": "its local time is too far from its Universal Time",
+  "weekday-mismatch": "its weekday doesn't fall on its date",
+  "zone-offset-mismatch": "its time zone doesn't match its UTC offset",
+  "calendar-unsupported": "it's dated Old Style or BC, and Chart Bridge reads Gregorian dates only",
+  "apparent-time": "it uses local apparent time, which Chart Bridge can't open yet",
+  "local-time-ambiguous": "its time is marked LC, which can mean local mean or local apparent time",
+  "chart-type-unsupported": "it's a return, progression or other chart that isn't the birth",
+};
+
+// The programs that write an offset west of Greenwich with a plus sign, as
+// their readers read it.
+const WEST_PLUS = new Set(["solar-fire", "astro-gold", "solar-fire-or-astro-gold", "janus"]);
+
 const MONTH_NAMES = [
   "January", "February", "March", "April", "May", "June",
   "July", "August", "September", "October", "November", "December",
 ];
 
 /**
+ * The review form for pasted text, as readText and the desktop programs'
+ * readers read it.
+ *
+ * @param {string} text
+ */
+export function formForText(text) {
+  const result = readText(text);
+  // Text too long to read is too long for the programs' readers too.
+  const tooLong = result.kind === "refused" && result.reason === "too-long";
+  return formFor(result, tooLong ? null : analyzeProgramText(text));
+}
+
+/**
  * The review form for a readText result: each of the five values filled in
  * from the text, with the line it came from or why it couldn't be read, and
  * the other fields readText found.
  *
+ * When the text is laid out as a desktop program's, program is what that
+ * program's reader made of it, and its values fill the boxes too. A box fills
+ * only when every reading of its value agrees: where readText read the value
+ * differently, both are offered to pick from. A program reader that turned the
+ * text down adds a warning, and the form has readText's values alone.
+ *
  * @param {ReturnType<typeof import("./core/text.js").readText>} result
+ * @param {ReturnType<typeof import("./core/index.js").analyzeProgramText>} [program]
  */
-export function formFor(result) {
-  if (result.kind === "refused") return { state: "refused", message: REFUSALS[result.reason], code: result.reason };
-  const { fields } = result;
+export function formFor(result, program = null) {
+  const read = program?.kind === "natal" ? program : null;
+  const turnedDown = program?.kind === "refused" && Object.hasOwn(PROGRAM_REFUSALS, program.reason) ? program.reason : null;
+  // A program's text has none of readText's labels, so readText finds nothing in it.
+  const noLabels = result.kind === "refused" && result.reason === "no-birth-data" && (read || turnedDown);
+  if (result.kind === "refused" && !noLabels) return { state: "refused", message: REFUSALS[result.reason], code: result.reason };
+  const fields = noLabels ? {} : result.fields;
+  const values = read ? programValues(read) : {};
+  const name = read ? PROGRAMS[read.site] : null;
+
+  const warnings = settingWarnings(fields);
+  if (turnedDown) {
+    warnings.unshift(
+      `This text is laid out like a desktop astrology program's, but ${PROGRAM_REFUSALS[turnedDown]}, so Chart Bridge didn't use that program's reading (${turnedDown}). Check each value against the text.`,
+    );
+  }
+  if (read?.warnings?.includes("offset-unchecked")) {
+    warnings.push(`Nothing in this ${name} text checks its UTC offset. Compare the offset with the text.`);
+  }
+  const notes = [FORM_NOTE];
+  if (read) notes.push(`Read as ${name}'s text: its birth data is laid out the way ${name} prints it.`);
+  if (read && WEST_PLUS.has(read.site)) {
+    notes.push(`${name} writes offsets west of Greenwich with a plus sign, so its +7:00 is UTC-07:00 here.`);
+  }
+  if (fields.place) notes.push(PLACE_NOTE);
+
   return {
     state: "form",
-    fields: ENTRY_FIELDS.map(({ name, label, example }) => ({
-      name,
-      label,
-      placeholder: example,
-      ...prefill(name, fields),
+    fields: ENTRY_FIELDS.map((field) => ({
+      name: field.name,
+      label: field.label,
+      placeholder: field.example,
+      ...merged(field.name, fields, values[field.name] ?? null, read),
     })),
-    rows: INFO_FIELDS.filter(([name]) => fields[name]).map(([name, label]) => [label, asWritten(fields[name])]),
-    warnings: settingWarnings(fields),
-    notes: fields.place ? [FORM_NOTE, PLACE_NOTE] : [FORM_NOTE],
-    statedOffsets: statedOffsets(fields.offset),
+    rows: INFO_FIELDS.filter(([field]) => fields[field]).map(([field, label]) => [label, asWritten(fields[field])]),
+    warnings,
+    notes,
+    statedOffsets: [...statedOffsets(fields.offset), ...(values.offset == null ? [] : [values.offset])],
   };
+}
+
+// A program reader's result as the form's five values: what readField gives
+// for each. A program that prints no offset gives none.
+function programValues({ local, lat, lng, utcSource, offsetMinutes }) {
+  return { date: local.slice(0, 10), time: local.slice(11, 19), lat, lng, offset: utcSource === "needs-offset" ? null : offsetMinutes };
+}
+
+// prefill, with a program reader's value for the field, or null.
+function merged(name, fields, value, program) {
+  const read = fields[name];
+  if (!program) return prefill(name, fields);
+  const programName = PROGRAMS[program.site];
+  if (value === null) {
+    // Only the offset can be missing, from a program that doesn't print it.
+    if (read) return prefill(name, fields);
+    return {
+      text: "",
+      source: `${programName} doesn't print the UTC offset. Enter the offset at the birthplace on that date, including daylight saving.`,
+    };
+  }
+  const fromProgram = { value, label: `${boxText(name, value)} (as ${programName}'s text)` };
+  if (!read) return { text: boxText(name, value), source: `Read as ${programName}'s text.` };
+  // readText found the line but couldn't read it, as with Jagannatha Hora's
+  // "8:00:00 (West of GMT)": the program's reader could.
+  if (read.problem === "unreadable") {
+    return { text: boxText(name, value), source: `Line ${read.line}: ${read.text}, read as ${programName}'s text.` };
+  }
+  if (!read.problem) {
+    if (meaning(name, read.value) === meaning(name, value)) return prefill(name, fields);
+    return {
+      text: "",
+      source: `Line ${read.line} reads differently from ${programName}'s layout. Pick the one the text means.`,
+      choices: distinct(name, [{ value: read.value, label: `${boxText(name, read.value)} (line ${read.line})` }, fromProgram]),
+    };
+  }
+  // An ambiguous date or lines that disagree: the program's reading joins
+  // theirs, and the box stays empty.
+  const own = prefill(name, fields);
+  const choices = distinct(name, [
+    ...own.choices.map((choice) => ({ value: readField(name, choice.text).value, label: choice.label })),
+    fromProgram,
+  ]);
+  return { ...own, choices };
+}
+
+// Choices with the same meaning shown once, the first label kept.
+function distinct(name, readings) {
+  const seen = new Set();
+  return readings
+    .filter(({ value }) => {
+      const key = meaning(name, value);
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .map(({ value, label }) => ({ label, text: boxText(name, value) }));
 }
 
 // The offsets the text itself gives, in minutes, so a shared chart can say
@@ -178,7 +300,9 @@ export function viewForEntry(entry, { warnings = [], timeZone } = {}) {
  */
 export function chartForEntry(entry, statedOffsets) {
   const { local, utc, lat, lng } = analyzeEntry(entry);
-  const utcBasis = statedOffsets.includes(entry.offsetMinutes) ? "declared" : "entered";
+  // To the second: an offset with seconds is a fraction of a minute.
+  const stated = statedOffsets.some((offset) => Math.round(offset * 60) === Math.round(entry.offsetMinutes * 60));
+  const utcBasis = stated ? "declared" : "entered";
   return toPortable({ local, utc, lat, lng }, { via: "paste", utcBasis });
 }
 
@@ -221,11 +345,13 @@ function dateText(date) {
   return `${Number(day)} ${MONTH_NAMES[Number(month) - 1]} ${year}`;
 }
 
-// -420 → "UTC-07:00"
+// -420 → "UTC-07:00". A local-mean-time offset runs to the second and shows
+// them, as the popup's Offset row does: "UTC-05:42:58".
 function offsetText(minutes) {
-  const size = Math.abs(minutes);
+  const size = Math.round(Math.abs(minutes) * 60);
   const pad = (n) => String(n).padStart(2, "0");
-  return `UTC${minutes < 0 ? "-" : "+"}${pad(Math.floor(size / 60))}:${pad(size % 60)}`;
+  const text = `UTC${minutes < 0 ? "-" : "+"}${pad(Math.floor(size / 3600))}:${pad(Math.floor(size / 60) % 60)}`;
+  return size % 60 === 0 ? text : `${text}:${pad(size % 60)}`;
 }
 
 // -122.3321 → 122°19'56"W. To the second, finer than the popup's place row,
