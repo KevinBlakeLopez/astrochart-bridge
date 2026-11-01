@@ -31,7 +31,7 @@ screenshot ──────┘                                          │
 
 ```json
 {
-  "format": "chart-bridge",
+  "format": "astrochart",
   "version": 1,
   "chart": {
     "calendar": "gregorian",
@@ -46,7 +46,7 @@ screenshot ──────┘                                          │
 
 | Field | Required | Meaning |
 |---|---|---|
-| `format` | yes | Always `"chart-bridge"`. |
+| `format` | yes | Always `"astrochart"`. |
 | `version` | yes | `1`. Any other integer is refused as `unsupported-version`. |
 | `chart.calendar` | yes | Always `"gregorian"` in version 1. |
 | `chart.local` | yes | The wall-clock time at the birthplace, `YYYY-MM-DDTHH:MM:SS`, no zone. |
@@ -82,8 +82,8 @@ A link is the receiving page's address, `#v1=`, and the serialized chart in base
 
 | Chart | Link, with the GitHub Pages address | QR code, error correction M |
 |---|---|---|
-| The Astro-Seek fixtures | 397–405 characters | version 15, 85 modules with the quiet zone |
-| Longest possible today (64-character zone label, from a screenshot) | 492–496 characters | version 17, 93 modules |
+| The Astro-Seek fixtures | 398–406 characters | version 15, 85 modules with the quiet zone |
+| Longest possible today (64-character zone label, from a screenshot) | 494–497 characters | version 17, 93 modules |
 
 A link over 2,048 characters, or a file or JSON text over 16,384 bytes or characters, is refused before it is decoded. A link that would need a QR code past version 20 gets no code, and the page points to Copy link and Download file.
 
@@ -126,7 +126,7 @@ Before the first deploy:
 
 1. In the repository's Settings → Pages, set **Source** to **GitHub Actions**.
 2. Merge the branches with this work into `main`. GitHub's `github-pages` environment deploys from the default branch only.
-3. After the workflow runs, check that `https://kevinblakelopez.github.io/chart-bridge/chart.html` answers 200 with no redirect, and run manual test 19 against it.
+3. After the workflow runs, check that `https://kevinblakelopez.github.io/astrochart-bridge/chart.html` answers 200 with no redirect, and run manual test 19 against it.
 
 To host the page elsewhere, serve the same files at any https address and set `RECEIVER_URL` in `extension/share-config.js` to that address's `chart.html`. Name the file, not the folder: a folder address would be redirected, and a redirect carries the fragment along. Links already shared keep pointing at the old address. Setting `RECEIVER_URL` to `null` hides Copy link, QR codes and Share link… in the extension.
 

@@ -3,4 +3,4 @@
 // to itself. It names the file, since a folder address would be redirected and
 // a redirect carries the fragment along. null hides Copy link in the extension.
 // Nothing is deployed here yet, so until it is, a copied link opens nothing.
-export const RECEIVER_URL = "https://kevinblakelopez.github.io/chart-bridge/chart.html";
+export const RECEIVER_URL = "https://kevinblakelopez.github.io/astrochart-bridge/chart.html";

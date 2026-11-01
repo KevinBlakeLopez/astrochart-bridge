@@ -157,7 +157,7 @@ Because the offset fixes the instant, a time skipped or repeated when the clocks
 
 ## Reporting text it can't read
 
-If text from an astrology program or website doesn't read, or reads wrong, open an issue at <https://github.com/KevinBlakeLopez/chart-bridge/issues> with:
+If text from an astrology program or website doesn't read, or reads wrong, open an issue at <https://github.com/KevinBlakeLopez/astrochart-bridge/issues> with:
 
 - the program or site, and its version,
 - how you copied the text (a menu command, selecting and copying, a saved file),
