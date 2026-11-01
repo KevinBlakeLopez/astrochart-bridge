@@ -87,13 +87,13 @@ https://horoscopes.astro-seek.com/calculate-asteroids/?narozeni_den=17&narozeni_
 
 Go to `https://example.com`.
 
-- [ ] The popup shows only "Open an Astro-Seek birth chart to use Chart Bridge.", and the Console has no errors.
+- [ ] The popup shows "Open an Astro-Seek birth chart to use Chart Bridge." and a **Read a screenshot instead** button, and the Console has no errors.
 
 ## Test 9: a Chrome page
 
 Go to `chrome://extensions`.
 
-- [ ] The popup shows the same sentence as test 8, and the Console has no errors.
+- [ ] The popup shows the same sentence and button as test 8, and the Console has no errors.
 
 ## Test 10: light and dark mode
 
@@ -120,6 +120,24 @@ https://horoscopes.astro-seek.com/calculate-traditional-chart/?narozeni_den=14&n
 ```
 
 - [ ] The popup shows the same contradiction message and two readings as test 4, and each reading opens the same `date=` as there.
+
+## Test 12: a screenshot
+
+The screenshot page reads the image on this computer with the Tesseract.js files in `extension/vendor/tesseract/`. These steps check what only the installed extension can show: its script policy allows the WebAssembly, and nothing is fetched from the web.
+
+1. Open the test 1 URL. Press **Cmd+Ctrl+Shift+4** and drag over everything from **Date of Birth** down into the chart. This copies the screenshot instead of saving a file.
+2. Open a tab on another website, click the Chart Bridge icon, then **Read a screenshot instead**. A Chart Bridge tab opens and the popup closes.
+3. In that tab, open DevTools (**Cmd+Option+I**) on the **Network** tab, then reload the page.
+4. Press **Cmd+V**.
+
+- [ ] Within a few seconds the page shows the same rows as test 1. The first grey note says to compare the rows with the screenshot.
+- [ ] The Console is empty, and every request in the Network tab is a `chrome-extension://` address.
+- [ ] **What Chart Bridge read** opens to show the text read from the screenshot.
+- [ ] **Open sky** opens a Stellarium Web tab whose address contains `date=2024-04-17T12%3A00%3A00Z&lat=40.716667&lng=-74`, and the screenshot tab stays open.
+- [ ] Save the same screenshot as a file (**Cmd+Shift+4**). Dropping it onto the page and choosing it with **Choose File** give the same result.
+- [ ] Open the file in Preview, use **Tools → Adjust Size** to halve its width, and save. Dropping it gives the same result.
+- [ ] A screenshot of only the chart wheel shows "Chart Bridge couldn't find the birth data in this screenshot…" and `Code: unreadable-screenshot`.
+- [ ] In light and dark mode the page is readable, like the popup in test 10.
 
 ## Not covered by hand yet
 
