@@ -24,13 +24,13 @@ It opens natal charts, plus horary charts from a screenshot. Transit, synastry, 
 - **Stellarium Web**, with **Open sky**.
 - **Stellarium Desktop**, at `127.0.0.1` on your computer. See [docs/stellarium-desktop.md](docs/stellarium-desktop.md) for turning on the Remote Control plugin.
 - **Astro-Seek**, with **Open chart in Astro-Seek**.
-- **astro.com's birth data form**, with **Enter in astro.com…**. AstroChart Bridge fills in the form but never submits it or signs you in.
+- **astro.com's birth data form**, with **Enter in astro.com…**. AstroChart Bridge fills in the form, with the chart's town and name when it has them, but never submits it or signs you in.
 - **An AAF file**, with **Save as AAF file**.
 - **Another device**, with **Share…**: a link, a QR code of the link, a `.astrochart.json` file or the system's share sheet. The receiving page, `chart.html`, opens the chart without the extension.
 
 ## Privacy
 
-There is no server, account or tracking. Charts are read in the browser, and nothing leaves your computer until you click a button that opens a site, which then gets only the chart's moment and place. A shared chart travels inside its link or file.
+There is no server, account or tracking. Charts are read in the browser, and nothing leaves your computer until you click a button that opens a site, which then gets only the chart's moment and place. astro.com's form also gets the chart's town and name, both shown on the screen before it opens, where the name can be changed or cleared. A shared chart travels inside its link or file, which never carries a name.
 
 The extension asks for `activeTab`, `scripting` and `storage`. It asks for two more only when a feature needs them, and the browser asks you first: `127.0.0.1`, to talk to Stellarium Desktop, and `www.astro.com`, to fill in astro.com's form as it opens.
 

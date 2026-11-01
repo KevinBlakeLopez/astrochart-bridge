@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { analyzePage } from "../extension/core/index.js";
-import { viewFor, viewForAstroCom, viewForSky } from "../extension/popup-model.js";
+import { NAME_LENGTH, nameWarning, viewFor, viewForAstroCom, viewForSky, withName } from "../extension/popup-model.js";
 import { viewForScreenshot } from "../extension/screenshot-model.js";
 
 const fixture = (name) =>
@@ -12,7 +12,7 @@ const LA = { timeZone: "America/Los_Angeles" };
 const NY_SKY = { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 };
 // What each astro.com button keeps for the tab it opens: the sky and, when the
 // chart names one, the town to fill in.
-const NY_HELD = { ...NY_SKY, town: null };
+const NY_HELD = { ...NY_SKY, town: null, name: null };
 
 // AstroChart Bridge can't tell from this tab whether the browser is signed in to
 // astro.com, so the sign-in advice is a note beside the form button, never a
@@ -21,6 +21,12 @@ const SIGN_IN_NOTE =
   "astro.com draws the chart only for a signed-in account. If it asks you to sign in or create a free account, do it in that tab: AstroChart Bridge keeps these values for it.";
 const ACCESS_NOTE =
   "The first time, your browser asks to let AstroChart Bridge read and change www.astro.com pages. It uses that only to fill in the form in the tab it opens. If you say no, it shows the values to fill in yourself.";
+const NAME_NOTE =
+  "The name goes in astro.com's first and last name fields, and you can change it here first. An event's name goes in Last name, as astro.com keeps it.";
+const EMPTY_BOXES = [
+  { part: "first", label: "First name", text: "" },
+  { part: "last", label: "Last name", text: "" },
+];
 const HOLD_NOTE =
   "AstroChart Bridge keeps them for 30 minutes, until it fills them in, or until you cancel or close the browser. Filling in puts them in astro.com's page, and its town search sends a town to astro.com at once; submitting sends the rest.";
 
@@ -35,9 +41,12 @@ test("the astro.com screen lists the form's values in Universal Time", () => {
     ],
     warnings: [],
     message: "AstroChart Bridge opens astro.com's form and fills it in as it opens. It doesn't submit the form.",
+    // Empty boxes for a name, which a chart with none can still be given.
+    nameBoxes: EMPTY_BOXES,
     notes: [
       "The date and time are Universal Time, so they can differ from the local birth date and time.",
       "astro.com asks for a country and town, not coordinates. Choose the town nearest this place and check the coordinates astro.com shows.",
+      NAME_NOTE,
       SIGN_IN_NOTE,
       HOLD_NOTE,
       ACCESS_NOTE,
@@ -72,20 +81,49 @@ test("seconds the form can't take are named, not silently dropped", () => {
 });
 
 test("a chart that names its town shows it, says it will be filled in, and keeps it for the tab", () => {
-  const view = viewForAstroCom(NY_SKY, "New York");
+  const view = viewForAstroCom(NY_SKY, { town: "New York" });
   assert.deepEqual(view.rows[4], ["Town", "New York"]);
   assert.equal(
     view.notes[1],
     "astro.com asks for a country and town, not coordinates. AstroChart Bridge fills in the town New York; choose the match nearest this place and check the coordinates astro.com shows.",
   );
-  assert.deepEqual(view.buttons.map((button) => button.holds), Array(3).fill({ ...NY_SKY, town: "New York" }));
+  assert.deepEqual(view.buttons.map((button) => button.holds), Array(3).fill({ ...NY_SKY, town: "New York", name: null }));
   assert.equal(viewForAstroCom(NY_SKY).rows.length, 4);
+});
+
+test("a chart's name fills the form's own two boxes, not the rows, and is kept for the tab", () => {
+  const name = { first: "Example", last: "Person" };
+  const view = viewForAstroCom(NY_SKY, { name });
+  assert.deepEqual(view.nameBoxes.map((box) => box.text), ["Example", "Person"]);
+  assert.equal(view.rows.length, 4);
+  assert.deepEqual(view.buttons.map((button) => button.holds), Array(3).fill({ ...NY_HELD, name }));
+  const event = viewForAstroCom(NY_SKY, { name: { first: "", last: "Moon landing" } });
+  assert.deepEqual(event.nameBoxes.map((box) => box.text), ["", "Moon landing"]);
+});
+
+test("what is typed in the boxes replaces the kept name, trimmed, and empty boxes keep no name", () => {
+  const holds = viewForAstroCom(NY_SKY, { name: { first: "Example", last: "Person" } }).buttons[0].holds;
+  assert.deepEqual(withName(holds, { first: " Sam ", last: "Person" }), { ...NY_HELD, name: { first: "Sam", last: "Person" } });
+  assert.deepEqual(withName(holds, { first: "", last: " " }), NY_HELD);
+  // A chart with no name can be given one.
+  assert.deepEqual(withName(NY_HELD, { first: "", last: "Moon landing" }).name, { first: "", last: "Moon landing" });
+});
+
+test(`a name part longer than astro.com's ${NAME_LENGTH} characters is warned about, not cut`, () => {
+  const long = "x".repeat(NAME_LENGTH + 1);
+  assert.equal(
+    nameWarning({ first: "", last: long }),
+    `astro.com's name fields take ${NAME_LENGTH} characters. Shorten Last name here, or astro.com may cut it short.`,
+  );
+  assert.equal(viewForAstroCom(NY_SKY, { name: { first: "", last: long } }).nameBoxes[1].text, long);
+  assert.equal(nameWarning({ first: long, last: long }).includes("First name and Last name"), true);
+  assert.equal(nameWarning({ first: "x".repeat(NAME_LENGTH), last: "" }), null);
 });
 
 test("an Astro-Seek chart's town, from its address, reaches the astro.com screen", () => {
   const view = viewFor(analyze("ny-2024-04-17"), { ...LA, town: "New York" });
-  assert.deepEqual(view.next, { label: "Enter in astro.com…", view: viewForAstroCom(NY_SKY, "New York") });
-  assert.deepEqual(viewForSky(NY_SKY, { ...LA, town: "New York" }).next.view, viewForAstroCom(NY_SKY, "New York"));
+  assert.deepEqual(view.next, { label: "Enter in astro.com…", view: viewForAstroCom(NY_SKY, { town: "New York" }) });
+  assert.deepEqual(viewForSky(NY_SKY, { ...LA, town: "New York" }).next.view, viewForAstroCom(NY_SKY, { town: "New York" }));
 });
 
 test("an Astro-Seek chart with a decided UTC leads to the astro.com screen", () => {

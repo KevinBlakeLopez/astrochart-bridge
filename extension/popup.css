@@ -139,6 +139,18 @@ input[type="text"] {
   border-radius: 4px;
 }
 
+/* The astro.com screen's First name and Last name boxes, one per line. */
+.name-field {
+  display: grid;
+  grid-template-columns: 6.5em minmax(0, 16em);
+  align-items: center;
+  margin: 0 0 6px;
+}
+
+.name-field input[type="text"] {
+  width: auto;
+}
+
 .preview {
   min-height: 1.4em;
   margin-top: 6px;

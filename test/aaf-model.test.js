@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { chartFromRecord, parseAaf } from "../extension/core/aaf.js";
 import { analyzePage } from "../extension/core/index.js";
 import { decodeAafFile, viewForAafChart, viewForAafText, withAafExport } from "../extension/aaf-model.js";
-import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, viewFor, viewForSky } from "../extension/popup-model.js";
+import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, viewFor, viewForAstroCom, viewForSky } from "../extension/popup-model.js";
 
 const LA = { timeZone: "America/Los_Angeles" };
 const astroSeek = (name) =>
@@ -179,4 +179,22 @@ test("a file that isn't UTF-8 is read as Windows-1252, with a warning", () => {
     text: "#A93:Müller\n",
     warning: "This file isn't UTF-8, so AstroChart Bridge read it as Windows-1252. Check that accented letters in names look right.",
   });
+});
+
+test("a chart can be entered in astro.com with its name split as the file splits it", () => {
+  const { view } = viewForAafText(NY_TEXT, LA).items[0];
+  const name = { first: "New York", last: "Test" };
+  assert.deepEqual(view.next, { label: "Enter in astro.com…", view: viewForAstroCom(view.sky, { name }) });
+  // Astrolog leaves the last name unknown and puts the whole name first.
+  const astrologView = viewForAafText(astrolog, LA).items[0].view;
+  assert.deepEqual(astrologView.next.view.buttons[0].holds.name, { first: "New York Test", last: "" });
+});
+
+test("a record with neither name part enters astro.com with no name", () => {
+  const { view } = viewForAafText(NY_TEXT.replace("Test,New York,", "*,*,"), LA).items[0];
+  assert.equal(view.next.view.buttons[0].holds.name, null);
+});
+
+test("a record that can't open has no astro.com step", () => {
+  assert.equal("next" in viewForAafText(NY_TEXT.replace("8:00", "*"), LA).items[0].view, false);
 });

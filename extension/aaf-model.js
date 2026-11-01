@@ -2,7 +2,7 @@
 // written in core/aaf.js; this file turns its results into views that
 // view.js draws, reusing the popup's own screens for a chart.
 import { chartFromRecord, exportRecord, parseAaf, writeAaf } from "./core/aaf.js";
-import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, viewFor } from "./popup-model.js";
+import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, astroComStep, viewFor } from "./popup-model.js";
 
 // Why chartFromRecord refused a record. Each keeps its code on screen, like
 // the screenshot page's refusals, so a bug report says which check failed.
@@ -71,6 +71,8 @@ export function viewForAafText(text, options) {
 /**
  * What to show for one record: the popup's ready screen for an astro.com
  * chart, with the name and birthplace the file gives, or why it can't open.
+ * Its step to enter the chart in astro.com takes the name as the file splits
+ * it, first and last.
  *
  * @param {ReturnType<typeof chartFromRecord>} result
  * @param {{ timeZone?: string }} [options]  passed on to viewFor
@@ -92,9 +94,15 @@ export function viewForAafChart(result, options) {
       warnings: warnings.map((code) => WARNINGS[code]?.(chart) ?? code),
       notes: [...view.notes, ...ASTRO_SEEK_NOTES],
       buttons: [...ASTRO_SEEK_BUTTONS],
+      ...(view.sky ? { next: astroComStep(view.sky, { name: aafName(chart.aaf) }) } : {}),
     },
     result,
   );
+}
+
+// A record's name for astro.com's form, or null when the file gives neither part.
+function aafName({ firstName, lastName }) {
+  return firstName || lastName ? { first: firstName ?? "", last: lastName ?? "" } : null;
 }
 
 const UT_NOTES = {

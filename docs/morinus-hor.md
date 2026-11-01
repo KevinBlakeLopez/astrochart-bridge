@@ -10,7 +10,7 @@ The file is read in `extension/core/pickle.js` and `extension/core/morinus-hor.j
 2. Choose or drop a `.hor` file anywhere on the page. The file is read in the browser and isn't sent anywhere. A file is taken for a Morinus chart when its name ends in `.hor`, or when its first byte is pickle's `PROTO` opcode, which every Morinus on Python 3 writes.
 3. The chart's screen is the popup's, as for an AAF chart. It shows:
    - name, local time, offset, the time as entered in Morinus, UTC, birthplace and coordinates;
-   - **Open sky** (Stellarium Web), **Open chart in Astro-Seek** and **Save as AAF file**.
+   - **Open sky** (Stellarium Web), **Open chart in Astro-Seek**, **Save as AAF file** and **Enter in astro.com…**. Morinus keeps the name in one field, so the astro.com screen puts all of it in the Last name box, where you can change it before opening the form.
 
 A chart that can't be opened is still listed by its name, date and place, and choosing it says why. A file that isn't a readable chart says which field it stopped at.
 

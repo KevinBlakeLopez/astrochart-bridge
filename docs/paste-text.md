@@ -1,8 +1,8 @@
 # Pasting chart text
 
-AstroChart Bridge can read birth data from text you copy out of an astrology program, a chart report, a PDF or your own notes. You check the values on a form, correct any that are wrong, and then open the sky in Stellarium Web or the chart in Astro-Seek.
+AstroChart Bridge can read birth data from text you copy out of an astrology program, a chart report, a PDF or your own notes. You check the values on a form, correct any that are wrong, and then open the sky in Stellarium Web or the chart in Astro-Seek, or enter it in astro.com's form.
 
-The text is read on your computer. Nothing is sent anywhere until you click **Open sky** or **Open chart in Astro-Seek**, and then only the date, time and coordinates go to that site. **Share…** sends nothing either: it opens a chart page in this browser, and the chart leaves it only if you copy, show or download it there. The text isn't saved: closing the tab forgets it.
+The text is read on your computer. Nothing is sent anywhere until you click **Open sky** or **Open chart in Astro-Seek**, and then only the date, time and coordinates go to that site. astro.com's form gets the name as well (see [Required and optional fields](#required-and-optional-fields)), and astro.com gets it all when you submit that form. **Share…** sends nothing either: it opens a chart page in this browser, and the chart leaves it only if you copy, show or download it there. The text isn't saved: closing the tab forgets it.
 
 ## How to
 
@@ -15,7 +15,7 @@ The text is read on your computer. Nothing is sent anywhere until you click **Op
 3. Check each of the five boxes. Under each box, a grey line shows the line of your text it came from, and the line just below the box shows what AstroChart Bridge made of it, such as `122°19'56"W` or `22:30 at the birthplace`.
 4. Fill in any empty box. You can type a value in any form the text could have used.
 5. Click **Continue**. It stays faded until all five boxes read.
-6. Check the Local time, Offset, UTC and Place rows, then click **Open sky** or **Open chart in Astro-Seek**, or **Share…** (see [Sharing](#sharing)). **Back to the form** returns to the form as you left it.
+6. Check the Local time, Offset, UTC and Place rows, then click **Open sky** or **Open chart in Astro-Seek**, **Share…** (see [Sharing](#sharing)) or **Enter in astro.com…**. **Back to the form** returns to the form as you left it.
 
 ## Sharing
 
@@ -125,7 +125,9 @@ The sky and the chart need all five of:
 - the longitude,
 - the UTC offset in force at the birthplace at that time, daylight saving included.
 
-Everything else is shown on the form for you to compare and is never sent: the name, the place, the time zone as written, the house system, the zodiac and the ayanamsa.
+Everything else is shown on the form for you to compare and is never sent: the place, the time zone as written, the house system, the zodiac and the ayanamsa.
+
+The name goes only to astro.com's form. **Enter in astro.com…** puts all of it in the Last name box, as astro.com keeps an event's name, and you can move part of it to First name, change it or clear it before opening the form. Astro-Seek, Stellarium Web and shared links and files never get it.
 
 ## Time zones and offsets
 

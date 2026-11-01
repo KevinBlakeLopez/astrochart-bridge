@@ -11,7 +11,7 @@ The parser and writer are in `extension/core/aaf.js`; the screens are in `extens
 1. Open the popup on any page that isn't a chart, and click **Open an AAF or Morinus file**. A new tab opens the import page (`import.html`), which also opens Morinus files ([docs/morinus-hor.md](morinus-hor.md)).
 2. Choose or drop a `.aaf` file anywhere on the page, or paste the text and click **Read pasted text**. The file is read in the browser and isn't sent anywhere.
 3. The page lists every chart in the file by name, local date and time, and birthplace. A file with one chart shows it at once.
-4. Choose a chart. Its screen is the popup's: name, local time, offset, UTC, birthplace and coordinates, with **Open sky** (Stellarium Web), **Open chart in Astro-Seek** and **Save as AAF file**.
+4. Choose a chart. Its screen is the popup's: name, local time, offset, UTC, birthplace and coordinates, with **Open sky** (Stellarium Web), **Open chart in Astro-Seek**, **Save as AAF file** and **Enter in astro.com…**. The astro.com screen puts the file's first and last name in astro.com's First name and Last name boxes, where you can change them before opening the form.
 
 A chart that can't be opened is still listed, and choosing it says why (see [What isn't opened](#what-isnt-opened)). A record that can't be read is listed as "Line N: unreadable record", and choosing it names the line and the value.
 

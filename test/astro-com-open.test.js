@@ -12,7 +12,7 @@ import {
 } from "../extension/popup-model.js";
 
 const FORM_URL = "https://www.astro.com/cgi/ade.cgi";
-const VALUES = { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74, town: "New York" };
+const VALUES = { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74, town: "New York", name: null };
 
 // A stand-in for chrome.storage.session, as in test/astro-com-form.test.js.
 function fakeStorage() {
@@ -187,7 +187,7 @@ test("another tab loading doesn't count", async () => {
 // --- What the popup shows around it ----------------------------------------
 
 test("the form button fills the form in as it opens; signing in and creating an account only keep the values", () => {
-  const view = viewForAstroCom(VALUES, VALUES.town);
+  const view = viewForAstroCom(VALUES, { town: VALUES.town });
   assert.equal(view.message, "AstroChart Bridge opens astro.com's form and fills it in as it opens. It doesn't submit the form.");
   assert.deepEqual(view.buttons.map(({ label, fills }) => [label, fills === true]), [
     ["Open astro.com's form", true],
@@ -210,7 +210,7 @@ test("declining the access gives the two-click way, with the toolbar icon named 
   assert.deepEqual(view.notes, [
     "After the astro.com tab opens, click the AstroChart Bridge icon in the toolbar again to fill in the form.",
   ]);
-  assert.deepEqual(view.rows, viewForAstroCom(VALUES, VALUES.town).rows);
+  assert.deepEqual(view.rows, viewForAstroCom(VALUES, { town: VALUES.town }).rows);
   // This button only keeps the values for the tab, so it never asks again.
   assert.deepEqual(view.buttons, [{ label: "Open astro.com's form", url: FORM_URL, holds: VALUES }]);
 });

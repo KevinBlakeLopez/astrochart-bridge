@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readText } from "../extension/core/text.js";
-import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, SHARE_BUTTON, viewFor } from "../extension/popup-model.js";
+import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, SHARE_BUTTON, viewFor, viewForAstroCom } from "../extension/popup-model.js";
 import { analyzeEntry } from "../extension/core/index.js";
 import { serialize, skyFor } from "../extension/core/portable.js";
 import { linkFor, readLink, viewForImport } from "../extension/chart-model.js";
@@ -156,6 +156,25 @@ test("a confirmed entry opens the sky or the Astro-Seek chart, from the popup's 
   assert.match(view.notes[0], /Nothing checks that this offset/);
   assert.deepEqual(view.notes.slice(1), [...popup.notes, ...ASTRO_SEEK_NOTES]);
   assert.deepEqual(view.buttons, [...ASTRO_SEEK_BUTTONS, SHARE_BUTTON]);
+});
+
+test("a confirmed entry can be entered in astro.com, with the text's name as its last name", () => {
+  const entry = { date: "1985-06-15", time: "10:30:00", lat: 47.6062, lng: -122.3321, offsetMinutes: -420 };
+  const { name } = formOf(LABELLED);
+  assert.deepEqual(name, { first: "", last: "Example Person" });
+  const view = viewForEntry(entry, { name, ...LA });
+  assert.deepEqual(view.next, { label: "Enter in astro.com…", view: viewForAstroCom(view.sky, { name }) });
+  assert.equal(view.next.view.buttons[0].holds.name, name);
+});
+
+test("text with no name, or a blank one, enters astro.com with no name", () => {
+  assert.equal(formOf("Date of Birth: 15 June 1985").name, null);
+  const entry = { date: "1985-06-15", time: "10:30:00", lat: 47.6062, lng: -122.3321, offsetMinutes: -420 };
+  assert.equal(viewForEntry(entry, LA).next.view.buttons[0].holds.name, null);
+});
+
+test("a name's runs of spaces become one, as a person would type it", () => {
+  assert.deepEqual(formOf("Name: Example   Person\nDate of Birth: 15 June 1985").name, { first: "", last: "Example Person" });
 });
 
 // --- Share… ---

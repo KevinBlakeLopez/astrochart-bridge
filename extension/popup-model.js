@@ -115,7 +115,7 @@ export function viewFor(result, { timeZone, town = null } = {}) {
   if (result.site === "astro-com") {
     return { ...ready, notes: [...ready.notes, ...ASTRO_SEEK_NOTES], buttons: chartButtons(ASTRO_SEEK_BUTTONS) };
   }
-  return result.site === "astro-seek" ? { ...ready, next: astroComStep(ready.sky, town) } : ready;
+  return result.site === "astro-seek" ? { ...ready, next: astroComStep(ready.sky, { town }) } : ready;
 }
 
 /**
@@ -228,7 +228,7 @@ export function viewForSky(sky, { timeZone, town = null } = {}) {
     notes: [...ASTRO_SEEK_NOTES],
     button: "Open chart in Astro-Seek",
     url: astroSeekUrl(sky),
-    next: astroComStep(sky, town),
+    next: astroComStep(sky, { town }),
   };
 }
 
@@ -315,26 +315,78 @@ const MONTH_NAMES = [
   "July", "August", "September", "October", "November", "December",
 ];
 
+// astro.com's first and last name fields, sfnm and snam, each have a maxlength
+// of 40, as seen signed out on 2026-11-01.
+export const NAME_LENGTH = 40;
+
+const NAME_NOTE =
+  "The name goes in astro.com's first and last name fields, and you can change it here first. An event's name goes in Last name, as astro.com keeps it.";
+
+/**
+ * The name for astro.com's form from a chart that keeps it as one string, as
+ * pasted text and Morinus do: all of it is the last name, as astro.com keeps
+ * an event's. Runs of spaces become one, as a person would type it.
+ *
+ * @param {string | null | undefined} text
+ * @returns {{ first: "", last: string } | null}
+ */
+export function nameFromText(text) {
+  const last = text?.replace(/\s+/g, " ").trim() ?? "";
+  return last === "" ? null : { first: "", last };
+}
+
+/**
+ * The name the boxes on the astro.com screen give, in place of the one the
+ * buttons kept: each part trimmed, and no name when both are empty.
+ *
+ * @param {object} holds  a button's holds
+ * @param {{ first: string, last: string }} typed  the boxes' text
+ */
+export function withName(holds, { first, last }) {
+  const name = { first: first.trim(), last: last.trim() };
+  return { ...holds, name: name.first === "" && name.last === "" ? null : name };
+}
+
+/**
+ * Why the boxes' text won't fit astro.com's name fields, or null, for the line
+ * under the boxes. A box can't take more than NAME_LENGTH characters typed,
+ * but a name read from a chart can arrive longer.
+ *
+ * @param {{ first: string, last: string }} typed
+ */
+export function nameWarning({ first, last }) {
+  const long = [["First name", first], ["Last name", last]].filter(([, text]) => text.trim().length > NAME_LENGTH);
+  if (long.length === 0) return null;
+  return `astro.com's name fields take ${NAME_LENGTH} characters. Shorten ${long.map(([label]) => label).join(" and ")} here, or astro.com may cut it short.`;
+}
+
 // The secondary button on a screen whose chart can be entered in astro.com.
-export const astroComStep = (sky, town = null) => ({ label: "Enter in astro.com…", view: viewForAstroCom(sky, town) });
+export const astroComStep = (sky, chart = {}) => ({ label: "Enter in astro.com…", view: viewForAstroCom(sky, chart) });
 
 /**
  * The values to enter in astro.com's birth data form for a decided UTC and
  * place, in the form's own terms, and links to the form and to signing in.
  *
  * @param {{ utc: string, lat: number, lng: number }} sky
- * @param {string | null} [town]  the town the chart names, filled in with the rest
+ * @param {{ town?: string | null, name?: { first: string, last: string } | null }} [chart]  the town and
+ *   name the chart gives, filled in with the rest
  */
-export function viewForAstroCom({ utc, lat, lng }, town = null) {
+export function viewForAstroCom({ utc, lat, lng }, { town = null, name = null } = {}) {
   const sky = { utc, lat, lng };
-  const held = { ...sky, town };
+  const held = { ...sky, town, name };
   return {
     state: "to-astro-com",
-    ...astroComValues(held),
+    // The name is in its boxes, not the rows, so it shows once.
+    ...astroComValues({ ...held, name: null }),
     message: "AstroChart Bridge opens astro.com's form and fills it in as it opens. It doesn't submit the form.",
+    nameBoxes: [
+      { part: "first", label: "First name", text: name?.first ?? "" },
+      { part: "last", label: "Last name", text: name?.last ?? "" },
+    ],
     notes: [
       "The date and time are Universal Time, so they can differ from the local birth date and time.",
       townNote(town),
+      NAME_NOTE,
       ...ASTRO_COM_NOTES,
     ],
     sky,
@@ -371,7 +423,8 @@ const UNFILLABLE = {
  * start a loop. A browser not seen signed out may be signed in, so it is never
  * held up by a sign-in prompt.
  *
- * @param {{ utc: string, lat: number, lng: number, town: string | null }} sky  from heldForTab
+ * @param {{ utc: string, lat: number, lng: number, town: string | null, name: { first: string, last: string } | null }} sky
+ *   from heldForTab
  * @param {{ kind: "form" } & ReturnType<typeof import("./core/astrocom.js").readFormPage> | { kind: "other" }} page
  */
 export function viewForAstroComTab(sky, page) {
@@ -419,9 +472,10 @@ export function viewForAstroComTab(sky, page) {
     ...values,
     message: "Fill in astro.com's form with these values?",
     notes: [
-      sky.town === null
-        ? "AstroChart Bridge fills in the birthday, hour, minute and the 00:00 GMT / UT time zone. Choose the town nearest this place yourself, and check the coordinates astro.com shows."
-        : `AstroChart Bridge fills in the birthday, hour, minute, the 00:00 GMT / UT time zone and the town ${sky.town}. Choose astro.com's match nearest this place, and check the coordinates it shows.`,
+      `AstroChart Bridge fills in ${filledText(sky)}. ` +
+        (sky.town === null
+          ? "Choose the town nearest this place yourself, and check the coordinates astro.com shows."
+          : "Choose astro.com's match nearest this place, and check the coordinates it shows."),
       "AstroChart Bridge doesn't submit the form, and forgets these values once it has filled them in.",
     ],
     sky,
@@ -429,8 +483,17 @@ export function viewForAstroComTab(sky, page) {
   };
 }
 
+// What filling in sets: "the birthday, hour, minute, the 00:00 GMT / UT time zone and the town Sydney".
+function filledText({ town = null, name = null }) {
+  const parts = ["the birthday", "hour", "minute", "the 00:00 GMT / UT time zone"];
+  if (name !== null) parts.push("the name");
+  if (town !== null) parts.push(`the town ${town}`);
+  return `${parts.slice(0, -1).join(", ")} and ${parts.at(-1)}`;
+}
+
 // The rows and warnings every astro.com screen shows: the form's values in its own terms.
-function astroComValues({ utc, lat, lng, town = null }) {
+// An empty name part, such as the first name of an event, has no row.
+function astroComValues({ utc, lat, lng, town = null, name = null }) {
   const [year, month, day] = utc.slice(0, 10).split("-");
   const seconds = Number(utc.slice(17, 19));
   return {
@@ -440,6 +503,8 @@ function astroComValues({ utc, lat, lng, town = null }) {
       ["Time zone", "00:00 GMT / UT, under show / hide extended settings"],
       ["Place", placeText(lat, lng)],
       ...(town === null ? [] : [["Town", town]]),
+      ...(name === null || name.first === "" ? [] : [["First name", name.first]]),
+      ...(name === null || name.last === "" ? [] : [["Last name", name.last]]),
     ],
     warnings: seconds === 0 ? [] : [`astro.com takes whole minutes, so the ${seconds} seconds are left out.`],
   };
