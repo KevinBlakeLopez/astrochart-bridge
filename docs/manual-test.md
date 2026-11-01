@@ -168,6 +168,27 @@ The screenshot page reads the image on this computer with the Tesseract.js files
 - [ ] A screenshot of only the chart wheel shows "Chart Bridge couldn't find the birth data in this screenshot…" and `Code: unreadable-screenshot`.
 - [ ] In light and dark mode the page is readable, like the popup in test 10.
 
+## Test 14: entering a chart in astro.com
+
+Chart Bridge doesn't fill in astro.com's form or check whether you're signed in: it shows the values to type and links to astro.com's own pages. Run part A in a browser profile that isn't signed in to astro.com, and part B, if you have an astro.com account, in one that is. Never type a real birth date into astro.com for this test.
+
+### A: signed out
+
+Open the test 1 URL and open the popup.
+
+- [ ] Below **Open sky** is **Enter in astro.com…**. On an astro.com account chart, if you have one, it isn't there.
+- [ ] **Enter in astro.com…** replaces the popup's screen with Birthday `17 April 2024`, Hour, min `12:00`, Time zone `00:00 GMT / UT, under show / hide extended settings` and Place `40°43'N, 74°0'W`, three grey notes (the last about signing in), the buttons **Open astro.com's form**, **Sign in** and **Create account**, and **Cancel**.
+- [ ] **Cancel** brings back the test 1 screen.
+- [ ] **Open astro.com's form** opens `https://www.astro.com/cgi/ade.cgi`, "Step 1: Birth Data Entry", and closes the popup.
+- [ ] **Sign in** opens astro.com's "My Astro – Login" page, and **Create account** its "Edit Registration Data" page. Don't submit either.
+- [ ] Back on the test 1 tab, the popup and **Enter in astro.com…** show the same values again.
+- [ ] Open the test 12 Stellarium link: its popup also has **Enter in astro.com…**, with the same values.
+
+### B: signed in (needs an astro.com account)
+
+- [ ] **Open astro.com's form** opens the form without asking you to sign in first.
+- [ ] Enter the values from part A with an invented name and a New York town, set the time zone under **show / hide extended settings**, and continue. Note whether astro.com draws the chart, whether it adds an entry to your saved charts, and whether its header shows `Univ.Time: 12:00` and `74w00, 40n43`. Delete the entry afterwards if it was saved.
+
 ## Not covered by hand yet
 
 - **Enter offset**: no real Astro-Seek page has been seen without a Universal Time line, so this screen can't be reached in a browser yet. `test/popup-model.test.js` covers what it shows and its preview.

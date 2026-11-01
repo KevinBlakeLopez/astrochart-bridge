@@ -15,8 +15,9 @@ const OPEN_SKY = [{ label: "Open sky", opens: "stellarium" }];
  * @param {HTMLElement} container  its children are replaced
  * @param {ReturnType<typeof import("./popup-model.js").viewFor>} view
  * @param {(url: string) => void | Promise<void>} openLink  called with the link the button opens
+ * @param {object | null} [back]  the view a Cancel button goes back to, for a view reached through next
  */
-export function render(container, view, openLink) {
+export function render(container, view, openLink, back = null) {
   const parts = [];
   if (view.rows) parts.push(rowList(view.rows));
   for (const warning of view.warnings ?? []) parts.push(paragraph(warning, "warning"));
@@ -30,7 +31,8 @@ export function render(container, view, openLink) {
     let sky = view.sky ?? null;
     const buttons = view.url
       ? [linkButton(view.button, () => openLink(view.url))]
-      : (view.buttons ?? OPEN_SKY).map(({ label, opens }) => linkButton(label, () => openLink(LINKS[opens](sky))));
+      : (view.buttons ?? OPEN_SKY).map(({ label, opens, url }) =>
+          linkButton(label, () => openLink(url ?? LINKS[opens](sky))));
     const setSky = (next) => {
       sky = next;
       for (const button of buttons) button.disabled = !view.url && sky === null;
@@ -41,9 +43,22 @@ export function render(container, view, openLink) {
     for (const note of view.notes) parts.push(paragraph(note, "note"));
     setSky(sky);
     parts.push(...buttons);
+
+    // A further screen, such as the values to enter in astro.com, is drawn in
+    // place of this one, and Cancel draws this one again. Nothing is stored.
+    if (view.next) {
+      parts.push(secondaryButton(view.next.label, () => render(container, view.next.view, openLink, view)));
+    }
+    if (back) parts.push(secondaryButton("Cancel", () => render(container, back, openLink)));
   }
 
   container.replaceChildren(...parts);
+}
+
+function secondaryButton(label, onClick) {
+  const button = linkButton(label, onClick);
+  button.className = "secondary";
+  return button;
 }
 
 export function paragraph(text, className) {

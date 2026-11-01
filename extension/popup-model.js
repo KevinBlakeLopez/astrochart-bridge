@@ -101,10 +101,12 @@ export function viewFor(result, { timeZone } = {}) {
     notes: [clockNote(result.utc, local, timeZone), PRIVACY_NOTE],
     sky: sky(result.utc),
   };
-  // An astro.com chart can also open in Astro-Seek. An Astro-Seek page already shows its chart there.
-  return result.site === "astro-com"
-    ? { ...ready, notes: [...ready.notes, ...ASTRO_SEEK_NOTES], buttons: [...ASTRO_SEEK_BUTTONS] }
-    : ready;
+  // An astro.com chart can also open in Astro-Seek. An Astro-Seek page already
+  // shows its chart there, and leads to the values to enter in astro.com instead.
+  if (result.site === "astro-com") {
+    return { ...ready, notes: [...ready.notes, ...ASTRO_SEEK_NOTES], buttons: [...ASTRO_SEEK_BUTTONS] };
+  }
+  return result.site === "astro-seek" ? { ...ready, next: astroComStep(ready.sky) } : ready;
 }
 
 /**
@@ -157,6 +159,60 @@ export function viewForSky(sky, { timeZone } = {}) {
     notes: [...ASTRO_SEEK_NOTES],
     button: "Open chart in Astro-Seek",
     url: astroSeekUrl(sky),
+    next: astroComStep(sky),
+  };
+}
+
+// astro.com's pages, as seen signed out on 2026-11-01. Its birth data form
+// (ade.cgi) is posted, asks for a country and town for its atlas to look up,
+// has no coordinate fields, and offers "00:00 GMT / UT" among the time zones
+// in its extended settings. Chart Bridge has no permission on astro.com pages,
+// so it neither fills the form in nor checks whether the browser is signed in.
+const ASTRO_COM_BUTTONS = [
+  { label: "Open astro.com's form", url: "https://www.astro.com/cgi/ade.cgi" },
+  { label: "Sign in", url: "https://www.astro.com/cgi/awd.cgi?lang=e" },
+  { label: "Create account", url: "https://www.astro.com/cgi/scus.cgi?act=new&" },
+];
+
+// The sign-in advice is a note, not a step before the form: a signed-in browser
+// goes straight on. Nothing is stored, so the values come back by opening
+// Chart Bridge on the chart again.
+const ASTRO_COM_NOTES = [
+  "The date and time are Universal Time, so they can differ from the local birth date and time.",
+  "astro.com asks for a country and town, not coordinates. Choose the town nearest this place and check the coordinates astro.com shows.",
+  "astro.com draws the chart only for a signed-in account. If it asks, sign in or create a free account, then come back to this chart for these values.",
+];
+
+const MONTH_NAMES = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
+
+// The secondary button on a screen whose chart can be entered in astro.com.
+const astroComStep = (sky) => ({ label: "Enter in astro.com…", view: viewForAstroCom(sky) });
+
+/**
+ * The values to enter in astro.com's birth data form for a decided UTC and
+ * place, in the form's own terms, and links to the form and to signing in.
+ *
+ * @param {{ utc: string, lat: number, lng: number }} sky
+ */
+export function viewForAstroCom({ utc, lat, lng }) {
+  const [year, month, day] = utc.slice(0, 10).split("-");
+  const seconds = Number(utc.slice(17, 19));
+  return {
+    state: "to-astro-com",
+    rows: [
+      ["Birthday", `${Number(day)} ${MONTH_NAMES[Number(month) - 1]} ${year}`],
+      ["Hour, min", utc.slice(11, 16)],
+      ["Time zone", "00:00 GMT / UT, under show / hide extended settings"],
+      ["Place", placeText(lat, lng)],
+    ],
+    warnings: seconds === 0 ? [] : [`astro.com takes whole minutes, so the ${seconds} seconds are left out.`],
+    message: "Enter these in astro.com's birth data form. Chart Bridge doesn't fill it in or send it.",
+    notes: [...ASTRO_COM_NOTES],
+    sky: { utc, lat, lng },
+    buttons: ASTRO_COM_BUTTONS.map((button) => ({ ...button })),
   };
 }
 

@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { analyzePage } from "../extension/core/index.js";
-import { ASTRO_SEEK_NOTES, viewFor, offsetPreview } from "../extension/popup-model.js";
+import { ASTRO_SEEK_NOTES, viewFor, viewForAstroCom, offsetPreview } from "../extension/popup-model.js";
 
 const fixture = (name) =>
   JSON.parse(readFileSync(new URL(`../fixtures/astroseek/${name}.json`, import.meta.url), "utf8"));
@@ -36,6 +36,8 @@ test("ready: New York, seen from Los Angeles", () => {
       PRIVACY_NOTE,
     ],
     sky: { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 },
+    // test/astro-com-handoff.test.js covers the astro.com screen itself.
+    next: { label: "Enter in astro.com…", view: viewForAstroCom({ utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 }) },
   });
 });
 
