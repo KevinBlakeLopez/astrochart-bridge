@@ -24,6 +24,20 @@ export function stellariumUrl({ utc, lat, lng }) {
   return url.href;
 }
 
+/**
+ * Whether a tab is Stellarium Web, the page whose sky can be sent to Astro-Seek.
+ *
+ * @param {string} url
+ * @returns {boolean}
+ */
+export function isStellariumWeb(url) {
+  try {
+    return new URL(url).hostname === new URL(BASE).hostname;
+  } catch {
+    return false;
+  }
+}
+
 // Modified Julian Date of 1970-01-01, the start of JavaScript's clock.
 const MJD_UNIX_EPOCH = 40587;
 const MINUTE_MS = 60_000;

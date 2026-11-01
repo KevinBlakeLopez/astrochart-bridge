@@ -121,7 +121,20 @@ https://horoscopes.astro-seek.com/calculate-traditional-chart/?narozeni_den=14&n
 
 - [ ] The popup shows the same contradiction message and two readings as test 4, and each reading opens the same `date=` as there.
 
-## Test 12: a screenshot
+## Test 12: from Stellarium Web back to Astro-Seek
+
+Open this Stellarium Web link (New York, 17 April 2024, 12:00 UTC) and pause its clock with the pause button in the time panel:
+
+```
+https://stellarium-web.org/?date=2024-04-17T12%3A00%3A00Z&lat=40.716667&lng=-74
+```
+
+- [ ] The popup shows Stellarium time matching Stellarium's own clock (05:00 on 17 Apr 2024 on a Mac set to Pacific time), UTC `2024-04-17 12:00` and Place `40°43'N, 74°0'W`, two grey notes, and an **Open chart in Astro-Seek** button.
+- [ ] **Open chart in Astro-Seek** opens an Astro-Seek birth chart whose header shows `17 Apr 2024 - 12:00  (Manually: GMT+00:00)`, Universal Time `17 Apr 2024 - 12:00` and `40°43'N, 74°0'W`.
+- [ ] On that Astro-Seek chart, the popup shows UTC `2024-04-17 12:00` and the same place, so the round trip comes back to the same sky.
+- [ ] Back on the Stellarium tab, change the time (for example the hour arrow in the time panel) and reopen the popup. It shows the new time, not the time in the address bar.
+
+## Test 13: a screenshot
 
 The screenshot page reads the image on this computer with the Tesseract.js files in `extension/vendor/tesseract/`. These steps check what only the installed extension can show: its script policy allows the WebAssembly, and nothing is fetched from the web.
 
@@ -145,4 +158,4 @@ The screenshot page reads the image on this computer with the Tesseract.js files
 
 ## If a check fails
 
-Note the test number, take a screenshot of the popup, copy anything in its Console, and for tests 1, 4, 7 and 11 copy the Stellarium tab's full address.
+Note the test number, take a screenshot of the popup, copy anything in its Console, for tests 1, 4, 7 and 11 copy the Stellarium tab's full address, and for test 12 the Astro-Seek tab's full address.

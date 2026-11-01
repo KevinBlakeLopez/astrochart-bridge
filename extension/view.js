@@ -1,5 +1,5 @@
 // Draws a view from popup-model.js. Shared by the toolbar popup and the
-// screenshot page, which each pass their own way of opening the sky. Text read
+// screenshot page, which each pass their own way of opening a link. Text read
 // from a page or a screenshot is only ever inserted with textContent.
 import { stellariumUrl } from "./core/stellarium.js";
 import { offsetPreview } from "./popup-model.js";
@@ -7,9 +7,9 @@ import { offsetPreview } from "./popup-model.js";
 /**
  * @param {HTMLElement} container  its children are replaced
  * @param {ReturnType<typeof import("./popup-model.js").viewFor>} view
- * @param {(url: string) => void | Promise<void>} openSky  called with the Stellarium Web link
+ * @param {(url: string) => void | Promise<void>} openLink  called with the link the button opens
  */
-export function render(container, view, openSky) {
+export function render(container, view, openLink) {
   const parts = [];
   if (view.rows) parts.push(rowList(view.rows));
   for (const warning of view.warnings ?? []) parts.push(paragraph(warning, "warning"));
@@ -18,14 +18,15 @@ export function render(container, view, openSky) {
 
   if (view.state !== "refused") {
     // The sky to open: set from the start on a ready screen, and only once
-    // a reading is picked or a valid offset is typed on the others.
+    // a reading is picked or a valid offset is typed on the others. A view
+    // with its own url (the Astro-Seek chart from a Stellarium tab) opens that.
     let sky = view.sky ?? null;
     const open = document.createElement("button");
-    open.textContent = "Open sky";
-    open.addEventListener("click", () => openSky(stellariumUrl(sky)));
+    open.textContent = view.button ?? "Open sky";
+    open.addEventListener("click", () => openLink(view.url ?? stellariumUrl(sky)));
     const setSky = (next) => {
       sky = next;
-      open.disabled = sky === null;
+      open.disabled = !view.url && sky === null;
     };
 
     if (view.state === "choose") parts.push(choiceList(view.choices, setSky));

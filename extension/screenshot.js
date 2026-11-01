@@ -63,11 +63,11 @@ async function readImage(file) {
     if (id !== latest) return;
     readText.textContent = text;
     readDetails.hidden = false;
-    render(app, viewForScreenshot(analyzeScreenshot(text)), openSky);
+    render(app, viewForScreenshot(analyzeScreenshot(text)), openLink);
   } catch (error) {
     if (id !== latest) return;
     const view = { state: "refused", message: "Chart Bridge couldn't read this image.", code: String(error?.message ?? error) };
-    render(app, view, openSky);
+    render(app, view, openLink);
   }
 }
 
@@ -85,6 +85,6 @@ async function recognize(file) {
   return data.text;
 }
 
-function openSky(url) {
+function openLink(url) {
   window.open(url, "_blank", "noopener");
 }
