@@ -1,18 +1,34 @@
 // The only file that talks to the browser for the popup. Every decision about
 // what to show is made in popup-model.js and drawn by view.js; this file reads
 // the tab, renders the view and opens what its button links to.
+import { withAafExport } from "./aaf-model.js";
+import { linkFor } from "./chart-model.js";
 import { fillForm, formValues, isAstroComPage, isBirthDataForm, readFormPage } from "./core/astrocom.js";
 import { analyzePage, classifyUrl, extractorFor } from "./core/index.js";
 import { isStellariumWeb, skyFromEngine } from "./core/stellarium.js";
-import { linkFor } from "./chart-model.js";
+import { BUSY, desktopHint, viewForDesktopImport, viewForDesktopSend, withDesktopSend } from "./desktop-model.js";
 import { heldForTab, holdForTab, releaseTab } from "./pending.js";
 import { chartToShare, viewFor, viewForAstroComTab, viewForShareRefusal, viewForSky } from "./popup-model.js";
-import { render } from "./view.js";
+import { desktopPreferred, setDesktopPreferred } from "./preference.js";
+import { HOST_PERMISSION, probe, readSky, sendSky } from "./stellarium-desktop.js";
+import { desktopHintLine, render } from "./view.js";
 
 const app = document.getElementById("app");
 
 // Where the values for an astro.com tab are kept. The browser empties it when it quits.
 const held = chrome.storage.session;
+
+// Where the user's default between Stellarium Web and Stellarium Desktop is
+// kept: on this computer, until they change it.
+const prefs = chrome.storage.local;
+
+// Whether Stellarium Desktop is that default, read as the popup opens and
+// changed only by the user's click.
+let preferred = false;
+
+// The chart page's analyzePage result, for Share…. A Stellarium tab's screen
+// has no Share…: it has no birthplace time.
+let sharing = null;
 
 main().catch((error) => {
   const view = { state: "refused", message: "Chart Bridge couldn't read this tab.", code: String(error?.message ?? error) };
@@ -20,7 +36,12 @@ main().catch((error) => {
 });
 
 async function main() {
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  // A preference that can't be read leaves Stellarium Web the default.
+  const [[tab], desktop] = await Promise.all([
+    chrome.tabs.query({ active: true, currentWindow: true }),
+    desktopPreferred(prefs).catch(() => false),
+  ]);
+  preferred = desktop;
   const url = tab?.url ?? "";
 
   // On Stellarium Web, the sky comes from its engine: the address doesn't change
@@ -31,7 +52,12 @@ async function main() {
       world: "MAIN",
       func: readEngine,
     });
-    show(engine ? viewForSky(skyFromEngine(engine)) : viewFor({ kind: "refused", reason: "stellarium-unreadable" }));
+    if (!engine) {
+      show(viewFor({ kind: "refused", reason: "stellarium-unreadable" }));
+      return;
+    }
+    const sky = skyFromEngine(engine);
+    showChart(withAafExport(viewForSky(sky), sky));
     return;
   }
 
@@ -61,26 +87,11 @@ async function main() {
     target: { tabId: tab.id },
     func: extractorFor(url),
   });
-  showChart(analyzePage({ url, input }));
-}
-
-// A chart page's screen. Share… opens the extension's copy of the receiving
-// page in a tab, with the chart in its link, for the sky the screen decided;
-// the other buttons open their links as before. A chart the format can't
-// carry says why, and Cancel goes back to it.
-function showChart(result) {
-  const view = viewFor(result);
-  const onButton = async (button, sky) => {
-    if (button.does !== "share") return openLink(button, sky);
-    const shared = chartToShare(result, sky, "page");
-    if (shared.kind === "refused") {
-      render(app, viewForShareRefusal(shared.reason), onButton, view);
-      return;
-    }
-    await chrome.tabs.create({ url: linkFor(chrome.runtime.getURL("chart.html"), shared.chart) });
-    window.close();
-  };
-  show(view, { onButton });
+  const result = analyzePage({ url, input });
+  // Share… needs the result the screen was drawn from: its local time, and
+  // how its UTC was decided.
+  sharing = result;
+  showChart(withAafExport(viewFor(result), result));
 }
 
 // Runs inside the Stellarium Web page itself (world "MAIN"), where its engine
@@ -127,11 +138,119 @@ function astroComTabButtons(tab, sky) {
   };
 }
 
-// A page Chart Bridge doesn't read can still lead to a chart: a screenshot of
-// one, or a .astrochart.json file, each opened in a tab of its own.
+// A page Chart Bridge doesn't read can still lead to a chart: a screenshot,
+// pasted text, an AAF file, a .astrochart.json file, or Stellarium Desktop.
 function show(view, { offerScreenshot = false, onButton = openLink } = {}) {
   render(app, view, onButton);
-  if (offerScreenshot) app.append(screenshotButton(), chartFileButton());
+  if (offerScreenshot) {
+    const fromDesktop = document.createElement("button");
+    fromDesktop.className = "secondary";
+    fromDesktop.textContent = "Import from Stellarium Desktop";
+    fromDesktop.addEventListener("click", importFromDesktop);
+    app.append(
+      pageButton("Read a screenshot instead", "screenshot.html"),
+      pageButton("Paste chart text instead", "paste.html"),
+      pageButton("Open an AAF file", "import.html"),
+      pageButton("Open a chart file", "chart.html"),
+      fromDesktop,
+      desktopHintLine(),
+    );
+  }
+  checkDesktop(app.querySelector(".desktop-hint")).catch(() => {});
+}
+
+// Once Chart Bridge has access to 127.0.0.1, the popup checks Stellarium as
+// it opens and says what it found under the desktop button. Without access it
+// doesn't check: the request would fail like a closed Stellarium. The screen
+// is drawn first and the line filled in when the answer comes, so nothing
+// waits on it; a line whose screen has since been replaced is left alone.
+async function checkDesktop(hint) {
+  if (!hint || !(await chrome.permissions.contains(HOST_PERMISSION))) return;
+  const text = desktopHint(await probe({ timeoutMs: 1000 }));
+  if (hint.isConnected) hint.textContent = text;
+}
+
+// A chart screen, its desktop button placed by the user's default. changed
+// says they have just switched it, so the screen confirms it with Undo.
+function showChart(base, changed = false) {
+  const view = withDesktopSend(base, { preferred, changed });
+  show(view, { onButton: chartButtons(view, base) });
+}
+
+// What a chart screen's buttons do: open a link, send the sky to Stellarium
+// Desktop (coming back to this screen on Cancel), or switch the default and
+// draw this chart again with its buttons swapped.
+function chartButtons(view, base) {
+  const onButton = (button, sky) => {
+    if (button.does === "send-to-desktop") return sendToDesktop(sky, view);
+    if (button.does === "prefer-desktop" || button.does === "prefer-web") {
+      return switchDefault(button.does === "prefer-desktop", () => showChart(base, true));
+    }
+    if (button.does === "share") return share(sky, view, onButton);
+    return openLink(button, sky);
+  };
+  return onButton;
+}
+
+// Share… opens the extension's copy of the receiving page in a tab, with the
+// chart in its link, for the sky the screen decided. A chart the format can't
+// carry says why, and Cancel goes back to the chart.
+async function share(sky, back, onButton) {
+  const shared = chartToShare(sharing, sky, "page");
+  if (shared.kind === "refused") {
+    render(app, viewForShareRefusal(shared.reason), onButton, back);
+    return;
+  }
+  await chrome.tabs.create({ url: linkFor(chrome.runtime.getURL("chart.html"), shared.chart) });
+  window.close();
+}
+
+async function switchDefault(toDesktop, redraw) {
+  await setDesktopPreferred(prefs, toDesktop);
+  preferred = toDesktop;
+  redraw();
+}
+
+// Stellarium Desktop is reached only from these two clicks. Each asks for
+// access to 127.0.0.1 first, while the click still counts as the user's: the
+// browser asks only the first time, and may refuse a request made after an
+// await. Without access, a request would fail like a closed Stellarium.
+async function sendToDesktop(sky, back) {
+  if (!(await chrome.permissions.request(HOST_PERMISSION))) {
+    showDesktop(viewForDesktopSend({ state: "no-permission" }, sky), back);
+    return;
+  }
+  showDesktop(BUSY.send, null);
+  showDesktop(viewForDesktopSend(await sendSky(sky), sky, { preferred }), back);
+}
+
+async function importFromDesktop() {
+  if (!(await chrome.permissions.request(HOST_PERMISSION))) {
+    showDesktop(viewForDesktopImport({ state: "no-permission" }), null);
+    return;
+  }
+  showDesktop(BUSY.import, null);
+  showDesktop(viewForDesktopImport(await readSky()), null);
+}
+
+// A problem screen gets Cancel back to the chart; the sent screen has Done instead.
+function showDesktop(view, back) {
+  render(app, view, desktopButtons(back), view.state === "desktop-problem" ? back : null);
+}
+
+function desktopButtons(back) {
+  return (button, sky) => {
+    if (button.does === "send-to-desktop") return sendToDesktop(sky, back);
+    if (button.does === "import-from-desktop") return importFromDesktop();
+    if (button.does === "close") return window.close();
+    // Only the sent screen offers these, so it is what's drawn again.
+    if (button.does === "prefer-desktop" || button.does === "prefer-web") {
+      return switchDefault(button.does === "prefer-desktop", () =>
+        showDesktop(viewForDesktopSend({ state: "sent" }, sky, { preferred, changed: true }), back),
+      );
+    }
+    return openLink(button, sky);
+  };
 }
 
 async function openLink({ url, holds }, sky) {
@@ -148,16 +267,7 @@ async function openLink({ url, holds }, sky) {
   window.close();
 }
 
-function screenshotButton() {
-  return pageButton("Read a screenshot instead", "screenshot.html");
-}
-
-// The receiving page, with no link, opens files. The file chooser isn't opened
-// from the popup itself, which can close when the chooser takes the focus.
-function chartFileButton() {
-  return pageButton("Open a chart file", "chart.html");
-}
-
+// A button that opens one of the extension's own pages in a new tab.
 function pageButton(label, page) {
   const button = document.createElement("button");
   button.className = "secondary";

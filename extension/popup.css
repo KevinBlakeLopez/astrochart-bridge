@@ -53,6 +53,15 @@ dt {
   color: var(--muted);
 }
 
+ol {
+  margin: 0 0 10px;
+  padding-left: 20px;
+}
+
+li + li {
+  margin-top: 4px;
+}
+
 dd {
   margin: 0;
 }
@@ -64,6 +73,41 @@ dd {
 .note {
   color: var(--muted);
   font-size: 12px;
+}
+
+.desktop-hint {
+  margin-top: 6px;
+}
+
+.desktop-hint:empty {
+  display: none;
+}
+
+.default-choice {
+  margin-top: 8px;
+}
+
+/* A button that reads as a link, inside a line of text. */
+button.link {
+  display: inline;
+  width: auto;
+  min-height: 0;
+  padding: 0;
+  font: inherit;
+  font-weight: 600;
+  color: var(--accent);
+  background: none;
+  border: 0;
+  text-decoration: underline;
+}
+
+/* On a touch screen the link gets its own line, tall enough to tap. */
+@media (pointer: coarse) {
+  button.link {
+    display: block;
+    min-height: 44px;
+    text-align: left;
+  }
 }
 
 .code {
@@ -125,4 +169,48 @@ button.secondary {
 
 button + button {
   margin-top: 8px;
+}
+
+/* A touch screen, such as an iPad's: everything tapped is at least the 44
+   points Apple's guidelines ask for, and the text is a size up. A text field
+   under 16px is reported to make Safari zoom in when it's tapped. */
+@media (pointer: coarse) {
+  body {
+    font-size: 15px;
+  }
+
+  h1 {
+    font-size: 17px;
+  }
+
+  .note {
+    font-size: 14px;
+  }
+
+  .code {
+    font-size: 13px;
+  }
+
+  button {
+    min-height: 44px;
+  }
+
+  label {
+    box-sizing: border-box;
+    min-height: 44px;
+    padding: 4px 0;
+  }
+
+  input[type="radio"] {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    margin: 0;
+  }
+
+  input[type="text"] {
+    box-sizing: border-box;
+    min-height: 44px;
+    font-size: 16px;
+  }
 }

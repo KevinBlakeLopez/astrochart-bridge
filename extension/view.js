@@ -24,6 +24,7 @@ export function render(container, view, onButton, back = null) {
   if (view.rows) parts.push(rowList(view.rows));
   for (const warning of view.warnings ?? []) parts.push(paragraph(warning, "warning"));
   if (view.message) parts.push(paragraph(view.message));
+  if (view.steps) parts.push(stepList(view.steps));
   if (view.code) parts.push(paragraph(`Code: ${view.code}`, "code"));
 
   if (view.state !== "refused") {
@@ -39,6 +40,13 @@ export function render(container, view, onButton, back = null) {
           if (secondary) element.className = "secondary";
           return element;
         });
+    // Sends the decided sky to Stellarium Desktop, for onButton to do: first,
+    // in the main style, when it is the user's default.
+    if (view.desktop) {
+      const send = () => onButton({ does: "send-to-desktop" }, sky);
+      if (view.desktop.primary) buttons.unshift(linkButton(view.desktop.label, send));
+      else buttons.push(secondaryButton(view.desktop.label, send));
+    }
     const setSky = (next) => {
       sky = next;
       for (const button of buttons) button.disabled = !view.url && sky === null;
@@ -49,6 +57,30 @@ export function render(container, view, onButton, back = null) {
     for (const note of view.notes) parts.push(paragraph(note, "note"));
     setSky(sky);
     parts.push(...buttons);
+    // Empty until the popup has checked Stellarium, which may be after this is drawn.
+    if (view.desktop) parts.push(desktopHintLine());
+
+    // Which app is the default, with a link to change it, right under the
+    // buttons it affects. With no text, the change is offered as a button.
+    if (view.defaultChoice) {
+      const { text, label, does } = view.defaultChoice;
+      const change = () => onButton({ does }, sky);
+      if (text === null) {
+        parts.push(secondaryButton(label, change));
+      } else {
+        const line = paragraph(`${text} `, "note default-choice");
+        const link = linkButton(label, change);
+        link.className = "link";
+        line.append(link);
+        parts.push(line);
+      }
+    }
+
+    // The chart as an AAF file, made by aaf-model.js. Saving it sends nothing anywhere.
+    if (view.download) {
+      parts.push(secondaryButton(view.download.label, () => saveFile(view.download)));
+      if (view.download.note) parts.push(paragraph(view.download.note, "note"));
+    }
 
     // A further screen, such as the values to enter in astro.com, is drawn in
     // place of this one, and Cancel draws this one again. Going there and back stores nothing.
@@ -59,6 +91,18 @@ export function render(container, view, onButton, back = null) {
   }
 
   container.replaceChildren(...parts);
+}
+
+// A link to the text with download set saves it under filename, with no
+// downloads permission. The link is revoked a minute later, by when the
+// browser has the file; a popup that closes first takes it with it.
+function saveFile({ filename, text }) {
+  const url = URL.createObjectURL(new Blob([text], { type: "text/plain;charset=utf-8" }));
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
 
 function secondaryButton(label, onClick) {
@@ -85,6 +129,26 @@ function linkButton(label, onClick) {
   button.textContent = label;
   button.addEventListener("click", onClick);
   return button;
+}
+
+/**
+ * The line under a Stellarium Desktop button that the popup fills in after
+ * checking Stellarium. Hidden while empty.
+ *
+ * @returns {HTMLParagraphElement}
+ */
+export function desktopHintLine() {
+  return paragraph("", "note desktop-hint");
+}
+
+function stepList(steps) {
+  const list = document.createElement("ol");
+  for (const step of steps) {
+    const item = document.createElement("li");
+    item.textContent = step;
+    list.append(item);
+  }
+  return list;
 }
 
 function rowList(rows) {

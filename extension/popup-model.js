@@ -7,7 +7,7 @@ const CLOCK_NOTE = "Stellarium Web's clock shows your computer's time zone and k
 
 // Seen on 2026-10-31: stellarium-web.org's Google Ads tag sent the full link,
 // date and coordinates included, as its url= parameter.
-const PRIVACY_NOTE =
+export const PRIVACY_NOTE =
   "Opening the sky sends this date, time and place to stellarium-web.org, and its page passes the link on to Google's advertising tags.";
 
 // Shown on the choose and enter-offset screens, the privacy note last, just above
@@ -260,7 +260,7 @@ const MONTH_NAMES = [
 ];
 
 // The secondary button on a screen whose chart can be entered in astro.com.
-const astroComStep = (sky) => ({ label: "Enter in astro.com…", view: viewForAstroCom(sky) });
+export const astroComStep = (sky) => ({ label: "Enter in astro.com…", view: viewForAstroCom(sky) });
 
 /**
  * The values to enter in astro.com's birth data form for a decided UTC and
@@ -396,7 +396,7 @@ function localText(local, zoneLabel) {
 }
 
 // "2024-04-17T12:00:00Z" → "2024-04-17 12:00"
-const utcText = (utc) => `${utc.slice(0, 10)} ${utc.slice(11, 16)}`;
+export const utcText = (utc) => `${utc.slice(0, 10)} ${utc.slice(11, 16)}`;
 
 // What Stellarium Web's clock will show (the UTC instant in the computer's time
 // zone) next to the birth time. Both carry their date, since they can differ.
@@ -442,7 +442,7 @@ function offsetText(minutes) {
 }
 
 // 40.716667, -74 → "40°43'N, 74°0'W", the way the Astro-Seek page writes it.
-const placeText = (lat, lng) => `${angleText(lat, "N", "S")}, ${angleText(lng, "E", "W")}`;
+export const placeText = (lat, lng) => `${angleText(lat, "N", "S")}, ${angleText(lng, "E", "W")}`;
 
 function angleText(value, positive, negative) {
   // Rounding the total in minutes lets 59.99' carry into the next degree.

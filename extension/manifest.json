@@ -2,18 +2,32 @@
   "manifest_version": 3,
   "name": "Chart Bridge",
   "version": "0.1.0",
-  "description": "Open the sky for an Astro-Seek or astro.com natal chart in Stellarium Web.",
+  "description": "Open the sky for an Astro-Seek or astro.com natal chart in Stellarium Web or Stellarium Desktop.",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "96": "icons/icon-96.png",
+    "128": "icons/icon-128.png",
+    "256": "icons/icon-256.png",
+    "512": "icons/icon-512.png",
+    "1024": "icons/icon-1024.png"
+  },
   "action": {
     "default_title": "Chart Bridge",
     "default_popup": "popup.html"
   },
   "permissions": ["activeTab", "scripting", "storage"],
+  "optional_host_permissions": ["http://127.0.0.1/*"],
   "content_security_policy": {
     "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
   },
   "browser_specific_settings": {
     "gecko": {
       "strict_min_version": "128.0"
+    },
+    "safari": {
+      "strict_min_version": "26.0"
     }
   }
 }

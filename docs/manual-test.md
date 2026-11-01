@@ -1,6 +1,6 @@
 # Manual test checklist
 
-`popup.js` talks to the browser and has no automated tests, so run this list in Chrome, Brave, Microsoft Edge and Firefox after changing it. Everything it calls, from `analyzePage` to the view model, is covered by `npm test`.
+`popup.js` talks to the browser and has no automated tests, so run this list in Chrome, Brave, Microsoft Edge, Firefox and Safari after changing it, and test 18 in Safari on an iPad. Everything it calls, from `analyzePage` to the view model, is covered by `npm test`.
 
 The chart URLs below are the `url` fields of the fixtures in `fixtures/astroseek/`, plus the asteroids example from `docs/astroseek-known-issues.md`. All of them use invented birth data.
 
@@ -38,6 +38,23 @@ Chart Bridge needs Firefox 128 or later.
 
 Firefox removes a temporary add-on when it quits, so load it again after restarting Firefox. After changing any file in `extension/`, click **Reload** on the Chart Bridge card in `about:debugging` before testing again.
 
+### Safari
+
+Chart Bridge needs Safari 26 or later on macOS.
+
+1. Choose **Safari → Settings**, select the **Advanced** tab and check **Show features for web developers**.
+2. Select the **Developer** tab and check **Allow unsigned extensions**. Safari asks for your Mac password.
+3. On the same tab, click **Add Temporary Extension…**, select the same `extension` folder and click **Select**. Safari switches to the **Extensions** tab and lists Chart Bridge under **Temporary**.
+4. Check the box next to **Chart Bridge** if it isn't checked, and close Settings. Its icon appears in Safari's toolbar.
+
+The first time you click the icon on a site, Safari may ask whether Chart Bridge can see that page. Allow it for that site.
+
+Safari removes a temporary extension after 24 hours or when it quits, and turns **Allow unsigned extensions** off when it quits, so repeat steps 2 to 4 after restarting Safari. After changing any file in `extension/`, click **Reload** next to Chart Bridge in the **Extensions** tab before testing again.
+
+### Safari on iPad
+
+Follow `docs/safari-ipad.md` to build the app with Xcode and install it on the iPad, then run test 18. After changing any file in `extension/`, run the app from Xcode again before testing.
+
 ## For every test
 
 1. Open the test's URL in a new tab and wait for the page to finish loading.
@@ -46,6 +63,8 @@ Firefox removes a temporary add-on when it quits, so load it again after restart
 
    In Firefox, click **Inspect** on the Chart Bridge card in `about:debugging` instead. In the toolbox that opens, choose **Disable Popup Auto-Hide** from the **⋯** menu at the top right, open the popup, then pick `popup.html` with the frame-picker button next to that menu. The Console must stay empty.
 
+   In Safari, right-click inside the popup and choose **Inspect Element**. Web Inspector opens on the popup; open its **Console** tab. It must stay empty.
+
 ## Test 1: New York 2024
 
 ```
@@ -53,7 +72,7 @@ https://horoscopes.astro-seek.com/calculate-birth-chart-horoscope-online/?input_
 ```
 
 - [ ] The popup shows Local time `17 Apr 2024, 08:00 (EDT, DST)`, Offset `UTC-04:00`, UTC `2024-04-17 12:00` and Place `40°43'N, 74°0'W`.
-- [ ] Below them are two grey notes, the one about Google last, then a blue **Open sky** button and an outlined **Share…** button (test 16).
+- [ ] Below them are two grey notes, the one about Google last, then a blue **Open sky** button and an outlined **Share…** button (test 20).
 - [ ] The first note names the time Stellarium's clock will show in your computer's time zone, and says that's 08:00 on 17 Apr at the birthplace. On a Mac set to Pacific time it says 05:00 on 17 Apr.
 - [ ] After **Open sky**, Stellarium's clock (bottom right) shows the time the note named, give or take the seconds it has been running.
 - [ ] Clicking **Open sky** opens a Stellarium Web tab and closes the popup. The new tab's address contains `date=2024-04-17T12%3A00%3A00Z&lat=40.716667&lng=-74`.
@@ -113,13 +132,14 @@ https://horoscopes.astro-seek.com/calculate-asteroids/?narozeni_den=17&narozeni_
 
 Go to `https://example.com`.
 
-- [ ] The popup shows "Open an Astro-Seek or astro.com birth chart to use Chart Bridge." and a **Read a screenshot instead** button, and the Console has no errors.
+- [ ] The popup shows "Open an Astro-Seek or astro.com birth chart to use Chart Bridge." and five buttons, **Read a screenshot instead**, **Paste chart text instead**, **Open an AAF file**, **Open a chart file** and **Import from Stellarium Desktop**, and the Console has no errors. Until Chart Bridge has been allowed to connect to `127.0.0.1` (test 17), nothing connects there and no grey line follows the last button.
+- [ ] Chart Bridge's toolbar button shows its icon, a gold star above a blue arch, and Chart Bridge's card on the browser's extensions page shows it too.
 
 ## Test 9: a browser page
 
-Go to `chrome://extensions` in Chrome, `brave://extensions` in Brave, `edge://extensions` in Edge, or `about:debugging` in Firefox.
+Go to `chrome://extensions` in Chrome, `brave://extensions` in Brave, `edge://extensions` in Edge, or `about:debugging` in Firefox. In Safari, open a new tab (**Cmd+T**) and leave it on the Start Page.
 
-- [ ] The popup shows the same sentence and button as test 8, and the Console has no errors.
+- [ ] The popup shows the same sentence and buttons as test 8, and the Console has no errors.
 
 ## Test 10: light and dark mode
 
@@ -170,7 +190,7 @@ The screenshot page reads the image on this computer with the Tesseract.js files
 4. Press **Cmd+V**.
 
 - [ ] Within a few seconds the page shows the same rows as test 1. The first grey note says to compare the rows with the screenshot.
-- [ ] The Console is empty, and every request in the Network tab is a `chrome-extension://` address (`moz-extension://` in Firefox).
+- [ ] The Console is empty, and every request in the Network tab is a `chrome-extension://` address (`moz-extension://` in Firefox, `safari-web-extension://` in Safari).
 - [ ] **What Chart Bridge read** opens to show the text read from the screenshot.
 - [ ] **Open sky** opens a Stellarium Web tab whose address contains `date=2024-04-17T12%3A00%3A00Z&lat=40.716667&lng=-74`, and the screenshot tab stays open.
 - [ ] Below it is **Open chart in Astro-Seek**, and the last two grey notes say Astro-Seek will draw the chart in UT/GMT with no city, and that opening it sends the date, time and place to astro-seek.com.
@@ -211,30 +231,155 @@ Open the test 1 URL and open the popup.
 - [ ] Open an existing saved chart's birth data for editing, if astro.com offers that from ade.cgi, then open the popup from a chart's **Enter in astro.com…** on a tab where that form is showing. Note whether the popup says the form changes a saved chart, and whether the address or form has a `cid`.
 - [ ] Sign out, open the form from test 1, choose **Sign in** in the popup, sign in, and note where astro.com goes afterwards. Open the form in that tab and check that the popup offers to fill it in.
 
-## Test 15: the receiving page
+## Test 15: AAF files
+
+`docs/aaf.md` explains what Chart Bridge reads and writes. The files are `fixtures/aaf/` in this repo, written by Astrolog 8.00 for invented charts.
+
+### Saving
+
+- [ ] On the test 1 popup, below **Open sky** and above **Enter in astro.com…**, is **Save as AAF file**. Clicking it saves `chart-2024-04-17.aaf` to the browser's downloads folder without asking for a permission. Note whether the popup stays open.
+- [ ] The saved file reads `#: Chart Bridge`, then `#A93:*,*,*,17.4.2024,8:00,*,*`, then `#B93:*,40n43,74w00,5hw00,1`.
+- [ ] On an astro.com account chart, if you have one, **Save as AAF file** has a grey note below it saying the file gives the chart in Universal Time, and the file's `#B93` line ends `,0h,0`.
+- [ ] On the Stellarium Web tab from test 12, the popup has **Save as AAF file** with a note that the file gives the moment in Universal Time.
+- [ ] On the test 4 popup (choose a reading), there is no **Save as AAF file**.
+- [ ] If Astrolog is installed, open each saved file in it (**File / Open Chart**). It shows the same date, time and place.
+
+### Opening
+
+- [ ] On the test 8 popup (another website), below **Paste chart text instead**, is **Open an AAF file**. It opens the import page in a new tab and closes the popup.
+- [ ] Choose `fixtures/aaf/astrolog-8.00-new-york.aaf`. The page says "1 chart in this file." and shows Name `New York Test`, Local time `17 Apr 2024, 08:00`, Offset `UTC-04:00`, UTC `2024-04-17 12:00`, Birthplace `New York, NY (US)` and Place `40°43'N, 74°0'W`. The Console is empty.
+- [ ] **Open sky** opens Stellarium Web with `date=2024-04-17T12%3A00%3A00Z&lat=40.716667&lng=-74` in the address. **Open chart in Astro-Seek** opens the same chart at 12:00 UT, as in test 12.
+- [ ] Drag `fixtures/aaf/astrolog-8.00-delhi-seconds.aaf` onto the page. It shows Local time `1 Mar 1990, 06:15`, Offset `UTC+05:30` and UTC `1990-03-01 00:45`.
+- [ ] Paste these lines into the box and click **Read pasted text**:
+
+  ```
+  #A93:Test,Sydney,*,15.1.2024,8:00,Sydney,NSW (AU)
+  #B93:*,33s52,151e12,10he00,1
+  #A93:Test,No time,*,15.1.2024,*,Sydney,NSW (AU)
+  #B93:*,33s52,151e12,10he00,1
+  ```
+
+  The page lists both charts. Choosing the first shows UTC `2024-01-14 21:00`. Choosing the second says the chart has no birth time and shows `Code: no-birth-time`, with no buttons.
+- [ ] In light and dark mode the page is readable, like the screenshot page.
+
+## Test 16: pasted chart text
+
+The paste page reads text with no help from the web. These steps check what only the installed extension can show: the page loads under the extension's script policy, the clipboard button behaves in each browser, and nothing is fetched. `test/paste-model.test.js` and `test/text.test.js` cover what the form shows for each kind of text. The sample uses test 1's invented New York data.
+
+1. Go to `https://example.com`, click the Chart Bridge icon, then **Paste chart text instead**. A Chart Bridge tab opens and the popup closes.
+2. In that tab, open DevTools (**Cmd+Option+I**) on the **Network** tab, then reload the page.
+3. Copy this text, click the big box and press **Cmd+V**:
+
+```
+Natal Chart
+
+Born: 17 April 2024 at 8:00 AM
+Location: New York
+Coordinates: 40°43'N 74°0'W
+Time Zone: EDT (UTC-4)
+House System: Whole Sign
+Sun: 27°53' Aries
+```
+
+- [ ] The form appears without clicking anything: Date `2024-04-17`, Local time `08:00`, Latitude `40.716667`, Longitude `-74` and UTC offset `-04:00`. Under them, the lines read `17 April 2024`, `08:00 at the birthplace`, `40°43'0"N`, `74°0'0"W` and `UTC-04:00`, and the grey lines say they came from lines 3, 3, 5, 5 and 6.
+- [ ] An orange warning says the text uses Whole Sign houses but Astro-Seek's chart will open with Placidus houses. Place, Time zone and Houses are listed as written, and the Sun line appears nowhere.
+- [ ] The Console is empty, and every request in the Network tab is a `chrome-extension://` address (`moz-extension://` in Firefox).
+- [ ] **Continue** shows Local time `17 Apr 2024, 08:00`, Offset `UTC-04:00`, UTC `2024-04-17 12:00` and Place `40°43'N, 74°0'W`. The first grey note says nothing checks the offset, and the last two are Astro-Seek's notes from test 13.
+- [ ] **Open sky** opens a Stellarium Web tab whose address contains `date=2024-04-17T12%3A00%3A00Z&lat=40.716667&lng=-74`, and the paste tab stays open.
+- [ ] **Open chart in Astro-Seek** opens the same chart as test 12: its header shows `17 Apr 2024 - 12:00  (Manually: GMT+00:00)`, Universal Time `17 Apr 2024 - 12:00` and `40°43'N, 74°0'W`.
+- [ ] **Back to the form** brings back the form with the same values.
+- [ ] Change Longitude to `74°0'E`. The line under it says `74°0'0"E`. **Continue** then shows Place `40°43'N, 74°0'E`. Change it back.
+- [ ] Clear the UTC offset box. **Continue** fades and does nothing when clicked. Type `-4` and it comes back.
+- [ ] Copy the sample again and click **Paste from clipboard**. Note which of these happens, in each browser: the form appears at once; the browser asks for permission first (allow it once, then try again and deny it); or an orange line says the browser didn't let Chart Bridge read the clipboard. If the browser refuses or you deny it, pasting with **Cmd+V** still works.
+- [ ] Replace the text with the lines below and click **Read the text**. The Date box is empty, with **4 May 1985** and **5 April 1985** to pick; the UTC offset box is empty, and its grey line names the zone `BST`. **Continue** stays faded until a date is picked and `+01:00` typed.
+
+```
+Birth date: 04/05/1985
+Birth time: 22:15
+Latitude: 51.5074
+Longitude: -0.1278
+Time Zone: BST
+```
+
+- [ ] Replace the text with `Name: <b>Example</b>` and `Date of Birth: 15 June 1985` on two lines and click **Read the text**. The Name row shows the angle brackets as typed, not bold text.
+- [ ] Replace the text with `Sun: 24°15' Gemini` and click **Read the text**. The page says it found no birth data and shows `Code: no-birth-data`.
+- [ ] In light and dark mode the page is readable, like the popup in test 10.
+
+## Test 17: Stellarium Desktop
+
+Needs Stellarium 25.1 or later with its Remote Control server on: the setup steps in `docs/stellarium-desktop.md`. `test/desktop-model.test.js` covers what each screen says, and `test/stellarium-desktop-client.test.js` the requests, against a stand-in server. These steps check what only the browser can show: the permission prompt, and that the requests reach Stellarium.
+
+1. Note Stellarium's place and time, to put back afterwards.
+2. If Chart Bridge already has access to `127.0.0.1`, remove it first: in Chrome, the extension's **Details** → **Site access**; in Firefox, `about:addons` → Chart Bridge → **Permissions**.
+3. Open the test 3 URL (New York 1944) and click the Chart Bridge icon.
+
+- [ ] Below **Open sky** is a **Send to Stellarium Desktop** button with the secondary style, and no grey line under it: without access, the popup doesn't check Stellarium.
+- [ ] Clicking it makes the browser ask whether Chart Bridge may connect to `127.0.0.1`. Note whether the popup stays open while it asks, in each browser. Click **Deny**: the popup says "Chart Bridge needs your permission", with **Try again** and **Cancel**.
+- [ ] **Try again**, then allow it. The popup says "Sent to Stellarium Desktop" with UTC `1944-01-10 16:00` and Place `40°43'N, 74°0'W`. In Stellarium the clock is paused at 16:00 UTC on 10 January 1944, shown in Stellarium's own time zone, and the location is named `40.7167, -74`.
+- [ ] **Done** closes the popup. Nothing else in Stellarium changed: the view, landscape and selected object are as they were.
+- [ ] Open the popup on test 3 again. Within a second, a grey line under **Send to Stellarium Desktop** says "Stellarium Desktop is open and ready." Stellarium's time and place don't change.
+- [ ] In Stellarium, untick **Server enabled** in Remote Control's settings. Open the popup on test 2 (Sydney): the grey line says "Stellarium Desktop isn't reachable right now. The button shows how to set it up." Click **Send to Stellarium Desktop**. Without asking again, the popup says "Stellarium Desktop isn't reachable", with six numbered steps, a grey note about other devices on the network, **Try again** and **Cancel**. **Cancel** shows the Sydney chart again.
+- [ ] Tick **Server enabled** again and click **Try again** on that screen. Stellarium shows 21:00 UTC on 14 January 2024 at 33°52'S, 151°12'E.
+- [ ] Go to `https://example.com` and click the Chart Bridge icon. **Import from Stellarium Desktop** is the last button, with "Stellarium Desktop is open and ready." under it. It shows "From Stellarium Desktop" with UTC `2024-01-14 21:00` and Place `33°52'S, 151°12'E`, then **Open chart in Astro-Seek**, **Open sky** and **Enter in astro.com…**.
+- [ ] **Open sky** opens a Stellarium Web tab whose address contains `date=2024-01-14T21%3A00%3A00Z&lat=-33.86667&lng=151.2`.
+- [ ] In Stellarium's Remote Control settings, tick **Access requires authentication**, type any password, click **Save settings**, then untick and tick **Server enabled**. **Import from Stellarium Desktop** says "Stellarium asks for a password", and the browser doesn't show its own password box. Untick it again the same way.
+- [ ] The Console stays empty throughout.
+- [ ] Open the popup on test 3 and click **Send to Stellarium Desktop**. Under **Done**, the sent screen has a **Use Stellarium Desktop by default** button. Click it: the screen stays, and a line says "Stellarium Desktop is now your default for charts. Every chart screen has a link to change it back." with an **Undo** link.
+- [ ] Open the popup on test 1. **Send to Stellarium Desktop** is first, in blue; **Open sky** follows in the secondary style; and under them a line says "Stellarium Desktop is your default for charts." with a **Make Stellarium Web the default** link. Close the browser and open it again: the popup on test 1 still leads with **Send to Stellarium Desktop**.
+- [ ] On test 4 (a skipped time), both buttons are faded until a reading is picked, whichever is first.
+- [ ] Click **Make Stellarium Web the default**. Without closing, the popup shows **Open sky** first in blue again, **Send to Stellarium Desktop** below it, and "Stellarium Web is the default again." with **Undo**. **Undo** brings back the order of the step before. Make Stellarium Web the default again, close the popup and reopen it on test 1: there is no default line.
+- [ ] On a Stellarium Web tab (test 12), with Stellarium Desktop the default, **Open chart in Astro-Seek** stays first and the default line is under the buttons.
+- [ ] On an iPad or another touch screen, the **Make Stellarium Web the default** link sits on its own line and is easy to tap.
+- [ ] Put Stellarium's place and time back as noted in step 1, and start its clock. Make Stellarium Web the default if it isn't.
+
+## Test 18: Safari on iPad
+
+Run this on each iPad you have, and note its model, size and iPadOS version. Where a step says to open the popup, tap the menu in Safari's address bar, then **Chart Bridge**. Note anything Safari asks the first time on each site.
+
+- [ ] Tests 1, 2, 3, 4, 7, 8 and 11 show what they say on a Mac, and the addresses they open contain the same `date=`, `lat=` and `lng=`.
+- [ ] On `https://example.com`, tap **Import from Stellarium Desktop** and note what the popup shows. There's no Stellarium Desktop on an iPad for it to reach at `127.0.0.1`.
+- [ ] In portrait and in landscape, the popup's text isn't cut off and it doesn't scroll sideways. Every button and each reading in test 4 is easy to tap with a finger.
+- [ ] With a keyboard and trackpad attached, note whether the buttons are the same size as without them. Without them they are at least 44 points tall; with them they may be smaller.
+- [ ] **Open sky** opens Stellarium Web in a new tab and the popup closes.
+- [ ] On that Stellarium tab:
+  - [ ] Drag with one finger to look around.
+  - [ ] Pinch to zoom.
+  - [ ] Tap the clock (bottom right) and pause it.
+  - [ ] Step the hour with its arrows.
+  - [ ] For test 1, a daytime chart, turn off the atmosphere (the cloud button) and check that the planets show.
+  - [ ] Note whatever is hard to do with a finger, and anything the screen's size gets in the way of.
+- [ ] Test 12 on the iPad: the popup on a Stellarium tab reads its sky and opens the Astro-Seek chart.
+- [ ] On an iPad mini, note whether Astro-Seek shows the same page as on a Mac or a phone layout, and whether test 1 still reads. If it doesn't, note the popup's message and code.
+- [ ] Test 14 part A, up to the popup on the astro.com tab: note whether the tab came to the front before the popup closed, and whether the popup on that tab offers to fill in the form. If it shows "Open an Astro-Seek or astro.com birth chart…" instead, the values weren't kept (see `docs/safari-ipad.md`).
+- [ ] Test 13 with a screenshot taken on the iPad:
+  - [ ] Choose it with **Choose File** from Photos, or paste it with **Cmd+V** on a keyboard.
+  - [ ] Note how long it takes, and whether the tab reloads or shows an error instead.
+- [ ] On the Stellarium tab from test 1, use Safari's Share button to copy the link. Open the link in a browser on a Mac: it shows the same date, time and place.
+- [ ] Switch to another tab and back, then open the popup again on the test 1 tab: it shows the same rows.
+## Test 19: the receiving page
 
 The page that opens a Chart Bridge link, without the extension. Serve the `extension` folder (the launch config's `receiving-page` entry runs the same command):
 
 ```
-python3 -m http.server 8766 --bind 127.0.0.1 --directory extension
+python3 -m http.server 8778 --bind 127.0.0.1 --directory extension
 ```
 
 The New York 2024 chart from test 1, as a link:
 
 ```
-http://127.0.0.1:8766/chart.html#v1=eyJmb3JtYXQiOiJjaGFydC1icmlkZ2UiLCJ2ZXJzaW9uIjoxLCJjaGFydCI6eyJjYWxlbmRhciI6ImdyZWdvcmlhbiIsImxvY2FsIjoiMjAyNC0wNC0xN1QwODowMDowMCIsInV0Y09mZnNldFNlY29uZHMiOi0xNDQwMCwibGF0aXR1ZGUiOjQwLjcxNjY2NywibG9uZ2l0dWRlIjotNzR9LCJzb3VyY2UiOnsic2l0ZSI6ImFzdHJvLXNlZWsiLCJ2aWEiOiJwYWdlIiwiem9uZUxhYmVsIjoiRURULCBEU1QiLCJ1dGNCYXNpcyI6InByaW50ZWQifX0
+http://127.0.0.1:8778/chart.html#v1=eyJmb3JtYXQiOiJjaGFydC1icmlkZ2UiLCJ2ZXJzaW9uIjoxLCJjaGFydCI6eyJjYWxlbmRhciI6ImdyZWdvcmlhbiIsImxvY2FsIjoiMjAyNC0wNC0xN1QwODowMDowMCIsInV0Y09mZnNldFNlY29uZHMiOi0xNDQwMCwibGF0aXR1ZGUiOjQwLjcxNjY2NywibG9uZ2l0dWRlIjotNzR9LCJzb3VyY2UiOnsic2l0ZSI6ImFzdHJvLXNlZWsiLCJ2aWEiOiJwYWdlIiwiem9uZUxhYmVsIjoiRURULCBEU1QiLCJ1dGNCYXNpcyI6InByaW50ZWQifX0
 ```
 
 ### A: desktop
 
-- [ ] The page shows Local time `17 Apr 2024, 08:00 (EDT, DST)`, Offset `UTC-04:00`, UTC `2024-04-17 12:00`, Place `40°43'N, 74°0'W` and From `Astro-Seek page`, four grey notes, **Open sky**, **Open chart in Astro-Seek**, **Copy link**, **Show QR code**, **Download file** and **Open a chart file**. In a browser with a share sheet (test 18), **Share link…** and possibly **Share file…** are there too. There is no **Enter in astro.com…** or **Share…**.
+- [ ] The page shows Local time `17 Apr 2024, 08:00 (EDT, DST)`, Offset `UTC-04:00`, UTC `2024-04-17 12:00`, Place `40°43'N, 74°0'W` and From `Astro-Seek page`, four grey notes, **Open sky**, **Open chart in Astro-Seek**, **Copy link**, **Show QR code**, **Download file** and **Open a chart file**. In a browser with a share sheet (test 22), **Share link…** and possibly **Share file…** are there too. There is no **Enter in astro.com…** or **Share…**.
 - [ ] The address bar shows `chart.html` with nothing after it, and **Back** doesn't bring the `#v1=…` part back.
 - [ ] Nothing opens by itself. **Open sky** opens the same Stellarium address as test 1; **Open chart in Astro-Seek** opens a chart for 17 April 2024 12:00 UT at 40°43'N, 74°0'W.
 - [ ] **Copy link** says "Link copied.", and pasting gives exactly the link above. If the browser refuses, the link appears selected in a field below the message instead.
 - [ ] **Download file** saves `chart-2024-04-17.astrochart.json`. Opened in a text editor, it shows the chart's fields indented, with `"utcOffsetSeconds": -14400`.
 - [ ] Open the browser's History list. Note whether it shows the address with `#v1=…`: the page removes it from the tab's address and its Back entry, but whether a browser's History list keeps the original address hasn't been checked in any browser.
 - [ ] Delete the last ten characters of the link and open it: the page says the link is incomplete or damaged, shows `Code: malformed`, and has no buttons.
-- [ ] Open `http://127.0.0.1:8766/chart.html` with nothing after it: the page asks for a Chart Bridge link or chart file, and its only button is a blue **Open a chart file**.
+- [ ] Open `http://127.0.0.1:8778/chart.html` with nothing after it: the page asks for a Chart Bridge link or chart file, and its only button is a blue **Open a chart file**.
 - [ ] The Console stays empty throughout.
 
 ### B: phones and tablets (needs the devices)
@@ -245,12 +390,12 @@ A phone reaches the page through the Mac's address on the local network, which m
 - [ ] **Open sky** opens Stellarium Web in a new tab at the same time and place.
 - [ ] **Copy link** shows the field with the link selected, and the system's copy works on it.
 
-## Test 16: sharing a chart from the extension
+## Test 20: sharing a chart from the extension
 
 Copied links point at `RECEIVER_URL` in `extension/share-config.js`, the receiving page on GitHub Pages. Until that page is deployed, a copied link opens a 404 there; check its address and contents instead.
 
-- [ ] On the test 1 chart, **Share…** opens a tab at `chrome-extension://…/chart.html` (`moz-extension://…` in Firefox) and closes the popup. The tab shows the same rows as test 15 A, From `Astro-Seek page`, and the address has nothing after `chart.html`.
-- [ ] **Copy link** says "Link copied.", and the pasted link starts `https://kevinblakelopez.github.io/chart-bridge/chart.html#v1=`. Pasting it after `http://127.0.0.1:8766/chart.html` in place of that address, with the test 15 server running, shows the same chart.
+- [ ] On the test 1 chart, **Share…** opens a tab at `chrome-extension://…/chart.html` (`moz-extension://…` in Firefox) and closes the popup. The tab shows the same rows as test 19 A, From `Astro-Seek page`, and the address has nothing after `chart.html`.
+- [ ] **Copy link** says "Link copied.", and the pasted link starts `https://kevinblakelopez.github.io/chart-bridge/chart.html#v1=`. Pasting it after `http://127.0.0.1:8778/chart.html` in place of that address, with the test 19 server running, shows the same chart.
 - [ ] **Download file** saves `chart-2024-04-17.astrochart.json`, in Chrome and in Firefox.
 - [ ] **Open sky** on that tab opens the same Stellarium address as test 1.
 - [ ] On the test 4 chart, **Share…** is faded until a reading is picked. Pick the second reading (the label EST), then **Share…**: the tab shows Offset `UTC-05:00` and UTC `2021-03-14 07:30`.
@@ -259,9 +404,9 @@ Copied links point at `RECEIVER_URL` in `extension/share-config.js`, the receivi
 - [ ] On a Stellarium Web tab (test 12) and on astro.com's form tab (test 14), the popup has no **Share…**.
 - [ ] Each Console stays empty: the popup's, and the new tab's (right-click → Inspect).
 
-## Test 17: scanning a QR code
+## Test 21: scanning a QR code
 
-Scanning needs a phone or tablet whose camera app reads QR codes. On the desktop, open a chart's tab with **Share…** (test 16), or the test 15 link. A code from the extension's tab holds the GitHub Pages address, which opens nothing until that page is deployed: check the address the camera shows before opening it. A code from the test 15 page holds `127.0.0.1`, which only that computer can open; to open it on the device too, serve the page with `--bind 0.0.0.0` and open it at the Mac's network address, as in test 15 B.
+Scanning needs a phone or tablet whose camera app reads QR codes. On the desktop, open a chart's tab with **Share…** (test 20), or the test 19 link. A code from the extension's tab holds the GitHub Pages address, which opens nothing until that page is deployed: check the address the camera shows before opening it. A code from the test 19 page holds `127.0.0.1`, which only that computer can open; to open it on the device too, serve the page with `--bind 0.0.0.0` and open it at the Mac's network address, as in test 19 B.
 
 - [ ] **Show QR code** draws a black-on-white code with a white border under the buttons, the note about who can read it, and **Hide QR code**, which removes it. In dark mode the code stays black on white.
 - [ ] At the browser's normal size, from about 30 cm, the camera on an iPhone, an iPad and an Android phone each recognises the code within a few seconds. Note the device and the distance.
@@ -269,17 +414,17 @@ Scanning needs a phone or tablet whose camera app reads QR codes. On the desktop
 - [ ] The same at 200% browser zoom, and with the window narrowed until the code is at its smallest.
 - [ ] Opened on the device, the link shows the same rows as on the desktop.
 
-## Test 18: opening chart files and the share sheet
+## Test 22: opening chart files and the share sheet
 
-Use the file **Download file** saved in test 15, `chart-2024-04-17.astrochart.json`.
+Use the file **Download file** saved in test 19, `chart-2024-04-17.astrochart.json`.
 
 ### A: opening a file
 
-- [ ] On the test 15 page, **Open a chart file** and choose the file: the page shows the test 15 rows, "Opened chart-2024-04-17.astrochart.json." under the buttons, and the address has nothing after `chart.html`.
+- [ ] On the test 19 page, **Open a chart file** and choose the file: the page shows the test 19 rows, "Opened chart-2024-04-17.astrochart.json." under the buttons, and the address has nothing after `chart.html`.
 - [ ] Drag the file from Finder onto the page: the same. The browser doesn't leave the page to show the file.
 - [ ] Choose any other file, such as a photo: the page says it isn't a Chart Bridge chart, with its code, and **Open a chart file** is still there.
 - [ ] In the popup on a page Chart Bridge doesn't read (test 8), **Open a chart file** opens the extension's page in a tab, where choosing the file shows the chart. Chrome and Firefox.
-- [ ] On an iPhone and an iPad, send the file to the device (AirDrop or Files), open the test 15 page there (test 15 B), and choose the file from Files. On Android, from Downloads. Each shows the chart.
+- [ ] On an iPhone and an iPad, send the file to the device (AirDrop or Files), open the test 19 page there (test 19 B), and choose the file from Files. On Android, from Downloads. Each shows the chart.
 
 ### B: the share sheet
 
@@ -289,7 +434,7 @@ Note which buttons each browser shows: the page offers each only where the brows
 - [ ] Desktop Safari and desktop Chrome: note whether each appears. **Share link…** opens the system's share sheet with the link; closing the sheet without sharing shows no message.
 - [ ] iPhone and iPad Safari: **Share link…** opens the share sheet, and AirDrop to a Mac opens the link there with the same chart. Note whether **Share file…** appears; if it does, AirDrop the file and open it as in A.
 - [ ] Chrome for Android and Firefox for Android: **Share link…** opens the share sheet; sending the link to yourself in a messaging app and opening it shows the same chart. Note whether **Share file…** appears.
-- [ ] On the extension's page (test 16), note whether either appears in Chrome and Firefox.
+- [ ] On the extension's page (test 20), note whether either appears in Chrome and Firefox.
 
 ## Not covered by hand yet
 
@@ -297,4 +442,4 @@ Note which buttons each browser shows: the page offers each only where the brows
 
 ## If a check fails
 
-Note the test number, take a screenshot of the popup, copy anything in its Console, for tests 1, 4, 7 and 11 copy the Stellarium tab's full address, and for test 12 the Astro-Seek tab's full address.
+Note the test number, take a screenshot of the popup, copy anything in its Console, for tests 1, 4, 7 and 11 copy the Stellarium tab's full address, and for test 12 the Astro-Seek tab's full address. For test 16, copy the text you pasted.

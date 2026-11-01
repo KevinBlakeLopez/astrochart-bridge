@@ -90,7 +90,7 @@ A link over 2,048 characters, or a file or JSON text over 16,384 bytes or charac
 ## Security and privacy
 
 - The receiving page loads only its own files: `default-src 'none'; script-src 'self'; style-src 'self'; base-uri 'none'; form-action 'none'`, set in a `<meta>` tag, and `no-referrer`. It has no third-party scripts, analytics or storage.
-- It reads the fragment once and removes it from the address and from that history entry with `history.replaceState`, whether or not the chart was valid. Whether a browser's History list still keeps the original address hasn't been checked in any browser (manual test 15).
+- It reads the fragment once and removes it from the address and from that history entry with `history.replaceState`, whether or not the chart was valid. Whether a browser's History list still keeps the original address hasn't been checked in any browser (manual test 19).
 - Imported text is only ever set with `textContent`. The QR code is built element by element, with no markup parsed and no image loaded.
 - Nothing opens until a button is clicked. Destinations open in a new tab with `noopener,noreferrer`.
 - QR codes are made on the device by the vendored `lean-qr` (`extension/vendor/lean-qr/`), never by a QR service.
@@ -103,16 +103,16 @@ A link over 2,048 characters, or a file or JSON text over 16,384 bytes or charac
 
 | Feature | Chromium (pane) | Chrome, Edge, Brave | Firefox | Safari (macOS) | iPhone Safari | iPad Safari | Chrome Android | Firefox Android |
 |---|---|---|---|---|---|---|---|---|
-| Open a link, show the chart | ✅ | ⬜ 15 | ⬜ 15 | ⬜ 15 | ⬜ 15 B | ⬜ 15 B | ⬜ 15 B | ⬜ 15 B |
-| Open Stellarium Web, Astro-Seek | ✅ (links checked, opening stubbed) | ⬜ 15 | ⬜ 15 | ⬜ 15 | ⬜ 15 B | ⬜ 15 B | ⬜ 15 B | ⬜ 15 B |
-| Copy link | ✅ fallback field (the pane refused the clipboard) | ⬜ 15 | ⬜ 15 | ⬜ 15 | ⬜ 15 B | ⬜ 15 B | ⬜ 15 B | ⬜ 15 B |
-| Download file | ✅ (save stubbed) | ⬜ 15 | ⬜ 15 | ⬜ 15 | ⬜ 18 | ⬜ 18 | ⬜ 18 | ⬜ 18 |
-| Open or drop a chart file | ✅ (files made in the page) | ⬜ 18 | ⬜ 18 | ⬜ 18 | ⬜ 18 | ⬜ 18 | ⬜ 18 | ⬜ 18 |
-| Show QR code | ✅ (decoded by `BarcodeDetector`) | ⬜ 17 | ⬜ 17 | ⬜ 17 | ⬜ 17 | ⬜ 17 | ⬜ 17 | ⬜ 17 |
-| Scan a QR code off a monitor | — | — | — | — | ⬜ 17 | ⬜ 17 | ⬜ 17 | ⬜ 17 |
-| Share link…, Share file… | — (no `navigator.share`; stubbed calls ✅) | ⬜ 18 B | ⬜ 18 B, expected absent on desktop | ⬜ 18 B | ⬜ 18 B | ⬜ 18 B | ⬜ 18 B | ⬜ 18 B |
-| Share… in the extension | — | ⬜ 16 | ⬜ 16 | — | — | — | — | — |
-| Open a chart file from the popup | — | ⬜ 18 A | ⬜ 18 A | — | — | — | — | — |
+| Open a link, show the chart | ✅ | ⬜ 19 | ⬜ 19 | ⬜ 19 | ⬜ 19 B | ⬜ 19 B | ⬜ 19 B | ⬜ 19 B |
+| Open Stellarium Web, Astro-Seek | ✅ (links checked, opening stubbed) | ⬜ 19 | ⬜ 19 | ⬜ 19 | ⬜ 19 B | ⬜ 19 B | ⬜ 19 B | ⬜ 19 B |
+| Copy link | ✅ fallback field (the pane refused the clipboard) | ⬜ 19 | ⬜ 19 | ⬜ 19 | ⬜ 19 B | ⬜ 19 B | ⬜ 19 B | ⬜ 19 B |
+| Download file | ✅ (save stubbed) | ⬜ 19 | ⬜ 19 | ⬜ 19 | ⬜ 22 | ⬜ 22 | ⬜ 22 | ⬜ 22 |
+| Open or drop a chart file | ✅ (files made in the page) | ⬜ 22 | ⬜ 22 | ⬜ 22 | ⬜ 22 | ⬜ 22 | ⬜ 22 | ⬜ 22 |
+| Show QR code | ✅ (decoded by `BarcodeDetector`) | ⬜ 21 | ⬜ 21 | ⬜ 21 | ⬜ 21 | ⬜ 21 | ⬜ 21 | ⬜ 21 |
+| Scan a QR code off a monitor | — | — | — | — | ⬜ 21 | ⬜ 21 | ⬜ 21 | ⬜ 21 |
+| Share link…, Share file… | — (no `navigator.share`; stubbed calls ✅) | ⬜ 22 B | ⬜ 22 B, expected absent on desktop | ⬜ 22 B | ⬜ 22 B | ⬜ 22 B | ⬜ 22 B | ⬜ 22 B |
+| Share… in the extension | — | ⬜ 20 | ⬜ 20 | ⬜ not covered yet | — | ⬜ not covered yet (test 18 runs the extension on iPad) | — | — |
+| Open a chart file from the popup | — | ⬜ 22 A | ⬜ 22 A | ⬜ not covered yet | — | ⬜ not covered yet | — | — |
 
 The share buttons appear only where the browser says it can share that thing, so a browser without a share sheet, or one that refuses JSON files, shows Copy link and Download file instead. No cell is ✅ for a physical device: none has been used yet.
 
@@ -126,11 +126,11 @@ Before the first deploy:
 
 1. In the repository's Settings → Pages, set **Source** to **GitHub Actions**.
 2. Merge the branches with this work into `main`. GitHub's `github-pages` environment deploys from the default branch only.
-3. After the workflow runs, check that `https://kevinblakelopez.github.io/chart-bridge/chart.html` answers 200 with no redirect, and run manual test 15 against it.
+3. After the workflow runs, check that `https://kevinblakelopez.github.io/chart-bridge/chart.html` answers 200 with no redirect, and run manual test 19 against it.
 
 To host the page elsewhere, serve the same files at any https address and set `RECEIVER_URL` in `extension/share-config.js` to that address's `chart.html`. Name the file, not the folder: a folder address would be redirected, and a redirect carries the fragment along. Links already shared keep pointing at the old address. Setting `RECEIVER_URL` to `null` hides Copy link, QR codes and Share link… in the extension.
 
-To try the page locally, serve the `extension` folder (`python3 -m http.server 8766 --bind 127.0.0.1 --directory extension`, the launch config's `receiving-page` entry) and open `http://127.0.0.1:8766/chart.html` with a link's fragment; manual test 15 has one.
+To try the page locally, serve the `extension` folder (`python3 -m http.server 8778 --bind 127.0.0.1 --directory extension`, the launch config's `receiving-page` entry) and open `http://127.0.0.1:8778/chart.html` with a link's fragment; manual test 19 has one.
 
 ## Tests
 
@@ -144,12 +144,12 @@ To try the page locally, serve the `extension` folder (`python3 -m http.server 8
 | `test/qr.test.js` | QR versions and sizes, error correction, the SVG path against the code's modules, refusal of links too long to scan. |
 | `test/site.test.js` | The published file list against what `chart.html` loads, and the site build. |
 
-The popup's and screenshot page's own scripts, the extension's Share… flow, and every physical device are covered by manual tests 15 to 18 in `docs/manual-test.md`.
+The popup's and screenshot page's own scripts, the extension's Share… flow, and every physical device are covered by manual tests 19 to 22 in `docs/manual-test.md`.
 
 ## Remaining limitations
 
-- No physical phone, tablet, camera, share sheet or AirDrop has been used. Manual tests 15 B, 17 and 18 cover them.
-- The extension's Share… flow and the popup's Open a chart file haven't run in a browser: the browser pane can't load the extension. Manual tests 16 and 18 A cover them.
+- No physical phone, tablet, camera, share sheet or AirDrop has been used. Manual tests 19 B, 21 and 22 cover them.
+- The extension's Share… flow and the popup's Open a chart file haven't run in a browser: the browser pane can't load the extension. Manual tests 20 and 22 A cover them in Chrome and Firefox; no manual test covers them in Safari yet.
 - Until the page is deployed, links copied in the extension open a 404.
 - Whether a browser's History list keeps a link's `#v1=…` address is unknown.
 - The page can be framed by another site (see Security and privacy).
