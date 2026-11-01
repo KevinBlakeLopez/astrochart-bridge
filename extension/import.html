@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>AstroChart Bridge: open an AAF file</title>
+    <title>AstroChart Bridge: open an AAF or Morinus file</title>
     <link rel="stylesheet" href="popup.css">
     <link rel="stylesheet" href="screenshot.css">
     <link rel="stylesheet" href="import.css">
@@ -10,9 +10,9 @@
   </head>
   <body class="page">
     <main>
-      <h1>Open an AAF file</h1>
-      <p>Choose or drop an AAF (.aaf) file anywhere on this page, or paste its text below. Astrolog and other astrology programs save charts in AAF.</p>
-      <p><input id="file" type="file" accept=".aaf,.txt,text/plain" aria-label="Choose an AAF file"></p>
+      <h1>Open an AAF or Morinus file</h1>
+      <p>Choose or drop an AAF (.aaf) file or a Morinus chart (.hor) anywhere on this page, or paste an AAF file's text below. Astrolog and other astrology programs save charts in AAF.</p>
+      <p><input id="file" type="file" accept=".aaf,.hor,.txt,text/plain" aria-label="Choose an AAF or Morinus file"></p>
       <textarea id="text" rows="5" spellcheck="false" placeholder="#A93:Name,First name,*,17.4.2024,8:00,Place,Country&#10;#B93:*,40n43,74w00,5hw00,1" aria-label="AAF text"></textarea>
       <p><button id="read" class="secondary">Read pasted text</button></p>
       <p class="note">The file is read on this computer and isn't sent anywhere.</p>

@@ -2,7 +2,7 @@
 
 AstroChart Bridge is a browser extension that takes the birth data from an astrology chart and opens the same moment and place somewhere else: the sky in Stellarium Web or Stellarium Desktop, the chart in Astro-Seek, or astro.com's birth data form.
 
-It reads a chart from the page you're on, a screenshot, pasted text or an AAF file. It works out the chart's Universal Time from what the source prints and refuses a chart rather than guess a time, an offset or a calendar.
+It reads a chart from the page you're on, a screenshot, pasted text, an AAF file or a Morinus chart file. It works out the chart's Universal Time from what the source prints and refuses a chart rather than guess a time, an offset or a calendar.
 
 It runs in Chrome, Brave, Microsoft Edge, Firefox 128 or later and Safari 26 or later on macOS. In Safari on iPad it has to be wrapped in an app with Xcode; see [docs/safari-ipad.md](docs/safari-ipad.md).
 
@@ -14,6 +14,7 @@ It runs in Chrome, Brave, Microsoft Edge, Firefox 128 or later and Safari 26 or 
 - **A screenshot** of a chart from Astro-Seek, astro.com, Solar Fire, Astro Gold, Morinus, Valens, Planetdance, Jagannatha Hora, Kepler, Sirius, Janus, Win\*Star, TimePassages or Astrolog. The text is read on your computer with Tesseract.
 - **Pasted text** from an astrology program, a chart report, a PDF or your own notes. You check each value on a form before anything opens. See [docs/paste-text.md](docs/paste-text.md).
 - **AAF files**, the Astrologisches Austauschformat, as AAF'97 and Astrolog 8.00 write them. See [docs/aaf.md](docs/aaf.md).
+- **Morinus chart files** (`.hor`), from every Morinus version, read without running anything in them. See [docs/morinus-hor.md](docs/morinus-hor.md).
 - **AstroChart Bridge links, QR codes and `.astrochart.json` files**, on the receiving page. See [docs/portable-charts.md](docs/portable-charts.md).
 
 It opens natal charts, plus horary charts from a screenshot. Transit, synastry, compatibility, return, profection and direction charts are refused, as are dates before 15 October 1582, when the Gregorian calendar began.
