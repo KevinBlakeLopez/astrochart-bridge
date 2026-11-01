@@ -73,6 +73,27 @@ test("ready: an astro.com chart shows its stated offset and no zone label, and c
   });
 });
 
+// The analyzeScreenshot result for astro.com's chart image of Lilly's 1645 horary.
+test("ready: a local-mean-time offset shows its seconds", () => {
+  const result = {
+    kind: "natal",
+    site: "astro-com",
+    local: "1645-07-26T07:30:03",
+    zoneLabel: null,
+    lat: 51.5,
+    lng: -0.166667,
+    utc: "1645-07-26T07:30:43Z",
+    utcSource: "printed",
+    offsetMinutes: -40 / 60,
+  };
+  assert.deepEqual(viewFor(result, LOS_ANGELES).rows, [
+    ["Local time", "26 Jul 1645, 07:30"],
+    ["Offset", "UTC-00:00:40"],
+    ["UTC", "1645-07-26 07:30"],
+    ["Place", "51°30'N, 0°10'W"],
+  ]);
+});
+
 test("ready: the clock note gives both dates when they differ", () => {
   assert.equal(
     viewFor(analyze("sydney-2024-01-15"), LOS_ANGELES).notes[0],

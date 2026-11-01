@@ -60,7 +60,26 @@ test("the compare note comes first on the choose screen too", () => {
   assert.match(view.notes[0], /^Read from a screenshot/);
 });
 
-for (const reason of ["unreadable-screenshot", "ambiguous-screenshot", "sidereal-mismatch", "offset-out-of-range"]) {
+test("an astro.com chart image's screen lists Astro-Seek's notes once", () => {
+  const lilly = {
+    ...NY,
+    site: "astro-com",
+    local: "1645-07-26T07:30:03",
+    zoneLabel: null,
+    utc: "1645-07-26T07:30:43Z",
+    offsetMinutes: -40 / 60,
+    lat: 51.5,
+    lng: -0.166667,
+  };
+  const popup = viewFor(lilly, LA);
+  const view = viewForScreenshot(lilly, LA);
+  assert.deepEqual(view.notes.slice(1), popup.notes);
+  assert.deepEqual(view.notes.slice(-ASTRO_SEEK_NOTES.length), ASTRO_SEEK_NOTES);
+  assert.deepEqual(view.buttons, popup.buttons);
+});
+
+const REASONS = ["unreadable-screenshot", "ambiguous-screenshot", "sidereal-mismatch", "offset-out-of-range", "weekday-mismatch"];
+for (const reason of REASONS) {
   test(`${reason} has its own message and keeps its code`, () => {
     const view = viewForScreenshot({ kind: "refused", reason });
     assert.equal(view.state, "refused");

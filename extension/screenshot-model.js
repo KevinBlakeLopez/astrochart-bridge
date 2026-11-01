@@ -4,12 +4,14 @@ import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, viewFor } from "./popup-model.js"
 // like the popup's unreadable pages, so a bug report says which check failed.
 const REFUSALS = {
   "unreadable-screenshot":
-    "Chart Bridge couldn't find the birth data in this screenshot. Include everything from Date of Birth to Latitude, Longitude, at full size.",
+    "Chart Bridge couldn't find the birth data in this screenshot. From Astro-Seek, include everything from Date of Birth to Latitude, Longitude; from astro.com, the chart's header from the date to Sid. Time. Take it at full size.",
   "ambiguous-screenshot": "This screenshot shows more than one chart. Chart Bridge opens natal charts only.",
   "sidereal-mismatch":
     "The sidereal time in this screenshot doesn't match its Universal Time and longitude, so one of them was probably misread. Try a larger screenshot.",
   "offset-out-of-range":
     "The local time in this screenshot is too far from its Universal Time, so one of them was probably misread. Try a larger screenshot.",
+  "weekday-mismatch":
+    "The weekday in this screenshot doesn't fall on its date, so the date was probably misread. Try a larger screenshot.",
 };
 
 // First on every screen that opens the sky: OCR can misread, and the latitude is the one number no check covers.
@@ -29,5 +31,7 @@ export function viewForScreenshot(result, options) {
   }
   const view = viewFor(result, options);
   if (view.state === "refused") return view;
-  return { ...view, notes: [COMPARE_NOTE, ...view.notes, ...ASTRO_SEEK_NOTES], buttons: [...ASTRO_SEEK_BUTTONS] };
+  // viewFor already gives an astro.com chart Astro-Seek's notes and buttons.
+  const notes = result.site === "astro-com" ? view.notes : [...view.notes, ...ASTRO_SEEK_NOTES];
+  return { ...view, notes: [COMPARE_NOTE, ...notes], buttons: [...ASTRO_SEEK_BUTTONS] };
 }

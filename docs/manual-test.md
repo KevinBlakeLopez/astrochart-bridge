@@ -179,6 +179,7 @@ The screenshot page reads the image on this computer with the Tesseract.js files
 - [ ] Open the file in Preview, use **Tools → Adjust Size** to halve its width, and save. Dropping it gives the same result.
 - [ ] A screenshot of only the chart wheel shows "Chart Bridge couldn't find the birth data in this screenshot…" and `Code: unreadable-screenshot`.
 - [ ] In light and dark mode the page is readable, like the popup in test 10.
+- [ ] Open a chart drawing on astro.com and paste a screenshot of the whole drawing. The rows show the header's local date and time, its Univ.Time as UTC, and its coordinates. There is no zone label in the Local time row, and the page offers **Open sky** and **Open chart in Astro-Seek**.
 
 ## Test 14: entering a chart in astro.com
 

@@ -143,3 +143,55 @@ test("a misread local hour contradicts the zone label", () => {
 test("nothing but wheel text is refused", () => {
   assert.deepEqual(analyzeScreenshot("20°20\n26° \\ 53'\nGET"), { kind: "refused", reason: "unreadable-screenshot" });
 });
+
+// astro.com's chart image for Lilly's 1645 horary, as Tesseract.js 5.1.1 read a
+// 1344 px screenshot scaled up 2x (test/chart-image.test.js has more of it).
+const LILLY_LINES = [
+  "Will Sick One Die? William Lilly questio \\L/_",
+  "We., 26 July 1645 Time: 7:30:03 a.m. LMT MC,g",
+  "London, ENG (UK) Univ.Time: 7:30:43 WWW.8Str0. Com",
+  "0w10, 51n30 Sid. Time: 347-11 hm am",
+  "Event Chart",
+];
+// LILLY_LINES with the line that starts with `start` replaced.
+const lillyWith = (start, line) => ocr(LILLY_LINES.map((current) => (current.startsWith(start) ? line : current)));
+
+test("an astro.com chart image opens as an astro.com chart, in UT as printed", () => {
+  const { offsetMinutes, ...rest } = analyzeScreenshot(ocr(LILLY_LINES));
+  assert.deepEqual(rest, {
+    kind: "natal",
+    site: "astro-com",
+    local: "1645-07-26T07:30:03",
+    zoneLabel: null,
+    lat: 51.5,
+    lng: -0.166667,
+    utc: "1645-07-26T07:30:43Z",
+    utcSource: "printed",
+  });
+  assert.equal(Math.round(offsetMinutes * 60), -40);
+});
+
+test("a misread Sid. Time in an astro.com chart image is refused", () => {
+  assert.deepEqual(analyzeScreenshot(lillyWith("0w10", "0w10, 51n30 Sid. Time: 3:41:11")), {
+    kind: "refused",
+    reason: "sidereal-mismatch",
+  });
+});
+
+test("a misread weekday in an astro.com chart image is refused", () => {
+  assert.deepEqual(analyzeScreenshot(lillyWith("We.", "Th., 26 July 1645 Time: 7:30:03 a.m. LMT")), {
+    kind: "refused",
+    reason: "weekday-mismatch",
+  });
+});
+
+test("an astro.com chart image with an unreadable header is refused", () => {
+  assert.deepEqual(analyzeScreenshot(lillyWith("0w10", "0w10, 5130 Sid, Time: 347-11")), {
+    kind: "refused",
+    reason: "unreadable-screenshot",
+  });
+});
+
+test("a screenshot with both sites' labels is refused", () => {
+  assert.deepEqual(analyzeScreenshot(ocr([...NY_LINES, ...LILLY_LINES])), { kind: "refused", reason: "ambiguous-screenshot" });
+});
