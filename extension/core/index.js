@@ -5,6 +5,7 @@ import { resolveUtc, utcFromOffset } from "./civiltime.js";
 import * as astrogold from "./astrogold.js";
 import * as esotech from "./esotech.js";
 import * as jhora from "./jhora.js";
+import * as kepler from "./kepler.js";
 import * as morinus from "./morinus.js";
 import * as planetdance from "./planetdance.js";
 import { resolvePrinted, resolveReadings } from "./printed-chart.js";
@@ -185,18 +186,19 @@ const SCREENSHOT_READERS = [
   { shows: morinus.detect, analyze: printedBy(morinus) },
   { shows: planetdance.detect, analyze: printedBy(planetdance) },
   { shows: jhora.detect, analyze: printedBy(jhora) },
+  { shows: kepler.detect, analyze: printedBy(kepler) },
 ];
 
 /**
  * The same as analyzePage, for the OCR text of a screenshot of an Astro-Seek
  * chart page, an astro.com chart image, a Solar Fire wheel, Astro Gold's chart
  * details or Edit Chart screen, a Morinus status bar or square chart, a Valens
- * wheel, Planetdance's wheel, data screen or Vedic screen, or Jagannatha
- * Hora's birth data. With no URL to check the text against, the checks are
- * whatever the screenshot prints: a sidereal time that must fit the UT and
- * longitude, a weekday that must fall on the date, a zone label that must give
- * the offset, and a local time a real UTC offset away from the UT. Nothing
- * checks the latitude.
+ * wheel, Planetdance's wheel, data screen or Vedic screen, Jagannatha Hora's
+ * birth data, or a Kepler or Sirius wheel. With no URL to check the text
+ * against, the checks are whatever the screenshot prints: a sidereal time that
+ * must fit the UT and longitude, a weekday that must fall on the date, a zone
+ * label or zone that must give the offset, and a local time a real UTC offset
+ * away from the UT. Nothing checks the latitude.
  *
  * @param {string} text  OCR output
  * @returns {ReturnType<typeof analyzePage> | ReturnType<typeof resolvePrinted>}

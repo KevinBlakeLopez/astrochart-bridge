@@ -94,12 +94,12 @@ test("a Solar Fire chart with nothing to check its offset says so, after the pop
   const view = viewForScreenshot(streisand, LA);
   assert.equal(view.state, "ready");
   assert.deepEqual(view.warnings, [
-    "Solar Fire prints no Universal Time or sidereal time to check its UTC offset against. Compare the Offset row with the screenshot.",
+    "Nothing in this Solar Fire screenshot checks its UTC offset. Compare the Offset row with the screenshot.",
   ]);
   assert.deepEqual(view.buttons, ASTRO_SEEK_BUTTONS);
   assert.deepEqual(view.notes.slice(-ASTRO_SEEK_NOTES.length), ASTRO_SEEK_NOTES);
   const either = viewForScreenshot({ ...streisand, site: "solar-fire-or-astro-gold" }, LA);
-  assert.match(either.warnings[0], /^Solar Fire or Astro Gold prints no Universal Time/);
+  assert.match(either.warnings[0], /^Nothing in this Solar Fire or Astro Gold screenshot/);
 });
 
 const REASONS = [

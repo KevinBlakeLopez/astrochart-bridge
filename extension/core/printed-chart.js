@@ -21,7 +21,8 @@ const LMT_TOLERANCE_MINUTES = 1;
  * date, a zone label Chart Bridge knows must give the printed offset, "LMT"
  * must fit the longitude, and a sidereal time must fit the UTC and longitude.
  * A record with none of them comes back with the offset-unchecked warning. A
- * record with a Universal Time takes its offset from it. A record with neither
+ * record with a Universal Time takes its offset from it, and one that also
+ * has an offset must agree with it to the minute. A record with neither
  * an offset nor a Universal Time, from a program that prints none, comes back
  * for the user to enter the offset, as an Astro-Seek page without a Universal
  * Time does.
@@ -46,6 +47,9 @@ export function resolvePrinted({ site, local, lat, lng, zoneLabel, offsetMinutes
     return { kind: "natal", site, local, zoneLabel, lat, lng, utc: null, utcSource: "needs-offset", reason: "no-printed-offset" };
   }
   const offsetMinutes = printedUtc === undefined ? declared : (Date.parse(`${local}Z`) - Date.parse(printedUtc)) / 60_000;
+  // A program that prints both can round one of them, as a local-mean-time
+  // offset from a longitude printed to the minute.
+  if (declared !== undefined && Math.abs(declared - offsetMinutes) > 1) return refused("zone-offset-mismatch");
   // -12:00 to +14:00 is the range parseOffset accepts. A local-mean-time
   // offset falls inside it too: 180° is 12 hours.
   if (offsetMinutes < -720 || offsetMinutes > 840) return refused("offset-out-of-range");
