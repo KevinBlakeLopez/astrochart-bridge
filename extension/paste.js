@@ -4,8 +4,7 @@
 // only ever inserted with textContent or an input's value, never as HTML.
 import { openLink as openPageLink } from "./astro-com-page.js";
 import { linkFor } from "./chart-model.js";
-import { readText } from "./core/text.js";
-import { chartForEntry, checkField, entryFor, formFor, viewForEntry } from "./paste-model.js";
+import { chartForEntry, checkField, entryFor, formForText, viewForEntry } from "./paste-model.js";
 import { viewForShareRefusal } from "./popup-model.js";
 import { paragraph, render } from "./view.js";
 
@@ -36,7 +35,7 @@ document.getElementById("from-clipboard").addEventListener("click", async () => 
 });
 
 function read() {
-  const form = formFor(readText(textArea.value));
+  const form = formForText(textArea.value);
   if (form.state === "refused") render(app, form, openLink);
   else app.replaceChildren(formElement(form));
 }

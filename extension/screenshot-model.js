@@ -30,8 +30,8 @@ const REFUSALS = {
 
 // The name each desktop program's reader gives as its site.
 // Solar Fire and Astro Gold print the same block, so a screenshot without its
-// type line could be either.
-const PROGRAMS = {
+// type line could be either. The paste page names them too.
+export const PROGRAMS = {
   "solar-fire": "Solar Fire",
   "astro-gold": "Astro Gold",
   "solar-fire-or-astro-gold": "Solar Fire or Astro Gold",

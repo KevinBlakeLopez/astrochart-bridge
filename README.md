@@ -79,3 +79,11 @@ Pushes to `main` run `.github/workflows/pages.yml`, which runs the tests and pub
 - [docs/manual-test.md](docs/manual-test.md): the manual test checklist
 - [docs/astroseek-known-issues.md](docs/astroseek-known-issues.md): Astro-Seek behaviour worked around or to report
 - [docs/saved-charts-ideas.md](docs/saved-charts-ideas.md): ideas, not planned, for an account's saved charts
+
+## Licence
+
+Copyright © 2026 Kevin Blake Lopez.
+
+AstroChart Bridge is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. The full text is in [LICENSE](LICENSE).
+
+The files in `extension/vendor/` keep their own licences, which sit beside them: Apache-2.0 for Tesseract.js and MIT for lean-qr. The captures in `fixtures/astroseek/` are text from Astro-Seek's pages, kept as test input.

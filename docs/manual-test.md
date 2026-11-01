@@ -11,7 +11,7 @@ Natal charts are read from three Astro-Seek pages: the birth chart (`/calculate-
 ### Chrome
 
 1. Go to `chrome://extensions` and turn on **Developer mode** (top right).
-2. Click **Load unpacked**. Press **Cmd+Shift+G**, paste the path to this repo's `extension` folder (for example `/Users/you/code/chart-bridge/extension`), press Return and click **Select**. The folder you select must contain `manifest.json`.
+2. Click **Load unpacked**. Press **Cmd+Shift+G**, paste the path to this repo's `extension` folder (for example `/Users/you/code/astrochart-bridge/extension`), press Return and click **Select**. The folder you select must contain `manifest.json`.
 3. Click the puzzle-piece icon in Chrome's toolbar and click the pin next to **AstroChart Bridge**, so its icon stays in the toolbar.
 
 After changing any file in `extension/`, click the reload arrow on the AstroChart Bridge card in `chrome://extensions` before testing again.
@@ -271,7 +271,7 @@ Open the test 1 URL and open the popup.
 
 ## Test 16: pasted chart text
 
-The paste page reads text with no help from the web. These steps check what only the installed extension can show: the page loads under the extension's script policy, the clipboard button behaves in each browser, and nothing is fetched. `test/paste-model.test.js` and `test/text.test.js` cover what the form shows for each kind of text. The sample uses test 1's invented New York data.
+The paste page reads text with no help from the web. These steps check what only the installed extension can show: the page loads under the extension's script policy, the clipboard button behaves in each browser, and nothing is fetched. `test/paste-model.test.js`, `test/paste-programs.test.js` and `test/text.test.js` cover what the form shows for each kind of text. The sample uses test 1's invented New York data.
 
 1. Go to `https://example.com`, click the AstroChart Bridge icon, then **Paste chart text instead**. An AstroChart Bridge tab opens and the popup closes.
 2. In that tab, open DevTools (**Cmd+Option+I**) on the **Network** tab, then reload the page.
@@ -311,6 +311,19 @@ Birth time: 22:15
 Latitude: 51.5074
 Longitude: -0.1278
 Time Zone: BST
+```
+
+- [ ] Replace the text with Jagannatha Hora's birth data block below and click **Read the text**. All five boxes fill (Date `1955-10-26`, Local time `21:17:59`, UTC offset `-08:00`), each grey line under them says "Read as Jagannatha Hora's text.", and a grey note below the form says the text was read as Jagannatha Hora's. **Continue** shows UTC `1955-10-27 05:17`. Then change `West of GMT` to `East of GMT` and read it again: the boxes are empty, and an orange warning ends with `(sidereal-mismatch)`.
+
+```
+Bill Gates
+Natal Chart
+Date:          October 26, 1955
+Time:          9:17:59 pm
+Time Zone:     8:00:00 (West of GMT)
+Place:         122 W 20' 30", 47 N 36' 32"
+               Seattle, Washington, USA
+Sidereal Time: 23:27:48
 ```
 
 - [ ] Replace the text with `Name: <b>Example</b>` and `Date of Birth: 15 June 1985` on two lines and click **Read the text**. The Name row shows the angle brackets as typed, not bold text.
@@ -407,7 +420,7 @@ A phone reaches the page through the Mac's address on the local network, which m
 Copied links point at `RECEIVER_URL` in `extension/share-config.js`, the receiving page on GitHub Pages. Until that page is deployed, a copied link opens a 404 there; check its address and contents instead.
 
 - [ ] On the test 1 chart, **Share…** opens a tab at `chrome-extension://…/chart.html` (`moz-extension://…` in Firefox) and closes the popup. The tab shows the same rows as test 19 A, From `Astro-Seek page`, and the address has nothing after `chart.html`.
-- [ ] **Copy link** says "Link copied.", and the pasted link starts `https://kevinblakelopez.github.io/chart-bridge/chart.html#v1=`. Pasting it after `http://127.0.0.1:8778/chart.html` in place of that address, with the test 19 server running, shows the same chart.
+- [ ] **Copy link** says "Link copied.", and the pasted link starts `https://kevinblakelopez.github.io/astrochart-bridge/chart.html#v1=`. Pasting it after `http://127.0.0.1:8778/chart.html` in place of that address, with the test 19 server running, shows the same chart.
 - [ ] **Download file** saves `chart-2024-04-17.astrochart.json`, in Chrome and in Firefox.
 - [ ] **Open sky** on that tab opens the same Stellarium address as test 1.
 - [ ] On the test 4 chart, **Share…** is faded until a reading is picked. Pick the second reading (the label EST), then **Share…**: the tab shows Offset `UTC-05:00` and UTC `2021-03-14 07:30`.

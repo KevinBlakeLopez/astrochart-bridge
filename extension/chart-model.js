@@ -49,7 +49,7 @@ const REFUSALS = {
   link: {
     malformed: "This link is incomplete or damaged. Copy the whole link again.",
     "too-large": "This link is too long to be an AstroChart Bridge chart.",
-    "not-chart-bridge": "This link doesn't hold an AstroChart Bridge chart.",
+    "not-astrochart": "This link doesn't hold an AstroChart Bridge chart.",
     "unsupported-version": NEWER,
     "unknown-field": NEWER,
     "unsupported-calendar": NEWER,
@@ -58,7 +58,7 @@ const REFUSALS = {
   file: {
     malformed: "This file isn't an AstroChart Bridge chart, or it is damaged.",
     "too-large": "This file is too large to be an AstroChart Bridge chart.",
-    "not-chart-bridge": "This file isn't an AstroChart Bridge chart.",
+    "not-astrochart": "This file isn't an AstroChart Bridge chart.",
     "unsupported-version": NEWER_FILE,
     "unknown-field": NEWER_FILE,
     "unsupported-calendar": NEWER_FILE,

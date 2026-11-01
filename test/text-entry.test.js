@@ -94,10 +94,19 @@ test("a missing or malformed value is a bug in the form, and throws naming the f
     ["lng", -181],
     ["offsetMinutes", null],
     ["offsetMinutes", 900],
-    ["offsetMinutes", 30.5],
+    // 30 minutes and half a second.
+    ["offsetMinutes", 30 + 0.5 / 60],
   ]) {
     assert.throws(() => analyzeEntry({ ...ENTRY, [field]: value }), new RegExp(`valid ${field}$`), `${field} ${value}`);
   }
+});
+
+test("an offset to the second, as a local-mean-time offset, gives the UTC to the second", () => {
+  // LMT -05:42:58, as the readers sum it.
+  const offsetMinutes = 0 - (5 * 60 + 42 + 58 / 60);
+  const chart = analyzeEntry({ date: "1809-02-12", time: "06:57:53", lat: 37.573889, lng: -85.74, offsetMinutes });
+  assert.equal(chart.utc, "1809-02-12T12:40:51Z");
+  assert.equal(chart.offsetMinutes, offsetMinutes);
 });
 
 // Checked in Node 24: Date.parse reads both of these as a later day.

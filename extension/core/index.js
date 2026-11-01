@@ -141,8 +141,13 @@ export function analyzeEntry({ date, time, lat, lng, offsetMinutes }) {
     time: typeof time === "string" && ENTRY_TIME.test(time),
     lat: Number.isFinite(lat) && Math.abs(lat) <= 90,
     lng: Number.isFinite(lng) && Math.abs(lng) <= 180,
-    // -12:00 to +14:00, the range parseOffset accepts.
-    offsetMinutes: Number.isInteger(offsetMinutes) && offsetMinutes >= -720 && offsetMinutes <= 840,
+    // -12:00 to +14:00, the range parseOffset accepts, to the second: a
+    // local-mean-time offset has seconds.
+    offsetMinutes:
+      Number.isFinite(offsetMinutes) &&
+      Math.abs(offsetMinutes * 60 - Math.round(offsetMinutes * 60)) < 1e-6 &&
+      offsetMinutes >= -720 &&
+      offsetMinutes <= 840,
   };
   const bad = Object.keys(checks).find((field) => !checks[field]);
   if (bad) throw new Error(`analyzeEntry needs a valid ${bad}`);
@@ -182,9 +187,7 @@ const printedBy = (reader) => (text) => {
   return chart.kind === "refused" ? chart : resolvePrinted(chart);
 };
 
-const SCREENSHOT_READERS = [
-  { shows: (text) => ASTRO_SEEK_LABELS.test(text), analyze: analyzeAstroSeekScreenshot },
-  { shows: (text) => ASTRO_COM_LABELS.test(text), analyze: analyzeChartImage },
+const PROGRAM_READERS = [
   { shows: esotech.detect, analyze: printedBy(esotech) },
   { shows: astrogold.detect, analyze: printedBy(astrogold) },
   { shows: morinus.detect, analyze: printedBy(morinus) },
@@ -196,6 +199,28 @@ const SCREENSHOT_READERS = [
   { shows: timepassages.detect, analyze: printedBy(timepassages) },
   { shows: astrolog.detect, analyze: printedBy(astrolog) },
 ];
+
+const SCREENSHOT_READERS = [
+  { shows: (text) => ASTRO_SEEK_LABELS.test(text), analyze: analyzeAstroSeekScreenshot },
+  { shows: (text) => ASTRO_COM_LABELS.test(text), analyze: analyzeChartImage },
+  ...PROGRAM_READERS,
+];
+
+/**
+ * analyzeScreenshot for text pasted from a desktop astrology program, with
+ * only the programs' readers: Astro-Seek's labels and astro.com's
+ * "Univ.Time" turn up in ordinary labelled text too. Null when no program's
+ * layout is in the text, so the paste page reads it as labelled text alone.
+ *
+ * @param {string} text
+ * @returns {ReturnType<typeof resolvePrinted> | { kind: "refused", reason: string } | null}
+ */
+export function analyzeProgramText(text) {
+  const shown = PROGRAM_READERS.filter((reader) => reader.shows(text));
+  if (shown.length === 0) return null;
+  if (shown.length > 1) return refused("ambiguous-screenshot");
+  return shown[0].analyze(text);
+}
 
 /**
  * The same as analyzePage, for the OCR text of a screenshot of an Astro-Seek

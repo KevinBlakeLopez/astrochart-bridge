@@ -93,11 +93,27 @@ A bare `Date:` or `Time:` isn't read, because reports use those labels for when 
 - **Dates**: `1985-06-15`, `15 June 1985`, `15 Jun 1985`, `June 15, 1985`, `15/06/1985`, with or without a weekday in front. The year must have four digits.
 - **Times**: `10:30`, `22:30:15`, `10:30 AM`, `10:30pm`, `10 a.m.`.
 - **Coordinates**: decimal degrees (`47.6062`, `-122.3321`, `47.6062 N`), degrees and minutes (`47°36'N`, `47° 36' 15" N`), or a letter between degrees and minutes (`47n36`, `122w19`). In a Coordinates line, values with N, S, E or W can come in either order; without letters, latitude comes first.
-- **Offsets**: `-07:00`, `-0700`, `-7`, `UTC-7`, `GMT -7`, `+05:30`, or `UTC` or `GMT` alone for zero. A date and time written in ISO form, such as `1985-06-15T10:30:00-07:00`, carry their offset.
+- **Offsets**: `-07:00`, `-0700`, `-7`, `UTC-7`, `GMT -7`, `+05:30`, or `UTC` or `GMT` alone for zero. A local-mean-time offset can run to the second: `-05:42:58`. A date and time written in ISO form, such as `1985-06-15T10:30:00-07:00`, carry their offset.
 - **House systems**: Placidus, Koch, Whole Sign, Equal, Porphyry, Regiomontanus, Campanus, Topocentric, Alcabitius, Morinus and Meridian. Any other name is shown as written.
 - **Zodiac**: Tropical or Sidereal.
 
 Signs follow the usual convention: a negative latitude is south, a negative longitude is west, and a negative offset is behind UTC.
+
+## Text from astrology programs
+
+AstroChart Bridge also knows the birth data layouts of Solar Fire, Astro Gold, Morinus, Valens, Planetdance, Jagannatha Hora, Kepler, Sirius, Janus, Win*Star, TimePassages and Astrolog, the same ones its screenshot page reads. When the text you paste is laid out like one of them, that program's reader fills the boxes too, and a note below the form names the program. A box filled this way says "Read as Jagannatha Hora's text" (or whichever program it was) under it, in place of a line number.
+
+These readers check what the program printed with it: a sidereal time must fit the time and longitude, a weekday must fall on the date, and a zone label must give the offset. Text that fails a check isn't used. The form then shows only what the labelled lines give, with a warning naming the check, such as `sidereal-mismatch`, so you can enter the values by hand.
+
+The two readings are compared box by box:
+
+- **Both read a value alike**: the box keeps the line it came from.
+- **Only the program's reader reads it**: the box says so. This is how Jagannatha Hora's `Time Zone: 8:00:00 (West of GMT)` fills the offset box.
+- **They read it differently**: the box stays empty and offers both, so you pick. An ambiguous date stays ambiguous, with the program's reading among the choices.
+
+Solar Fire, Astro Gold, Janus and Win*Star write an offset west of Greenwich with a plus sign: their `PDT +7:00` is UTC−07:00. The form says so when it reads one of them. Win*Star labels its offset `ZONE:`, which the labelled-line reader also reads, the usual way round, so its offset box always offers both. Text from somewhere else can look like Astro Gold's, with a `Latitude` row and a `Timezone` row. Then `Timezone: -07:00` is offered both ways round, but `Timezone: PDT -07:00` fills the box with `+07:00`, since only Astro Gold's reader reads an offset after a zone label. Check the line under the offset box against what the text means.
+
+Morinus doesn't print the offset, so its offset box stays empty for you to fill in.
 
 ## Required and optional fields
 
@@ -136,14 +152,14 @@ Because the offset fixes the instant, a time skipped or repeated when the clocks
 - **Astro-Seek's settings**: the Astro-Seek chart always opens with Placidus houses in UT/GMT at the coordinates, rounded to the minute, with no city. When the text names another house system or the sidereal zodiac, the form warns you to set it in Astro-Seek. Stellarium Web shows the sky, which has no houses or zodiac.
 - **One value per line**: a label whose value is on the next line, as in text copied from an Astro-Seek chart page, isn't read. Open the Astro-Seek page itself and use the AstroChart Bridge icon there instead.
 - **Unlabelled lines**: text with no labels, such as `15 Jun 1985` and `10:30 AM PDT` on lines of their own, isn't read yet.
-- **West-positive programs**: some astrology programs write west longitudes or west-of-UTC offsets as positive numbers without a letter. Those are read the usual way round, so check the hemisphere letter under each box.
+- **West-positive programs**: some astrology programs write west longitudes or west-of-UTC offsets as positive numbers without a letter. In labelled lines, those are read the usual way round, so check the hemisphere letter under each box. Only the program layouts above are read their own way round.
 - **Calendars**: dates are read in the Gregorian calendar, including dates before a country adopted it.
-- **Desktop programs**: no program's copied text has been tested yet. Text in the labelled or key-value forms above should read whichever program wrote it; anything else may not.
+- **Desktop programs**: the program layouts were tested with text written out from each program's screenshots and guides. Of these, only Jagannatha Hora's block is known to be text the program itself gives to copy. How the others' text comes out of a copy command hasn't been checked.
 - **Size**: up to 100,000 characters. Longer text is refused; paste only the part with the birth data.
 
 ## Reporting text it can't read
 
-If text from an astrology program or website doesn't read, or reads wrong, open an issue at <https://github.com/KevinBlakeLopez/chart-bridge/issues> with:
+If text from an astrology program or website doesn't read, or reads wrong, open an issue at <https://github.com/KevinBlakeLopez/astrochart-bridge/issues> with:
 
 - the program or site, and its version,
 - how you copied the text (a menu command, selecting and copying, a saved file),

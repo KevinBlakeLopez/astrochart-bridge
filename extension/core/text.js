@@ -241,22 +241,31 @@ function matchTime(text) {
 
 // "UTC", "GMT", "UT" or "Z" alone, with or without brackets.
 const ZERO_OFFSET = /^\(?\s*(?:UTC|GMT|UT|Z)\s*\)?$/i;
-// "-07:00", "-0700", "UTC-7", "GMT -7", "(+05:30)". The sign must start the
-// text or follow UTC, GMT, UT or a bracket, so "approx. -5 min" has no offset.
-const OFFSET = /(?:^|\b(?:UTC|GMT|UT)|\()\s*([+-])\s*(\d{1,2})(?::?(\d{2}))?(?![\d:])/i;
+// "-07:00", "-0700", "UTC-7", "GMT -7", "(+05:30)", and a local-mean-time
+// offset to the second, "-05:42:58". The sign must start the text or follow
+// UTC, GMT, UT or a bracket, so "approx. -5 min" has no offset.
+const OFFSET = /(?:^|\b(?:UTC|GMT|UT)|\()\s*([+-])\s*(\d{1,2})(?::(\d{2})(?::(\d{2}))?|(\d{2}))?(?![\d:])/i;
 // "America/Los_Angeles", "Etc/GMT+7". Etc/GMT zones count their sign the
 // other way round, westward, so no offset is read from a zone name like these.
 const ZONE_NAME = /[a-z]\/[a-z]/i;
 
 // Minutes east of UTC for an offset in text, through civiltime's parseOffset,
-// or null when there's none or it's out of range.
+// or null when there's none or it's out of range. Seconds make a fraction,
+// as the desktop programs' readers give them.
 function findOffset(text) {
   if (ZONE_NAME.test(text)) return null;
   if (ZERO_OFFSET.test(text.trim())) return 0;
   const match = OFFSET.exec(text);
   if (!match) return null;
-  const [, sign, hours, minutes = "00"] = match;
-  return parseOffset(`${sign}${hours.padStart(2, "0")}:${minutes}`);
+  const [, sign, hours, colonMinutes, seconds, bareMinutes] = match;
+  const minutes = parseOffset(`${sign}${hours.padStart(2, "0")}:${colonMinutes ?? bareMinutes ?? "00"}`);
+  if (minutes === null || seconds === undefined) return minutes;
+  if (Number(seconds) > 59) return null;
+  // The same sum as the readers', hours * 60 + minutes + seconds / 60, so the
+  // same offset compares equal. "0 - size" keeps -00:00:00 at 0.
+  const size = Math.abs(minutes) + Number(seconds) / 60;
+  const offset = sign === "-" ? 0 - size : size;
+  return offset >= -720 && offset <= 840 ? offset : null;
 }
 
 // "47n36", "122w19'30": the direction between the degrees and the minutes, as

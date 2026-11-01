@@ -23,7 +23,7 @@ function shared(result, sky, via) {
 
 test("a ready Astro-Seek chart is shared with its local time, zone label and printed UT", () => {
   assert.deepEqual(shared(analyze("ny-2024-04-17"), NY_SKY, "page"), {
-    format: "chart-bridge",
+    format: "astrochart",
     version: 1,
     chart: { calendar: "gregorian", local: "2024-04-17T08:00:00", utcOffsetSeconds: -14400, latitude: 40.716667, longitude: -74 },
     source: { site: "astro-seek", via: "page", zoneLabel: "EDT, DST", utcBasis: "printed" },

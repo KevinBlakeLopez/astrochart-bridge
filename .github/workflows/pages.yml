@@ -1,5 +1,5 @@
 # Publishes the receiving page, extension/chart.html and the files it loads,
-# to GitHub Pages at https://kevinblakelopez.github.io/chart-bridge/chart.html,
+# to GitHub Pages at https://kevinblakelopez.github.io/astrochart-bridge/chart.html,
 # the address in extension/share-config.js. Only main deploys: GitHub's
 # github-pages environment allows the default branch alone. Pages must be set
 # to deploy from GitHub Actions (Settings → Pages → Source) before the first run.

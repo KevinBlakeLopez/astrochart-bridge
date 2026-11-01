@@ -164,11 +164,16 @@ test("UTC offsets as programs write them", () => {
     ["+05:30", 330],
     ["UTC", 0],
     ["(GMT)", 0],
+    // Local mean time, to the second, summed as the programs' readers sum it.
+    ["-05:42:58", 0 - (5 * 60 + 42 + 58 / 60)],
+    ["+01:24:00", 84],
   ]) {
     assert.equal(field(`UTC Offset: ${offset}`, "offset").value, expected, offset);
   }
-  // No sign, out of range, or no offset at all.
-  for (const offset of ["7", "+15:00", "-07:75", "Pacific"]) {
+  assert.ok(Object.is(field("UTC Offset: -00:00:00", "offset").value, 0));
+  // No sign, out of range, seconds past 59 or seconds without minutes' colon,
+  // or no offset at all.
+  for (const offset of ["7", "+15:00", "-07:75", "+14:00:30", "-05:42:60", "-0542:58", "Pacific"]) {
     assert.equal(field(`UTC Offset: ${offset}`, "offset").problem, "unreadable", offset);
   }
 });

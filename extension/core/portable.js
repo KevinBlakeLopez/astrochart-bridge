@@ -3,7 +3,7 @@
 // any site or browser API, so the extension and a page without it read it alike.
 //
 //   {
-//     "format": "chart-bridge",
+//     "format": "astrochart",
 //     "version": 1,
 //     "chart": {
 //       "calendar": "gregorian",
@@ -30,7 +30,7 @@
 // Only a decided chart can be written, never one whose offset is still to be
 // chosen or entered, and no unknown or approximate time.
 
-export const FORMAT = "chart-bridge";
+export const FORMAT = "astrochart";
 export const VERSION = 1;
 
 // A chart is about 230 characters, and its fragment about 300, so these leave
@@ -109,7 +109,7 @@ export function serialize(chart, indent) {
  *
  * @param {string} text
  * @returns {{ kind: "portable", chart: object }
- *   | { kind: "refused", reason: "malformed" | "too-large" | "not-chart-bridge" | "unsupported-version"
+ *   | { kind: "refused", reason: "malformed" | "too-large" | "not-astrochart" | "unsupported-version"
  *       | "unknown-field" | "unsupported-calendar" | "invalid-date" | "before-gregorian"
  *       | "invalid-offset" | "invalid-coordinates" | "invalid-source" }}
  */
@@ -173,7 +173,7 @@ export function fromFragment(hash) {
 // new object from the keys it knows, so nothing else in the document survives.
 function check(document) {
   if (!isObject(document)) return refused("malformed");
-  if (document.format !== FORMAT) return refused("not-chart-bridge");
+  if (document.format !== FORMAT) return refused("not-astrochart");
   if (!Number.isInteger(document.version)) return refused("malformed");
   if (document.version !== VERSION) return refused("unsupported-version");
   if (Object.keys(document).some((key) => !TOP_KEYS.has(key))) return refused("unknown-field");
