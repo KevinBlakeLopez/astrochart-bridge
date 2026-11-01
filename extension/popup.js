@@ -1,6 +1,7 @@
 // The only file that talks to the browser for the popup. Every decision about
 // what to show is made in popup-model.js and drawn by view.js; this file reads
 // the tab, renders the view and opens what its button links to.
+import { withAafExport } from "./aaf-model.js";
 import { fillForm, formValues, isAstroComPage, isBirthDataForm, readFormPage } from "./core/astrocom.js";
 import { analyzePage, classifyUrl, extractorFor } from "./core/index.js";
 import { isStellariumWeb, skyFromEngine } from "./core/stellarium.js";
@@ -30,7 +31,12 @@ async function main() {
       world: "MAIN",
       func: readEngine,
     });
-    show(engine ? viewForSky(skyFromEngine(engine)) : viewFor({ kind: "refused", reason: "stellarium-unreadable" }));
+    if (!engine) {
+      show(viewFor({ kind: "refused", reason: "stellarium-unreadable" }));
+      return;
+    }
+    const sky = skyFromEngine(engine);
+    show(withAafExport(viewForSky(sky), sky));
     return;
   }
 
@@ -60,7 +66,8 @@ async function main() {
     target: { tabId: tab.id },
     func: extractorFor(url),
   });
-  show(viewFor(analyzePage({ url, input })));
+  const result = analyzePage({ url, input });
+  show(withAafExport(viewFor(result), result));
 }
 
 // Runs inside the Stellarium Web page itself (world "MAIN"), where its engine
@@ -109,7 +116,9 @@ function astroComTabButtons(tab, sky) {
 
 function show(view, { offerScreenshot = false, onButton = openLink } = {}) {
   render(app, view, onButton);
-  if (offerScreenshot) app.append(screenshotButton());
+  if (offerScreenshot) {
+    app.append(pageButton("Read a screenshot instead", "screenshot.html"), pageButton("Open an AAF file", "import.html"));
+  }
 }
 
 async function openLink({ url, holds }, sky) {
@@ -126,12 +135,13 @@ async function openLink({ url, holds }, sky) {
   window.close();
 }
 
-function screenshotButton() {
+// A button that opens one of the extension's own pages in a new tab.
+function pageButton(label, page) {
   const button = document.createElement("button");
   button.className = "secondary";
-  button.textContent = "Read a screenshot instead";
+  button.textContent = label;
   button.addEventListener("click", async () => {
-    await chrome.tabs.create({ url: chrome.runtime.getURL("screenshot.html") });
+    await chrome.tabs.create({ url: chrome.runtime.getURL(page) });
     window.close();
   });
   return button;
