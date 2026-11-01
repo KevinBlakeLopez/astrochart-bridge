@@ -49,11 +49,13 @@ const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "
  * screen is made here, so popup.js only renders it.
  *
  * @param {ReturnType<typeof import("./core/index.js").analyzePage>} result
- * @param {{ timeZone?: string }} [options]  the computer's time zone; when left
- *   out, Intl uses the one this code runs in, which the popup shares with the
- *   Stellarium tab. Tests pass it so they give the same result anywhere.
+ * @param {{ timeZone?: string, town?: string | null }} [options]  timeZone is the
+ *   computer's time zone; when left out, Intl uses the one this code runs in,
+ *   which the popup shares with the Stellarium tab. Tests pass it so they give
+ *   the same result anywhere. town is the one the chart's page names, for
+ *   astro.com's form.
  */
-export function viewFor(result, { timeZone } = {}) {
+export function viewFor(result, { timeZone, town = null } = {}) {
   if (result.kind === "refused") {
     return Object.hasOwn(REFUSALS, result.reason)
       ? { state: "refused", message: REFUSALS[result.reason] }
@@ -107,7 +109,7 @@ export function viewFor(result, { timeZone } = {}) {
   if (result.site === "astro-com") {
     return { ...ready, notes: [...ready.notes, ...ASTRO_SEEK_NOTES], buttons: [...ASTRO_SEEK_BUTTONS] };
   }
-  return result.site === "astro-seek" ? { ...ready, next: astroComStep(ready.sky) } : ready;
+  return result.site === "astro-seek" ? { ...ready, next: astroComStep(ready.sky, town) } : ready;
 }
 
 /**
@@ -143,9 +145,9 @@ export const ASTRO_SEEK_BUTTONS = [
  * button that opens the same moment and place as an Astro-Seek chart.
  *
  * @param {{ utc: string, lat: number, lng: number }} sky  from skyFromEngine
- * @param {{ timeZone?: string }} [options]  as for viewFor
+ * @param {{ timeZone?: string, town?: string | null }} [options]  as for viewFor
  */
-export function viewForSky(sky, { timeZone } = {}) {
+export function viewForSky(sky, { timeZone, town = null } = {}) {
   const clock = clockParts(sky.utc, timeZone);
   return {
     state: "to-astro-seek",
@@ -160,7 +162,7 @@ export function viewForSky(sky, { timeZone } = {}) {
     notes: [...ASTRO_SEEK_NOTES],
     button: "Open chart in Astro-Seek",
     url: astroSeekUrl(sky),
-    next: astroComStep(sky),
+    next: astroComStep(sky, town),
   };
 }
 
@@ -175,19 +177,24 @@ const FORM_URL = "https://www.astro.com/cgi/ade.cgi";
 const SIGN_IN_URL = "https://www.astro.com/cgi/awd.cgi?lang=e";
 const CREATE_ACCOUNT_URL = "https://www.astro.com/cgi/scus.cgi?act=new&";
 
+// holds is what each keeps for the tab it opens.
 const ASTRO_COM_BUTTONS = [
-  { label: "Open astro.com's form", url: FORM_URL, holds: true },
-  { label: "Sign in", url: SIGN_IN_URL, holds: true },
-  { label: "Create account", url: CREATE_ACCOUNT_URL, holds: true },
+  { label: "Open astro.com's form", url: FORM_URL },
+  { label: "Sign in", url: SIGN_IN_URL },
+  { label: "Create account", url: CREATE_ACCOUNT_URL },
 ];
+
+// astro.com's form has no coordinate fields: its atlas looks up a typed town.
+const townNote = (town) =>
+  town === null
+    ? "astro.com asks for a country and town, not coordinates. Choose the town nearest this place and check the coordinates astro.com shows."
+    : `astro.com asks for a country and town, not coordinates. Chart Bridge fills in the town ${town}; choose the match nearest this place and check the coordinates astro.com shows.`;
 
 // The sign-in advice is a note, not a step before the form: a signed-in browser
 // goes straight on.
 const ASTRO_COM_NOTES = [
-  "The date and time are Universal Time, so they can differ from the local birth date and time.",
-  "astro.com asks for a country and town, not coordinates. Choose the town nearest this place and check the coordinates astro.com shows.",
   "astro.com draws the chart only for a signed-in account. If it asks you to sign in or create a free account, do it in that tab: Chart Bridge keeps these values for it.",
-  `Chart Bridge keeps them for ${HOLD_MINUTES} minutes, until it fills them in, or until you cancel or close the browser. Filling in puts them in astro.com's page; submitting sends them to astro.com.`,
+  `Chart Bridge keeps them for ${HOLD_MINUTES} minutes, until it fills them in, or until you cancel or close the browser. Filling in puts them in astro.com's page, and its town search sends a town to astro.com at once; submitting sends the rest.`,
 ];
 
 const MONTH_NAMES = [
@@ -196,23 +203,29 @@ const MONTH_NAMES = [
 ];
 
 // The secondary button on a screen whose chart can be entered in astro.com.
-const astroComStep = (sky) => ({ label: "Enter in astro.com…", view: viewForAstroCom(sky) });
+const astroComStep = (sky, town) => ({ label: "Enter in astro.com…", view: viewForAstroCom(sky, town) });
 
 /**
  * The values to enter in astro.com's birth data form for a decided UTC and
  * place, in the form's own terms, and links to the form and to signing in.
  *
  * @param {{ utc: string, lat: number, lng: number }} sky
+ * @param {string | null} [town]  the town the chart names, filled in with the rest
  */
-export function viewForAstroCom({ utc, lat, lng }) {
+export function viewForAstroCom({ utc, lat, lng }, town = null) {
   const sky = { utc, lat, lng };
+  const held = { ...sky, town };
   return {
     state: "to-astro-com",
-    ...astroComValues(sky),
+    ...astroComValues(held),
     message: "Open astro.com's form, then click Chart Bridge on it to fill in these values. Chart Bridge doesn't submit the form.",
-    notes: [...ASTRO_COM_NOTES],
+    notes: [
+      "The date and time are Universal Time, so they can differ from the local birth date and time.",
+      townNote(town),
+      ...ASTRO_COM_NOTES,
+    ],
     sky,
-    buttons: ASTRO_COM_BUTTONS.map((button) => ({ ...button })),
+    buttons: ASTRO_COM_BUTTONS.map((button) => ({ ...button, holds: { ...held } })),
   };
 }
 
@@ -230,11 +243,6 @@ const UNFILLABLE = {
     message: "This form already has a date or time in it. Chart Bridge fills in only a blank form, so it won't change what's there.",
     buttons: [BLANK_FORM, CANCEL],
   },
-  "existing-record": {
-    state: "astro-com-existing",
-    message: "This form changes a chart saved in your astro.com account. Chart Bridge fills in only a new entry, so it won't change this one.",
-    buttons: [BLANK_FORM, CANCEL],
-  },
   unrecognised: {
     state: "astro-com-unrecognised",
     message: "Chart Bridge doesn't recognise this astro.com form, so it can't fill it in. Enter the values above yourself.",
@@ -250,7 +258,7 @@ const UNFILLABLE = {
  * start a loop. A browser not seen signed out may be signed in, so it is never
  * held up by a sign-in prompt.
  *
- * @param {{ utc: string, lat: number, lng: number }} sky  from heldForTab
+ * @param {{ utc: string, lat: number, lng: number, town: string | null }} sky  from heldForTab
  * @param {{ kind: "form" } & ReturnType<typeof import("./core/astrocom.js").readFormPage> | { kind: "other" }} page
  */
 export function viewForAstroComTab(sky, page) {
@@ -298,7 +306,9 @@ export function viewForAstroComTab(sky, page) {
     ...values,
     message: "Fill in astro.com's form with these values?",
     notes: [
-      "Chart Bridge fills in the birthday, hour, minute and the 00:00 GMT / UT time zone. Choose the town nearest this place yourself, and check the coordinates astro.com shows.",
+      sky.town === null
+        ? "Chart Bridge fills in the birthday, hour, minute and the 00:00 GMT / UT time zone. Choose the town nearest this place yourself, and check the coordinates astro.com shows."
+        : `Chart Bridge fills in the birthday, hour, minute, the 00:00 GMT / UT time zone and the town ${sky.town}. Choose astro.com's match nearest this place, and check the coordinates it shows.`,
       "Chart Bridge doesn't submit the form, and forgets these values once it has filled them in.",
     ],
     sky,
@@ -307,7 +317,7 @@ export function viewForAstroComTab(sky, page) {
 }
 
 // The rows and warnings every astro.com screen shows: the form's values in its own terms.
-function astroComValues({ utc, lat, lng }) {
+function astroComValues({ utc, lat, lng, town = null }) {
   const [year, month, day] = utc.slice(0, 10).split("-");
   const seconds = Number(utc.slice(17, 19));
   return {
@@ -316,6 +326,7 @@ function astroComValues({ utc, lat, lng }) {
       ["Hour, min", utc.slice(11, 16)],
       ["Time zone", "00:00 GMT / UT, under show / hide extended settings"],
       ["Place", placeText(lat, lng)],
+      ...(town === null ? [] : [["Town", town]]),
     ],
     warnings: seconds === 0 ? [] : [`astro.com takes whole minutes, so the ${seconds} seconds are left out.`],
   };

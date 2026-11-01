@@ -2,8 +2,8 @@
 // so the popup on that tab can fill in astro.com's form after the popup that
 // opened it has closed. Each takes the storage area to use: the browser passes
 // chrome.storage.session, which the browser empties when it quits, and tests
-// pass a stand-in. Only the decided UTC and place are kept, never anything of
-// astro.com's.
+// pass a stand-in. Only the decided UTC, place and the chart's town are kept,
+// never anything of astro.com's.
 
 export const HOLD_MINUTES = 30;
 
@@ -18,15 +18,15 @@ const keyFor = (tabId) => `${PREFIX}${tabId}`;
  *
  * @param {chrome.storage.StorageArea} storage
  * @param {number} tabId
- * @param {{ utc: string, lat: number, lng: number }} sky
+ * @param {{ utc: string, lat: number, lng: number, town?: string | null }} values  town is null when the chart names none
  * @param {number} [now]  milliseconds since the epoch
  */
-export async function holdForTab(storage, tabId, { utc, lat, lng }, now = Date.now()) {
+export async function holdForTab(storage, tabId, { utc, lat, lng, town = null }, now = Date.now()) {
   const stale = Object.entries(await storage.get(null))
-    .filter(([key, entry]) => key.startsWith(PREFIX) && liveSky(entry, now) === null)
+    .filter(([key, entry]) => key.startsWith(PREFIX) && liveValues(entry, now) === null)
     .map(([key]) => key);
   if (stale.length > 0) await storage.remove(stale);
-  await storage.set({ [keyFor(tabId)]: { sky: { utc, lat, lng }, heldAt: now } });
+  await storage.set({ [keyFor(tabId)]: { values: { utc, lat, lng, town }, heldAt: now } });
 }
 
 /**
@@ -36,15 +36,15 @@ export async function holdForTab(storage, tabId, { utc, lat, lng }, now = Date.n
  * @param {chrome.storage.StorageArea} storage
  * @param {number} tabId
  * @param {number} [now]
- * @returns {Promise<{ utc: string, lat: number, lng: number } | null>}
+ * @returns {Promise<{ utc: string, lat: number, lng: number, town: string | null } | null>}
  */
 export async function heldForTab(storage, tabId, now = Date.now()) {
   const key = keyFor(tabId);
   const { [key]: entry } = await storage.get(key);
   if (entry === undefined) return null;
-  const sky = liveSky(entry, now);
-  if (sky === null) await storage.remove(key);
-  return sky;
+  const values = liveValues(entry, now);
+  if (values === null) await storage.remove(key);
+  return values;
 }
 
 /**
@@ -57,11 +57,12 @@ export async function releaseTab(storage, tabId) {
   await storage.remove(keyFor(tabId));
 }
 
-// An entry's sky while it is younger than HOLD_MINUTES, else null. One kept
+// An entry's values while it is younger than HOLD_MINUTES, else null. One kept
 // "later" than now means the clock moved back, and counts as expired too.
-function liveSky(entry, now) {
+function liveValues(entry, now) {
   const age = now - entry?.heldAt;
   if (!(age >= 0 && age < HOLD_MINUTES * 60_000)) return null;
-  const { utc, lat, lng } = entry.sky ?? {};
-  return typeof utc === "string" && Number.isFinite(lat) && Number.isFinite(lng) ? { utc, lat, lng } : null;
+  const { utc, lat, lng, town } = entry.values ?? {};
+  if (typeof utc !== "string" || !Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  return { utc, lat, lng, town: typeof town === "string" ? town : null };
 }

@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { classifyUrl } from "../extension/core/astroseek.js";
+import { classifyUrl, townFromUrl } from "../extension/core/astroseek.js";
 
 const fixtureUrl = (name) =>
   JSON.parse(readFileSync(new URL(`../fixtures/astroseek/${name}.json`, import.meta.url), "utf8")).url;
@@ -62,4 +62,19 @@ test("the browser's own pages are unsupported, in Chrome, Brave, Edge and Firefo
 
 test("a string that is not a URL is unsupported", () => {
   assert.deepEqual(classifyUrl("not a url"), unsupported);
+});
+
+test("a chart's town is the city in its address, for astro.com's town field", () => {
+  assert.equal(townFromUrl(fixtureUrl("ny-2024-04-17")), "New York");
+  assert.equal(townFromUrl(fixtureUrl("sydney-2024-01-15")), "Sydney");
+  assert.equal(townFromUrl(fixtureUrl("traditional-ny-2024-04-17")), "New York");
+});
+
+test("a chart placed by coordinates, or another site's page, names no town", () => {
+  // Charts Chart Bridge opens in Astro-Seek, like this one, name no country and
+  // put "Manually place: °'N, °'E" where the city goes.
+  assert.equal(townFromUrl(fixtureUrl("manual-ut-2024-04-17-0000")), null);
+  assert.equal(townFromUrl("https://horoscopes.astro-seek.com/calculate-birth-chart-horoscope-online/?narozeni_den=17"), null);
+  assert.equal(townFromUrl("https://example.com/?narozeni_mesto_hidden=New+York&narozeni_stat_hidden=US"), null);
+  assert.equal(townFromUrl("not a url"), null);
 });

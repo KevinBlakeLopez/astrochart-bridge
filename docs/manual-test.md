@@ -190,25 +190,26 @@ Chart Bridge keeps a chart's values for the astro.com tab it opens, for 30 minut
 Open the test 1 URL and open the popup.
 
 - [ ] Below **Open sky** is **Enter in astro.com…**. On an astro.com account chart, if you have one, it isn't there.
-- [ ] **Enter in astro.com…** replaces the popup's screen with Birthday `17 April 2024`, Hour, min `12:00`, Time zone `00:00 GMT / UT, under show / hide extended settings` and Place `40°43'N, 74°0'W`, four grey notes (the last two about signing in and how long the values are kept), the buttons **Open astro.com's form**, **Sign in** and **Create account**, and **Cancel**.
+- [ ] **Enter in astro.com…** replaces the popup's screen with Birthday `17 April 2024`, Hour, min `12:00`, Time zone `00:00 GMT / UT, under show / hide extended settings` Place `40°43'N, 74°0'W` and Town `New York`, four grey notes (the second saying Chart Bridge fills in the town New York, the last two about signing in and how long the values are kept), the buttons **Open astro.com's form**, **Sign in** and **Create account**, and **Cancel**.
 - [ ] **Cancel** brings back the test 1 screen.
 - [ ] **Open astro.com's form** opens `https://www.astro.com/cgi/ade.cgi`, "Step 1: Birth Data Entry", in a new tab and closes the popup.
-- [ ] On that tab, open the popup. It shows **Sign in to astro.com**, the same four rows, "astro.com requires an account to generate charts…", and **Sign in**, **Create account**, **Fill in anyway** and **Cancel**. Its Console is empty.
-- [ ] **Fill in anyway** closes the popup. The form shows birthday `17` `April` `2024`, hour `12`, min `00`, the extended settings open with time zone `00:00 GMT / UT`, an empty birth town with the cursor in it, and nothing else changed. If astro.com's privacy dialog covers the page, the form is filled in behind it.
+- [ ] On that tab, open the popup. It shows **Sign in to astro.com**, the same five rows, "astro.com requires an account to generate charts…", and **Sign in**, **Create account**, **Fill in anyway** and **Cancel**. Its Console is empty.
+- [ ] **Fill in anyway** closes the popup. The form shows birthday `17` `April` `2024`, hour `12`, min `00`, the extended settings open with time zone `00:00 GMT / UT`, birth town `New York` with the cursor in it, and nothing else changed. Note whether astro.com suggests matching towns as it would if you had typed it. If astro.com's privacy dialog covers the page, the form is filled in behind it.
 - [ ] Open the popup on that tab again. It shows "Open an Astro-Seek or astro.com birth chart…": the values were forgotten once filled in.
-- [ ] Back on the test 1 tab, open **Enter in astro.com…** and **Open astro.com's form** again. On the new tab, type `1` in the birthday's day field, then open the popup: it says the form already has a date or time in it and offers **Open a blank form**, which reloads the form in the same tab. Open the popup again: it offers to fill in.
+- [ ] Back on the test 1 tab, open **Enter in astro.com…** and **Open astro.com's form** again. On the new tab, type `1` in the birthday's day field, then open the popup: it says the form already has a date or time in it and offers **Open a blank form**, which reloads the form in the same tab. Open the popup again: it offers to fill in. Type `Brooklyn` in the birth town and click **Fill in anyway**: the date and time are filled in and the town stays `Brooklyn`.
 - [ ] On that tab, choose **Sign in**. The same tab goes to astro.com's "My Astro – Login" page. Don't sign in. Open the popup there: it shows "Chart Bridge is keeping these values for this tab." with **Open astro.com's form** and **Cancel**. Nothing opens or reloads by itself.
 - [ ] **Cancel** closes the popup. Opening it again on that tab shows "Open an Astro-Seek or astro.com birth chart…".
 - [ ] Open the form from the test 1 popup, then from the test 2 (Sydney) popup. Each astro.com tab's popup shows its own chart's values: Birthday `17 April 2024` on the first, `14 January 2024` on the second.
 - [ ] Open the form from the test 1 popup, wait 30 minutes, then open the popup on it: it shows "Open an Astro-Seek or astro.com birth chart…".
+- [ ] Open the test 12 Stellarium link and **Enter in astro.com…**: there is no Town row, the second note says to choose the town nearest this place, and the filled-in form leaves the birth town empty. The same goes for an astro.com chart opened in Astro-Seek with **Open chart in Astro-Seek**: its address names no town.
 - [ ] On the screenshot page from test 13, **Enter in astro.com…** and **Open astro.com's form** open a tab whose popup offers to fill in the same values.
 
 ### B: signed in (needs an astro.com account)
 
 - [ ] **Open astro.com's form** opens the form without asking you to sign in first.
 - [ ] The popup on the form tab shows "Fill in astro.com's form with these values?", **Fill in the form** and **Cancel**, and no sign-in prompt. Note whether it showed **Sign in to astro.com** instead: that would mean a signed-in page also says "Hello [not logged in]".
-- [ ] **Fill in the form**, then choose an invented name and a New York town and continue. Note whether astro.com draws the chart, whether it adds an entry to your saved charts, and whether its header shows `Univ.Time: 12:00` and `74w00, 40n43`. Delete the entry afterwards if it was saved.
-- [ ] Open an existing saved chart's birth data for editing, if astro.com offers that from ade.cgi, then open the popup from a chart's **Enter in astro.com…** on a tab where that form is showing. Note whether the popup says the form changes a saved chart, and whether the address or form has a `cid`.
+- [ ] **Fill in the form**, then choose an invented name and astro.com's New York match for the town and continue. Note whether astro.com draws the chart, whether it adds an entry to your saved charts, and whether its header shows `Univ.Time: 12:00` and `74w00, 40n43`. Delete the entry afterwards if it was saved.
+- [ ] Open an existing saved chart's birth data for editing, if astro.com offers that from ade.cgi, then open the popup from a chart's **Enter in astro.com…** on a tab where that form is showing. The popup must say the form already has a date or time in it and must not offer to fill it in.
 - [ ] Sign out, open the form from test 1, choose **Sign in** in the popup, sign in, and note where astro.com goes afterwards. Open the form in that tab and check that the popup offers to fill it in.
 
 ## Not covered by hand yet

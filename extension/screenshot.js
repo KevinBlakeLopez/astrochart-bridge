@@ -93,11 +93,11 @@ async function recognize(file) {
 }
 
 // An astro.com button keeps the values for the tab it opens, as in the popup.
-async function openLink({ url, holds }, sky) {
+async function openLink({ url, holds }) {
   if (!holds) {
     window.open(url, "_blank", "noopener");
     return;
   }
   const tab = await chrome.tabs.create({ url });
-  await holdForTab(chrome.storage.session, tab.id, sky);
+  await holdForTab(chrome.storage.session, tab.id, holds);
 }

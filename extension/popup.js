@@ -2,6 +2,7 @@
 // what to show is made in popup-model.js and drawn by view.js; this file reads
 // the tab, renders the view and opens what its button links to.
 import { fillForm, formValues, isAstroComPage, isBirthDataForm, readFormPage } from "./core/astrocom.js";
+import { townFromUrl } from "./core/astroseek.js";
 import { analyzePage, classifyUrl, extractorFor } from "./core/index.js";
 import { isStellariumWeb, skyFromEngine } from "./core/stellarium.js";
 import { heldForTab, holdForTab, releaseTab } from "./pending.js";
@@ -60,7 +61,8 @@ async function main() {
     target: { tabId: tab.id },
     func: extractorFor(url),
   });
-  show(viewFor(analyzePage({ url, input })));
+  // An Astro-Seek chart's address names its town, which astro.com's form can take.
+  show(viewFor(analyzePage({ url, input }), { town: townFromUrl(url) }));
 }
 
 // Runs inside the Stellarium Web page itself (world "MAIN"), where its engine
@@ -112,7 +114,8 @@ function show(view, { offerScreenshot = false, onButton = openLink } = {}) {
   if (offerScreenshot) app.append(screenshotButton());
 }
 
-async function openLink({ url, holds }, sky) {
+// holds is what an astro.com button keeps for the tab it opens.
+async function openLink({ url, holds }) {
   if (!holds) {
     await chrome.tabs.create({ url });
     window.close();
@@ -121,7 +124,7 @@ async function openLink({ url, holds }, sky) {
   // Opened behind the popup, which closes when the new tab comes to the front,
   // so the values are kept for the tab before it does.
   const tab = await chrome.tabs.create({ url, active: false });
-  await holdForTab(held, tab.id, sky);
+  await holdForTab(held, tab.id, holds);
   await chrome.tabs.update(tab.id, { active: true });
   window.close();
 }
