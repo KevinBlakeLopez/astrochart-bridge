@@ -47,7 +47,7 @@ test("only the Astro-Seek horoscopes host counts", () => {
   }
 });
 
-test("the browser's own pages are unsupported, in Chrome, Brave, Edge and Firefox", () => {
+test("the browser's own pages are unsupported, in Chrome, Brave, Edge, Firefox and Safari", () => {
   for (const url of [
     "chrome://extensions/",
     "brave://extensions/",
@@ -55,6 +55,9 @@ test("the browser's own pages are unsupported, in Chrome, Brave, Edge and Firefo
     "edge://newtab/",
     "about:debugging#/runtime/this-firefox",
     "about:addons",
+    "safari-web-extension://0d9f5b3e-6a4c-4b8e-9f2a-1c7d3e5a8b90/screenshot.html",
+    // A tab with no address, as popup.js reads one whose url the browser leaves out.
+    "",
   ]) {
     assert.deepEqual(classifyUrl(url), unsupported, url);
   }
