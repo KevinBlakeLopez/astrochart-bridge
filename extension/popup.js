@@ -3,8 +3,8 @@
 // opens the sky. Page text is only ever inserted with textContent.
 import { classifyUrl } from "./core/astroseek.js";
 import { analyzePage } from "./core/index.js";
-import { stellariumUrl } from "./core/stellarium.js";
-import { viewFor, offsetPreview } from "./popup-model.js";
+import { isStellariumWeb, skyFromEngine, stellariumUrl } from "./core/stellarium.js";
+import { viewFor, viewForSky, offsetPreview } from "./popup-model.js";
 
 const app = document.getElementById("app");
 
@@ -15,6 +15,18 @@ main().catch((error) => {
 async function main() {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   const url = tab?.url ?? "";
+
+  // On Stellarium Web, the sky comes from its engine: the address doesn't change
+  // when the time or place does.
+  if (isStellariumWeb(url)) {
+    const [{ result: engine }] = await chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      world: "MAIN",
+      func: readEngine,
+    });
+    render(engine ? viewForSky(skyFromEngine(engine)) : viewFor({ kind: "refused", reason: "stellarium-unreadable" }));
+    return;
+  }
 
   // Pages Chart Bridge doesn't handle are refused before any script runs on them.
   const page = classifyUrl(url);
@@ -30,6 +42,15 @@ async function main() {
   render(viewFor(analyzePage({ url, text: text ?? "" })));
 }
 
+// Runs inside the Stellarium Web page itself (world "MAIN"), where its engine
+// lives. Chrome copies this function into the page, so it can't use anything
+// else from this file. The path to the engine was read from frontend 1.16.0.
+function readEngine() {
+  const core = document.querySelector("#app")?.__vue_app__?.config?.globalProperties?.$stel?.core;
+  const engine = core && { utcMjd: core.utc, latitudeRad: core.latitude, longitudeRad: core.longitude };
+  return engine && Object.values(engine).every(Number.isFinite) ? engine : null;
+}
+
 function render(view) {
   const parts = [];
   if (view.rows) parts.push(rowList(view.rows));
@@ -39,17 +60,18 @@ function render(view) {
 
   if (view.state !== "refused") {
     // The sky to open: set from the start on a ready screen, and only once
-    // a reading is picked or a valid offset is typed on the others.
+    // a reading is picked or a valid offset is typed on the others. A view
+    // with its own url (the Astro-Seek chart from a Stellarium tab) opens that.
     let sky = view.sky ?? null;
     const open = document.createElement("button");
-    open.textContent = "Open sky";
+    open.textContent = view.button ?? "Open sky";
     open.addEventListener("click", async () => {
-      await chrome.tabs.create({ url: stellariumUrl(sky) });
+      await chrome.tabs.create({ url: view.url ?? stellariumUrl(sky) });
       window.close();
     });
     const setSky = (next) => {
       sky = next;
-      open.disabled = sky === null;
+      open.disabled = !view.url && sky === null;
     };
 
     if (view.state === "choose") parts.push(choiceList(view.choices, setSky));

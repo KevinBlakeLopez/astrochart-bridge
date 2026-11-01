@@ -1,3 +1,4 @@
+import { astroSeekUrl } from "./core/astroseek.js";
 import { parseOffset, utcFromOffset } from "./core/civiltime.js";
 
 const CLOCK_NOTE = "Stellarium Web's clock shows your computer's time zone and keeps running.";
@@ -18,6 +19,7 @@ const REFUSALS = {
   synastry: "This is a synastry or compatibility chart. Chart Bridge opens natal charts only.",
   unsupported: "Open an Astro-Seek birth chart to use Chart Bridge.",
   "page-url-mismatch": "The page doesn't match its address. Reload the chart and try again.",
+  "stellarium-unreadable": "Chart Bridge couldn't read the sky from this Stellarium Web tab.",
 };
 
 // Every other refusal means the chart page couldn't be read. They share one
@@ -108,6 +110,36 @@ export function offsetPreview(view, text) {
   return { utcText: utcText(utc), sky: { utc, lat, lng } };
 }
 
+const SKY_NOTES = [
+  "Astro-Seek will draw this chart in UT/GMT at these coordinates, rounded to the minute, with no city.",
+  "Opening the chart sends this date, time and place to astro-seek.com.",
+];
+
+/**
+ * What the popup shows on a Stellarium Web tab: the sky it is showing, and a
+ * button that opens the same moment and place as an Astro-Seek chart.
+ *
+ * @param {{ utc: string, lat: number, lng: number }} sky  from skyFromEngine
+ * @param {{ timeZone?: string }} [options]  as for viewFor
+ */
+export function viewForSky(sky, { timeZone } = {}) {
+  const clock = clockParts(sky.utc, timeZone);
+  return {
+    state: "to-astro-seek",
+    rows: [
+      [
+        "Stellarium time",
+        `${timeOnDay(`${clock.hour}:${clock.minute}`, clock.month, clock.day)} ${clock.year}, your computer's time`,
+      ],
+      ["UTC", utcText(sky.utc)],
+      ["Place", placeText(sky.lat, sky.lng)],
+    ],
+    notes: [...SKY_NOTES],
+    button: "Open chart in Astro-Seek",
+    url: astroSeekUrl(sky),
+  };
+}
+
 // "EDT, DST" → "EDT"
 const abbreviation = (zoneLabel) => zoneLabel.split(",")[0].trim();
 
@@ -124,9 +156,21 @@ const utcText = (utc) => `${utc.slice(0, 10)} ${utc.slice(11, 16)}`;
 // What Stellarium Web's clock will show (the UTC instant in the computer's time
 // zone) next to the birth time. Both carry their date, since they can differ.
 function clockNote(utc, local, timeZone) {
-  const parts = Object.fromEntries(
+  const parts = clockParts(utc, timeZone);
+  const clock = timeOnDay(`${parts.hour}:${parts.minute}`, parts.month, parts.day);
+  const birth = timeOnDay(local.slice(11, 16), local.slice(5, 7), local.slice(8, 10));
+  return clock === birth
+    ? `Stellarium Web's clock will show ${clock}, the same as the birthplace. ${RUNNING}`
+    : `Stellarium Web's clock will show ${clock}, your computer's time. That's ${birth} at the birthplace. ${RUNNING}`;
+}
+
+// A UTC instant as the computer's clock shows it, which is also how Stellarium
+// Web's clock shows it: { year, month, day, hour, minute } as strings.
+function clockParts(utc, timeZone) {
+  return Object.fromEntries(
     new Intl.DateTimeFormat("en-US", {
       timeZone,
+      year: "numeric",
       month: "numeric",
       day: "numeric",
       hour: "2-digit",
@@ -136,11 +180,6 @@ function clockNote(utc, local, timeZone) {
       .formatToParts(new Date(utc))
       .map(({ type, value }) => [type, value]),
   );
-  const clock = timeOnDay(`${parts.hour}:${parts.minute}`, parts.month, parts.day);
-  const birth = timeOnDay(local.slice(11, 16), local.slice(5, 7), local.slice(8, 10));
-  return clock === birth
-    ? `Stellarium Web's clock will show ${clock}, the same as the birthplace. ${RUNNING}`
-    : `Stellarium Web's clock will show ${clock}, your computer's time. That's ${birth} at the birthplace. ${RUNNING}`;
 }
 
 // "05:00", "4", "17" → "05:00 on 17 Apr". The month name comes from MONTHS, not
