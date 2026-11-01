@@ -129,7 +129,7 @@ test("ready: an unknown zone label adds a warning", () => {
     utc: "2024-01-15T08:00:00Z", utcSource: "printed", offsetMinutes: 60, warnings: ["zone-label-unknown"],
   };
   assert.deepEqual(viewFor(paris).warnings, [
-    `Astro-Seek's zone label "CET" isn't one Chart Bridge can check, so its Universal Time is used as printed.`,
+    `Astro-Seek's zone label "CET" isn't one AstroChart Bridge can check, so its Universal Time is used as printed.`,
   ]);
 });
 
@@ -176,33 +176,33 @@ test("enter-offset: no printed UT asks for the offset and previews the UTC", () 
   assert.equal(offsetPreview(view, "4"), null);
 });
 
-test("refused: pages Chart Bridge doesn't open", () => {
+test("refused: pages AstroChart Bridge doesn't open", () => {
   assert.deepEqual(viewFor(analyze("transit-sydney-2026-11-01")), {
     state: "refused",
-    message: "This is a transit chart. Chart Bridge opens natal charts only.",
+    message: "This is a transit chart. AstroChart Bridge opens natal charts only.",
   });
   assert.deepEqual(viewFor(analyze("compatibility-sydney-ny")), {
     state: "refused",
-    message: "This is a synastry or compatibility chart. Chart Bridge opens natal charts only.",
+    message: "This is a synastry or compatibility chart. AstroChart Bridge opens natal charts only.",
   });
   assert.deepEqual(viewFor(analyzePage({ url: "https://example.com/", input: { text: "" } })), {
     state: "refused",
-    message: "Open an Astro-Seek or astro.com birth chart to use Chart Bridge.",
+    message: "Open an Astro-Seek or astro.com birth chart to use AstroChart Bridge.",
   });
 });
 
 const ASTRO_COM = "https://www.astro.com/cgi/chart.cgi?gm=a1&nhor=26&nho2=1&btyp=2&mth=gw&sday=1&smon=11&syr=2026&rs=0";
 
-test("refused: astro.com pages and charts Chart Bridge doesn't open name astro.com", () => {
+test("refused: astro.com pages and charts AstroChart Bridge doesn't open name astro.com", () => {
   const cases = [
     [
       "https://www.astro.com/astro-databank/Stallone,_Sylvester",
-      "Astro-Databank charts aren't supported yet. Chart Bridge opens charts saved in your astro.com account.",
+      "Astro-Databank charts aren't supported yet. AstroChart Bridge opens charts saved in your astro.com account.",
     ],
-    ["https://www.astro.com/cgi/chart.cgi?btyp=w2gw&rs=2&;&nhor=26", "Chart Bridge can't read this kind of astro.com chart yet."],
+    ["https://www.astro.com/cgi/chart.cgi?btyp=w2gw&rs=2&;&nhor=26", "AstroChart Bridge can't read this kind of astro.com chart yet."],
     [
       ASTRO_COM,
-      "This astro.com page has no \"Drawing (for subscribers)\" link, which is where Chart Bridge reads the birth data.",
+      "This astro.com page has no \"Drawing (for subscribers)\" link, which is where AstroChart Bridge reads the birth data.",
     ],
   ];
   for (const [url, message] of cases) {
@@ -210,31 +210,38 @@ test("refused: astro.com pages and charts Chart Bridge doesn't open name astro.c
   }
   assert.deepEqual(viewFor({ kind: "refused", reason: "local-mean-time" }), {
     state: "refused",
-    message: "This chart uses local mean time, which Chart Bridge can't open yet.",
+    message: "This chart uses local mean time, which AstroChart Bridge can't open yet.",
   });
 });
 
-test("refused: astro.com records Chart Bridge couldn't read show their code", () => {
+test("refused: an astro.com chart dated before 1582 says why", () => {
+  assert.deepEqual(viewFor({ kind: "refused", reason: "calendar-unsupported" }), {
+    state: "refused",
+    message: "This astro.com chart is dated before the Gregorian calendar began on 15 October 1582. AstroChart Bridge reads Gregorian dates only.",
+  });
+});
+
+test("refused: astro.com records AstroChart Bridge couldn't read show their code", () => {
   for (const reason of ["unreadable-link", "unreadable-record", "unseen-field-9"]) {
     assert.deepEqual(viewFor({ kind: "refused", reason }), {
       state: "refused",
-      message: "Chart Bridge couldn't read this chart page.",
+      message: "AstroChart Bridge couldn't read this chart page.",
       code: reason,
     });
   }
 });
 
-test("refused: chart pages Chart Bridge couldn't read show their code", () => {
+test("refused: chart pages AstroChart Bridge couldn't read show their code", () => {
   const { url } = fixture("ny-2024-04-17");
   assert.deepEqual(viewFor(analyzePage({ url, input: { text: "" } })), {
     state: "refused",
-    message: "Chart Bridge couldn't read this chart page.",
+    message: "AstroChart Bridge couldn't read this chart page.",
     code: "unreadable-page",
   });
   for (const reason of ["incomplete-url", "ambiguous-page"]) {
     assert.deepEqual(viewFor({ kind: "refused", reason }), {
       state: "refused",
-      message: "Chart Bridge couldn't read this chart page.",
+      message: "AstroChart Bridge couldn't read this chart page.",
       code: reason,
     });
   }

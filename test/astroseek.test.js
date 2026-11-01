@@ -74,7 +74,7 @@ test("a chart's town is the city in its address, for astro.com's town field", ()
 });
 
 test("a chart placed by coordinates, or another site's page, names no town", () => {
-  // Charts Chart Bridge opens in Astro-Seek, like this one, name no country and
+  // Charts AstroChart Bridge opens in Astro-Seek, like this one, name no country and
   // put "Manually place: °'N, °'E" where the city goes.
   assert.equal(townFromUrl(fixtureUrl("manual-ut-2024-04-17-0000")), null);
   assert.equal(townFromUrl("https://horoscopes.astro-seek.com/calculate-birth-chart-horoscope-online/?narozeni_den=17"), null);

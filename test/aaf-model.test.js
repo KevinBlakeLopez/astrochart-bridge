@@ -70,7 +70,7 @@ test("a chart that can't be opened is listed with why, and isn't filled in", () 
   ]);
   assert.deepEqual(list.items[0].view, {
     state: "refused",
-    message: "This chart has no birth time: the file gives *. Chart Bridge doesn't guess one.",
+    message: "This chart has no birth time: the file gives *. AstroChart Bridge doesn't guess one.",
     code: "no-birth-time",
   });
   assert.deepEqual(list.items[1].view, {
@@ -100,7 +100,7 @@ test("a record parseAaf couldn't read is listed with its line and value", () => 
   const list = viewForAafText(`${NY_TEXT.replace("17.4.2024", "31.4.2024")}${SYDNEY_TEXT}`, LA);
   assert.deepEqual(list.items[0], {
     label: "Line 1: unreadable record",
-    view: { state: "refused", message: "Line 1: Chart Bridge couldn't read the date \"31.4.2024\".", code: "bad-date" },
+    view: { state: "refused", message: "Line 1: AstroChart Bridge couldn't read the date \"31.4.2024\".", code: "bad-date" },
   });
   assert.equal(list.items[1].view.state, "ready");
 });
@@ -109,7 +109,7 @@ test("a text with no records says what an AAF file looks like", () => {
   assert.deepEqual(viewForAafText("Name: New York Test\n", LA), {
     state: "aaf-list",
     items: [],
-    message: "Chart Bridge found no AAF records. Each record starts with a line beginning #A93:.",
+    message: "AstroChart Bridge found no AAF records. Each record starts with a line beginning #A93:.",
   });
 });
 
@@ -127,7 +127,7 @@ test("an Astro-Seek chart with a checked zone label saves its local time", () =>
     download: {
       label: "Save as AAF file",
       filename: "chart-2024-04-17.aaf",
-      text: "#: Chart Bridge\n#A93:*,*,*,17.4.2024,8:00,*,*\n#B93:*,40n43,74w00,5hw00,1\n",
+      text: "#: AstroChart Bridge\n#A93:*,*,*,17.4.2024,8:00,*,*\n#B93:*,40n43,74w00,5hw00,1\n",
     },
   });
 });
@@ -177,6 +177,6 @@ test("a file that isn't UTF-8 is read as Windows-1252, with a warning", () => {
   const bytes = new Uint8Array([...new TextEncoder().encode("#A93:M"), 0xfc, ...new TextEncoder().encode("ller\n")]);
   assert.deepEqual(decodeAafFile(bytes), {
     text: "#A93:Müller\n",
-    warning: "This file isn't UTF-8, so Chart Bridge read it as Windows-1252. Check that accented letters in names look right.",
+    warning: "This file isn't UTF-8, so AstroChart Bridge read it as Windows-1252. Check that accented letters in names look right.",
   });
 });

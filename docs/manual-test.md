@@ -12,9 +12,9 @@ Natal charts are read from three Astro-Seek pages: the birth chart (`/calculate-
 
 1. Go to `chrome://extensions` and turn on **Developer mode** (top right).
 2. Click **Load unpacked**. Press **Cmd+Shift+G**, paste the path to this repo's `extension` folder (for example `/Users/you/code/chart-bridge/extension`), press Return and click **Select**. The folder you select must contain `manifest.json`.
-3. Click the puzzle-piece icon in Chrome's toolbar and click the pin next to **Chart Bridge**, so its icon stays in the toolbar.
+3. Click the puzzle-piece icon in Chrome's toolbar and click the pin next to **AstroChart Bridge**, so its icon stays in the toolbar.
 
-After changing any file in `extension/`, click the reload arrow on the Chart Bridge card in `chrome://extensions` before testing again.
+After changing any file in `extension/`, click the reload arrow on the AstroChart Bridge card in `chrome://extensions` before testing again.
 
 ### Brave
 
@@ -24,32 +24,32 @@ Brave's extensions page is the same as Chrome's. Follow the Chrome steps above a
 
 1. Go to `edge://extensions` and turn on **Developer mode** (in the panel on the left).
 2. Click **Load unpacked** and select the same `extension` folder as in Chrome's step 2.
-3. Click the Extensions icon (a puzzle piece) in Edge's toolbar and click the eye icon next to **Chart Bridge** (**Show in toolbar**), so its icon stays in the toolbar.
+3. Click the Extensions icon (a puzzle piece) in Edge's toolbar and click the eye icon next to **AstroChart Bridge** (**Show in toolbar**), so its icon stays in the toolbar.
 
-After changing any file in `extension/`, click **Reload** on the Chart Bridge card in `edge://extensions` before testing again.
+After changing any file in `extension/`, click **Reload** on the AstroChart Bridge card in `edge://extensions` before testing again.
 
 ### Firefox
 
-Chart Bridge needs Firefox 128 or later.
+AstroChart Bridge needs Firefox 128 or later.
 
 1. Go to `about:debugging#/runtime/this-firefox`.
 2. Click **Load Temporary Add-on…**. Press **Cmd+Shift+G**, paste the path to the same `extension` folder, press Return, select `manifest.json` inside it and click **Open**. Firefox asks for a file in the folder, not the folder itself.
-3. Click the Extensions button (a puzzle piece) in Firefox's toolbar, click the gear next to **Chart Bridge** and choose **Pin to Toolbar**.
+3. Click the Extensions button (a puzzle piece) in Firefox's toolbar, click the gear next to **AstroChart Bridge** and choose **Pin to Toolbar**.
 
-Firefox removes a temporary add-on when it quits, so load it again after restarting Firefox. After changing any file in `extension/`, click **Reload** on the Chart Bridge card in `about:debugging` before testing again.
+Firefox removes a temporary add-on when it quits, so load it again after restarting Firefox. After changing any file in `extension/`, click **Reload** on the AstroChart Bridge card in `about:debugging` before testing again.
 
 ### Safari
 
-Chart Bridge needs Safari 26 or later on macOS.
+AstroChart Bridge needs Safari 26 or later on macOS.
 
 1. Choose **Safari → Settings**, select the **Advanced** tab and check **Show features for web developers**.
 2. Select the **Developer** tab and check **Allow unsigned extensions**. Safari asks for your Mac password.
-3. On the same tab, click **Add Temporary Extension…**, select the same `extension` folder and click **Select**. Safari switches to the **Extensions** tab and lists Chart Bridge under **Temporary**.
-4. Check the box next to **Chart Bridge** if it isn't checked, and close Settings. Its icon appears in Safari's toolbar.
+3. On the same tab, click **Add Temporary Extension…**, select the same `extension` folder and click **Select**. Safari switches to the **Extensions** tab and lists AstroChart Bridge under **Temporary**.
+4. Check the box next to **AstroChart Bridge** if it isn't checked, and close Settings. Its icon appears in Safari's toolbar.
 
-The first time you click the icon on a site, Safari may ask whether Chart Bridge can see that page. Allow it for that site.
+The first time you click the icon on a site, Safari may ask whether AstroChart Bridge can see that page. Allow it for that site.
 
-Safari removes a temporary extension after 24 hours or when it quits, and turns **Allow unsigned extensions** off when it quits, so repeat steps 2 to 4 after restarting Safari. After changing any file in `extension/`, click **Reload** next to Chart Bridge in the **Extensions** tab before testing again.
+Safari removes a temporary extension after 24 hours or when it quits, and turns **Allow unsigned extensions** off when it quits, so repeat steps 2 to 4 after restarting Safari. After changing any file in `extension/`, click **Reload** next to AstroChart Bridge in the **Extensions** tab before testing again.
 
 ### Safari on iPad
 
@@ -58,10 +58,10 @@ Follow `docs/safari-ipad.md` to build the app with Xcode and install it on the i
 ## For every test
 
 1. Open the test's URL in a new tab and wait for the page to finish loading.
-2. Click the Chart Bridge icon in the toolbar. A small popup opens.
+2. Click the AstroChart Bridge icon in the toolbar. A small popup opens.
 3. Right-click inside the popup, choose **Inspect**, and open the **Console** tab. It must stay empty. While DevTools is open the popup stays open too, which makes it easier to read.
 
-   In Firefox, click **Inspect** on the Chart Bridge card in `about:debugging` instead. In the toolbox that opens, choose **Disable Popup Auto-Hide** from the **⋯** menu at the top right, open the popup, then pick `popup.html` with the frame-picker button next to that menu. The Console must stay empty.
+   In Firefox, click **Inspect** on the AstroChart Bridge card in `about:debugging` instead. In the toolbox that opens, choose **Disable Popup Auto-Hide** from the **⋯** menu at the top right, open the popup, then pick `popup.html` with the frame-picker button next to that menu. The Console must stay empty.
 
    In Safari, right-click inside the popup and choose **Inspect Element**. Web Inspector opens on the popup; open its **Console** tab. It must stay empty.
 
@@ -110,7 +110,7 @@ https://horoscopes.astro-seek.com/calculate-birth-chart-horoscope-online/?input_
 https://horoscopes.astro-seek.com/calculate-transit-chart/?muz_narozeni_den=15&muz_narozeni_mesic=1&muz_narozeni_rok=2024&muz_narozeni_hodina=08&muz_narozeni_minuta=00&muz_narozeni_mesto_hidden=Sydney&muz_narozeni_stat_hidden=AU&muz_narozeni_podstat_kratky_hidden=NSW&muz_narozeni_tzid_id=306&muz_narozeni_city=Sydney,%20Australia,%20NSW&muz_narozeni_sirka_stupne=33&muz_narozeni_sirka_minuty=52&muz_narozeni_sirka_smer=1&muz_narozeni_delka_stupne=151&muz_narozeni_delka_minuty=12&muz_narozeni_delka_smer=0&muz_narozeni_timezone_form=auto&muz_narozeni_timezone_dst_form=auto&zena_narozeni_den=1&zena_narozeni_mesic=11&zena_narozeni_rok=2026&zena_narozeni_hodina=06&zena_narozeni_minuta=57&zena_narozeni_mesto_hidden=Sydney&zena_narozeni_stat_hidden=AU&zena_narozeni_podstat_kratky_hidden=NSW&zena_narozeni_tzid_id=&zena_narozeni_city=Sydney,%20Australia,%20NSW&zena_narozeni_sirka_stupne=33&zena_narozeni_sirka_minuty=52&zena_narozeni_sirka_smer=1&zena_narozeni_delka_stupne=151&zena_narozeni_delka_minuty=12&zena_narozeni_delka_smer=0&zena_narozeni_timezone_form=auto&zena_narozeni_timezone_dst_form=auto&house_system=placidus&styl_graf=&hid_fortune=on&hid_fortune_check=&hid_vertex=on&hid_vertex_check=&hid_chiron=&hid_chiron_check=on&hid_lilith=&hid_lilith_check=on&hid_uzel=&hid_uzel_check=on&aya=&nick=&hide_aspects=0&rocni_pohyb=1&&orb2=3
 ```
 
-- [ ] The popup shows only "This is a transit chart. Chart Bridge opens natal charts only." There is no button.
+- [ ] The popup shows only "This is a transit chart. AstroChart Bridge opens natal charts only." There is no button.
 
 ## Test 6: a compatibility page
 
@@ -118,7 +118,7 @@ https://horoscopes.astro-seek.com/calculate-transit-chart/?muz_narozeni_den=15&m
 https://horoscopes.astro-seek.com/calculate-love-compatibility/?send_calculation=1&muz_narozeni_den=15&muz_narozeni_mesic=1&muz_narozeni_rok=1970&muz_narozeni_hodina=08&muz_narozeni_minuta=00&muz_narozeni_city=Sydney%2C+Australia%2C+NSW&muz_narozeni_mesto_hidden=Sydney&muz_narozeni_stat_hidden=AU&muz_narozeni_podstat_kratky_hidden=NSW&muz_narozeni_tzid_id=306&muz_narozeni_sirka_stupne=33&muz_narozeni_sirka_minuty=52&muz_narozeni_sirka_smer=1&muz_narozeni_delka_stupne=151&muz_narozeni_delka_minuty=12&muz_narozeni_delka_smer=0&muz_narozeni_timezone_form=auto&muz_narozeni_timezone_dst_form=auto&send_calculation=1&zena_narozeni_den=17&zena_narozeni_mesic=4&zena_narozeni_rok=2024&zena_narozeni_hodina=08&zena_narozeni_minuta=00&zena_narozeni_city=New+York%2C+USA%2C+New+York&zena_narozeni_mesto_hidden=New+York&zena_narozeni_stat_hidden=US&zena_narozeni_podstat_kratky_hidden=NY&zena_narozeni_tzid_id=0&zena_narozeni_sirka_stupne=40&zena_narozeni_sirka_minuty=43&zena_narozeni_sirka_smer=0&zena_narozeni_delka_stupne=74&zena_narozeni_delka_minuty=0&zena_narozeni_delka_smer=1&zena_narozeni_timezone_form=auto&zena_narozeni_timezone_dst_form=auto&switch_interpretations=3&house_system=placidus&hid_fortune=1&hid_vertex=1&hid_chiron=1&hid_chiron_check=on&hid_lilith=1&hid_lilith_check=on&hid_uzel=1&hid_uzel_check=on&uhel_orbis=&hide_aspects=0&zmena_nastaveni=1&aktivni_tab=#tabs_redraw
 ```
 
-- [ ] The popup shows only "This is a synastry or compatibility chart. Chart Bridge opens natal charts only."
+- [ ] The popup shows only "This is a synastry or compatibility chart. AstroChart Bridge opens natal charts only."
 
 ## Test 7: an asteroids page
 
@@ -132,8 +132,8 @@ https://horoscopes.astro-seek.com/calculate-asteroids/?narozeni_den=17&narozeni_
 
 Go to `https://example.com`.
 
-- [ ] The popup shows "Open an Astro-Seek or astro.com birth chart to use Chart Bridge." and five buttons, **Read a screenshot instead**, **Paste chart text instead**, **Open an AAF file**, **Open a chart file** and **Import from Stellarium Desktop**, and the Console has no errors. Until Chart Bridge has been allowed to connect to `127.0.0.1` (test 17), nothing connects there and no grey line follows the last button.
-- [ ] Chart Bridge's toolbar button shows its icon, a gold star above a blue arch, and Chart Bridge's card on the browser's extensions page shows it too.
+- [ ] The popup shows "Open an Astro-Seek or astro.com birth chart to use AstroChart Bridge." and five buttons, **Read a screenshot instead**, **Paste chart text instead**, **Open an AAF file**, **Open a chart file** and **Import from Stellarium Desktop**, and the Console has no errors. Until AstroChart Bridge has been allowed to connect to `127.0.0.1` (test 17), nothing connects there and no grey line follows the last button.
+- [ ] AstroChart Bridge's toolbar button shows its icon, a gold star above a blue arch, and AstroChart Bridge's card on the browser's extensions page shows it too.
 
 ## Test 9: a browser page
 
@@ -185,47 +185,47 @@ https://stellarium-web.org/?date=2024-04-17T12%3A00%3A00Z&lat=40.716667&lng=-74
 The screenshot page reads the image on this computer with the Tesseract.js files in `extension/vendor/tesseract/`. These steps check what only the installed extension can show: its script policy allows the WebAssembly, and nothing is fetched from the web.
 
 1. Open the test 1 URL. Press **Cmd+Ctrl+Shift+4** and drag over everything from **Date of Birth** down into the chart. This copies the screenshot instead of saving a file.
-2. Open a tab on another website, click the Chart Bridge icon, then **Read a screenshot instead**. A Chart Bridge tab opens and the popup closes.
+2. Open a tab on another website, click the AstroChart Bridge icon, then **Read a screenshot instead**. An AstroChart Bridge tab opens and the popup closes.
 3. In that tab, open DevTools (**Cmd+Option+I**) on the **Network** tab, then reload the page.
 4. Press **Cmd+V**.
 
 - [ ] Within a few seconds the page shows the same rows as test 1. The first grey note says to compare the rows with the screenshot.
 - [ ] The Console is empty, and every request in the Network tab is a `chrome-extension://` address (`moz-extension://` in Firefox, `safari-web-extension://` in Safari).
-- [ ] **What Chart Bridge read** opens to show the text read from the screenshot.
+- [ ] **What AstroChart Bridge read** opens to show the text read from the screenshot.
 - [ ] **Open sky** opens a Stellarium Web tab whose address contains `date=2024-04-17T12%3A00%3A00Z&lat=40.716667&lng=-74`, and the screenshot tab stays open.
 - [ ] Below it is **Open chart in Astro-Seek**, and the last two grey notes say Astro-Seek will draw the chart in UT/GMT with no city, and that opening it sends the date, time and place to astro-seek.com.
 - [ ] **Open chart in Astro-Seek** opens the same chart as test 12: its header shows `17 Apr 2024 - 12:00  (Manually: GMT+00:00)`, Universal Time `17 Apr 2024 - 12:00` and `40°43'N, 74°0'W`.
 - [ ] Save the same screenshot as a file (**Cmd+Shift+4**). Dropping it onto the page and choosing it with **Choose File** give the same result.
 - [ ] Open the file in Preview, use **Tools → Adjust Size** to halve its width, and save. Dropping it gives the same result.
-- [ ] A screenshot of only the chart wheel shows "Chart Bridge couldn't find the birth data in this screenshot…" and `Code: unreadable-screenshot`.
+- [ ] A screenshot of only the chart wheel shows "AstroChart Bridge couldn't find the birth data in this screenshot…" and `Code: unreadable-screenshot`.
 - [ ] In light and dark mode the page is readable, like the popup in test 10.
 - [ ] Open a chart drawing on astro.com and paste a screenshot of the whole drawing. The rows show the header's local date and time, its Univ.Time as UTC, and its coordinates. There is no zone label in the Local time row, and the page offers **Open sky** and **Open chart in Astro-Seek**.
 
 ## Test 14: entering a chart in astro.com
 
-Chart Bridge keeps a chart's values for the astro.com tab it opens, for 30 minutes. With access to www.astro.com, asked for the first time **Open astro.com's form** is clicked, it fills in the form as it opens. Without it, it fills in the form when you click its icon on that tab. It never submits the form or signs you in. It can only tell that a browser is signed out (astro.com's menu says "Hello [not logged in]"); any other page counts as unknown and is never held up. Run part A in a browser profile that isn't signed in to astro.com, and part B, if you have an astro.com account, in one that is. Never type a real birth date into astro.com for this test, and don't submit the form in part A.
+AstroChart Bridge keeps a chart's values for the astro.com tab it opens, for 30 minutes. With access to www.astro.com, asked for the first time **Open astro.com's form** is clicked, it fills in the form as it opens. Without it, it fills in the form when you click its icon on that tab. It never submits the form or signs you in. It can only tell that a browser is signed out (astro.com's menu says "Hello [not logged in]"); any other page counts as unknown and is never held up. Run part A in a browser profile that isn't signed in to astro.com, and part B, if you have an astro.com account, in one that is. Never type a real birth date into astro.com for this test, and don't submit the form in part A.
 
-If Chart Bridge already has access to www.astro.com, remove it first, as in test 17 step 2.
+If AstroChart Bridge already has access to www.astro.com, remove it first, as in test 17 step 2.
 
 ### A: signed out
 
 Open the test 1 URL and open the popup.
 
 - [ ] Below **Open sky** and **Share…** is **Enter in astro.com…**. On an astro.com account chart, if you have one, it isn't there.
-- [ ] **Enter in astro.com…** replaces the popup's screen with Birthday `17 April 2024`, Hour, min `12:00`, Time zone `00:00 GMT / UT, under show / hide extended settings`, Place `40°43'N, 74°0'W` and Town `New York`; "Chart Bridge opens astro.com's form and fills it in as it opens…"; five grey notes (the second saying Chart Bridge fills in the town New York, the last about the browser asking for access); the buttons **Open astro.com's form**, **Sign in** and **Create account**; and **Cancel**.
+- [ ] **Enter in astro.com…** replaces the popup's screen with Birthday `17 April 2024`, Hour, min `12:00`, Time zone `00:00 GMT / UT, under show / hide extended settings`, Place `40°43'N, 74°0'W` and Town `New York`; "AstroChart Bridge opens astro.com's form and fills it in as it opens…"; five grey notes (the second saying AstroChart Bridge fills in the town New York, the last about the browser asking for access); the buttons **Open astro.com's form**, **Sign in** and **Create account**; and **Cancel**.
 - [ ] **Cancel** brings back the test 1 screen.
-- [ ] **Open astro.com's form** makes the browser ask whether Chart Bridge may read and change www.astro.com. Note whether the popup stays open while it asks, in each browser. Click **Deny**: no tab opens, and the popup says "Chart Bridge can't fill in the form without access to www.astro.com.", shows the same five rows, the grey note "After the astro.com tab opens, click the Chart Bridge icon in the toolbar again to fill in the form." and one **Open astro.com's form** button.
+- [ ] **Open astro.com's form** makes the browser ask whether AstroChart Bridge may read and change www.astro.com. Note whether the popup stays open while it asks, in each browser. Click **Deny**: no tab opens, and the popup says "AstroChart Bridge can't fill in the form without access to www.astro.com.", shows the same five rows, the grey note "After the astro.com tab opens, click the AstroChart Bridge icon in the toolbar again to fill in the form." and one **Open astro.com's form** button.
 - [ ] That button opens `https://www.astro.com/cgi/ade.cgi`, "Step 1: Birth Data Entry", in a new tab and closes the popup, without asking again. Open the popup on that tab: it shows **Sign in to astro.com**, the same five rows, "astro.com requires an account to generate charts…", and **Sign in**, **Create account**, **Fill in anyway** and **Cancel**. Its Console is empty. Close the tab.
 - [ ] Back on the test 1 popup, **Enter in astro.com…**, **Open astro.com's form**, and this time allow it. The popup says "Opening astro.com's form to fill it in…" while a tab opens behind it, then shows **Sign in to astro.com** as above, with the form's tab still behind it.
 - [ ] **Fill in anyway** brings the form's tab to the front and closes the popup. The form shows birthday `17` `April` `2024`, hour `12`, min `00`, the extended settings open with time zone `00:00 GMT / UT`, birth town `New York` with the cursor in it and astro.com's list of matching towns under it, and nothing else changed. If astro.com's privacy dialog covers the page, the form is filled in behind it.
 - [ ] Open the popup on that tab again. It shows "Open an Astro-Seek or astro.com birth chart…": the values were forgotten once filled in.
-- [ ] Back on the test 1 tab, open **Enter in astro.com…** and **Open astro.com's form** again, and choose **Sign in** on the popup's sign-in screen. The form's tab comes to the front on astro.com's "My Astro – Login" page. Don't sign in. Open the popup there: it shows "Chart Bridge is keeping these values for this tab." with **Open astro.com's form** and **Cancel**, and nothing opens or reloads by itself. **Open astro.com's form** loads the form in this tab. On the form, type `1` in the birthday's day field, then open the popup: it says the form already has a date or time in it and offers **Open a blank form**, which reloads the form in the same tab. Open the popup again: it offers to fill in. Type `Brooklyn` in the birth town and click **Fill in anyway**: the date and time are filled in and the town stays `Brooklyn`.
+- [ ] Back on the test 1 tab, open **Enter in astro.com…** and **Open astro.com's form** again, and choose **Sign in** on the popup's sign-in screen. The form's tab comes to the front on astro.com's "My Astro – Login" page. Don't sign in. Open the popup there: it shows "AstroChart Bridge is keeping these values for this tab." with **Open astro.com's form** and **Cancel**, and nothing opens or reloads by itself. **Open astro.com's form** loads the form in this tab. On the form, type `1` in the birthday's day field, then open the popup: it says the form already has a date or time in it and offers **Open a blank form**, which reloads the form in the same tab. Open the popup again: it offers to fill in. Type `Brooklyn` in the birth town and click **Fill in anyway**: the date and time are filled in and the town stays `Brooklyn`.
 - [ ] From the test 1 popup, **Open astro.com's form** again and choose **Cancel** on the sign-in screen. The form's tab comes to the front, unfilled, and the popup closes. Opening the popup on that tab shows "Open an Astro-Seek or astro.com birth chart…".
 - [ ] Open the form from the test 1 popup, then from the test 2 (Sydney) popup. Each astro.com tab's popup shows its own chart's values: Birthday `17 April 2024` on the first, `14 January 2024` on the second.
 - [ ] Open the form from the test 1 popup, wait 30 minutes, then open the popup on it: it shows "Open an Astro-Seek or astro.com birth chart…".
 - [ ] Open the test 12 Stellarium link and **Enter in astro.com…**: there is no Town row, the second note says to choose the town nearest this place, and the filled-in form leaves the birth town empty. The same goes for an astro.com chart opened in Astro-Seek with **Open chart in Astro-Seek**: its address names no town.
 - [ ] On the screenshot page from test 13, **Enter in astro.com…** and **Open astro.com's form** open the form in a tab behind the page, which then says "astro.com's form is open, but something needs your choice first, such as signing in." with **Go to the astro.com tab**. On that tab, the popup offers to fill in the same values.
-- [ ] Turn off the Mac's Wi-Fi, then **Open astro.com's form** from the test 1 popup. Within about 20 seconds the popup says "astro.com's form didn't finish opening…" and "Switch to the astro.com tab, then click the Chart Bridge icon in the toolbar again to fill in the form.", and **Go to the astro.com tab** brings that tab to the front. Turn Wi-Fi back on.
+- [ ] Turn off the Mac's Wi-Fi, then **Open astro.com's form** from the test 1 popup. Within about 20 seconds the popup says "astro.com's form didn't finish opening…" and "Switch to the astro.com tab, then click the AstroChart Bridge icon in the toolbar again to fill in the form.", and **Go to the astro.com tab** brings that tab to the front. Turn Wi-Fi back on.
 
 ### B: signed in (needs an astro.com account)
 
@@ -233,16 +233,16 @@ Open the test 1 URL and open the popup.
 - [ ] Choose an invented name and astro.com's New York match for the town and continue. Note whether astro.com draws the chart, whether it adds an entry to your saved charts, and whether its header shows `Univ.Time: 12:00` and `74w00, 40n43`. Delete the entry afterwards if it was saved.
 - [ ] Open an existing saved chart's birth data for editing, if astro.com offers that from ade.cgi, then open the popup from a chart's **Enter in astro.com…** on a tab where that form is showing. The popup must say the form already has a date or time in it and must not offer to fill it in.
 - [ ] Sign out, open the form from test 1, choose **Sign in** in the popup, sign in, and note where astro.com goes afterwards. Open the form in that tab and check that the popup there offers to fill it in.
-- [ ] Remove Chart Bridge's access to www.astro.com, open the form from test 1, and click **Deny**. The two-click way from part A fills in the form, with no sign-in prompt.
+- [ ] Remove AstroChart Bridge's access to www.astro.com, open the form from test 1, and click **Deny**. The two-click way from part A fills in the form, with no sign-in prompt.
 
 ## Test 15: AAF files
 
-`docs/aaf.md` explains what Chart Bridge reads and writes. The files are `fixtures/aaf/` in this repo, written by Astrolog 8.00 for invented charts.
+`docs/aaf.md` explains what AstroChart Bridge reads and writes. The files are `fixtures/aaf/` in this repo, written by Astrolog 8.00 for invented charts.
 
 ### Saving
 
 - [ ] On the test 1 popup, below **Open sky** and above **Enter in astro.com…**, is **Save as AAF file**. Clicking it saves `chart-2024-04-17.aaf` to the browser's downloads folder without asking for a permission. Note whether the popup stays open.
-- [ ] The saved file reads `#: Chart Bridge`, then `#A93:*,*,*,17.4.2024,8:00,*,*`, then `#B93:*,40n43,74w00,5hw00,1`.
+- [ ] The saved file reads `#: AstroChart Bridge`, then `#A93:*,*,*,17.4.2024,8:00,*,*`, then `#B93:*,40n43,74w00,5hw00,1`.
 - [ ] On an astro.com account chart, if you have one, **Save as AAF file** has a grey note below it saying the file gives the chart in Universal Time, and the file's `#B93` line ends `,0h,0`.
 - [ ] On the Stellarium Web tab from test 12, the popup has **Save as AAF file** with a note that the file gives the moment in Universal Time.
 - [ ] On the test 4 popup (choose a reading), there is no **Save as AAF file**.
@@ -270,7 +270,7 @@ Open the test 1 URL and open the popup.
 
 The paste page reads text with no help from the web. These steps check what only the installed extension can show: the page loads under the extension's script policy, the clipboard button behaves in each browser, and nothing is fetched. `test/paste-model.test.js`, `test/paste-programs.test.js` and `test/text.test.js` cover what the form shows for each kind of text. The sample uses test 1's invented New York data.
 
-1. Go to `https://example.com`, click the Chart Bridge icon, then **Paste chart text instead**. A Chart Bridge tab opens and the popup closes.
+1. Go to `https://example.com`, click the AstroChart Bridge icon, then **Paste chart text instead**. An AstroChart Bridge tab opens and the popup closes.
 2. In that tab, open DevTools (**Cmd+Option+I**) on the **Network** tab, then reload the page.
 3. Copy this text, click the big box and press **Cmd+V**:
 
@@ -291,13 +291,13 @@ Sun: 27°53' Aries
 - [ ] **Continue** shows Local time `17 Apr 2024, 08:00`, Offset `UTC-04:00`, UTC `2024-04-17 12:00` and Place `40°43'N, 74°0'W`. The first grey note says nothing checks the offset, and the last two are Astro-Seek's notes from test 13.
 - [ ] **Open sky** opens a Stellarium Web tab whose address contains `date=2024-04-17T12%3A00%3A00Z&lat=40.716667&lng=-74`, and the paste tab stays open.
 - [ ] **Open chart in Astro-Seek** opens the same chart as test 12: its header shows `17 Apr 2024 - 12:00  (Manually: GMT+00:00)`, Universal Time `17 Apr 2024 - 12:00` and `40°43'N, 74°0'W`.
-- [ ] Below the two blue buttons is **Share…**. It opens a Chart Bridge chart page in a new tab, and the paste tab stays open. That page shows the same Local time, Offset, UTC and Place rows, a From row reading `pasted text`, and an orange warning that the chart was read from pasted text and nothing checked its UTC offset.
+- [ ] Below the two blue buttons is **Share…**. It opens an AstroChart Bridge chart page in a new tab, and the paste tab stays open. That page shows the same Local time, Offset, UTC and Place rows, a From row reading `pasted text`, and an orange warning that the chart was read from pasted text and nothing checked its UTC offset.
 - [ ] On that page, **Download file** saves a `.astrochart.json` file. Open it in a text editor: it has the date, time, offset and coordinates, `"via": "paste"` and `"utcBasis": "declared"`, and no "New York", "EDT" or "Whole Sign".
 - [ ] **Back to the form** brings back the form with the same values. Change UTC offset to `-4` by typing it, **Continue**, **Share…**, and download the file again. It still says `"utcBasis": "declared"`, since -4 is the offset the text gave. Type `-5` instead and it says `"entered"`.
-- [ ] Change the Date to `1500-04-17` and **Continue**. **Open sky** still works, but **Share…** says Chart Bridge can't share a chart dated before 15 October 1582, with **Cancel** back to the chart.
+- [ ] Change the Date to `1500-04-17` and **Continue**. **Open sky** still works, but **Share…** says AstroChart Bridge can't share a chart dated before 15 October 1582, with **Cancel** back to the chart.
 - [ ] Change Longitude to `74°0'E`. The line under it says `74°0'0"E`. **Continue** then shows Place `40°43'N, 74°0'E`. Change it back.
 - [ ] Clear the UTC offset box. **Continue** fades and does nothing when clicked. Type `-4` and it comes back.
-- [ ] Copy the sample again and click **Paste from clipboard**. Note which of these happens, in each browser: the form appears at once; the browser asks for permission first (allow it once, then try again and deny it); or an orange line says the browser didn't let Chart Bridge read the clipboard. If the browser refuses or you deny it, pasting with **Cmd+V** still works.
+- [ ] Copy the sample again and click **Paste from clipboard**. Note which of these happens, in each browser: the form appears at once; the browser asks for permission first (allow it once, then try again and deny it); or an orange line says the browser didn't let AstroChart Bridge read the clipboard. If the browser refuses or you deny it, pasting with **Cmd+V** still works.
 - [ ] Replace the text with the lines below and click **Read the text**. The Date box is empty, with **4 May 1985** and **5 April 1985** to pick; the UTC offset box is empty, and its grey line names the zone `BST`. **Continue** stays faded until a date is picked and `+01:00` typed.
 
 ```
@@ -330,17 +330,17 @@ Sidereal Time: 23:27:48
 Needs Stellarium 25.1 or later with its Remote Control server on: the setup steps in `docs/stellarium-desktop.md`. `test/desktop-model.test.js` covers what each screen says, and `test/stellarium-desktop-client.test.js` the requests, against a stand-in server. These steps check what only the browser can show: the permission prompt, and that the requests reach Stellarium.
 
 1. Note Stellarium's place and time, to put back afterwards.
-2. If Chart Bridge already has access to `127.0.0.1`, remove it first: in Chrome, the extension's **Details** → **Site access**; in Firefox, `about:addons` → Chart Bridge → **Permissions**.
-3. Open the test 3 URL (New York 1944) and click the Chart Bridge icon.
+2. If AstroChart Bridge already has access to `127.0.0.1`, remove it first: in Chrome, the extension's **Details** → **Site access**; in Firefox, `about:addons` → AstroChart Bridge → **Permissions**.
+3. Open the test 3 URL (New York 1944) and click the AstroChart Bridge icon.
 
 - [ ] Below **Open sky** is a **Send to Stellarium Desktop** button with the secondary style, and no grey line under it: without access, the popup doesn't check Stellarium.
-- [ ] Clicking it makes the browser ask whether Chart Bridge may connect to `127.0.0.1`. Note whether the popup stays open while it asks, in each browser. Click **Deny**: the popup says "Chart Bridge needs your permission", with **Try again** and **Cancel**.
+- [ ] Clicking it makes the browser ask whether AstroChart Bridge may connect to `127.0.0.1`. Note whether the popup stays open while it asks, in each browser. Click **Deny**: the popup says "AstroChart Bridge needs your permission", with **Try again** and **Cancel**.
 - [ ] **Try again**, then allow it. The popup says "Sent to Stellarium Desktop" with UTC `1944-01-10 16:00` and Place `40°43'N, 74°0'W`. In Stellarium the clock is paused at 16:00 UTC on 10 January 1944, shown in Stellarium's own time zone, and the location is named `40.7167, -74`.
 - [ ] **Done** closes the popup. Nothing else in Stellarium changed: the view, landscape and selected object are as they were.
 - [ ] Open the popup on test 3 again. Within a second, a grey line under **Send to Stellarium Desktop** says "Stellarium Desktop is open and ready." Stellarium's time and place don't change.
 - [ ] In Stellarium, untick **Server enabled** in Remote Control's settings. Open the popup on test 2 (Sydney): the grey line says "Stellarium Desktop isn't reachable right now. The button shows how to set it up." Click **Send to Stellarium Desktop**. Without asking again, the popup says "Stellarium Desktop isn't reachable", with six numbered steps, a grey note about other devices on the network, **Try again** and **Cancel**. **Cancel** shows the Sydney chart again.
 - [ ] Tick **Server enabled** again and click **Try again** on that screen. Stellarium shows 21:00 UTC on 14 January 2024 at 33°52'S, 151°12'E.
-- [ ] Go to `https://example.com` and click the Chart Bridge icon. **Import from Stellarium Desktop** is the last button, with "Stellarium Desktop is open and ready." under it. It shows "From Stellarium Desktop" with UTC `2024-01-14 21:00` and Place `33°52'S, 151°12'E`, then **Open chart in Astro-Seek**, **Open sky** and **Enter in astro.com…**.
+- [ ] Go to `https://example.com` and click the AstroChart Bridge icon. **Import from Stellarium Desktop** is the last button, with "Stellarium Desktop is open and ready." under it. It shows "From Stellarium Desktop" with UTC `2024-01-14 21:00` and Place `33°52'S, 151°12'E`, then **Open chart in Astro-Seek**, **Open sky** and **Enter in astro.com…**.
 - [ ] **Open sky** opens a Stellarium Web tab whose address contains `date=2024-01-14T21%3A00%3A00Z&lat=-33.86667&lng=151.2`.
 - [ ] In Stellarium's Remote Control settings, tick **Access requires authentication**, type any password, click **Save settings**, then untick and tick **Server enabled**. **Import from Stellarium Desktop** says "Stellarium asks for a password", and the browser doesn't show its own password box. Untick it again the same way.
 - [ ] The Console stays empty throughout.
@@ -354,7 +354,7 @@ Needs Stellarium 25.1 or later with its Remote Control server on: the setup step
 
 ## Test 18: Safari on iPad
 
-Run this on each iPad you have, and note its model, size and iPadOS version. Where a step says to open the popup, tap the menu in Safari's address bar, then **Chart Bridge**. Note anything Safari asks the first time on each site.
+Run this on each iPad you have, and note its model, size and iPadOS version. Where a step says to open the popup, tap the menu in Safari's address bar, then **AstroChart Bridge**. Note anything Safari asks the first time on each site.
 
 - [ ] Tests 1, 2, 3, 4, 7, 8 and 11 show what they say on a Mac, and the addresses they open contain the same `date=`, `lat=` and `lng=`.
 - [ ] On `https://example.com`, tap **Import from Stellarium Desktop** and note what the popup shows. There's no Stellarium Desktop on an iPad for it to reach at `127.0.0.1`.
@@ -378,7 +378,7 @@ Run this on each iPad you have, and note its model, size and iPadOS version. Whe
 - [ ] Switch to another tab and back, then open the popup again on the test 1 tab: it shows the same rows.
 ## Test 19: the receiving page
 
-The page that opens a Chart Bridge link, without the extension. Serve the `extension` folder (the launch config's `receiving-page` entry runs the same command):
+The page that opens an AstroChart Bridge link, without the extension. Serve the `extension` folder (the launch config's `receiving-page` entry runs the same command):
 
 ```
 python3 -m http.server 8778 --bind 127.0.0.1 --directory extension
@@ -399,7 +399,7 @@ http://127.0.0.1:8778/chart.html#v1=eyJmb3JtYXQiOiJjaGFydC1icmlkZ2UiLCJ2ZXJzaW9u
 - [ ] **Download file** saves `chart-2024-04-17.astrochart.json`. Opened in a text editor, it shows the chart's fields indented, with `"utcOffsetSeconds": -14400`.
 - [ ] Open the browser's History list. Note whether it shows the address with `#v1=…`: the page removes it from the tab's address and its Back entry, but whether a browser's History list keeps the original address hasn't been checked in any browser.
 - [ ] Delete the last ten characters of the link and open it: the page says the link is incomplete or damaged, shows `Code: malformed`, and has no buttons.
-- [ ] Open `http://127.0.0.1:8778/chart.html` with nothing after it: the page asks for a Chart Bridge link or chart file, and its only button is a blue **Open a chart file**.
+- [ ] Open `http://127.0.0.1:8778/chart.html` with nothing after it: the page asks for an AstroChart Bridge link or chart file, and its only button is a blue **Open a chart file**.
 - [ ] The Console stays empty throughout.
 
 ### B: phones and tablets (needs the devices)
@@ -442,8 +442,8 @@ Use the file **Download file** saved in test 19, `chart-2024-04-17.astrochart.js
 
 - [ ] On the test 19 page, **Open a chart file** and choose the file: the page shows the test 19 rows, "Opened chart-2024-04-17.astrochart.json." under the buttons, and the address has nothing after `chart.html`.
 - [ ] Drag the file from Finder onto the page: the same. The browser doesn't leave the page to show the file.
-- [ ] Choose any other file, such as a photo: the page says it isn't a Chart Bridge chart, with its code, and **Open a chart file** is still there.
-- [ ] In the popup on a page Chart Bridge doesn't read (test 8), **Open a chart file** opens the extension's page in a tab, where choosing the file shows the chart. Chrome and Firefox.
+- [ ] Choose any other file, such as a photo: the page says it isn't an AstroChart Bridge chart, with its code, and **Open a chart file** is still there.
+- [ ] In the popup on a page AstroChart Bridge doesn't read (test 8), **Open a chart file** opens the extension's page in a tab, where choosing the file shows the chart. Chrome and Firefox.
 - [ ] On an iPhone and an iPad, send the file to the device (AirDrop or Files), open the test 19 page there (test 19 B), and choose the file from Files. On Android, from Downloads. Each shows the chart.
 
 ### B: the share sheet

@@ -10,7 +10,7 @@ const refused = (reason) => ({ kind: "refused", reason });
 const NATAL = [{ btyp: "2", mth: "gw" }];
 
 /**
- * Decides from the address alone whether a page is an account chart Chart
+ * Decides from the address alone whether a page is an account chart AstroChart
  * Bridge can open. Whether its drawing link can be read is readPgid's job.
  * Other parameters, such as the dates, lang= and pa=, aren't checked: a chart
  * page links to itself with several different sets of them.
@@ -52,12 +52,12 @@ function only(params, key) {
 
 /**
  * Reads a page that classifyUrl accepted as natal: the nd= record in its
- * drawing link, limited to what Chart Bridge can open today.
+ * drawing link, limited to what AstroChart Bridge can open today.
  *
  * @param {{ url: string, links: string[] }} page  as for readPgid
  * @returns {{ local: string, offsetMinutes: number, lat: number, lng: number }
  *   | { kind: "refused", reason: "unsupported" | "no-drawing-link" | "ambiguous-page" | "unreadable-link"
- *       | "page-url-mismatch" | "unreadable-record" | "local-mean-time" | "unseen-field-9" }}
+ *       | "page-url-mismatch" | "unreadable-record" | "calendar-unsupported" | "local-mean-time" | "unseen-field-9" }}
  */
 export function readChart({ url, links }) {
   const link = readPgid({ url, links });
@@ -65,6 +65,7 @@ export function readChart({ url, links }) {
 
   const chart = parseNd(link.nd);
   if (!chart) return refused("unreadable-record");
+  if (chart.local < GREGORIAN_START) return refused("calendar-unsupported");
   // Checked before field 9, which reads "gal" beside every local-mean-time
   // zone seen, so these charts get the reason that explains them.
   if (chart.zone.kind === "local-mean-time") return refused("local-mean-time");
@@ -82,6 +83,11 @@ export function readChart({ url, links }) {
 // text that follows, "L", then that text: the chart URL in base64url. Only the
 // unpadded form has been seen; the one sample needed no padding.
 const DRAWING_PATH = "/cgi/sub.cgi";
+
+// astro.com's AAF files take dates before the Gregorian calendar began as
+// Julian, as aaf.js reads them. Whether its nd records do hasn't been seen,
+// and nothing in the record would catch a date some days out, so they are refused.
+const GREGORIAN_START = "1582-10-15";
 const PGID = /^L(\d+)L([A-Za-z0-9_-]+)$/;
 
 /**
@@ -128,7 +134,7 @@ function drawingPgid(href) {
 
 // The chart URL inside a pgid, or null. atob reads unpadded base64 and gives
 // one character per byte, so a non-ASCII place name comes out garbled; the
-// fields Chart Bridge reads are all ASCII.
+// fields AstroChart Bridge reads are all ASCII.
 function unwrapPgid(pgid) {
   const match = PGID.exec(pgid);
   if (!match || Number(match[1]) !== match[2].length) return null;
@@ -180,7 +186,7 @@ const ANGLE = /^(\d{1,3})([nsew])(\d{1,2}|\d{4})$/;
 
 /**
  * The birth data in an nd= record, or null when any field it reads has a
- * form not seen before. Makes no decision about what Chart Bridge supports:
+ * form not seen before. Makes no decision about what AstroChart Bridge supports:
  * a local-mean-time zone is returned as such.
  *
  * @param {string} record  the nd= value, already URL-decoded
@@ -266,7 +272,9 @@ function degrees(deg, min, sec, negative, limit) {
 }
 
 function isCalendarDate({ year, month, day }) {
-  const date = new Date(Date.UTC(year, month - 1, day));
+  // Date.UTC takes years 0 to 99 for 1900 to 1999, so the year is set apart.
+  const date = new Date(0);
+  date.setUTCFullYear(year, month - 1, day);
   return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
 }
 
@@ -287,7 +295,7 @@ const isoDate = ({ year, month, day }) => `${pad(year, 4)}-${pad(month)}-${pad(d
 const FORM_PATH = "/cgi/ade.cgi";
 
 /**
- * Whether a page is on astro.com at all, where Chart Bridge may have values
+ * Whether a page is on astro.com at all, where AstroChart Bridge may have values
  * waiting for the tab.
  *
  * @param {string} url

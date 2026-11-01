@@ -111,6 +111,8 @@ const REASONS = [
   "weekday-mismatch",
   "zone-offset-mismatch",
   "no-coordinates",
+  "true-local-time-mismatch",
+  "offset-off-quarter-hour",
 ];
 for (const reason of REASONS) {
   test(`${reason} has its own message and keeps its code`, () => {
@@ -125,6 +127,6 @@ for (const reason of ["calendar-unsupported", "apparent-time"]) {
   test(`${reason} has its own message and keeps its code`, () => {
     const view = viewForScreenshot({ kind: "refused", reason });
     assert.equal(view.code, reason);
-    assert.match(view.message, /Chart Bridge/);
+    assert.match(view.message, /AstroChart Bridge/);
   });
 }

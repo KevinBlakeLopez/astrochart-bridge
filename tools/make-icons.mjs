@@ -1,4 +1,4 @@
-// Draws Chart Bridge's icon, a star above an arch on a night-blue square, at
+// Draws AstroChart Bridge's icon, a star above an arch on a night-blue square, at
 // every size the manifest lists. Run it after changing the drawing:
 //
 //   node tools/make-icons.mjs

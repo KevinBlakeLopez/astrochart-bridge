@@ -1,5 +1,5 @@
 {
-  "name": "chart-bridge",
+  "name": "astrochart-bridge",
   "private": true,
   "type": "module",
   "scripts": {

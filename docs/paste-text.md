@@ -1,25 +1,25 @@
 # Pasting chart text
 
-Chart Bridge can read birth data from text you copy out of an astrology program, a chart report, a PDF or your own notes. You check the values on a form, correct any that are wrong, and then open the sky in Stellarium Web or the chart in Astro-Seek.
+AstroChart Bridge can read birth data from text you copy out of an astrology program, a chart report, a PDF or your own notes. You check the values on a form, correct any that are wrong, and then open the sky in Stellarium Web or the chart in Astro-Seek.
 
 The text is read on your computer. Nothing is sent anywhere until you click **Open sky** or **Open chart in Astro-Seek**, and then only the date, time and coordinates go to that site. **Share…** sends nothing either: it opens a chart page in this browser, and the chart leaves it only if you copy, show or download it there. The text isn't saved: closing the tab forgets it.
 
 ## How to
 
-1. Click the Chart Bridge icon on any page that isn't a chart, then **Paste chart text instead**. A Chart Bridge tab opens.
+1. Click the AstroChart Bridge icon on any page that isn't a chart, then **Paste chart text instead**. An AstroChart Bridge tab opens.
 2. Click the big box and paste with **⌘V** (Mac) or **Ctrl+V**. The form appears at once.
 
-   Or click **Paste from clipboard**. Your browser may ask whether Chart Bridge can read the clipboard, or refuse; if it does, paste into the box instead. Chart Bridge never reads the clipboard without that click.
+   Or click **Paste from clipboard**. Your browser may ask whether AstroChart Bridge can read the clipboard, or refuse; if it does, paste into the box instead. AstroChart Bridge never reads the clipboard without that click.
 
    If you type the text instead of pasting it, click **Read the text** when you're done.
-3. Check each of the five boxes. Under each box, a grey line shows the line of your text it came from, and the line just below the box shows what Chart Bridge made of it, such as `122°19'56"W` or `22:30 at the birthplace`.
+3. Check each of the five boxes. Under each box, a grey line shows the line of your text it came from, and the line just below the box shows what AstroChart Bridge made of it, such as `122°19'56"W` or `22:30 at the birthplace`.
 4. Fill in any empty box. You can type a value in any form the text could have used.
 5. Click **Continue**. It stays faded until all five boxes read.
 6. Check the Local time, Offset, UTC and Place rows, then click **Open sky** or **Open chart in Astro-Seek**, or **Share…** (see [Sharing](#sharing)). **Back to the form** returns to the form as you left it.
 
 ## Sharing
 
-**Share…** opens Chart Bridge's chart page in a new tab with the chart in its link, as it does for a chart page or a screenshot. From there you can copy the link, show it as a QR code or download it as a `.astrochart.json` file. See `docs/portable-charts.md`.
+**Share…** opens AstroChart Bridge's chart page in a new tab with the chart in its link, as it does for a chart page or a screenshot. From there you can copy the link, show it as a QR code or download it as a `.astrochart.json` file. See `docs/portable-charts.md`.
 
 A shared chart holds only the local date and time, the UTC offset and the coordinates, and says it came from pasted text and whether the offset was one the text gave or one you typed. The name, place, time zone, house system and zodiac from the text aren't in it. Whoever opens it sees a warning that nothing checked its offset against the birthplace and date.
 
@@ -27,7 +27,7 @@ A chart dated before 15 October 1582 opens the sky but can't be shared yet.
 
 ## What it reads
 
-Chart Bridge reads lines that have a label it knows, followed by a colon or an equals sign. It ignores every other line, so planet positions, aspects, transit dates and interpretation text can stay in what you paste.
+AstroChart Bridge reads lines that have a label it knows, followed by a colon or an equals sign. It ignores every other line, so planet positions, aspects, transit dates and interpretation text can stay in what you paste.
 
 Labelled fields:
 
@@ -129,7 +129,7 @@ Everything else is shown on the form for you to compare and is never sent: the n
 
 ## Time zones and offsets
 
-Chart Bridge works out the UTC time from the local time and the offset, and nothing else. It doesn't look up time zones or their history.
+AstroChart Bridge works out the UTC time from the local time and the offset, and nothing else. It doesn't look up time zones or their history.
 
 - **An offset in the text** fills the offset box, for example from `Timezone: PDT (UTC-7)`, `Time Zone: GMT -7` or `utc_offset=-07:00`.
 - **A zone name with no offset**, such as `PDT`, `BST` or `America/Los_Angeles`, leaves the box empty, and the form names the zone so you can enter its offset. Abbreviations like these mean different offsets in different places and years.
@@ -140,15 +140,15 @@ Because the offset fixes the instant, a time skipped or repeated when the clocks
 
 ## What else the form asks about
 
-- **An ambiguous date**, such as `04/05/1985`, leaves the date box empty and offers both readings, 4 May and 5 April. Chart Bridge never picks one.
+- **An ambiguous date**, such as `04/05/1985`, leaves the date box empty and offers both readings, 4 May and 5 April. AstroChart Bridge never picks one.
 - **A missing or unreadable birth time** leaves the time box empty or as written. It is never filled in as noon or midnight.
 - **A place with no coordinates** isn't looked up. Enter the latitude and longitude yourself.
-- **More than one birth date or name** means the text may hold more than one chart, and Chart Bridge asks you to paste one at a time.
+- **More than one birth date or name** means the text may hold more than one chart, and AstroChart Bridge asks you to paste one at a time.
 
 ## Known limitations
 
 - **Astro-Seek's settings**: the Astro-Seek chart always opens with Placidus houses in UT/GMT at the coordinates, rounded to the minute, with no city. When the text names another house system or the sidereal zodiac, the form warns you to set it in Astro-Seek. Stellarium Web shows the sky, which has no houses or zodiac.
-- **One value per line**: a label whose value is on the next line, as in text copied from an Astro-Seek chart page, isn't read. Open the Astro-Seek page itself and use the Chart Bridge icon there instead.
+- **One value per line**: a label whose value is on the next line, as in text copied from an Astro-Seek chart page, isn't read. Open the Astro-Seek page itself and use the AstroChart Bridge icon there instead.
 - **Unlabelled lines**: text with no labels, such as `15 Jun 1985` and `10:30 AM PDT` on lines of their own, isn't read yet.
 - **West-positive programs**: some astrology programs write west longitudes or west-of-UTC offsets as positive numbers without a letter. In labelled lines, those are read the usual way round, so check the hemisphere letter under each box. Only the program layouts above are read their own way round.
 - **Calendars**: dates are read in the Gregorian calendar, including dates before a country adopted it.

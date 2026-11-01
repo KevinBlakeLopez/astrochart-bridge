@@ -1,6 +1,6 @@
 # Astro-Seek known issues
 
-Behaviour of astro-seek.com that Chart Bridge has to work around or that should be reported upstream. Each entry separates what has been verified from what has not.
+Behaviour of astro-seek.com that AstroChart Bridge has to work around or that should be reported upstream. Each entry separates what has been verified from what has not.
 
 ## Asteroids chart: Vertex sometimes shown at an equinoctial degree
 
@@ -9,7 +9,7 @@ Behaviour of astro-seek.com that Chart Bridge has to work around or that should 
 - **Status:** known defect, deferred. Observed manually in the browser. Not yet captured in the defective state, and not checked against an independent Vertex calculation. The asteroids capture in `fixtures/astroseek/asteroids-ny-2024-04-17.json` shows the Vertex at 0°24′ in its text, the same as the natal page, so the defect did not appear that time; it may only show in the drawn chart or only sometimes.
 - **Not yet known:** which tab or view state shows it, and whether it affects every chart or only some.
 - **Hypothesis (unverified):** the asteroids URL sends `hid_vertex=on&hid_vertex_check=`, while the natal URL sends `hid_vertex=1`. A longitude of exactly 0° or 180° would fit a Vertex that was never calculated.
-- **Impact on Chart Bridge:** none. Chart Bridge reads only the birth date, time, place and Universal Time, never the Vertex, and it accepts the asteroids page as a natal chart. The page's header uses the same format as the natal page.
+- **Impact on AstroChart Bridge:** none. AstroChart Bridge reads only the birth date, time, place and Universal Time, never the Vertex, and it accepts the asteroids page as a natal chart. The page's header uses the same format as the natal page.
 - **When picked up:**
   1. Capture the page in the defective state with the download snippet.
   2. Compare its Vertex with an independent calculation.

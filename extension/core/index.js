@@ -3,18 +3,21 @@ import * as astrocom from "./astrocom.js";
 import { readHeader, resolveHeaderUtc } from "./chart-image.js";
 import { resolveUtc, utcFromOffset } from "./civiltime.js";
 import * as astrogold from "./astrogold.js";
+import * as astrolog from "./astrolog.js";
 import * as esotech from "./esotech.js";
 import * as janus from "./janus.js";
 import * as jhora from "./jhora.js";
 import * as kepler from "./kepler.js";
 import * as morinus from "./morinus.js";
 import * as planetdance from "./planetdance.js";
+import * as timepassages from "./timepassages.js";
+import * as winstar from "./winstar.js";
 import { resolvePrinted, resolveReadings } from "./printed-chart.js";
 import { SIDEREAL_TOLERANCE_SECONDS, siderealGap } from "./sidereal.js";
 
 const refused = (reason) => ({ kind: "refused", reason });
 
-// Every site Chart Bridge reads, by hostname. extract runs in the chart's tab
+// Every site AstroChart Bridge reads, by hostname. extract runs in the chart's tab
 // and returns the input its site's read takes. The browser sends the tab only
 // the function's source, so it can't use anything else in this module. These
 // are the only lines that touch a page, so the browser checks them by hand.
@@ -74,7 +77,7 @@ function siteFor(url) {
 
 /**
  * Decides from the address alone whether a page is a natal chart on a site
- * Chart Bridge reads.
+ * AstroChart Bridge reads.
  *
  * @param {string} url
  * @returns {{ kind: "natal" } | { kind: "refused", reason: string }}
@@ -86,7 +89,7 @@ export function classifyUrl(url) {
 
 /**
  * The function to run in the page's tab, whose result is analyzePage's input,
- * or null for a site Chart Bridge doesn't read.
+ * or null for a site AstroChart Bridge doesn't read.
  *
  * @param {string} url
  * @returns {(() => object) | null}
@@ -96,7 +99,7 @@ export function extractorFor(url) {
 }
 
 /**
- * Everything Chart Bridge needs from one chart page, in the shape of a
+ * Everything AstroChart Bridge needs from one chart page, in the shape of a
  * fixture's expected block. Stops at the first refusal and returns it as is.
  * site names the site whose chart was read, so the popup knows whether the
  * chart is already on Astro-Seek.
@@ -192,6 +195,9 @@ const PROGRAM_READERS = [
   { shows: jhora.detect, analyze: printedBy(jhora) },
   { shows: kepler.detect, analyze: printedBy(kepler) },
   { shows: janus.detect, analyze: printedBy(janus) },
+  { shows: winstar.detect, analyze: printedBy(winstar) },
+  { shows: timepassages.detect, analyze: printedBy(timepassages) },
+  { shows: astrolog.detect, analyze: printedBy(astrolog) },
 ];
 
 const SCREENSHOT_READERS = [
@@ -221,11 +227,12 @@ export function analyzeProgramText(text) {
  * chart page, an astro.com chart image, a Solar Fire wheel, Astro Gold's chart
  * details or Edit Chart screen, a Morinus status bar or square chart, a Valens
  * wheel, Planetdance's wheel, data screen or Vedic screen, Jagannatha Hora's
- * birth data, a Kepler or Sirius wheel, or a Janus wheel or report. With no
- * URL to check the text against, the checks are whatever the screenshot
- * prints: a sidereal time that must fit the UT and longitude, a weekday that
- * must fall on the date, a zone label or zone that must give the offset, and a
- * local time a real UTC offset away from the UT. Nothing checks the latitude.
+ * birth data, a Kepler or Sirius wheel, a Janus wheel or report, a Win*Star
+ * wheel, a TimePassages wheel, or an Astrolog sidebar. With no URL to check
+ * the text against, the checks are whatever the screenshot prints: a sidereal
+ * time that must fit the UT and longitude, a weekday that must fall on the
+ * date, a zone label or zone that must give the offset, and a local time a
+ * real UTC offset away from the UT. Nothing checks the latitude.
  *
  * @param {string} text  OCR output
  * @returns {ReturnType<typeof analyzePage> | ReturnType<typeof resolvePrinted>}
@@ -243,7 +250,7 @@ function analyzeChartImage(text) {
   const resolved = resolveHeaderUtc(header);
   if (resolved.kind === "refused") return resolved;
   // astro.com prints Univ.Time, so the offset comes from it, and no zone label
-  // Chart Bridge could check. The screenshot page adds its own Astro-Seek button.
+  // AstroChart Bridge could check. The screenshot page adds its own Astro-Seek button.
   const { local, lat, lng } = header;
   const { utc, utcSource, offsetMinutes } = resolved;
   return { kind: "natal", site: "astro-com", local, zoneLabel: null, lat, lng, utc, utcSource, offsetMinutes };

@@ -231,6 +231,17 @@ test("local mean time is refused, whatever field 9 says", () => {
   assert.deepEqual(chartFrom([linkWithNd({ 8: "m74w0" })]), refused("local-mean-time"));
 });
 
+test("a date before the Gregorian calendar began is refused, two-digit years too", () => {
+  assert.deepEqual(chartFrom([linkWithNd({ 4: "14", 5: "10", 6: "1582" })]), refused("calendar-unsupported"));
+  assert.deepEqual(chartFrom([linkWithNd({ 6: "50" })]), refused("calendar-unsupported"));
+  // Checked before local mean time, which most of these charts use.
+  assert.deepEqual(chartFrom([linkWithNd({ 6: "1500", 8: "m74w0", 9: "gal" })]), refused("calendar-unsupported"));
+  assert.equal(chartFrom([linkWithNd({ 4: "15", 5: "10", 6: "1582" })]).local, "1582-10-15T08:00:00");
+  // 29 February in a year 1 to 99 is checked as that year, not as 1900 to 1999.
+  assert.equal(parseNd(`,Test,e,29,2,4,8:00,h4w,gad,0,New York,NY (US),74w00,40n43,f,45,-24500,61`).local, "0004-02-29T08:00:00");
+  assert.equal(parseNd(`,Test,e,29,2,1,8:00,h4w,gad,0,New York,NY (US),74w00,40n43,f,45,-24500,61`), null);
+});
+
 test("an offset zone beside field 9 gal is refused", () => {
   assert.deepEqual(chartFrom([linkWithNd({ 9: "gal" })]), refused("unseen-field-9"));
 });

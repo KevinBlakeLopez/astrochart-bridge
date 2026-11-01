@@ -162,7 +162,7 @@ test("markup in a zone label comes through as the same text", () => {
 test("no link explains what the page is for, with no buttons", () => {
   assert.deepEqual(viewForImport(null), {
     state: "empty",
-    message: "Open a Chart Bridge link or chart file to see its chart here.",
+    message: "Open an AstroChart Bridge link or chart file to see its chart here.",
     notes: [],
     buttons: [],
   });
@@ -171,12 +171,12 @@ test("no link explains what the page is for, with no buttons", () => {
 test("every refusal has a message and keeps its code", () => {
   const expected = {
     malformed: "This link is incomplete or damaged. Copy the whole link again.",
-    "too-large": "This link is too long to be a Chart Bridge chart.",
-    "not-chart-bridge": "This link doesn't hold a Chart Bridge chart.",
-    "unsupported-version": "This chart was made by a newer version of Chart Bridge, which this page can't read.",
-    "unknown-field": "This chart was made by a newer version of Chart Bridge, which this page can't read.",
-    "unsupported-calendar": "This chart was made by a newer version of Chart Bridge, which this page can't read.",
-    "before-gregorian": "This chart's date is before 15 October 1582, which Chart Bridge can't open yet.",
+    "too-large": "This link is too long to be an AstroChart Bridge chart.",
+    "not-chart-bridge": "This link doesn't hold an AstroChart Bridge chart.",
+    "unsupported-version": "This chart was made by a newer version of AstroChart Bridge, which this page can't read.",
+    "unknown-field": "This chart was made by a newer version of AstroChart Bridge, which this page can't read.",
+    "unsupported-calendar": "This chart was made by a newer version of AstroChart Bridge, which this page can't read.",
+    "before-gregorian": "This chart's date is before 15 October 1582, which AstroChart Bridge can't open yet.",
     "invalid-date": "This link's chart isn't valid. Copy the whole link again.",
     "invalid-offset": "This link's chart isn't valid. Copy the whole link again.",
     "invalid-coordinates": "This link's chart isn't valid. Copy the whole link again.",
@@ -336,13 +336,13 @@ test("a file that isn't a chart is refused with the parser's reason", () => {
 
 test("a file's refusals are worded for a file and keep their code", () => {
   const expected = {
-    malformed: "This file isn't a Chart Bridge chart, or it is damaged.",
-    "too-large": "This file is too large to be a Chart Bridge chart.",
-    "not-chart-bridge": "This file isn't a Chart Bridge chart.",
-    "unsupported-version": "This file was made by a newer version of Chart Bridge, which this page can't read.",
-    "unknown-field": "This file was made by a newer version of Chart Bridge, which this page can't read.",
-    "unsupported-calendar": "This file was made by a newer version of Chart Bridge, which this page can't read.",
-    "before-gregorian": "This chart's date is before 15 October 1582, which Chart Bridge can't open yet.",
+    malformed: "This file isn't an AstroChart Bridge chart, or it is damaged.",
+    "too-large": "This file is too large to be an AstroChart Bridge chart.",
+    "not-chart-bridge": "This file isn't an AstroChart Bridge chart.",
+    "unsupported-version": "This file was made by a newer version of AstroChart Bridge, which this page can't read.",
+    "unknown-field": "This file was made by a newer version of AstroChart Bridge, which this page can't read.",
+    "unsupported-calendar": "This file was made by a newer version of AstroChart Bridge, which this page can't read.",
+    "before-gregorian": "This chart's date is before 15 October 1582, which AstroChart Bridge can't open yet.",
     "invalid-date": "This file's chart isn't valid.",
     "something-new": "This file's chart isn't valid.",
   };
@@ -390,7 +390,7 @@ test("with nowhere to point a link, Share link… goes too, but Share file… st
 test("the link is shared under a title with no birth data in it", () => {
   const { chart } = received(NY, NY_SOURCE);
   assert.deepEqual(shareDataFor("https://example.org/chart.html", chart), {
-    title: "Chart Bridge chart",
+    title: "AstroChart Bridge chart",
     url: `https://example.org/chart.html#${toFragment(chart)}`,
   });
 });

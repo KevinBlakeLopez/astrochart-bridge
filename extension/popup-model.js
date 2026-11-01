@@ -17,30 +17,32 @@ const NOTES = [CLOCK_NOTE, PRIVACY_NOTE];
 const RUNNING = "The clock starts running at once; its pause button stops it.";
 
 // A refusal's code says which site it came from (transit and synastry only
-// from Astro-Seek; databank and the three after it only from astro.com), so
+// from Astro-Seek; databank and the four after it only from astro.com), so
 // each message can name its site without being told it.
 const REFUSALS = {
-  transit: "This is a transit chart. Chart Bridge opens natal charts only.",
-  synastry: "This is a synastry or compatibility chart. Chart Bridge opens natal charts only.",
-  unsupported: "Open an Astro-Seek or astro.com birth chart to use Chart Bridge.",
-  databank: "Astro-Databank charts aren't supported yet. Chart Bridge opens charts saved in your astro.com account.",
-  "unsupported-chart": "Chart Bridge can't read this kind of astro.com chart yet.",
+  transit: "This is a transit chart. AstroChart Bridge opens natal charts only.",
+  synastry: "This is a synastry or compatibility chart. AstroChart Bridge opens natal charts only.",
+  unsupported: "Open an Astro-Seek or astro.com birth chart to use AstroChart Bridge.",
+  databank: "Astro-Databank charts aren't supported yet. AstroChart Bridge opens charts saved in your astro.com account.",
+  "unsupported-chart": "AstroChart Bridge can't read this kind of astro.com chart yet.",
   "no-drawing-link":
-    "This astro.com page has no \"Drawing (for subscribers)\" link, which is where Chart Bridge reads the birth data.",
-  "local-mean-time": "This chart uses local mean time, which Chart Bridge can't open yet.",
+    "This astro.com page has no \"Drawing (for subscribers)\" link, which is where AstroChart Bridge reads the birth data.",
+  "local-mean-time": "This chart uses local mean time, which AstroChart Bridge can't open yet.",
+  "calendar-unsupported":
+    "This astro.com chart is dated before the Gregorian calendar began on 15 October 1582. AstroChart Bridge reads Gregorian dates only.",
   "page-url-mismatch": "The page doesn't match its address. Reload the chart and try again.",
-  "stellarium-unreadable": "Chart Bridge couldn't read the sky from this Stellarium Web tab.",
+  "stellarium-unreadable": "AstroChart Bridge couldn't read the sky from this Stellarium Web tab.",
 };
 
 // Every other refusal means the chart page couldn't be read. They share one
 // message and show their code, so a bug report says which check failed.
-const UNREADABLE = "Chart Bridge couldn't read this chart page.";
+const UNREADABLE = "AstroChart Bridge couldn't read this chart page.";
 
 const WARNINGS = {
   "zone-label-unknown": ({ zoneLabel }) =>
     zoneLabel === null
       ? "Astro-Seek printed no zone label, so its Universal Time is used as printed."
-      : `Astro-Seek's zone label "${abbreviation(zoneLabel)}" isn't one Chart Bridge can check, so its Universal Time is used as printed.`,
+      : `Astro-Seek's zone label "${abbreviation(zoneLabel)}" isn't one AstroChart Bridge can check, so its Universal Time is used as printed.`,
 };
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -196,8 +198,8 @@ export function viewForShareRefusal(reason) {
     state: "share-refused",
     message:
       reason === "before-gregorian"
-        ? "Chart Bridge can't share a chart dated before 15 October 1582 yet: it can't tell which calendar the date is in."
-        : "Chart Bridge can't share this chart.",
+        ? "AstroChart Bridge can't share a chart dated before 15 October 1582 yet: it can't tell which calendar the date is in."
+        : "AstroChart Bridge can't share this chart.",
     code: reason,
     notes: [],
     buttons: [],
@@ -253,18 +255,18 @@ const ASTRO_COM_BUTTONS = [
 const townNote = (town) =>
   town === null
     ? "astro.com asks for a country and town, not coordinates. Choose the town nearest this place and check the coordinates astro.com shows."
-    : `astro.com asks for a country and town, not coordinates. Chart Bridge fills in the town ${town}; choose the match nearest this place and check the coordinates astro.com shows.`;
+    : `astro.com asks for a country and town, not coordinates. AstroChart Bridge fills in the town ${town}; choose the match nearest this place and check the coordinates astro.com shows.`;
 
 // The sign-in advice is a note, not a step before the form: a signed-in browser
 // goes straight on.
 const ASTRO_COM_NOTES = [
-  "astro.com draws the chart only for a signed-in account. If it asks you to sign in or create a free account, do it in that tab: Chart Bridge keeps these values for it.",
-  `Chart Bridge keeps them for ${HOLD_MINUTES} minutes, until it fills them in, or until you cancel or close the browser. Filling in puts them in astro.com's page, and its town search sends a town to astro.com at once; submitting sends the rest.`,
-  "The first time, your browser asks to let Chart Bridge read and change www.astro.com pages. It uses that only to fill in the form in the tab it opens. If you say no, it shows the values to fill in yourself.",
+  "astro.com draws the chart only for a signed-in account. If it asks you to sign in or create a free account, do it in that tab: AstroChart Bridge keeps these values for it.",
+  `AstroChart Bridge keeps them for ${HOLD_MINUTES} minutes, until it fills them in, or until you cancel or close the browser. Filling in puts them in astro.com's page, and its town search sends a town to astro.com at once; submitting sends the rest.`,
+  "The first time, your browser asks to let AstroChart Bridge read and change www.astro.com pages. It uses that only to fill in the form in the tab it opens. If you say no, it shows the values to fill in yourself.",
 ];
 
 // The step after the form button that both ways back to the toolbar icon name.
-const TOOLBAR_STEP = "click the Chart Bridge icon in the toolbar again to fill in the form.";
+const TOOLBAR_STEP = "click the AstroChart Bridge icon in the toolbar again to fill in the form.";
 
 // Shown while the form opens behind the popup.
 export const ASTRO_COM_BUSY = { state: "astro-com-busy", message: "Opening astro.com's form to fill it in…", notes: [], buttons: [] };
@@ -279,7 +281,7 @@ export function viewForAstroComManual(values) {
   return {
     state: "astro-com-manual",
     ...astroComValues(values),
-    message: "Chart Bridge can't fill in the form without access to www.astro.com.",
+    message: "AstroChart Bridge can't fill in the form without access to www.astro.com.",
     notes: [`After the astro.com tab opens, ${TOOLBAR_STEP}`],
     sky: { utc: values.utc, lat: values.lat, lng: values.lng },
     buttons: [{ label: "Open astro.com's form", url: FORM_URL, holds: { ...values } }],
@@ -301,7 +303,7 @@ export function viewForAstroComNotFilled(values, outcome = "not-filled") {
     message:
       outcome === "choose"
         ? "astro.com's form is open, but something needs your choice first, such as signing in."
-        : "astro.com's form didn't finish opening, so Chart Bridge couldn't fill it in yet.",
+        : "astro.com's form didn't finish opening, so AstroChart Bridge couldn't fill it in yet.",
     notes: [`Switch to the astro.com tab, then ${TOOLBAR_STEP}`],
     sky: { utc: values.utc, lat: values.lat, lng: values.lng },
     buttons: [{ label: "Go to the astro.com tab", does: "show-tab" }],
@@ -329,7 +331,7 @@ export function viewForAstroCom({ utc, lat, lng }, town = null) {
   return {
     state: "to-astro-com",
     ...astroComValues(held),
-    message: "Chart Bridge opens astro.com's form and fills it in as it opens. It doesn't submit the form.",
+    message: "AstroChart Bridge opens astro.com's form and fills it in as it opens. It doesn't submit the form.",
     notes: [
       "The date and time are Universal Time, so they can differ from the local birth date and time.",
       townNote(town),
@@ -351,19 +353,19 @@ const BLANK_FORM = { label: "Open a blank form", url: FORM_URL, here: true };
 const UNFILLABLE = {
   typed: {
     state: "astro-com-typed",
-    message: "This form already has a date or time in it. Chart Bridge fills in only a blank form, so it won't change what's there.",
+    message: "This form already has a date or time in it. AstroChart Bridge fills in only a blank form, so it won't change what's there.",
     buttons: [BLANK_FORM, CANCEL],
   },
   unrecognised: {
     state: "astro-com-unrecognised",
-    message: "Chart Bridge doesn't recognise this astro.com form, so it can't fill it in. Enter the values above yourself.",
+    message: "AstroChart Bridge doesn't recognise this astro.com form, so it can't fill it in. Enter the values above yourself.",
     code: "unrecognised-form",
     buttons: [CANCEL],
   },
 };
 
 /**
- * What the popup shows on an astro.com tab Chart Bridge keeps values for.
+ * What the popup shows on an astro.com tab AstroChart Bridge keeps values for.
  * Nothing here happens without a click: the form is filled in only by its
  * button, and no page is opened on the tab's behalf, so a failed sign-in can't
  * start a loop. A browser not seen signed out may be signed in, so it is never
@@ -380,8 +382,8 @@ export function viewForAstroComTab(sky, page) {
     return {
       state: "astro-com-waiting",
       ...values,
-      message: "Chart Bridge is keeping these values for this tab.",
-      notes: ["When you're signed in, open astro.com's birth data form in this tab and click the Chart Bridge icon in the toolbar again to fill it in."],
+      message: "AstroChart Bridge is keeping these values for this tab.",
+      notes: ["When you're signed in, open astro.com's birth data form in this tab and click the AstroChart Bridge icon in the toolbar again to fill it in."],
       sky,
       buttons: copy([{ label: "Open astro.com's form", url: FORM_URL, here: true }, CANCEL]),
     };
@@ -400,7 +402,7 @@ export function viewForAstroComTab(sky, page) {
       message:
         "astro.com requires an account to generate charts. Sign in to your existing account or create a free account to continue.",
       notes: [
-        "Chart Bridge keeps these values for the astro.com tab while you sign in. Afterwards, open astro.com's form there and click the Chart Bridge icon in the toolbar again.",
+        "AstroChart Bridge keeps these values for the astro.com tab while you sign in. Afterwards, open astro.com's form there and click the AstroChart Bridge icon in the toolbar again.",
       ],
       sky,
       buttons: copy([
@@ -418,9 +420,9 @@ export function viewForAstroComTab(sky, page) {
     message: "Fill in astro.com's form with these values?",
     notes: [
       sky.town === null
-        ? "Chart Bridge fills in the birthday, hour, minute and the 00:00 GMT / UT time zone. Choose the town nearest this place yourself, and check the coordinates astro.com shows."
-        : `Chart Bridge fills in the birthday, hour, minute, the 00:00 GMT / UT time zone and the town ${sky.town}. Choose astro.com's match nearest this place, and check the coordinates it shows.`,
-      "Chart Bridge doesn't submit the form, and forgets these values once it has filled them in.",
+        ? "AstroChart Bridge fills in the birthday, hour, minute and the 00:00 GMT / UT time zone. Choose the town nearest this place yourself, and check the coordinates astro.com shows."
+        : `AstroChart Bridge fills in the birthday, hour, minute, the 00:00 GMT / UT time zone and the town ${sky.town}. Choose astro.com's match nearest this place, and check the coordinates it shows.`,
+      "AstroChart Bridge doesn't submit the form, and forgets these values once it has filled them in.",
     ],
     sky,
     buttons: copy([{ label: "Fill in the form", does: "fill" }, CANCEL]),

@@ -11,7 +11,7 @@ const textArea = document.getElementById("text");
 const app = document.getElementById("app");
 
 const CLIPBOARD_REFUSED =
-  "Your browser didn't let Chart Bridge read the clipboard. Click the box above and paste with ⌘V or Ctrl+V instead.";
+  "Your browser didn't let AstroChart Bridge read the clipboard. Click the box above and paste with ⌘V or Ctrl+V instead.";
 
 document.getElementById("read").addEventListener("click", read);
 // A paste is read at once; typing waits for the button, so a half-typed line

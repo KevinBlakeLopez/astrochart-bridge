@@ -81,6 +81,8 @@ const COORDS_LINE = new RegExp(
 );
 
 const WEEKDAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+const GREGORIAN_START = "1582-10-15";
+
 const MONTHS = [
   "january", "february", "march", "april", "may", "june",
   "july", "august", "september", "october", "november", "december",
@@ -93,7 +95,7 @@ const MONTHS = [
  *
  * @param {string} text  OCR output, one line of the image per line
  * @returns {{ local: string, weekday: number, utMinutes: number, utSecond?: number, siderealSeconds: number, lat: number, lng: number }
- *   | { kind: "refused", reason: "ambiguous-screenshot" | "unreadable-screenshot" }}
+ *   | { kind: "refused", reason: "ambiguous-screenshot" | "unreadable-screenshot" | "calendar-unsupported" }}
  */
 export function readHeader(text) {
   const lines = text.split("\n").map((line) => line.replace(/\s+/g, " ").trim());
@@ -117,6 +119,9 @@ export function readHeader(text) {
   if (!isCalendarDate(date) || !local || !ut || !sidereal || sidereal.second === undefined || lng === null || lat === null) {
     return refused("unreadable-screenshot");
   }
+  // Before the Gregorian calendar began, astro.com's date may be Julian, as
+  // in its AAF files. The weekday would refuse it, but as a misread date.
+  if (isoDate(date) < GREGORIAN_START) return refused("calendar-unsupported");
 
   return {
     local: `${isoDate(date)}T${pad(local.hour)}:${pad(local.minute)}:${pad(local.second ?? 0)}`,
@@ -160,7 +165,9 @@ function degrees(deg, min, negative, limit) {
 }
 
 function isCalendarDate({ year, month, day }) {
-  const date = new Date(Date.UTC(year, month - 1, day));
+  // Date.UTC takes years 0 to 99 for 1900 to 1999, so the year is set apart.
+  const date = new Date(0);
+  date.setUTCFullYear(year, month - 1, day);
   return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
 }
 

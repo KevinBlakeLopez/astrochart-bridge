@@ -3,7 +3,7 @@
 // Stellarium v25.1 (plugins/RemoteControl/src). Nothing here talks to the
 // network: ../stellarium-desktop.js sends the requests.
 
-// The plugin's default port. Chart Bridge only ever talks to this machine.
+// The plugin's default port. AstroChart Bridge only ever talks to this machine.
 export const PORT = 8090;
 
 // Julian Day of 1970-01-01T00:00:00Z, the start of JavaScript's clock.
@@ -54,7 +54,7 @@ export function utcFromJulianDay(jd) {
 }
 
 /**
- * The parts of GET /api/main/status that Chart Bridge uses, or null when the
+ * The parts of GET /api/main/status that AstroChart Bridge uses, or null when the
  * response isn't shaped like Stellarium's. Whatever answers on the port is
  * checked like any page text before anything is read from it.
  *
@@ -136,7 +136,7 @@ export function checkApplied({ utc, lat, lng }, status) {
 /**
  * Whether a response's Server header is the one Stellarium's plugin sets on
  * every response. Another program could listen on the port; this tells
- * Chart Bridge it isn't talking to Stellarium, not that it is.
+ * AstroChart Bridge it isn't talking to Stellarium, not that it is.
  *
  * @param {string | null} header
  * @returns {boolean}

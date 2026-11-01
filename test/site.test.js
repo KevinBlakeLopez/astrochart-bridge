@@ -51,7 +51,7 @@ test("the receiving page's own files are in it", () => {
 });
 
 test("buildSite copies those files, unchanged, and nothing else", () => {
-  const out = mkdtempSync(join(tmpdir(), "chart-bridge-site-"));
+  const out = mkdtempSync(join(tmpdir(), "astrochart-bridge-site-"));
   try {
     buildSite(out);
     const written = [];
@@ -73,7 +73,7 @@ test("buildSite copies those files, unchanged, and nothing else", () => {
 });
 
 test("buildSite refuses a folder that already has files in it", () => {
-  const out = mkdtempSync(join(tmpdir(), "chart-bridge-site-"));
+  const out = mkdtempSync(join(tmpdir(), "astrochart-bridge-site-"));
   try {
     buildSite(out);
     assert.throws(() => buildSite(out), /not empty/);

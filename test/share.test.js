@@ -93,14 +93,14 @@ test("a chart before 15 October 1582 is refused", () => {
 test("a refusal to share explains itself, keeps its code, and offers only Cancel", () => {
   assert.deepEqual(viewForShareRefusal("before-gregorian"), {
     state: "share-refused",
-    message: "Chart Bridge can't share a chart dated before 15 October 1582 yet: it can't tell which calendar the date is in.",
+    message: "AstroChart Bridge can't share a chart dated before 15 October 1582 yet: it can't tell which calendar the date is in.",
     code: "before-gregorian",
     notes: [],
     buttons: [],
   });
   assert.deepEqual(viewForShareRefusal("invalid-source"), {
     state: "share-refused",
-    message: "Chart Bridge can't share this chart.",
+    message: "AstroChart Bridge can't share this chart.",
     code: "invalid-source",
     notes: [],
     buttons: [],
