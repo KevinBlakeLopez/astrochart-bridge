@@ -8,19 +8,19 @@ import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, viewFor } from "./popup-model.js"
 // the screenshot page's refusals, so a bug report says which check failed.
 const REFUSALS = {
   "no-birth-date": "This chart has no birth date: the file gives *.",
-  "no-birth-time": "This chart has no birth time: the file gives *. Chart Bridge doesn't guess one.",
-  "julian-calendar": "This date is in the Julian calendar, which Chart Bridge can't open yet.",
-  "pre-gregorian-date": "Chart Bridge opens dates from 15 October 1582 on, when the Gregorian calendar began.",
+  "no-birth-time": "This chart has no birth time: the file gives *. AstroChart Bridge doesn't guess one.",
+  "julian-calendar": "This date is in the Julian calendar, which AstroChart Bridge can't open yet.",
+  "pre-gregorian-date": "AstroChart Bridge opens dates from 15 October 1582 on, when the Gregorian calendar began.",
   "no-coordinates": "This chart has no coordinates, so there is no sky to open.",
-  "local-mean-time": "This chart uses local mean time, which Chart Bridge can't open yet.",
-  "meridian-time": "This chart uses a special meridian, such as a capital's local time, which Chart Bridge can't open yet.",
+  "local-mean-time": "This chart uses local mean time, which AstroChart Bridge can't open yet.",
+  "meridian-time": "This chart uses a special meridian, such as a capital's local time, which AstroChart Bridge can't open yet.",
   "unknown-daylight-saving":
-    "This chart doesn't say whether daylight saving was in effect: its time type is *. Chart Bridge doesn't guess.",
-  "no-offset": "This chart gives no UTC offset, so its Universal Time can't be worked out. Chart Bridge doesn't guess one.",
-  "offset-seconds": "This chart's offset has seconds in it, which Chart Bridge can't open yet.",
+    "This chart doesn't say whether daylight saving was in effect: its time type is *. AstroChart Bridge doesn't guess.",
+  "no-offset": "This chart gives no UTC offset, so its Universal Time can't be worked out. AstroChart Bridge doesn't guess one.",
+  "offset-seconds": "This chart's offset has seconds in it, which AstroChart Bridge can't open yet.",
   "offset-out-of-range": "This chart's offset, daylight saving included, is outside -12:00 to +14:00.",
   "julian-day-mismatch":
-    "The file's Julian Day doesn't match its date, time and offset, so Chart Bridge can't tell which is right.",
+    "The file's Julian Day doesn't match its date, time and offset, so AstroChart Bridge can't tell which is right.",
 };
 
 // What parseAaf couldn't read, named for the message "couldn't read <this>".
@@ -61,7 +61,7 @@ export function viewForAafText(text, options) {
   }));
   const message =
     items.length === 0
-      ? "Chart Bridge found no AAF records. Each record starts with a line beginning #A93:."
+      ? "AstroChart Bridge found no AAF records. Each record starts with a line beginning #A93:."
       : items.length === 1
         ? "1 chart in this file."
         : `${items.length} charts in this file. Choose one.`;
@@ -79,7 +79,7 @@ export function viewForAafChart(result, options) {
   if (result.kind === "refused") {
     if (Object.hasOwn(REFUSALS, result.reason)) return { state: "refused", message: REFUSALS[result.reason], code: result.reason };
     const what = UNREADABLE[result.reason] ?? "this record";
-    return { state: "refused", message: `Line ${result.line}: Chart Bridge couldn't read ${what} "${result.value}".`, code: result.reason };
+    return { state: "refused", message: `Line ${result.line}: AstroChart Bridge couldn't read ${what} "${result.value}".`, code: result.reason };
   }
 
   const { warnings = [], ...chart } = result;
@@ -150,7 +150,7 @@ export function decodeAafFile(bytes) {
   } catch {
     return {
       text: new TextDecoder("windows-1252").decode(bytes),
-      warning: "This file isn't UTF-8, so Chart Bridge read it as Windows-1252. Check that accented letters in names look right.",
+      warning: "This file isn't UTF-8, so AstroChart Bridge read it as Windows-1252. Check that accented letters in names look right.",
     };
   }
 }

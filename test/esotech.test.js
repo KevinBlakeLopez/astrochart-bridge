@@ -74,7 +74,7 @@ test("a US-ordered date is read from the line above the time, not from the chart
   assert.equal(chart.local, "2015-07-04T11:15:00");
   assert.equal(chart.utc, "2015-07-04T17:15:00Z");
   assert.deepEqual([chart.lat, chart.lng], [39.739167, -104.984167]);
-  // Chart Bridge doesn't know MDT, so the offset is still unchecked.
+  // AstroChart Bridge doesn't know MDT, so the offset is still unchecked.
   assert.deepEqual(chart.warnings, ["offset-unchecked"]);
 });
 

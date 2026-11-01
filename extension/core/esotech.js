@@ -125,7 +125,7 @@ export function chartRecord(site, parts) {
 }
 
 /**
- * "24 Apr 1942", "Jul 4 2015, Sat" → { year, month, day, weekday? }. Chart
+ * "24 Apr 1942", "Jul 4 2015, Sat" → { year, month, day, weekday? }. AstroChart
  * Bridge counts dates on the Gregorian calendar from year 1, so Old Style and
  * BC are refused.
  */

@@ -17,7 +17,7 @@ import { SIDEREAL_TOLERANCE_SECONDS, siderealGap } from "./sidereal.js";
 
 const refused = (reason) => ({ kind: "refused", reason });
 
-// Every site Chart Bridge reads, by hostname. extract runs in the chart's tab
+// Every site AstroChart Bridge reads, by hostname. extract runs in the chart's tab
 // and returns the input its site's read takes. The browser sends the tab only
 // the function's source, so it can't use anything else in this module. These
 // are the only lines that touch a page, so the browser checks them by hand.
@@ -77,7 +77,7 @@ function siteFor(url) {
 
 /**
  * Decides from the address alone whether a page is a natal chart on a site
- * Chart Bridge reads.
+ * AstroChart Bridge reads.
  *
  * @param {string} url
  * @returns {{ kind: "natal" } | { kind: "refused", reason: string }}
@@ -89,7 +89,7 @@ export function classifyUrl(url) {
 
 /**
  * The function to run in the page's tab, whose result is analyzePage's input,
- * or null for a site Chart Bridge doesn't read.
+ * or null for a site AstroChart Bridge doesn't read.
  *
  * @param {string} url
  * @returns {(() => object) | null}
@@ -99,7 +99,7 @@ export function extractorFor(url) {
 }
 
 /**
- * Everything Chart Bridge needs from one chart page, in the shape of a
+ * Everything AstroChart Bridge needs from one chart page, in the shape of a
  * fixture's expected block. Stops at the first refusal and returns it as is.
  * site names the site whose chart was read, so the popup knows whether the
  * chart is already on Astro-Seek.
@@ -225,7 +225,7 @@ function analyzeChartImage(text) {
   const resolved = resolveHeaderUtc(header);
   if (resolved.kind === "refused") return resolved;
   // astro.com prints Univ.Time, so the offset comes from it, and no zone label
-  // Chart Bridge could check. The screenshot page adds its own Astro-Seek button.
+  // AstroChart Bridge could check. The screenshot page adds its own Astro-Seek button.
   const { local, lat, lng } = header;
   const { utc, utcSource, offsetMinutes } = resolved;
   return { kind: "natal", site: "astro-com", local, zoneLabel: null, lat, lng, utc, utcSource, offsetMinutes };

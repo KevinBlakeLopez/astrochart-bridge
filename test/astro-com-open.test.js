@@ -95,7 +95,7 @@ async function openThenLoad(browser, { url = FORM_URL, timeoutMs = 1000, loadAt 
 
 const browserWith = (scripting = fakeScripting()) => ({ tabs: fakeTabs(), scripting, storage: fakeStorage() });
 
-test("Chart Bridge asks only for www.astro.com, and only when the form button is clicked", async () => {
+test("AstroChart Bridge asks only for www.astro.com, and only when the form button is clicked", async () => {
   const manifest = JSON.parse(await readFile(new URL("../extension/manifest.json", import.meta.url), "utf8"));
   assert.deepEqual(ASTRO_COM_ACCESS, { origins: ["https://www.astro.com/*"] });
   assert.ok(manifest.optional_host_permissions.includes("https://www.astro.com/*"));
@@ -188,14 +188,14 @@ test("another tab loading doesn't count", async () => {
 
 test("the form button fills the form in as it opens; signing in and creating an account only keep the values", () => {
   const view = viewForAstroCom(VALUES, VALUES.town);
-  assert.equal(view.message, "Chart Bridge opens astro.com's form and fills it in as it opens. It doesn't submit the form.");
+  assert.equal(view.message, "AstroChart Bridge opens astro.com's form and fills it in as it opens. It doesn't submit the form.");
   assert.deepEqual(view.buttons.map(({ label, fills }) => [label, fills === true]), [
     ["Open astro.com's form", true],
     ["Sign in", false],
     ["Create account", false],
   ]);
   assert.ok(view.notes.includes(
-    "The first time, your browser asks to let Chart Bridge read and change www.astro.com pages. It uses that only to fill in the form in the tab it opens. If you say no, it shows the values to fill in yourself.",
+    "The first time, your browser asks to let AstroChart Bridge read and change www.astro.com pages. It uses that only to fill in the form in the tab it opens. If you say no, it shows the values to fill in yourself.",
   ));
 });
 
@@ -206,9 +206,9 @@ test("while the form loads, the popup says so and offers nothing to click", () =
 test("declining the access gives the two-click way, with the toolbar icon named at that moment", () => {
   const view = viewForAstroComManual(VALUES);
   assert.equal(view.state, "astro-com-manual");
-  assert.equal(view.message, "Chart Bridge can't fill in the form without access to www.astro.com.");
+  assert.equal(view.message, "AstroChart Bridge can't fill in the form without access to www.astro.com.");
   assert.deepEqual(view.notes, [
-    "After the astro.com tab opens, click the Chart Bridge icon in the toolbar again to fill in the form.",
+    "After the astro.com tab opens, click the AstroChart Bridge icon in the toolbar again to fill in the form.",
   ]);
   assert.deepEqual(view.rows, viewForAstroCom(VALUES, VALUES.town).rows);
   // This button only keeps the values for the tab, so it never asks again.
@@ -218,9 +218,9 @@ test("declining the access gives the two-click way, with the toolbar icon named 
 test("a form that didn't load in time leads to its tab, with the toolbar icon named", () => {
   const view = viewForAstroComNotFilled(VALUES);
   assert.equal(view.state, "astro-com-not-filled");
-  assert.equal(view.message, "astro.com's form didn't finish opening, so Chart Bridge couldn't fill it in yet.");
+  assert.equal(view.message, "astro.com's form didn't finish opening, so AstroChart Bridge couldn't fill it in yet.");
   assert.deepEqual(view.notes, [
-    "Switch to the astro.com tab, then click the Chart Bridge icon in the toolbar again to fill in the form.",
+    "Switch to the astro.com tab, then click the AstroChart Bridge icon in the toolbar again to fill in the form.",
   ]);
   assert.deepEqual(view.buttons, [{ label: "Go to the astro.com tab", does: "show-tab" }]);
 });

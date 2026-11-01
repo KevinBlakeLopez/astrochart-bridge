@@ -1,6 +1,6 @@
-# Chart Bridge in Safari on iPad
+# AstroChart Bridge in Safari on iPad
 
-Safari on iPadOS runs web extensions only from inside an app, so Chart Bridge has to be wrapped in one with Xcode. `tools/package-safari.sh` makes that Xcode project from `extension/`. The same project also builds the Mac app.
+Safari on iPadOS runs web extensions only from inside an app, so AstroChart Bridge has to be wrapped in one with Xcode. `tools/package-safari.sh` makes that Xcode project from `extension/`. The same project also builds the Mac app.
 
 ## What has been checked
 
@@ -31,10 +31,10 @@ TestFlight and the App Store need the paid Apple Developer Program.
 ## Make the Xcode project
 
 ```bash
-npm run package:safari -- com.yourname.chartbridge
+npm run package:safari -- com.yourname.astrochartbridge
 ```
 
-This runs `tools/package-safari.sh`, which you can also run directly. Use a bundle identifier that your Apple team can register; `com.example.chartbridge` is only a placeholder. The project is written to `build/safari/`, which git ignores.
+This runs `tools/package-safari.sh`, which you can also run directly. Use a bundle identifier that your Apple team can register; `com.example.astrochartbridge` is only a placeholder. The project is written to `build/safari/`, which git ignores.
 
 The project points at the files in `extension/` instead of copying them, so a change to an existing file is in the next build. **Run the script again after adding, removing or renaming a file in `extension/`**, because the project lists each file by name.
 
@@ -42,19 +42,19 @@ The script sets the iOS targets to iPadOS 26. Apple's template sets iOS 15, whic
 
 ## Install on an iPad
 
-1. Connect the iPad to the Mac and open `build/safari/Chart Bridge/Chart Bridge.xcodeproj`.
-2. Select the project in Xcode's navigator. For each of the targets **Chart Bridge (iOS)** and **Chart Bridge Extension (iOS)**, open **Signing & Capabilities** and choose your team.
-3. Choose the scheme **Chart Bridge (iOS)** and your iPad as the destination.
+1. Connect the iPad to the Mac and open `build/safari/AstroChart Bridge/AstroChart Bridge.xcodeproj`.
+2. Select the project in Xcode's navigator. For each of the targets **AstroChart Bridge (iOS)** and **AstroChart Bridge Extension (iOS)**, open **Signing & Capabilities** and choose your team.
+3. Choose the scheme **AstroChart Bridge (iOS)** and your iPad as the destination.
 4. On the iPad, turn on **Settings → Privacy & Security → Developer Mode** and restart it. The switch appears only after the iPad has been connected to Xcode. [Apple's steps](https://developer.apple.com/documentation/xcode/enabling-developer-mode-on-a-device)
-5. In Xcode, choose **Product → Run**. The Chart Bridge app opens on the iPad and says how to turn the extension on.
-6. Turn on Chart Bridge in Safari's extension settings, under **Settings → Apps → Safari → Extensions**. You can also go through **Manage Extensions** in the menu in Safari's address bar.
+5. In Xcode, choose **Product → Run**. The AstroChart Bridge app opens on the iPad and says how to turn the extension on.
+6. Turn on AstroChart Bridge in Safari's extension settings, under **Settings → Apps → Safari → Extensions**. You can also go through **Manage Extensions** in the menu in Safari's address bar.
 
 Using it:
 
-- On a chart's tab, tap the menu in the address bar, then **Chart Bridge**. That gives the extension access to that tab only, as clicking its toolbar icon does on a Mac.
-- Safari may ask whether Chart Bridge can see the page. If it does, allow it for that site or for one use.
+- On a chart's tab, tap the menu in the address bar, then **AstroChart Bridge**. That gives the extension access to that tab only, as clicking its toolbar icon does on a Mac.
+- Safari may ask whether AstroChart Bridge can see the page. If it does, allow it for that site or for one use.
 
-To inspect the popup, turn on **Settings → Apps → Safari → Advanced → Web Inspector** on the iPad. Then, in Safari on the Mac, choose the iPad from the **Develop** menu and pick Chart Bridge's popup.
+To inspect the popup, turn on **Settings → Apps → Safari → Advanced → Web Inspector** on the iPad. Then, in Safari on the Mac, choose the iPad from the **Develop** menu and pick AstroChart Bridge's popup.
 
 ## Distribution
 
@@ -72,6 +72,6 @@ Test 18 in `docs/manual-test.md` covers these:
   - If that happens, the popup could close before the values are kept. **Open sky** doesn't open tabs this way.
 - **Screenshot reading:** WebKit bug reports say iOS gives WebAssembly less memory than a Mac. Tesseract.js, which reads screenshots, may run out of memory on some iPads.
 - **The page Astro-Seek serves:** iPads usually ask websites for their desktop pages, but Apple names iPad mini as one that may get a site's mobile layout.
-  - Chart Bridge reads the date, time and place from the address and checks them against the page's text.
+  - AstroChart Bridge reads the date, time and place from the address and checks them against the page's text.
   - A mobile page that prints them differently would most likely be refused. Wrong values are unlikely, but neither has been tried.
 - **Popup size:** with a finger as the main pointer, the popup uses 44-point buttons and larger text (`popup.css`, `pointer: coarse`). With a trackpad attached, Safari may report the trackpad as the main pointer instead, and then the popup keeps its desktop sizes.

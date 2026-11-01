@@ -1,4 +1,4 @@
-// What the receiving page shows for a Chart Bridge link or chart file. It is
+// What the receiving page shows for an AstroChart Bridge link or chart file. It is
 // the popup's ready screen, from viewFor, for a chart that arrived in a link
 // or a file rather than from a page: it can open in Stellarium Web and
 // Astro-Seek, and be passed on. Every decision is made here, so chart.js only
@@ -38,9 +38,9 @@ const VIA_WARNINGS = {
 // Object.prototype: a link with site "constructor" would print its source code.
 const nameFor = (names, code) => (Object.hasOwn(names, code) ? names[code] : code);
 
-const NEWER = "This chart was made by a newer version of Chart Bridge, which this page can't read.";
-const NEWER_FILE = "This file was made by a newer version of Chart Bridge, which this page can't read.";
-const BEFORE_GREGORIAN = "This chart's date is before 15 October 1582, which Chart Bridge can't open yet.";
+const NEWER = "This chart was made by a newer version of AstroChart Bridge, which this page can't read.";
+const NEWER_FILE = "This file was made by a newer version of AstroChart Bridge, which this page can't read.";
+const BEFORE_GREGORIAN = "This chart's date is before 15 October 1582, which AstroChart Bridge can't open yet.";
 
 // Each refusal from fromFragment or readChartFile, worded for where the chart
 // came from. Every one keeps its code on screen, like the popup's unreadable
@@ -48,17 +48,17 @@ const BEFORE_GREGORIAN = "This chart's date is before 15 October 1582, which Cha
 const REFUSALS = {
   link: {
     malformed: "This link is incomplete or damaged. Copy the whole link again.",
-    "too-large": "This link is too long to be a Chart Bridge chart.",
-    "not-chart-bridge": "This link doesn't hold a Chart Bridge chart.",
+    "too-large": "This link is too long to be an AstroChart Bridge chart.",
+    "not-chart-bridge": "This link doesn't hold an AstroChart Bridge chart.",
     "unsupported-version": NEWER,
     "unknown-field": NEWER,
     "unsupported-calendar": NEWER,
     "before-gregorian": BEFORE_GREGORIAN,
   },
   file: {
-    malformed: "This file isn't a Chart Bridge chart, or it is damaged.",
-    "too-large": "This file is too large to be a Chart Bridge chart.",
-    "not-chart-bridge": "This file isn't a Chart Bridge chart.",
+    malformed: "This file isn't an AstroChart Bridge chart, or it is damaged.",
+    "too-large": "This file is too large to be an AstroChart Bridge chart.",
+    "not-chart-bridge": "This file isn't an AstroChart Bridge chart.",
     "unsupported-version": NEWER_FILE,
     "unknown-field": NEWER_FILE,
     "unsupported-calendar": NEWER_FILE,
@@ -72,7 +72,7 @@ const DAMAGED = {
 
 const EMPTY = {
   state: "empty",
-  message: "Open a Chart Bridge link or chart file to see its chart here.",
+  message: "Open an AstroChart Bridge link or chart file to see its chart here.",
 };
 
 // A chart file is under 1 KB; parse's own limit is 16,384 characters.
@@ -233,5 +233,5 @@ export function qrViewFor(base, chart) {
  * @returns {{ title: string, url: string }}
  */
 export function shareDataFor(base, chart) {
-  return { title: "Chart Bridge chart", url: linkFor(base, chart) };
+  return { title: "AstroChart Bridge chart", url: linkFor(base, chart) };
 }

@@ -323,7 +323,7 @@ const ZONE_SPLITS = {
  * analyzePage, analyzeScreenshot or chartFromRecord, or the sky of a
  * Stellarium Web tab. AAF wants the standard offset and the daylight saving
  * apart, so the local time is kept only where the source states both: an AAF
- * chart, or an Astro-Seek chart whose zone label Chart Bridge has checked.
+ * chart, or an Astro-Seek chart whose zone label AstroChart Bridge has checked.
  * Every other chart is written in Universal Time, which is never wrong, and
  * basis says so. Nothing else is filled in: unknown names and places stay null.
  *
@@ -382,7 +382,7 @@ const UTC_INSTANT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/;
  * @returns {string}
  */
 export function writeAaf(records) {
-  const lines = ["#: Chart Bridge"];
+  const lines = ["#: AstroChart Bridge"];
   for (const record of records) {
     if (record.basis === "utc") {
       lines.push("#: Universal Time: the source doesn't say how its offset splits into standard time and daylight saving.");

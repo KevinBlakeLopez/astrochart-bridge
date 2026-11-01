@@ -62,14 +62,14 @@ function defaultChoice({ preferred, changed, offer = false }) {
 const HINTS = {
   connected: "Stellarium Desktop is open and ready.",
   unavailable: "Stellarium Desktop isn't reachable right now. The button shows how to set it up.",
-  "auth-required": "Stellarium asks for a password, which Chart Bridge doesn't use. The button shows how to turn it off.",
+  "auth-required": "Stellarium asks for a password, which AstroChart Bridge doesn't use. The button shows how to turn it off.",
   "invalid-response": "Something other than Stellarium is answering on port 8090.",
   "stellarium-not-earth": "Stellarium's observer is on another planet.",
 };
 
 /**
  * The line to show under the desktop buttons, or null when the popup didn't
- * check: it checks only once Chart Bridge has access to 127.0.0.1.
+ * check: it checks only once AstroChart Bridge has access to 127.0.0.1.
  *
  * @param {Awaited<ReturnType<typeof import("./stellarium-desktop.js").probe>> | null} result
  * @returns {string | null}
@@ -113,19 +113,19 @@ const PROBLEMS = {
     notes: [NETWORK_NOTE],
   },
   "no-permission": {
-    heading: "Chart Bridge needs your permission",
+    heading: "AstroChart Bridge needs your permission",
     message:
-      "To reach Stellarium, Chart Bridge needs permission to connect to this computer at 127.0.0.1. It doesn't connect anywhere else, and only when you click.",
+      "To reach Stellarium, AstroChart Bridge needs permission to connect to this computer at 127.0.0.1. It doesn't connect anywhere else, and only when you click.",
   },
   "auth-required": {
     heading: "Stellarium asks for a password",
     message:
-      "Chart Bridge doesn't use Remote Control's password. In Stellarium's Remote Control settings, untick Access requires authentication and click Save settings, then untick and tick Server enabled to restart the server.",
+      "AstroChart Bridge doesn't use Remote Control's password. In Stellarium's Remote Control settings, untick Access requires authentication and click Save settings, then untick and tick Server enabled to restart the server.",
   },
   "invalid-response": {
     heading: "Something else is using port 8090",
     message:
-      "The program answering on port 8090 isn't Stellarium's Remote Control, so Chart Bridge sent nothing. Quit that program, then untick and tick Server enabled in Stellarium's Remote Control settings.",
+      "The program answering on port 8090 isn't Stellarium's Remote Control, so AstroChart Bridge sent nothing. Quit that program, then untick and tick Server enabled in Stellarium's Remote Control settings.",
   },
   "request-failed": {
     heading: "Stellarium didn't finish the request",
@@ -138,8 +138,8 @@ const PROBLEMS = {
   "stellarium-date-out-of-range": {
     heading: "This date can't go to Stellarium",
     message: {
-      send: "Chart Bridge sends Stellarium dates from 15 October 1582 to the year 9999.",
-      import: "Stellarium is showing a date before 15 October 1582 or after the year 9999, which Chart Bridge can't read.",
+      send: "AstroChart Bridge sends Stellarium dates from 15 October 1582 to the year 9999.",
+      import: "Stellarium is showing a date before 15 October 1582 or after the year 9999, which AstroChart Bridge can't read.",
     },
   },
   mismatch: {

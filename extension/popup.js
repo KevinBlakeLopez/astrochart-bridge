@@ -42,7 +42,7 @@ let preferred = false;
 let sharing = null;
 
 main().catch((error) => {
-  const view = { state: "refused", message: "Chart Bridge couldn't read this tab.", code: String(error?.message ?? error) };
+  const view = { state: "refused", message: "AstroChart Bridge couldn't read this tab.", code: String(error?.message ?? error) };
   show(view, { offerScreenshot: true });
 });
 
@@ -72,12 +72,12 @@ async function main() {
     return;
   }
 
-  // Pages Chart Bridge doesn't handle are refused before any script runs on them.
-  // A page on a site Chart Bridge doesn't read may still have a chart on screen,
+  // Pages AstroChart Bridge doesn't handle are refused before any script runs on them.
+  // A page on a site AstroChart Bridge doesn't read may still have a chart on screen,
   // in an image or a PDF; a screenshot of a transit or compatibility page wouldn't help.
   const page = classifyUrl(url);
 
-  // An astro.com page that isn't a chart Chart Bridge reads may be a tab opened
+  // An astro.com page that isn't a chart AstroChart Bridge reads may be a tab opened
   // for a chart's values: the form, or a sign-in page on the way to it. A
   // chart page, even with values kept, opens its own sky as before.
   if (page.kind === "refused" && isAstroComPage(url)) {
@@ -180,7 +180,7 @@ async function showTab(tab) {
   window.close();
 }
 
-// A page Chart Bridge doesn't read can still lead to a chart: a screenshot,
+// A page AstroChart Bridge doesn't read can still lead to a chart: a screenshot,
 // pasted text, an AAF file, a .astrochart.json file, or Stellarium Desktop.
 function show(view, { offerScreenshot = false, onButton = openLink } = {}) {
   render(app, view, onButton);
@@ -201,7 +201,7 @@ function show(view, { offerScreenshot = false, onButton = openLink } = {}) {
   checkDesktop(app.querySelector(".desktop-hint")).catch(() => {});
 }
 
-// Once Chart Bridge has access to 127.0.0.1, the popup checks Stellarium as
+// Once AstroChart Bridge has access to 127.0.0.1, the popup checks Stellarium as
 // it opens and says what it found under the desktop button. Without access it
 // doesn't check: the request would fail like a closed Stellarium. The screen
 // is drawn first and the line filled in when the answer comes, so nothing

@@ -220,7 +220,7 @@ test("a status that isn't JSON, or isn't Stellarium's shape, is an invalid respo
 
 // The popup's check when it opens: whether a send could work now, so the
 // date Stellarium happens to show doesn't matter.
-test("probe: one GET, connected even when Stellarium shows a date Chart Bridge can't read", async (t) => {
+test("probe: one GET, connected even when Stellarium shows a date AstroChart Bridge can't read", async (t) => {
   const stellarium = await mockStellarium({ state: { jday: 2000000.5 } });
   t.after(stellarium.close);
   assert.deepEqual(await probe({ port: stellarium.port }), { state: "connected" });

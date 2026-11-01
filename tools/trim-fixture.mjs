@@ -1,4 +1,4 @@
-// Trims an Astro-Seek fixture to the header block Chart Bridge reads, and
+// Trims an Astro-Seek fixture to the header block AstroChart Bridge reads, and
 // records what the full page showed in a "capture" summary. The rest of the
 // page is Astro-Seek's own text, which this repo doesn't republish, so run
 // this on every new capture before committing it:

@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Chart Bridge",
+  "name": "AstroChart Bridge",
   "version": "0.1.0",
   "description": "Open the sky for an Astro-Seek or astro.com natal chart in Stellarium Web or Stellarium Desktop.",
   "icons": {
@@ -14,7 +14,7 @@
     "1024": "icons/icon-1024.png"
   },
   "action": {
-    "default_title": "Chart Bridge",
+    "default_title": "AstroChart Bridge",
     "default_popup": "popup.html"
   },
   "permissions": ["activeTab", "scripting", "storage"],
