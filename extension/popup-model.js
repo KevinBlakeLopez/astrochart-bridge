@@ -1,5 +1,6 @@
 import { astroSeekUrl } from "./core/astroseek.js";
 import { parseOffset, utcFromOffset } from "./core/civiltime.js";
+import { HOLD_MINUTES } from "./pending.js";
 
 const CLOCK_NOTE = "Stellarium Web's clock shows your computer's time zone and keeps running.";
 
@@ -166,21 +167,27 @@ export function viewForSky(sky, { timeZone } = {}) {
 // astro.com's pages, as seen signed out on 2026-11-01. Its birth data form
 // (ade.cgi) is posted, asks for a country and town for its atlas to look up,
 // has no coordinate fields, and offers "00:00 GMT / UT" among the time zones
-// in its extended settings. Chart Bridge has no permission on astro.com pages,
-// so it neither fills the form in nor checks whether the browser is signed in.
+// in its extended settings. Chart Bridge has no permission on astro.com pages
+// until the popup is opened on one, so this screen can't tell whether the
+// browser is signed in. Each button keeps the values for the tab it opens,
+// and the popup on that tab fills in the form: viewForAstroComTab.
+const FORM_URL = "https://www.astro.com/cgi/ade.cgi";
+const SIGN_IN_URL = "https://www.astro.com/cgi/awd.cgi?lang=e";
+const CREATE_ACCOUNT_URL = "https://www.astro.com/cgi/scus.cgi?act=new&";
+
 const ASTRO_COM_BUTTONS = [
-  { label: "Open astro.com's form", url: "https://www.astro.com/cgi/ade.cgi" },
-  { label: "Sign in", url: "https://www.astro.com/cgi/awd.cgi?lang=e" },
-  { label: "Create account", url: "https://www.astro.com/cgi/scus.cgi?act=new&" },
+  { label: "Open astro.com's form", url: FORM_URL, holds: true },
+  { label: "Sign in", url: SIGN_IN_URL, holds: true },
+  { label: "Create account", url: CREATE_ACCOUNT_URL, holds: true },
 ];
 
 // The sign-in advice is a note, not a step before the form: a signed-in browser
-// goes straight on. Nothing is stored, so the values come back by opening
-// Chart Bridge on the chart again.
+// goes straight on.
 const ASTRO_COM_NOTES = [
   "The date and time are Universal Time, so they can differ from the local birth date and time.",
   "astro.com asks for a country and town, not coordinates. Choose the town nearest this place and check the coordinates astro.com shows.",
-  "astro.com draws the chart only for a signed-in account. If it asks, sign in or create a free account, then come back to this chart for these values.",
+  "astro.com draws the chart only for a signed-in account. If it asks you to sign in or create a free account, do it in that tab: Chart Bridge keeps these values for it.",
+  `Chart Bridge keeps them for ${HOLD_MINUTES} minutes, until it fills them in, or until you cancel or close the browser. Filling in puts them in astro.com's page; submitting sends them to astro.com.`,
 ];
 
 const MONTH_NAMES = [
@@ -198,10 +205,112 @@ const astroComStep = (sky) => ({ label: "Enter in astro.com…", view: viewForAs
  * @param {{ utc: string, lat: number, lng: number }} sky
  */
 export function viewForAstroCom({ utc, lat, lng }) {
+  const sky = { utc, lat, lng };
+  return {
+    state: "to-astro-com",
+    ...astroComValues(sky),
+    message: "Open astro.com's form, then click Chart Bridge on it to fill in these values. Chart Bridge doesn't submit the form.",
+    notes: [...ASTRO_COM_NOTES],
+    sky,
+    buttons: ASTRO_COM_BUTTONS.map((button) => ({ ...button })),
+  };
+}
+
+// The buttons of the screens on an astro.com tab. A button with does is an
+// action popup.js takes on the tab; one with here opens its link in the tab
+// itself, so the values kept for the tab stay with it.
+const CANCEL = { label: "Cancel", does: "release", secondary: true };
+const BLANK_FORM = { label: "Open a blank form", url: FORM_URL, here: true };
+
+// What the popup shows on a form it won't fill in, by readFormPage's form.
+// Every one keeps the values on screen to type in by hand.
+const UNFILLABLE = {
+  typed: {
+    state: "astro-com-typed",
+    message: "This form already has a date or time in it. Chart Bridge fills in only a blank form, so it won't change what's there.",
+    buttons: [BLANK_FORM, CANCEL],
+  },
+  "existing-record": {
+    state: "astro-com-existing",
+    message: "This form changes a chart saved in your astro.com account. Chart Bridge fills in only a new entry, so it won't change this one.",
+    buttons: [BLANK_FORM, CANCEL],
+  },
+  unrecognised: {
+    state: "astro-com-unrecognised",
+    message: "Chart Bridge doesn't recognise this astro.com form, so it can't fill it in. Enter the values above yourself.",
+    code: "unrecognised-form",
+    buttons: [CANCEL],
+  },
+};
+
+/**
+ * What the popup shows on an astro.com tab Chart Bridge keeps values for.
+ * Nothing here happens without a click: the form is filled in only by its
+ * button, and no page is opened on the tab's behalf, so a failed sign-in can't
+ * start a loop. A browser not seen signed out may be signed in, so it is never
+ * held up by a sign-in prompt.
+ *
+ * @param {{ utc: string, lat: number, lng: number }} sky  from heldForTab
+ * @param {{ kind: "form" } & ReturnType<typeof import("./core/astrocom.js").readFormPage> | { kind: "other" }} page
+ */
+export function viewForAstroComTab(sky, page) {
+  const values = astroComValues(sky);
+  const copy = (buttons) => buttons.map((button) => ({ ...button }));
+
+  if (page.kind !== "form") {
+    return {
+      state: "astro-com-waiting",
+      ...values,
+      message: "Chart Bridge is keeping these values for this tab.",
+      notes: ["When you're signed in, open astro.com's birth data form in this tab and click Chart Bridge again to fill it in."],
+      sky,
+      buttons: copy([{ label: "Open astro.com's form", url: FORM_URL, here: true }, CANCEL]),
+    };
+  }
+
+  if (Object.hasOwn(UNFILLABLE, page.form)) {
+    const { buttons, ...screen } = UNFILLABLE[page.form];
+    return { ...screen, ...values, notes: [], sky, buttons: copy(buttons) };
+  }
+
+  if (page.auth === "signed-out") {
+    return {
+      state: "astro-com-sign-in",
+      heading: "Sign in to astro.com",
+      ...values,
+      message:
+        "astro.com requires an account to generate charts. Sign in to your existing account or create a free account to continue.",
+      notes: [
+        "Chart Bridge keeps these values for this tab while you sign in. Afterwards, open astro.com's form in this tab and click Chart Bridge again.",
+      ],
+      sky,
+      buttons: copy([
+        { label: "Sign in", url: SIGN_IN_URL, here: true },
+        { label: "Create account", url: CREATE_ACCOUNT_URL, here: true },
+        { label: "Fill in anyway", does: "fill", secondary: true },
+        CANCEL,
+      ]),
+    };
+  }
+
+  return {
+    state: "astro-com-fill",
+    ...values,
+    message: "Fill in astro.com's form with these values?",
+    notes: [
+      "Chart Bridge fills in the birthday, hour, minute and the 00:00 GMT / UT time zone. Choose the town nearest this place yourself, and check the coordinates astro.com shows.",
+      "Chart Bridge doesn't submit the form, and forgets these values once it has filled them in.",
+    ],
+    sky,
+    buttons: copy([{ label: "Fill in the form", does: "fill" }, CANCEL]),
+  };
+}
+
+// The rows and warnings every astro.com screen shows: the form's values in its own terms.
+function astroComValues({ utc, lat, lng }) {
   const [year, month, day] = utc.slice(0, 10).split("-");
   const seconds = Number(utc.slice(17, 19));
   return {
-    state: "to-astro-com",
     rows: [
       ["Birthday", `${Number(day)} ${MONTH_NAMES[Number(month) - 1]} ${year}`],
       ["Hour, min", utc.slice(11, 16)],
@@ -209,10 +318,6 @@ export function viewForAstroCom({ utc, lat, lng }) {
       ["Place", placeText(lat, lng)],
     ],
     warnings: seconds === 0 ? [] : [`astro.com takes whole minutes, so the ${seconds} seconds are left out.`],
-    message: "Enter these in astro.com's birth data form. Chart Bridge doesn't fill it in or send it.",
-    notes: [...ASTRO_COM_NOTES],
-    sky: { utc, lat, lng },
-    buttons: ASTRO_COM_BUTTONS.map((button) => ({ ...button })),
   };
 }
 

@@ -273,3 +273,120 @@ function isCalendarDate({ year, month, day }) {
 const pad = (n, width = 2) => String(n).padStart(width, "0");
 
 const isoDate = ({ year, month, day }) => `${pad(year, 4)}-${pad(month)}-${pad(day)}`;
+
+// astro.com's birth data form, ade.cgi, as seen signed out on 2026-11-01: a
+// POST form named "start" whose fields are named sday, imon (a select of 1 to
+// 12), syar, ihou (a select of "", "u" and 0 to 23), smin, and szon (a select
+// of time zones, "h0w" first among the " 00:00 GMT / UT" ones). szon sits in
+// the extended settings, whose toggle sets the hidden extset field from
+// "close" to "open" and shows #extended. cid is empty on a new entry; that it
+// names a saved chart otherwise is assumed, not seen.
+const FORM_PATH = "/cgi/ade.cgi";
+
+/**
+ * Whether a page is on astro.com at all, where Chart Bridge may have values
+ * waiting for the tab.
+ *
+ * @param {string} url
+ */
+export function isAstroComPage(url) {
+  try {
+    return new URL(url).origin === ORIGIN;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Whether a page is astro.com's birth data form.
+ *
+ * @param {string} url
+ */
+export function isBirthDataForm(url) {
+  return isAstroComPage(url) && new URL(url).pathname === FORM_PATH;
+}
+
+/**
+ * The values for ade.cgi's fields for a decided UTC, by field name. The
+ * seconds are left out: the form takes whole minutes.
+ *
+ * @param {{ utc: string }} sky
+ * @returns {{ sday: string, imon: string, syar: string, ihou: string, smin: string, szon: "h0w" }}
+ */
+export function formValues({ utc }) {
+  const [year, month, day] = utc.slice(0, 10).split("-");
+  return {
+    sday: String(Number(day)),
+    imon: String(Number(month)),
+    syar: year,
+    ihou: String(Number(utc.slice(11, 13))),
+    smin: utc.slice(14, 16),
+    szon: "h0w",
+  };
+}
+
+// readFormPage and fillForm run in the form's tab. The browser sends the tab
+// only each function's source, so neither can use anything else in this
+// module, and each repeats the checks it needs.
+
+/**
+ * What the popup needs to know about an ade.cgi tab. auth is "signed-out" only
+ * when the page greets "Hello [not logged in]", as every signed-out page seen
+ * did; anything else is "unknown", since no signed-in page has been seen. form
+ * is "blank" only for a new entry whose date and time are empty.
+ *
+ * @returns {{ auth: "signed-out" | "unknown", form: "blank" | "typed" | "existing-record" | "unrecognised" }}
+ */
+export function readFormPage() {
+  const greetings = [...document.querySelectorAll("li.hello")].map((item) => item.textContent.trim());
+  const auth = greetings.includes("Hello [not logged in]") ? "signed-out" : "unknown";
+  const fields = document.forms.namedItem("start")?.elements;
+  const names = ["cid", "sday", "imon", "syar", "ihou", "smin", "extset", "szon"];
+  const field = (name) => fields?.namedItem(name) ?? null;
+  if (!names.every(field)) return { auth, form: "unrecognised" };
+  if (field("cid").value !== "") return { auth, form: "existing-record" };
+  const typed = ["sday", "syar", "smin"].some((name) => field(name).value !== "") || field("ihou").value !== "";
+  return { auth, form: typed ? "typed" : "blank" };
+}
+
+/**
+ * Fills in a blank ade.cgi form with formValues' values, the way a person
+ * would: the extended settings are opened so the time zone shows, each change
+ * is announced to the page's own scripts, and the town field is focused for
+ * the person to type in. Never submits. Fills in nothing unless the form is
+ * still blank and every value is one the form accepts.
+ *
+ * @param {ReturnType<typeof formValues>} values
+ * @returns {{ filled: true } | { filled: false, form: "typed" | "existing-record" | "unrecognised" }}
+ */
+export function fillForm(values) {
+  const fields = document.forms.namedItem("start")?.elements;
+  const field = (name) => fields?.namedItem(name) ?? null;
+  const names = Object.keys(values);
+  if (![...names, "cid", "extset", "scit"].every(field)) return { filled: false, form: "unrecognised" };
+  if (field("cid").value !== "") return { filled: false, form: "existing-record" };
+  if (["sday", "syar", "smin", "ihou"].some((name) => field(name).value !== "")) return { filled: false, form: "typed" };
+
+  // A select ignores a value none of its options has, so each is tried and put
+  // back before anything is changed.
+  for (const name of names) {
+    const element = field(name);
+    const before = element.value;
+    element.value = values[name];
+    const accepted = element.value === values[name];
+    element.value = before;
+    if (!accepted) return { filled: false, form: "unrecognised" };
+  }
+
+  field("extset").value = "open";
+  const extended = document.getElementById("extended");
+  if (extended) extended.style.display = "";
+  for (const name of names) {
+    const element = field(name);
+    element.value = values[name];
+    element.dispatchEvent(new Event("input", { bubbles: true }));
+    element.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+  field("scit").focus();
+  return { filled: true };
+}

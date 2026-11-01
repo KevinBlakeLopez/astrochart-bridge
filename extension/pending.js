@@ -1,0 +1,67 @@
+// The values kept for an astro.com tab that Chart Bridge opened for a chart,
+// so the popup on that tab can fill in astro.com's form after the popup that
+// opened it has closed. Each takes the storage area to use: the browser passes
+// chrome.storage.session, which the browser empties when it quits, and tests
+// pass a stand-in. Only the decided UTC and place are kept, never anything of
+// astro.com's.
+
+export const HOLD_MINUTES = 30;
+
+// One entry per tab, so two charts opened in two tabs don't replace each other.
+const PREFIX = "astro-com-tab:";
+const keyFor = (tabId) => `${PREFIX}${tabId}`;
+
+/**
+ * Keeps a chart's values for the tab opened for them, replacing any kept for
+ * that tab before. Expired values of other tabs are removed on the way, so
+ * nothing needs a timer.
+ *
+ * @param {chrome.storage.StorageArea} storage
+ * @param {number} tabId
+ * @param {{ utc: string, lat: number, lng: number }} sky
+ * @param {number} [now]  milliseconds since the epoch
+ */
+export async function holdForTab(storage, tabId, { utc, lat, lng }, now = Date.now()) {
+  const stale = Object.entries(await storage.get(null))
+    .filter(([key, entry]) => key.startsWith(PREFIX) && liveSky(entry, now) === null)
+    .map(([key]) => key);
+  if (stale.length > 0) await storage.remove(stale);
+  await storage.set({ [keyFor(tabId)]: { sky: { utc, lat, lng }, heldAt: now } });
+}
+
+/**
+ * The values kept for a tab, or null when there are none or they have
+ * expired. Expired or malformed values are removed, so they never come back.
+ *
+ * @param {chrome.storage.StorageArea} storage
+ * @param {number} tabId
+ * @param {number} [now]
+ * @returns {Promise<{ utc: string, lat: number, lng: number } | null>}
+ */
+export async function heldForTab(storage, tabId, now = Date.now()) {
+  const key = keyFor(tabId);
+  const { [key]: entry } = await storage.get(key);
+  if (entry === undefined) return null;
+  const sky = liveSky(entry, now);
+  if (sky === null) await storage.remove(key);
+  return sky;
+}
+
+/**
+ * Forgets the values kept for a tab: once they are filled in, or cancelled.
+ *
+ * @param {chrome.storage.StorageArea} storage
+ * @param {number} tabId
+ */
+export async function releaseTab(storage, tabId) {
+  await storage.remove(keyFor(tabId));
+}
+
+// An entry's sky while it is younger than HOLD_MINUTES, else null. One kept
+// "later" than now means the clock moved back, and counts as expired too.
+function liveSky(entry, now) {
+  const age = now - entry?.heldAt;
+  if (!(age >= 0 && age < HOLD_MINUTES * 60_000)) return null;
+  const { utc, lat, lng } = entry.sky ?? {};
+  return typeof utc === "string" && Number.isFinite(lat) && Number.isFinite(lng) ? { utc, lat, lng } : null;
+}

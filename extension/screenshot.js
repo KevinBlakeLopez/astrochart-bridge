@@ -4,6 +4,7 @@
 // screenshot-model.js; this file handles the image and the page.
 import Tesseract from "./vendor/tesseract/tesseract.esm.min.js";
 import { analyzeScreenshot } from "./core/index.js";
+import { holdForTab } from "./pending.js";
 import { viewForScreenshot } from "./screenshot-model.js";
 import { paragraph, render } from "./view.js";
 
@@ -85,6 +86,12 @@ async function recognize(file) {
   return data.text;
 }
 
-function openLink(url) {
-  window.open(url, "_blank", "noopener");
+// An astro.com button keeps the values for the tab it opens, as in the popup.
+async function openLink({ url, holds }, sky) {
+  if (!holds) {
+    window.open(url, "_blank", "noopener");
+    return;
+  }
+  const tab = await chrome.tabs.create({ url });
+  await holdForTab(chrome.storage.session, tab.id, sky);
 }

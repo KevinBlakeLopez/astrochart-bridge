@@ -11,10 +11,13 @@ const analyze = (name) => analyzePage(fixture(name));
 const LA = { timeZone: "America/Los_Angeles" };
 const NY_SKY = { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 };
 
-// Chart Bridge can't tell whether the browser is signed in to astro.com, so the
-// sign-in advice is a note beside the form button, never a step before it.
+// Chart Bridge can't tell from this tab whether the browser is signed in to
+// astro.com, so the sign-in advice is a note beside the form button, never a
+// step before it. test/astro-com-form.test.js covers the astro.com tab itself.
 const SIGN_IN_NOTE =
-  "astro.com draws the chart only for a signed-in account. If it asks, sign in or create a free account, then come back to this chart for these values.";
+  "astro.com draws the chart only for a signed-in account. If it asks you to sign in or create a free account, do it in that tab: Chart Bridge keeps these values for it.";
+const HOLD_NOTE =
+  "Chart Bridge keeps them for 30 minutes, until it fills them in, or until you cancel or close the browser. Filling in puts them in astro.com's page; submitting sends them to astro.com.";
 
 test("the astro.com screen lists the form's values in Universal Time", () => {
   assert.deepEqual(viewForAstroCom(NY_SKY), {
@@ -26,17 +29,19 @@ test("the astro.com screen lists the form's values in Universal Time", () => {
       ["Place", "40°43'N, 74°0'W"],
     ],
     warnings: [],
-    message: "Enter these in astro.com's birth data form. Chart Bridge doesn't fill it in or send it.",
+    message: "Open astro.com's form, then click Chart Bridge on it to fill in these values. Chart Bridge doesn't submit the form.",
     notes: [
       "The date and time are Universal Time, so they can differ from the local birth date and time.",
       "astro.com asks for a country and town, not coordinates. Choose the town nearest this place and check the coordinates astro.com shows.",
       SIGN_IN_NOTE,
+      HOLD_NOTE,
     ],
     sky: NY_SKY,
     buttons: [
-      { label: "Open astro.com's form", url: "https://www.astro.com/cgi/ade.cgi" },
-      { label: "Sign in", url: "https://www.astro.com/cgi/awd.cgi?lang=e" },
-      { label: "Create account", url: "https://www.astro.com/cgi/scus.cgi?act=new&" },
+      // Each keeps the values for the tab it opens, so the popup there can fill them in.
+      { label: "Open astro.com's form", url: "https://www.astro.com/cgi/ade.cgi", holds: true },
+      { label: "Sign in", url: "https://www.astro.com/cgi/awd.cgi?lang=e", holds: true },
+      { label: "Create account", url: "https://www.astro.com/cgi/scus.cgi?act=new&", holds: true },
     ],
   });
 });
