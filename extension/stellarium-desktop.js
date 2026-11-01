@@ -4,6 +4,10 @@
 // decided in core/stellarium-desktop.js.
 import { PORT, checkApplied, isStellariumServer, readStatus, skyFromStatus, transferRequests } from "./core/stellarium-desktop.js";
 
+// The access the browser has to grant first: the manifest's optional host
+// permission, for any port on this computer.
+export const HOST_PERMISSION = { origins: ["http://127.0.0.1/*"] };
+
 // The plugin answers on this computer within milliseconds; a server that takes
 // longer than this isn't going to.
 const TIMEOUT_MS = 3000;

@@ -24,6 +24,7 @@ export function render(container, view, onButton, back = null) {
   if (view.rows) parts.push(rowList(view.rows));
   for (const warning of view.warnings ?? []) parts.push(paragraph(warning, "warning"));
   if (view.message) parts.push(paragraph(view.message));
+  if (view.steps) parts.push(stepList(view.steps));
   if (view.code) parts.push(paragraph(`Code: ${view.code}`, "code"));
 
   if (view.state !== "refused") {
@@ -39,6 +40,8 @@ export function render(container, view, onButton, back = null) {
           if (secondary) element.className = "secondary";
           return element;
         });
+    // Sends the decided sky to Stellarium Desktop, for onButton to do.
+    if (view.desktop) buttons.push(secondaryButton(view.desktop.label, () => onButton({ does: "send-to-desktop" }, sky)));
     const setSky = (next) => {
       sky = next;
       for (const button of buttons) button.disabled = !view.url && sky === null;
@@ -103,6 +106,16 @@ function linkButton(label, onClick) {
   button.textContent = label;
   button.addEventListener("click", onClick);
   return button;
+}
+
+function stepList(steps) {
+  const list = document.createElement("ol");
+  for (const step of steps) {
+    const item = document.createElement("li");
+    item.textContent = step;
+    list.append(item);
+  }
+  return list;
 }
 
 function rowList(rows) {

@@ -5,8 +5,10 @@ import { withAafExport } from "./aaf-model.js";
 import { fillForm, formValues, isAstroComPage, isBirthDataForm, readFormPage } from "./core/astrocom.js";
 import { analyzePage, classifyUrl, extractorFor } from "./core/index.js";
 import { isStellariumWeb, skyFromEngine } from "./core/stellarium.js";
+import { BUSY, viewForDesktopImport, viewForDesktopSend, withDesktopSend } from "./desktop-model.js";
 import { heldForTab, holdForTab, releaseTab } from "./pending.js";
 import { viewFor, viewForAstroComTab, viewForSky } from "./popup-model.js";
+import { HOST_PERMISSION, readSky, sendSky } from "./stellarium-desktop.js";
 import { render } from "./view.js";
 
 const app = document.getElementById("app");
@@ -36,7 +38,7 @@ async function main() {
       return;
     }
     const sky = skyFromEngine(engine);
-    show(withAafExport(viewForSky(sky), sky));
+    show(withDesktopSend(withAafExport(viewForSky(sky), sky)));
     return;
   }
 
@@ -67,7 +69,7 @@ async function main() {
     func: extractorFor(url),
   });
   const result = analyzePage({ url, input });
-  show(withAafExport(viewFor(result), result));
+  show(withDesktopSend(withAafExport(viewFor(result), result)));
 }
 
 // Runs inside the Stellarium Web page itself (world "MAIN"), where its engine
@@ -114,15 +116,62 @@ function astroComTabButtons(tab, sky) {
   };
 }
 
-function show(view, { offerScreenshot = false, onButton = openLink } = {}) {
+function show(view, { offerScreenshot = false, onButton = chartButtons(view) } = {}) {
   render(app, view, onButton);
   if (offerScreenshot) {
+    const fromDesktop = document.createElement("button");
+    fromDesktop.className = "secondary";
+    fromDesktop.textContent = "Import from Stellarium Desktop";
+    fromDesktop.addEventListener("click", importFromDesktop);
     app.append(
       pageButton("Read a screenshot instead", "screenshot.html"),
       pageButton("Paste chart text instead", "paste.html"),
       pageButton("Open an AAF file", "import.html"),
+      fromDesktop,
     );
   }
+}
+
+// What a chart screen's buttons do: open a link, or send the sky to
+// Stellarium Desktop, coming back to this screen on Cancel.
+function chartButtons(view) {
+  return (button, sky) => (button.does === "send-to-desktop" ? sendToDesktop(sky, view) : openLink(button, sky));
+}
+
+// Stellarium Desktop is reached only from these two clicks. Each asks for
+// access to 127.0.0.1 first, while the click still counts as the user's: the
+// browser asks only the first time, and may refuse a request made after an
+// await. Without access, a request would fail like a closed Stellarium.
+async function sendToDesktop(sky, back) {
+  if (!(await chrome.permissions.request(HOST_PERMISSION))) {
+    showDesktop(viewForDesktopSend({ state: "no-permission" }, sky), back);
+    return;
+  }
+  showDesktop(BUSY.send, null);
+  showDesktop(viewForDesktopSend(await sendSky(sky), sky), back);
+}
+
+async function importFromDesktop() {
+  if (!(await chrome.permissions.request(HOST_PERMISSION))) {
+    showDesktop(viewForDesktopImport({ state: "no-permission" }), null);
+    return;
+  }
+  showDesktop(BUSY.import, null);
+  showDesktop(viewForDesktopImport(await readSky()), null);
+}
+
+// A problem screen gets Cancel back to the chart; the sent screen has Done instead.
+function showDesktop(view, back) {
+  render(app, view, desktopButtons(back), view.state === "desktop-problem" ? back : null);
+}
+
+function desktopButtons(back) {
+  return (button, sky) => {
+    if (button.does === "send-to-desktop") return sendToDesktop(sky, back);
+    if (button.does === "import-from-desktop") return importFromDesktop();
+    if (button.does === "close") return window.close();
+    return openLink(button, sky);
+  };
 }
 
 async function openLink({ url, holds }, sky) {

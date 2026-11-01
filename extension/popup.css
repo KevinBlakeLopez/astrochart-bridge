@@ -53,6 +53,15 @@ dt {
   color: var(--muted);
 }
 
+ol {
+  margin: 0 0 10px;
+  padding-left: 20px;
+}
+
+li + li {
+  margin-top: 4px;
+}
+
 dd {
   margin: 0;
 }
