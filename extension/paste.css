@@ -1,0 +1,53 @@
+/* The paste page: the screenshot page's look, with a text box and a form. */
+textarea {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 6px 8px;
+  font: 12px/1.4 ui-monospace, monospace;
+  color: inherit;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  resize: vertical;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.actions button + button,
+.choices button + button {
+  margin-top: 0;
+}
+
+.field {
+  margin-bottom: 12px;
+}
+
+.field label {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.field input[type="text"] {
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.field .preview {
+  margin: 4px 0 2px;
+}
+
+.choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.choices button {
+  width: auto;
+  padding: 4px 10px;
+  font-weight: normal;
+}

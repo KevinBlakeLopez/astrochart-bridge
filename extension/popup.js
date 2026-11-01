@@ -117,7 +117,11 @@ function astroComTabButtons(tab, sky) {
 function show(view, { offerScreenshot = false, onButton = openLink } = {}) {
   render(app, view, onButton);
   if (offerScreenshot) {
-    app.append(pageButton("Read a screenshot instead", "screenshot.html"), pageButton("Open an AAF file", "import.html"));
+    app.append(
+      pageButton("Read a screenshot instead", "screenshot.html"),
+      pageButton("Paste chart text instead", "paste.html"),
+      pageButton("Open an AAF file", "import.html"),
+    );
   }
 }
 
