@@ -186,3 +186,71 @@ function degrees(deg, min, negative) {
   const value = Math.round((deg + min / 60) * 1e6) / 1e6;
   return negative ? 0 - value : value;
 }
+
+const UTC_PARTS = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})Z$/;
+
+/**
+ * The Astro-Seek birth chart for a UTC instant and place. The time goes in as
+ * UT/GMT with no daylight saving (narozeni_timezone_form=0, _dst_form=0) and
+ * the place as coordinates with no city, so no time zone has to be guessed.
+ * The parameters copy, in order, the one chart of this kind captured from
+ * Astro-Seek's form: fixtures/astroseek/manual-ut-2024-04-17-0000.json.
+ *
+ * Throws when utc isn't YYYY-MM-DDTHH:MM:SSZ, like stellariumUrl.
+ *
+ * @param {{ utc: string, lat: number, lng: number }} sky
+ * @returns {string}
+ */
+export function astroSeekUrl({ utc, lat, lng }) {
+  const match = UTC_PARTS.exec(typeof utc === "string" ? utc : "");
+  if (!match) throw new Error(`astroSeekUrl needs a UTC instant like 2024-04-17T12:00:00Z, got ${utc}`);
+  const [, year, month, day, hour, minute, second] = match;
+  const latitude = degreesMinutes(lat);
+  const longitude = degreesMinutes(lng);
+
+  const url = new URL(`https://${HOST}/calculate-birth-chart-horoscope-online/`);
+  url.search = new URLSearchParams([
+    ["input_natal", "1"],
+    ["send_calculation", "1"],
+    ["narozeni_den", String(Number(day))],
+    ["narozeni_mesic", String(Number(month))],
+    ["narozeni_rok", year],
+    ["narozeni_hodina", hour],
+    ["narozeni_minuta", minute],
+    ["narozeni_sekunda", second],
+    ["narozeni_city", ""],
+    ["narozeni_mesto_hidden", "Manually place: °'N, °'E"],
+    ["narozeni_stat_hidden", ""],
+    ["narozeni_podstat_kratky_hidden", ""],
+    ["narozeni_tzid_id", ""],
+    ["narozeni_sirka_stupne", String(latitude.deg)],
+    ["narozeni_sirka_minuty", String(latitude.min)],
+    ["narozeni_sirka_smer", String(latitude.negative)],
+    ["narozeni_delka_stupne", String(longitude.deg)],
+    ["narozeni_delka_minuty", String(longitude.min)],
+    ["narozeni_delka_smer", String(longitude.negative)],
+    ["narozeni_timezone_form", "0"],
+    ["narozeni_timezone_dst_form", "0"],
+    ["house_system", "placidus"],
+    ["hid_fortune", "1"],
+    ["hid_vertex", "1"],
+    ["hid_chiron", "1"],
+    ["hid_chiron_check", "on"],
+    ["hid_lilith", "1"],
+    ["hid_lilith_check", "on"],
+    ["hid_uzel", "1"],
+    ["hid_uzel_check", "on"],
+    ["tolerance", "1"],
+    ["aya", ""],
+    ["tolerance_paral", "0"],
+  ]);
+  return url.href;
+}
+
+// 40.716667 → { deg: 40, min: 43, negative: 0 }, the form's whole minutes and
+// direction code (0 for N or E, 1 for S or W). Rounding the total in minutes
+// lets 59.99' carry into the next degree.
+function degreesMinutes(value) {
+  const minutes = Math.round(Math.abs(value) * 60);
+  return { deg: Math.floor(minutes / 60), min: minutes % 60, negative: value < 0 ? 1 : 0 };
+}

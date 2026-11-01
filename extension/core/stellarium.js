@@ -23,3 +23,28 @@ export function stellariumUrl({ utc, lat, lng }) {
   url.search = new URLSearchParams({ date: utc, lat: String(lat), lng: String(lng) });
   return url.href;
 }
+
+// Modified Julian Date of 1970-01-01, the start of JavaScript's clock.
+const MJD_UNIX_EPOCH = 40587;
+const MINUTE_MS = 60_000;
+
+/**
+ * The sky Stellarium Web is showing, from its engine's state: core.utc is a
+ * Modified Julian Date in UTC, core.latitude and core.longitude are radians
+ * (read from stellarium-web.org, frontend 1.16.0, on 2026-10-31). The time is
+ * rounded to the nearest minute, since Stellarium's clock keeps running.
+ *
+ * @param {{ utcMjd: number, latitudeRad: number, longitudeRad: number }} engine
+ * @returns {{ utc: string, lat: number, lng: number }}
+ */
+export function skyFromEngine({ utcMjd, latitudeRad, longitudeRad }) {
+  const ms = Math.round(((utcMjd - MJD_UNIX_EPOCH) * 86_400_000) / MINUTE_MS) * MINUTE_MS;
+  return {
+    utc: new Date(ms).toISOString().replace(/\.\d{3}Z$/, "Z"),
+    lat: degrees(latitudeRad),
+    lng: degrees(longitudeRad),
+  };
+}
+
+// Rounded to 6 decimals like readChart's coordinates. "+ 0" turns -0 into 0.
+const degrees = (radians) => Math.round(((radians * 180) / Math.PI) * 1e6) / 1e6 + 0;
