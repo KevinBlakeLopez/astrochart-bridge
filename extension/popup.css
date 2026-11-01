@@ -135,3 +135,47 @@ button.secondary {
 button + button {
   margin-top: 8px;
 }
+
+/* A touch screen, such as an iPad's: everything tapped is at least the 44
+   points Apple's guidelines ask for, and the text is a size up. A text field
+   under 16px is reported to make Safari zoom in when it's tapped. */
+@media (pointer: coarse) {
+  body {
+    font-size: 15px;
+  }
+
+  h1 {
+    font-size: 17px;
+  }
+
+  .note {
+    font-size: 14px;
+  }
+
+  .code {
+    font-size: 13px;
+  }
+
+  button {
+    min-height: 44px;
+  }
+
+  label {
+    box-sizing: border-box;
+    min-height: 44px;
+    padding: 4px 0;
+  }
+
+  input[type="radio"] {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    margin: 0;
+  }
+
+  input[type="text"] {
+    box-sizing: border-box;
+    min-height: 44px;
+    font-size: 16px;
+  }
+}

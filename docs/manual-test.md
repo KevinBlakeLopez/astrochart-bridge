@@ -1,6 +1,6 @@
 # Manual test checklist
 
-`popup.js` talks to the browser and has no automated tests, so run this list in Chrome, Brave, Microsoft Edge, Firefox and Safari after changing it. Everything it calls, from `analyzePage` to the view model, is covered by `npm test`.
+`popup.js` talks to the browser and has no automated tests, so run this list in Chrome, Brave, Microsoft Edge, Firefox and Safari after changing it, and test 18 in Safari on an iPad. Everything it calls, from `analyzePage` to the view model, is covered by `npm test`.
 
 The chart URLs below are the `url` fields of the fixtures in `fixtures/astroseek/`, plus the asteroids example from `docs/astroseek-known-issues.md`. All of them use invented birth data.
 
@@ -50,6 +50,10 @@ Chart Bridge needs Safari 26 or later on macOS.
 The first time you click the icon on a site, Safari may ask whether Chart Bridge can see that page. Allow it for that site.
 
 Safari removes a temporary extension after 24 hours or when it quits, and turns **Allow unsigned extensions** off when it quits, so repeat steps 2 to 4 after restarting Safari. After changing any file in `extension/`, click **Reload** next to Chart Bridge in the **Extensions** tab before testing again.
+
+### Safari on iPad
+
+Follow `docs/safari-ipad.md` to build the app with Xcode and install it on the iPad, then run test 18. After changing any file in `extension/`, run the app from Xcode again before testing.
 
 ## For every test
 
@@ -129,6 +133,7 @@ https://horoscopes.astro-seek.com/calculate-asteroids/?narozeni_den=17&narozeni_
 Go to `https://example.com`.
 
 - [ ] The popup shows "Open an Astro-Seek or astro.com birth chart to use Chart Bridge." and four buttons, **Read a screenshot instead**, **Paste chart text instead**, **Open an AAF file** and **Import from Stellarium Desktop**, and the Console has no errors. Nothing connects to `127.0.0.1` until the last one is clicked.
+- [ ] Chart Bridge's toolbar button shows its icon, a gold star above a blue arch, and Chart Bridge's card on the browser's extensions page shows it too.
 
 ## Test 9: a browser page
 
@@ -319,6 +324,31 @@ Needs Stellarium 25.1 or later with its Remote Control server on: the setup step
 - [ ] In Stellarium's Remote Control settings, tick **Access requires authentication**, type any password, click **Save settings**, then untick and tick **Server enabled**. **Import from Stellarium Desktop** says "Stellarium asks for a password", and the browser doesn't show its own password box. Untick it again the same way.
 - [ ] The Console stays empty throughout.
 - [ ] Put Stellarium's place and time back as noted in step 1, and start its clock.
+
+## Test 18: Safari on iPad
+
+Run this on each iPad you have, and note its model, size and iPadOS version. Where a step says to open the popup, tap the menu in Safari's address bar, then **Chart Bridge**. Note anything Safari asks the first time on each site.
+
+- [ ] Tests 1, 2, 3, 4, 7, 8 and 11 show what they say on a Mac, and the addresses they open contain the same `date=`, `lat=` and `lng=`.
+- [ ] On `https://example.com`, tap **Import from Stellarium Desktop** and note what the popup shows. There's no Stellarium Desktop on an iPad for it to reach at `127.0.0.1`.
+- [ ] In portrait and in landscape, the popup's text isn't cut off and it doesn't scroll sideways. Every button and each reading in test 4 is easy to tap with a finger.
+- [ ] With a keyboard and trackpad attached, note whether the buttons are the same size as without them. Without them they are at least 44 points tall; with them they may be smaller.
+- [ ] **Open sky** opens Stellarium Web in a new tab and the popup closes.
+- [ ] On that Stellarium tab:
+  - [ ] Drag with one finger to look around.
+  - [ ] Pinch to zoom.
+  - [ ] Tap the clock (bottom right) and pause it.
+  - [ ] Step the hour with its arrows.
+  - [ ] For test 1, a daytime chart, turn off the atmosphere (the cloud button) and check that the planets show.
+  - [ ] Note whatever is hard to do with a finger, and anything the screen's size gets in the way of.
+- [ ] Test 12 on the iPad: the popup on a Stellarium tab reads its sky and opens the Astro-Seek chart.
+- [ ] On an iPad mini, note whether Astro-Seek shows the same page as on a Mac or a phone layout, and whether test 1 still reads. If it doesn't, note the popup's message and code.
+- [ ] Test 14 part A, up to the popup on the astro.com tab: note whether the tab came to the front before the popup closed, and whether the popup on that tab offers to fill in the form. If it shows "Open an Astro-Seek or astro.com birth chart…" instead, the values weren't kept (see `docs/safari-ipad.md`).
+- [ ] Test 13 with a screenshot taken on the iPad:
+  - [ ] Choose it with **Choose File** from Photos, or paste it with **Cmd+V** on a keyboard.
+  - [ ] Note how long it takes, and whether the tab reloads or shows an error instead.
+- [ ] On the Stellarium tab from test 1, use Safari's Share button to copy the link. Open the link in a browser on a Mac: it shows the same date, time and place.
+- [ ] Switch to another tab and back, then open the popup again on the test 1 tab: it shows the same rows.
 
 ## Not covered by hand yet
 
