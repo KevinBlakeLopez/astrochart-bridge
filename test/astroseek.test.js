@@ -47,8 +47,15 @@ test("only the Astro-Seek horoscopes host counts", () => {
   }
 });
 
-test("the browser's own pages are unsupported, in Chrome, Brave and Edge", () => {
-  for (const url of ["chrome://extensions/", "brave://extensions/", "edge://extensions/", "edge://newtab/"]) {
+test("the browser's own pages are unsupported, in Chrome, Brave, Edge and Firefox", () => {
+  for (const url of [
+    "chrome://extensions/",
+    "brave://extensions/",
+    "edge://extensions/",
+    "edge://newtab/",
+    "about:debugging#/runtime/this-firefox",
+    "about:addons",
+  ]) {
     assert.deepEqual(classifyUrl(url), unsupported, url);
   }
 });

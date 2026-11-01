@@ -1,6 +1,6 @@
 # Manual test checklist
 
-`popup.js` talks to the browser and has no automated tests, so run this list in Chrome, Brave and Microsoft Edge after changing it. Everything it calls, from `analyzePage` to the view model, is covered by `npm test`.
+`popup.js` talks to the browser and has no automated tests, so run this list in Chrome, Brave, Microsoft Edge and Firefox after changing it. Everything it calls, from `analyzePage` to the view model, is covered by `npm test`.
 
 The chart URLs below are the `url` fields of the fixtures in `fixtures/astroseek/`, plus the asteroids example from `docs/astroseek-known-issues.md`. All of them use invented birth data.
 
@@ -28,11 +28,23 @@ Brave's extensions page is the same as Chrome's. Follow the Chrome steps above a
 
 After changing any file in `extension/`, click **Reload** on the Chart Bridge card in `edge://extensions` before testing again.
 
+### Firefox
+
+Chart Bridge needs Firefox 128 or later.
+
+1. Go to `about:debugging#/runtime/this-firefox`.
+2. Click **Load Temporary Add-on…**. Press **Cmd+Shift+G**, paste the path to the same `extension` folder, press Return, select `manifest.json` inside it and click **Open**. Firefox asks for a file in the folder, not the folder itself.
+3. Click the Extensions button (a puzzle piece) in Firefox's toolbar, click the gear next to **Chart Bridge** and choose **Pin to Toolbar**.
+
+Firefox removes a temporary add-on when it quits, so load it again after restarting Firefox. After changing any file in `extension/`, click **Reload** on the Chart Bridge card in `about:debugging` before testing again.
+
 ## For every test
 
 1. Open the test's URL in a new tab and wait for the page to finish loading.
 2. Click the Chart Bridge icon in the toolbar. A small popup opens.
 3. Right-click inside the popup, choose **Inspect**, and open the **Console** tab. It must stay empty. While DevTools is open the popup stays open too, which makes it easier to read.
+
+   In Firefox, click **Inspect** on the Chart Bridge card in `about:debugging` instead. In the toolbox that opens, choose **Disable Popup Auto-Hide** from the **⋯** menu at the top right, open the popup, then pick `popup.html` with the frame-picker button next to that menu. The Console must stay empty.
 
 ## Test 1: New York 2024
 
@@ -105,7 +117,7 @@ Go to `https://example.com`.
 
 ## Test 9: a browser page
 
-Go to `chrome://extensions` in Chrome, `brave://extensions` in Brave, or `edge://extensions` in Edge.
+Go to `chrome://extensions` in Chrome, `brave://extensions` in Brave, `edge://extensions` in Edge, or `about:debugging` in Firefox.
 
 - [ ] The popup shows the same sentence and button as test 8, and the Console has no errors.
 
@@ -158,7 +170,7 @@ The screenshot page reads the image on this computer with the Tesseract.js files
 4. Press **Cmd+V**.
 
 - [ ] Within a few seconds the page shows the same rows as test 1. The first grey note says to compare the rows with the screenshot.
-- [ ] The Console is empty, and every request in the Network tab is a `chrome-extension://` address.
+- [ ] The Console is empty, and every request in the Network tab is a `chrome-extension://` address (`moz-extension://` in Firefox).
 - [ ] **What Chart Bridge read** opens to show the text read from the screenshot.
 - [ ] **Open sky** opens a Stellarium Web tab whose address contains `date=2024-04-17T12%3A00%3A00Z&lat=40.716667&lng=-74`, and the screenshot tab stays open.
 - [ ] Below it is **Open chart in Astro-Seek**, and the last two grey notes say Astro-Seek will draw the chart in UT/GMT with no city, and that opening it sends the date, time and place to astro-seek.com.

@@ -13,6 +13,7 @@ test("only stellarium-web.org tabs count as Stellarium Web", () => {
     "https://stellarium-web.org.example.com/",
     "brave://extensions/",
     "edge://extensions/",
+    "about:debugging#/runtime/this-firefox",
     "not a url",
   ]) {
     assert.equal(isStellariumWeb(url), false, url);

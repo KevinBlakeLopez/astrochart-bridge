@@ -32,8 +32,8 @@ test("pages on other sites are unsupported and get no extractor", () => {
   }
 });
 
-// Chrome sends the tab only an extractor's source, so each one is rebuilt from
-// its source here and run against a stand-in for the page's document.
+// The browser sends the tab only an extractor's source, so each one is rebuilt
+// from its source here and run against a stand-in for the page's document.
 function runInPage(extract, document) {
   const rebuilt = new Function("document", `return (${extract})();`);
   return rebuilt(document);

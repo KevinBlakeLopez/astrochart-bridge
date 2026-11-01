@@ -6,9 +6,9 @@ import { SIDEREAL_TOLERANCE_SECONDS, siderealGap } from "./sidereal.js";
 const refused = (reason) => ({ kind: "refused", reason });
 
 // Every site Chart Bridge reads, by hostname. extract runs in the chart's tab
-// and returns the input its site's read takes. Chrome sends the tab only the
-// function's source, so it can't use anything else in this module. These are
-// the only lines that touch a page, so the browser checks them by hand.
+// and returns the input its site's read takes. The browser sends the tab only
+// the function's source, so it can't use anything else in this module. These
+// are the only lines that touch a page, so the browser checks them by hand.
 const SITES = new Map([
   [
     "horoscopes.astro-seek.com",
