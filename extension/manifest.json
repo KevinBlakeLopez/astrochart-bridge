@@ -14,6 +14,9 @@
   "browser_specific_settings": {
     "gecko": {
       "strict_min_version": "128.0"
+    },
+    "safari": {
+      "strict_min_version": "26.0"
     }
   }
 }

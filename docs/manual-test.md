@@ -1,6 +1,6 @@
 # Manual test checklist
 
-`popup.js` talks to the browser and has no automated tests, so run this list in Chrome, Brave, Microsoft Edge and Firefox after changing it. Everything it calls, from `analyzePage` to the view model, is covered by `npm test`.
+`popup.js` talks to the browser and has no automated tests, so run this list in Chrome, Brave, Microsoft Edge, Firefox and Safari after changing it. Everything it calls, from `analyzePage` to the view model, is covered by `npm test`.
 
 The chart URLs below are the `url` fields of the fixtures in `fixtures/astroseek/`, plus the asteroids example from `docs/astroseek-known-issues.md`. All of them use invented birth data.
 
@@ -38,6 +38,19 @@ Chart Bridge needs Firefox 128 or later.
 
 Firefox removes a temporary add-on when it quits, so load it again after restarting Firefox. After changing any file in `extension/`, click **Reload** on the Chart Bridge card in `about:debugging` before testing again.
 
+### Safari
+
+Chart Bridge needs Safari 26 or later on macOS.
+
+1. Choose **Safari → Settings**, select the **Advanced** tab and check **Show features for web developers**.
+2. Select the **Developer** tab and check **Allow unsigned extensions**. Safari asks for your Mac password.
+3. On the same tab, click **Add Temporary Extension…**, select the same `extension` folder and click **Select**. Safari switches to the **Extensions** tab and lists Chart Bridge under **Temporary**.
+4. Check the box next to **Chart Bridge** if it isn't checked, and close Settings. Its icon appears in Safari's toolbar.
+
+The first time you click the icon on a site, Safari may ask whether Chart Bridge can see that page. Allow it for that site.
+
+Safari removes a temporary extension after 24 hours or when it quits, and turns **Allow unsigned extensions** off when it quits, so repeat steps 2 to 4 after restarting Safari. After changing any file in `extension/`, click **Reload** next to Chart Bridge in the **Extensions** tab before testing again.
+
 ## For every test
 
 1. Open the test's URL in a new tab and wait for the page to finish loading.
@@ -45,6 +58,8 @@ Firefox removes a temporary add-on when it quits, so load it again after restart
 3. Right-click inside the popup, choose **Inspect**, and open the **Console** tab. It must stay empty. While DevTools is open the popup stays open too, which makes it easier to read.
 
    In Firefox, click **Inspect** on the Chart Bridge card in `about:debugging` instead. In the toolbox that opens, choose **Disable Popup Auto-Hide** from the **⋯** menu at the top right, open the popup, then pick `popup.html` with the frame-picker button next to that menu. The Console must stay empty.
+
+   In Safari, right-click inside the popup and choose **Inspect Element**. Web Inspector opens on the popup; open its **Console** tab. It must stay empty.
 
 ## Test 1: New York 2024
 
@@ -117,7 +132,7 @@ Go to `https://example.com`.
 
 ## Test 9: a browser page
 
-Go to `chrome://extensions` in Chrome, `brave://extensions` in Brave, `edge://extensions` in Edge, or `about:debugging` in Firefox.
+Go to `chrome://extensions` in Chrome, `brave://extensions` in Brave, `edge://extensions` in Edge, or `about:debugging` in Firefox. In Safari, open a new tab (**Cmd+T**) and leave it on the Start Page.
 
 - [ ] The popup shows the same sentence and button as test 8, and the Console has no errors.
 
@@ -170,7 +185,7 @@ The screenshot page reads the image on this computer with the Tesseract.js files
 4. Press **Cmd+V**.
 
 - [ ] Within a few seconds the page shows the same rows as test 1. The first grey note says to compare the rows with the screenshot.
-- [ ] The Console is empty, and every request in the Network tab is a `chrome-extension://` address (`moz-extension://` in Firefox).
+- [ ] The Console is empty, and every request in the Network tab is a `chrome-extension://` address (`moz-extension://` in Firefox, `safari-web-extension://` in Safari).
 - [ ] **What Chart Bridge read** opens to show the text read from the screenshot.
 - [ ] **Open sky** opens a Stellarium Web tab whose address contains `date=2024-04-17T12%3A00%3A00Z&lat=40.716667&lng=-74`, and the screenshot tab stays open.
 - [ ] Below it is **Open chart in Astro-Seek**, and the last two grey notes say Astro-Seek will draw the chart in UT/GMT with no city, and that opening it sends the date, time and place to astro-seek.com.
