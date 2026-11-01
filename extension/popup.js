@@ -59,7 +59,9 @@ function readEngine() {
 
 function show(view, { offerScreenshot = false } = {}) {
   render(app, view, openLink);
-  if (offerScreenshot) app.append(screenshotButton());
+  if (offerScreenshot) {
+    app.append(pageButton("Read a screenshot instead", "screenshot.html"), pageButton("Paste chart text instead", "paste.html"));
+  }
 }
 
 async function openLink(url) {
@@ -67,12 +69,13 @@ async function openLink(url) {
   window.close();
 }
 
-function screenshotButton() {
+// A button that opens one of Chart Bridge's own pages, the screenshot or paste page, in a tab.
+function pageButton(label, page) {
   const button = document.createElement("button");
   button.className = "secondary";
-  button.textContent = "Read a screenshot instead";
+  button.textContent = label;
   button.addEventListener("click", async () => {
-    await chrome.tabs.create({ url: chrome.runtime.getURL("screenshot.html") });
+    await chrome.tabs.create({ url: chrome.runtime.getURL(page) });
     window.close();
   });
   return button;

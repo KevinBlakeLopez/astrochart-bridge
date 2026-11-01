@@ -104,6 +104,58 @@ export function analyzePage({ url, input }) {
   return siteFor(url).read({ url, input: input ?? {} });
 }
 
+// The forms readText and readField give a date and a time.
+const ENTRY_DATE = /^\d{4}-\d{2}-\d{2}$/;
+const ENTRY_TIME = /^\d{2}:\d{2}:\d{2}$/;
+
+/**
+ * The same as analyzePage, for birth data the user confirmed on the paste
+ * page's review form, as readText and readField give its values. Like an
+ * astro.com chart, it states its offset, so the UTC follows from it.
+ *
+ * The form enables its button only once all five values are read, so a missing
+ * or malformed one is a bug in the form and throws, like stellariumUrl. The
+ * message names the field but not its value, which is birth data.
+ *
+ * @param {{ date: string, time: string, lat: number, lng: number, offsetMinutes: number }} entry
+ *   date like "1985-06-15", time like "10:30:00", offsetMinutes east of UTC
+ * @returns {{ kind: "natal", site: "text", local: string, zoneLabel: null, lat: number, lng: number,
+ *   utc: string, utcSource: "declared", offsetMinutes: number }}
+ */
+export function analyzeEntry({ date, time, lat, lng, offsetMinutes }) {
+  const local = `${date}T${time}`;
+  const checks = {
+    date: typeof date === "string" && ENTRY_DATE.test(date),
+    time: typeof time === "string" && ENTRY_TIME.test(time),
+    lat: Number.isFinite(lat) && Math.abs(lat) <= 90,
+    lng: Number.isFinite(lng) && Math.abs(lng) <= 180,
+    // -12:00 to +14:00, the range parseOffset accepts.
+    offsetMinutes: Number.isInteger(offsetMinutes) && offsetMinutes >= -720 && offsetMinutes <= 840,
+  };
+  const bad = Object.keys(checks).find((field) => !checks[field]);
+  if (bad) throw new Error(`analyzeEntry needs a valid ${bad}`);
+  // V8 (Node 24) reads 1985-02-30 as 2 March and 24:00 as the next day's
+  // midnight rather than refusing them, so the instant is printed back and compared.
+  const ms = Date.parse(`${local}Z`);
+  if (Number.isNaN(ms) || new Date(ms).toISOString().slice(0, 19) !== local) {
+    throw new Error("analyzeEntry needs a valid date and time");
+  }
+
+  // The zone as written, such as "PDT (UTC-7)", stays on the form: as a zone
+  // label it would print inside the Local time row.
+  return {
+    kind: "natal",
+    site: "text",
+    local,
+    zoneLabel: null,
+    lat,
+    lng,
+    utc: utcFromOffset(local, offsetMinutes),
+    utcSource: "declared",
+    offsetMinutes,
+  };
+}
+
 /**
  * The same as analyzePage, for the OCR text of a screenshot of an Astro-Seek
  * chart page. With no URL to check the text against, two checks stand in for

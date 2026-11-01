@@ -113,13 +113,13 @@ https://horoscopes.astro-seek.com/calculate-asteroids/?narozeni_den=17&narozeni_
 
 Go to `https://example.com`.
 
-- [ ] The popup shows "Open an Astro-Seek or astro.com birth chart to use Chart Bridge." and a **Read a screenshot instead** button, and the Console has no errors.
+- [ ] The popup shows "Open an Astro-Seek or astro.com birth chart to use Chart Bridge." and two buttons, **Read a screenshot instead** and **Paste chart text instead**, and the Console has no errors.
 
 ## Test 9: a browser page
 
 Go to `chrome://extensions` in Chrome, `brave://extensions` in Brave, `edge://extensions` in Edge, or `about:debugging` in Firefox.
 
-- [ ] The popup shows the same sentence and button as test 8, and the Console has no errors.
+- [ ] The popup shows the same sentence and buttons as test 8, and the Console has no errors.
 
 ## Test 10: light and dark mode
 
@@ -201,10 +201,53 @@ Open the test 1 URL and open the popup.
 - [ ] **Open astro.com's form** opens the form without asking you to sign in first.
 - [ ] Enter the values from part A with an invented name and a New York town, set the time zone under **show / hide extended settings**, and continue. Note whether astro.com draws the chart, whether it adds an entry to your saved charts, and whether its header shows `Univ.Time: 12:00` and `74w00, 40n43`. Delete the entry afterwards if it was saved.
 
+## Test 15: pasted chart text
+
+The paste page reads text with no help from the web. These steps check what only the installed extension can show: the page loads under the extension's script policy, the clipboard button behaves in each browser, and nothing is fetched. `test/paste-model.test.js` and `test/text.test.js` cover what the form shows for each kind of text. The sample uses test 1's invented New York data.
+
+1. Go to `https://example.com`, click the Chart Bridge icon, then **Paste chart text instead**. A Chart Bridge tab opens and the popup closes.
+2. In that tab, open DevTools (**Cmd+Option+I**) on the **Network** tab, then reload the page.
+3. Copy this text, click the big box and press **Cmd+V**:
+
+```
+Natal Chart
+
+Born: 17 April 2024 at 8:00 AM
+Location: New York
+Coordinates: 40°43'N 74°0'W
+Time Zone: EDT (UTC-4)
+House System: Whole Sign
+Sun: 27°53' Aries
+```
+
+- [ ] The form appears without clicking anything: Date `2024-04-17`, Local time `08:00`, Latitude `40.716667`, Longitude `-74` and UTC offset `-04:00`. Under them, the lines read `17 April 2024`, `08:00 at the birthplace`, `40°43'0"N`, `74°0'0"W` and `UTC-04:00`, and the grey lines say they came from lines 3, 3, 5, 5 and 6.
+- [ ] An orange warning says the text uses Whole Sign houses but Astro-Seek's chart will open with Placidus houses. Place, Time zone and Houses are listed as written, and the Sun line appears nowhere.
+- [ ] The Console is empty, and every request in the Network tab is a `chrome-extension://` address (`moz-extension://` in Firefox).
+- [ ] **Continue** shows Local time `17 Apr 2024, 08:00`, Offset `UTC-04:00`, UTC `2024-04-17 12:00` and Place `40°43'N, 74°0'W`. The first grey note says nothing checks the offset, and the last two are Astro-Seek's notes from test 13.
+- [ ] **Open sky** opens a Stellarium Web tab whose address contains `date=2024-04-17T12%3A00%3A00Z&lat=40.716667&lng=-74`, and the paste tab stays open.
+- [ ] **Open chart in Astro-Seek** opens the same chart as test 12: its header shows `17 Apr 2024 - 12:00  (Manually: GMT+00:00)`, Universal Time `17 Apr 2024 - 12:00` and `40°43'N, 74°0'W`.
+- [ ] **Back to the form** brings back the form with the same values.
+- [ ] Change Longitude to `74°0'E`. The line under it says `74°0'0"E`. **Continue** then shows Place `40°43'N, 74°0'E`. Change it back.
+- [ ] Clear the UTC offset box. **Continue** fades and does nothing when clicked. Type `-4` and it comes back.
+- [ ] Copy the sample again and click **Paste from clipboard**. Note which of these happens, in each browser: the form appears at once; the browser asks for permission first (allow it once, then try again and deny it); or an orange line says the browser didn't let Chart Bridge read the clipboard. If the browser refuses or you deny it, pasting with **Cmd+V** still works.
+- [ ] Replace the text with the lines below and click **Read the text**. The Date box is empty, with **4 May 1985** and **5 April 1985** to pick; the UTC offset box is empty, and its grey line names the zone `BST`. **Continue** stays faded until a date is picked and `+01:00` typed.
+
+```
+Birth date: 04/05/1985
+Birth time: 22:15
+Latitude: 51.5074
+Longitude: -0.1278
+Time Zone: BST
+```
+
+- [ ] Replace the text with `Name: <b>Example</b>` and `Date of Birth: 15 June 1985` on two lines and click **Read the text**. The Name row shows the angle brackets as typed, not bold text.
+- [ ] Replace the text with `Sun: 24°15' Gemini` and click **Read the text**. The page says it found no birth data and shows `Code: no-birth-data`.
+- [ ] In light and dark mode the page is readable, like the popup in test 10.
+
 ## Not covered by hand yet
 
 - **Enter offset**: no real Astro-Seek page has been seen without a Universal Time line, so this screen can't be reached in a browser yet. `test/popup-model.test.js` covers what it shows and its preview.
 
 ## If a check fails
 
-Note the test number, take a screenshot of the popup, copy anything in its Console, for tests 1, 4, 7 and 11 copy the Stellarium tab's full address, and for test 12 the Astro-Seek tab's full address.
+Note the test number, take a screenshot of the popup, copy anything in its Console, for tests 1, 4, 7 and 11 copy the Stellarium tab's full address, and for test 12 the Astro-Seek tab's full address. For test 15, copy the text you pasted.
