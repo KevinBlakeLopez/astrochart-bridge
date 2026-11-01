@@ -25,12 +25,17 @@ const PROGRAM_TEXTS = {
   Planetdance: ["Startup", "03/02/2021 18:56:37 EET +02:00", "Helsinki, Finland, 24e56, 60n10", "Whole Sign St:3:32:41"],
   Kepler: ["Johann Sebastian Bach", "March 31, 1685", "12:00 PM", "Standard Time", "Eisenach, Germany", "50 N 59   10 E 19", "Time Zone: 1 hours East"],
   "Janus, local mean time": ["Abraham Lincoln", "Natal Chart", "12 Feb 1809", "6:57:53 AM", "LMT +05:42:58", "Hodgenville KY", "USA", "85w44'24 37n34'26"],
+  "Win*Star": ["Jodie Foster", "Nov 19, 1962", "Los Angeles,CA", "08:14:00 AM PST", "ZONE: +08:00", "118W15'00\"", "34N03'00\""],
+  TimePassages: ["Brad Pitt", "Dec 18, 1963, 6:31:00 AM CST", "Shawnee, OK", "35N20, 96W55", "TLT 6:03", "ST 11:48:57", "Placidus"],
+  Astrolog: ["Astrolog 8.00", "Kevin", "Mon July 19, 1971", "11:01am (DT Zone 8W)", "Seattle, WA", "122°20W  47°36N", "Placidus houses", "Julian Day: 2441152.25069"],
 };
 
 const lines = (...rows) => rows.join("\n");
 const box = (form, name) => form.fields.find((field) => field.name === name);
-// The entry the form gives once each box's text is read as the page reads it.
-const entryOf = (form) => entryFor(Object.fromEntries(form.fields.map(({ name, text }) => [name, checkField(name, text).value])));
+// The entry the form gives once each box's text is read as the page reads it,
+// with the program's reading picked where the box offers a choice.
+const programChoice = ({ text, choices }) => (text === "" && choices ? choices.find((choice) => choice.label.includes("'s text)")).text : text);
+const entryOf = (form) => entryFor(Object.fromEntries(form.fields.map((field) => [field.name, checkField(field.name, programChoice(field)).value])));
 
 test("Jagannatha Hora's pasted block fills all five boxes, read as its text", () => {
   const form = formForText(lines(...JHORA));
@@ -133,9 +138,29 @@ test("a program's text its reader turns down gives the form with a warning and t
   const form = formForText(lines(...east));
   assert.equal(form.state, "form");
   assert.deepEqual(form.warnings, [
-    "This text is laid out like a desktop astrology program's, but its sidereal time doesn't fit its time, offset and longitude, so Chart Bridge didn't use that program's reading (sidereal-mismatch). Check each value against the text.",
+    "This text is laid out like a desktop astrology program's, but its sidereal time doesn't fit its time, offset and longitude, so AstroChart Bridge didn't use that program's reading (sidereal-mismatch). Check each value against the text.",
   ]);
   assert.ok(form.fields.every((field) => field.text === ""));
+});
+
+test("Win*Star's plus-west ZONE is offered both ways round, with the note", () => {
+  // readText reads its "ZONE:" label too, the usual way round.
+  const form = formForText(lines(...PROGRAM_TEXTS["Win*Star"]));
+  assert.deepEqual(box(form, "offset").choices, [
+    { label: "+08:00 (line 5)", text: "+08:00" },
+    { label: "-08:00 (as Win*Star's text)", text: "-08:00" },
+  ]);
+  assert.ok(form.notes.includes("Win*Star writes offsets west of Greenwich with a plus sign, so its +7:00 is UTC-07:00 here."));
+});
+
+test("TimePassages's own refusals are warned about too", () => {
+  const misread = PROGRAM_TEXTS.TimePassages.map((line) => (line === "TLT 6:03" ? "TLT 6:13" : line));
+  assert.match(formForText(lines(...misread)).warnings[0], /true local time doesn't fit .*\(true-local-time-mismatch\)/);
+});
+
+test("a refusal code the form doesn't know still gets a warning", () => {
+  const form = formFor(readText("Place: Seattle"), { kind: "refused", reason: "some-new-check" });
+  assert.match(form.warnings[0], /it doesn't pass that program's checks, .*\(some-new-check\)/);
 });
 
 test("a turned-down program's text with no labels still gives the form, to fill in by hand", () => {

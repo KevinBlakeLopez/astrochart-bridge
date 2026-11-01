@@ -44,7 +44,7 @@ const OFFSET_NOTE = "Nothing checks that this offset was in use at the birthplac
 // Why a desktop program's reader turned down text laid out as its program's,
 // after "but". A layout that turned out not to be the program's,
 // "unreadable-screenshot", is most likely ordinary labelled text, so it gets
-// no warning.
+// no warning. A code not listed here still gets one, worded generally.
 const PROGRAM_REFUSALS = {
   "no-coordinates": "it has no coordinates",
   "ambiguous-screenshot": "it can be read as more than one program's, or more than one chart",
@@ -52,15 +52,19 @@ const PROGRAM_REFUSALS = {
   "offset-out-of-range": "its local time is too far from its Universal Time",
   "weekday-mismatch": "its weekday doesn't fall on its date",
   "zone-offset-mismatch": "its time zone doesn't match its UTC offset",
-  "calendar-unsupported": "it's dated Old Style or BC, and Chart Bridge reads Gregorian dates only",
-  "apparent-time": "it uses local apparent time, which Chart Bridge can't open yet",
+  "calendar-unsupported":
+    "it's dated before the Gregorian calendar began on 15 October 1582, or Old Style or BC, and AstroChart Bridge reads Gregorian dates only",
+  "apparent-time": "it uses local apparent time, which AstroChart Bridge can't open yet",
   "local-time-ambiguous": "its time is marked LC, which can mean local mean or local apparent time",
   "chart-type-unsupported": "it's a return, progression or other chart that isn't the birth",
+  "offset-off-quarter-hour": "its sidereal time gives a UTC offset that isn't on a quarter hour",
+  "true-local-time-mismatch": "its true local time doesn't fit its sidereal time and longitude",
 };
+const PROGRAM_REFUSED = "it doesn't pass that program's checks";
 
 // The programs that write an offset west of Greenwich with a plus sign, as
 // their readers read it.
-const WEST_PLUS = new Set(["solar-fire", "astro-gold", "solar-fire-or-astro-gold", "janus"]);
+const WEST_PLUS = new Set(["solar-fire", "astro-gold", "solar-fire-or-astro-gold", "janus", "winstar"]);
 
 const MONTH_NAMES = [
   "January", "February", "March", "April", "May", "June",
@@ -96,7 +100,7 @@ export function formForText(text) {
  */
 export function formFor(result, program = null) {
   const read = program?.kind === "natal" ? program : null;
-  const turnedDown = program?.kind === "refused" && Object.hasOwn(PROGRAM_REFUSALS, program.reason) ? program.reason : null;
+  const turnedDown = program?.kind === "refused" && program.reason !== "unreadable-screenshot" ? program.reason : null;
   // A program's text has none of readText's labels, so readText finds nothing in it.
   const noLabels = result.kind === "refused" && result.reason === "no-birth-data" && (read || turnedDown);
   if (result.kind === "refused" && !noLabels) return { state: "refused", message: REFUSALS[result.reason], code: result.reason };
@@ -107,7 +111,7 @@ export function formFor(result, program = null) {
   const warnings = settingWarnings(fields);
   if (turnedDown) {
     warnings.unshift(
-      `This text is laid out like a desktop astrology program's, but ${PROGRAM_REFUSALS[turnedDown]}, so Chart Bridge didn't use that program's reading (${turnedDown}). Check each value against the text.`,
+      `This text is laid out like a desktop astrology program's, but ${Object.hasOwn(PROGRAM_REFUSALS, turnedDown) ? PROGRAM_REFUSALS[turnedDown] : PROGRAM_REFUSED}, so AstroChart Bridge didn't use that program's reading (${turnedDown}). Check each value against the text.`,
     );
   }
   if (read?.warnings?.includes("offset-unchecked")) {

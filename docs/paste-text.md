@@ -101,7 +101,7 @@ Signs follow the usual convention: a negative latitude is south, a negative long
 
 ## Text from astrology programs
 
-Chart Bridge also knows the birth data layouts of Solar Fire, Astro Gold, Morinus, Valens, Planetdance, Jagannatha Hora, Kepler, Sirius and Janus, the same ones its screenshot page reads. When the text you paste is laid out like one of them, that program's reader fills the boxes too, and a note below the form names the program. A box filled this way says "Read as Jagannatha Hora's text" (or whichever program it was) under it, in place of a line number.
+AstroChart Bridge also knows the birth data layouts of Solar Fire, Astro Gold, Morinus, Valens, Planetdance, Jagannatha Hora, Kepler, Sirius, Janus, Win*Star, TimePassages and Astrolog, the same ones its screenshot page reads. When the text you paste is laid out like one of them, that program's reader fills the boxes too, and a note below the form names the program. A box filled this way says "Read as Jagannatha Hora's text" (or whichever program it was) under it, in place of a line number.
 
 These readers check what the program printed with it: a sidereal time must fit the time and longitude, a weekday must fall on the date, and a zone label must give the offset. Text that fails a check isn't used. The form then shows only what the labelled lines give, with a warning naming the check, such as `sidereal-mismatch`, so you can enter the values by hand.
 
@@ -111,7 +111,7 @@ The two readings are compared box by box:
 - **Only the program's reader reads it**: the box says so. This is how Jagannatha Hora's `Time Zone: 8:00:00 (West of GMT)` fills the offset box.
 - **They read it differently**: the box stays empty and offers both, so you pick. An ambiguous date stays ambiguous, with the program's reading among the choices.
 
-Solar Fire, Astro Gold and Janus write an offset west of Greenwich with a plus sign: their `PDT +7:00` is UTC−07:00. The form says so when it reads one of them. Text from somewhere else can look like Astro Gold's, with a `Latitude` row and a `Timezone` row. Then `Timezone: -07:00` is offered both ways round, but `Timezone: PDT -07:00` fills the box with `+07:00`, since only Astro Gold's reader reads an offset after a zone label. Check the line under the offset box against what the text means.
+Solar Fire, Astro Gold, Janus and Win*Star write an offset west of Greenwich with a plus sign: their `PDT +7:00` is UTC−07:00. The form says so when it reads one of them. Win*Star labels its offset `ZONE:`, which the labelled-line reader also reads, the usual way round, so its offset box always offers both. Text from somewhere else can look like Astro Gold's, with a `Latitude` row and a `Timezone` row. Then `Timezone: -07:00` is offered both ways round, but `Timezone: PDT -07:00` fills the box with `+07:00`, since only Astro Gold's reader reads an offset after a zone label. Check the line under the offset box against what the text means.
 
 Morinus doesn't print the offset, so its offset box stays empty for you to fill in.
 
