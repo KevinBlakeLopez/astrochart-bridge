@@ -11,6 +11,8 @@ test("only stellarium-web.org tabs count as Stellarium Web", () => {
     "https://example.com/",
     "https://horoscopes.astro-seek.com/calculate-birth-chart-horoscope-online/?narozeni_den=17",
     "https://stellarium-web.org.example.com/",
+    "brave://extensions/",
+    "edge://extensions/",
     "not a url",
   ]) {
     assert.equal(isStellariumWeb(url), false, url);

@@ -1,18 +1,32 @@
 # Manual test checklist
 
-`popup.js` talks to the browser and has no automated tests, so run this list in Chrome after changing it. Everything it calls, from `analyzePage` to the view model, is covered by `npm test`.
+`popup.js` talks to the browser and has no automated tests, so run this list in Chrome, Brave and Microsoft Edge after changing it. Everything it calls, from `analyzePage` to the view model, is covered by `npm test`.
 
 The chart URLs below are the `url` fields of the fixtures in `fixtures/astroseek/`, plus the asteroids example from `docs/astroseek-known-issues.md`. All of them use invented birth data.
 
 Natal charts are read from three Astro-Seek pages: the birth chart (`/calculate-birth-chart-horoscope-online/`, tests 1 to 4), the asteroids chart (`/calculate-asteroids/`, test 7) and the traditional chart (`/calculate-traditional-chart/`, test 11).
 
-## Setup (once)
+## Setup (once per browser)
+
+### Chrome
 
 1. Go to `chrome://extensions` and turn on **Developer mode** (top right).
 2. Click **Load unpacked**. Press **Cmd+Shift+G**, paste the path to this repo's `extension` folder (for example `/Users/you/code/chart-bridge/extension`), press Return and click **Select**. The folder you select must contain `manifest.json`.
 3. Click the puzzle-piece icon in Chrome's toolbar and click the pin next to **Chart Bridge**, so its icon stays in the toolbar.
 
 After changing any file in `extension/`, click the reload arrow on the Chart Bridge card in `chrome://extensions` before testing again.
+
+### Brave
+
+Brave's extensions page is the same as Chrome's. Follow the Chrome steps above at `brave://extensions`, and reload from there too.
+
+### Edge
+
+1. Go to `edge://extensions` and turn on **Developer mode** (in the panel on the left).
+2. Click **Load unpacked** and select the same `extension` folder as in Chrome's step 2.
+3. Click the Extensions icon (a puzzle piece) in Edge's toolbar and click the eye icon next to **Chart Bridge** (**Show in toolbar**), so its icon stays in the toolbar.
+
+After changing any file in `extension/`, click **Reload** on the Chart Bridge card in `edge://extensions` before testing again.
 
 ## For every test
 
@@ -89,9 +103,9 @@ Go to `https://example.com`.
 
 - [ ] The popup shows only "Open an Astro-Seek birth chart to use Chart Bridge.", and the Console has no errors.
 
-## Test 9: a Chrome page
+## Test 9: a browser page
 
-Go to `chrome://extensions`.
+Go to `chrome://extensions` in Chrome, `brave://extensions` in Brave, or `edge://extensions` in Edge.
 
 - [ ] The popup shows the same sentence as test 8, and the Console has no errors.
 
@@ -136,7 +150,7 @@ https://stellarium-web.org/?date=2024-04-17T12%3A00%3A00Z&lat=40.716667&lng=-74
 
 ## Not covered by hand yet
 
-- **Enter offset**: no real Astro-Seek page has been seen without a Universal Time line, so this screen can't be reached in Chrome yet. `test/popup-model.test.js` covers what it shows and its preview.
+- **Enter offset**: no real Astro-Seek page has been seen without a Universal Time line, so this screen can't be reached in a browser yet. `test/popup-model.test.js` covers what it shows and its preview.
 
 ## If a check fails
 
