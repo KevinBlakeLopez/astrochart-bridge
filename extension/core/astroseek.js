@@ -33,6 +33,29 @@ export function classifyUrl(url) {
   return page ? { ...page } : refused("unsupported");
 }
 
+/**
+ * The town a chart's address names, for astro.com's birth town field, or null.
+ * The page header doesn't print it, so it is taken from the address unchecked:
+ * astro.com's own atlas lookup and the coordinates it shows are the check. A
+ * chart placed by coordinates, such as one Chart Bridge opens, names no country
+ * and puts "Manually place: °'N, °'E" where the city goes.
+ *
+ * @param {string} url
+ * @returns {string | null}
+ */
+export function townFromUrl(url) {
+  let page;
+  try {
+    page = new URL(url);
+  } catch {
+    return null;
+  }
+  if (page.hostname !== HOST) return null;
+  const town = page.searchParams.get("narozeni_mesto_hidden")?.trim() ?? "";
+  const country = page.searchParams.get("narozeni_stat_hidden")?.trim() ?? "";
+  return town !== "" && country !== "" ? town : null;
+}
+
 const LABEL_LOCAL = "Date of Birth (local time):";
 const LABEL_UT = "Universal Time (UT/GMT):";
 const LABEL_COORDS = "Latitude, Longitude:";

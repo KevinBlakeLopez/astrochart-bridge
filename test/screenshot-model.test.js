@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { astroSeekUrl } from "../extension/core/astroseek.js";
-import { ASTRO_SEEK_NOTES, viewFor, viewForSky } from "../extension/popup-model.js";
+import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, SHARE_BUTTON, viewFor, viewForSky } from "../extension/popup-model.js";
 import { viewForScreenshot } from "../extension/screenshot-model.js";
 
 const NY = {
@@ -79,12 +79,52 @@ test("an astro.com chart image's screen lists Astro-Seek's notes once", () => {
   assert.deepEqual(view.buttons, popup.buttons);
 });
 
-const REASONS = ["unreadable-screenshot", "ambiguous-screenshot", "sidereal-mismatch", "offset-out-of-range", "weekday-mismatch"];
+test("a Solar Fire chart with nothing to check its offset says so, after the popup's warnings", () => {
+  const streisand = {
+    kind: "natal",
+    site: "solar-fire",
+    local: "1942-04-24T05:04:00",
+    zoneLabel: null,
+    lat: 40.633333,
+    lng: -73.933333,
+    utc: "1942-04-24T09:04:00Z",
+    utcSource: "declared",
+    offsetMinutes: -240,
+    warnings: ["offset-unchecked"],
+  };
+  const view = viewForScreenshot(streisand, LA);
+  assert.equal(view.state, "ready");
+  assert.deepEqual(view.warnings, [
+    "Nothing in this Solar Fire screenshot checks its UTC offset. Compare the Offset row with the screenshot.",
+  ]);
+  assert.deepEqual(view.buttons, [...ASTRO_SEEK_BUTTONS, SHARE_BUTTON]);
+  assert.deepEqual(view.notes.slice(-ASTRO_SEEK_NOTES.length), ASTRO_SEEK_NOTES);
+  const either = viewForScreenshot({ ...streisand, site: "solar-fire-or-astro-gold" }, LA);
+  assert.match(either.warnings[0], /^Nothing in this Solar Fire or Astro Gold screenshot/);
+});
+
+const REASONS = [
+  "unreadable-screenshot",
+  "ambiguous-screenshot",
+  "sidereal-mismatch",
+  "offset-out-of-range",
+  "weekday-mismatch",
+  "zone-offset-mismatch",
+  "no-coordinates",
+];
 for (const reason of REASONS) {
   test(`${reason} has its own message and keeps its code`, () => {
     const view = viewForScreenshot({ kind: "refused", reason });
     assert.equal(view.state, "refused");
     assert.equal(view.code, reason);
     assert.match(view.message, /screenshot/);
+  });
+}
+
+for (const reason of ["calendar-unsupported", "apparent-time"]) {
+  test(`${reason} has its own message and keeps its code`, () => {
+    const view = viewForScreenshot({ kind: "refused", reason });
+    assert.equal(view.code, reason);
+    assert.match(view.message, /Chart Bridge/);
   });
 }

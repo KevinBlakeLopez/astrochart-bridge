@@ -279,8 +279,11 @@ const isoDate = ({ year, month, day }) => `${pad(year, 4)}-${pad(month)}-${pad(d
 // 12), syar, ihou (a select of "", "u" and 0 to 23), smin, and szon (a select
 // of time zones, "h0w" first among the " 00:00 GMT / UT" ones). szon sits in
 // the extended settings, whose toggle sets the hidden extset field from
-// "close" to "open" and shows #extended. cid is empty on a new entry; that it
-// names a saved chart otherwise is assumed, not seen.
+// "close" to "open" and shows #extended. Signed in, the same blank form has
+// the same fields; its hidden cid, empty signed out, is 25 characters long, so
+// cid doesn't tell a new entry from a saved chart and isn't read.
+// Typing in the town field, scit, makes astro.com's page look the town up at
+// once (adejs.cgi?…&func=place_query) and list its matches with coordinates.
 const FORM_PATH = "/cgi/ade.cgi";
 
 /**
@@ -307,13 +310,14 @@ export function isBirthDataForm(url) {
 }
 
 /**
- * The values for ade.cgi's fields for a decided UTC, by field name. The
- * seconds are left out: the form takes whole minutes.
+ * The values for ade.cgi's fields for a decided UTC and the chart's town, by
+ * field name. The seconds are left out: the form takes whole minutes. The
+ * town, when there is one, goes in the birth town field, scit.
  *
- * @param {{ utc: string }} sky
- * @returns {{ sday: string, imon: string, syar: string, ihou: string, smin: string, szon: "h0w" }}
+ * @param {{ utc: string, town?: string | null }} values
+ * @returns {{ sday: string, imon: string, syar: string, ihou: string, smin: string, szon: "h0w", scit?: string }}
  */
-export function formValues({ utc }) {
+export function formValues({ utc, town = null }) {
   const [year, month, day] = utc.slice(0, 10).split("-");
   return {
     sday: String(Number(day)),
@@ -322,6 +326,7 @@ export function formValues({ utc }) {
     ihou: String(Number(utc.slice(11, 13))),
     smin: utc.slice(14, 16),
     szon: "h0w",
+    ...(town === null ? {} : { scit: town }),
   };
 }
 
@@ -332,19 +337,19 @@ export function formValues({ utc }) {
 /**
  * What the popup needs to know about an ade.cgi tab. auth is "signed-out" only
  * when the page greets "Hello [not logged in]", as every signed-out page seen
- * did; anything else is "unknown", since no signed-in page has been seen. form
- * is "blank" only for a new entry whose date and time are empty.
+ * did; anything else is "unknown", as a signed-in page was. form is "blank"
+ * only when the date and time are empty. A saved chart's form is assumed to
+ * show its date and time, so it reads as "typed" and is never filled in.
  *
- * @returns {{ auth: "signed-out" | "unknown", form: "blank" | "typed" | "existing-record" | "unrecognised" }}
+ * @returns {{ auth: "signed-out" | "unknown", form: "blank" | "typed" | "unrecognised" }}
  */
 export function readFormPage() {
   const greetings = [...document.querySelectorAll("li.hello")].map((item) => item.textContent.trim());
   const auth = greetings.includes("Hello [not logged in]") ? "signed-out" : "unknown";
   const fields = document.forms.namedItem("start")?.elements;
-  const names = ["cid", "sday", "imon", "syar", "ihou", "smin", "extset", "szon"];
+  const names = ["sday", "imon", "syar", "ihou", "smin", "extset", "szon"];
   const field = (name) => fields?.namedItem(name) ?? null;
   if (!names.every(field)) return { auth, form: "unrecognised" };
-  if (field("cid").value !== "") return { auth, form: "existing-record" };
   const typed = ["sday", "syar", "smin"].some((name) => field(name).value !== "") || field("ihou").value !== "";
   return { auth, form: typed ? "typed" : "blank" };
 }
@@ -353,18 +358,18 @@ export function readFormPage() {
  * Fills in a blank ade.cgi form with formValues' values, the way a person
  * would: the extended settings are opened so the time zone shows, each change
  * is announced to the page's own scripts, and the town field is focused for
- * the person to type in. Never submits. Fills in nothing unless the form is
- * still blank and every value is one the form accepts.
+ * the person to type in or pick astro.com's match. A town already typed is
+ * kept. Never submits. Fills in nothing unless the form is still blank and
+ * every value is one the form accepts.
  *
  * @param {ReturnType<typeof formValues>} values
- * @returns {{ filled: true } | { filled: false, form: "typed" | "existing-record" | "unrecognised" }}
+ * @returns {{ filled: true } | { filled: false, form: "typed" | "unrecognised" }}
  */
 export function fillForm(values) {
   const fields = document.forms.namedItem("start")?.elements;
   const field = (name) => fields?.namedItem(name) ?? null;
-  const names = Object.keys(values);
-  if (![...names, "cid", "extset", "scit"].every(field)) return { filled: false, form: "unrecognised" };
-  if (field("cid").value !== "") return { filled: false, form: "existing-record" };
+  if (![...Object.keys(values), "extset", "scit"].every(field)) return { filled: false, form: "unrecognised" };
+  const names = Object.keys(values).filter((name) => name !== "scit" || field(name).value === "");
   if (["sday", "syar", "smin", "ihou"].some((name) => field(name).value !== "")) return { filled: false, form: "typed" };
 
   // A select ignores a value none of its options has, so each is tried and put

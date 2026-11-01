@@ -14,7 +14,7 @@ const OPEN_SKY = [{ label: "Open sky", opens: "stellarium" }];
 /**
  * @param {HTMLElement} container  its children are replaced
  * @param {ReturnType<typeof import("./popup-model.js").viewFor>} view
- * @param {(button: { url?: string, holds?: boolean, here?: boolean, does?: string }, sky: object | null) => void | Promise<void>} onButton
+ * @param {(button: { url?: string, holds?: object, here?: boolean, does?: string }, sky: object | null) => void | Promise<void>} onButton
  *   called with the clicked button, its link worked out, and the sky the screen has decided
  * @param {object | null} [back]  the view a Cancel button goes back to, for a view reached through next
  */

@@ -10,8 +10,9 @@ import {
 import { HOLD_MINUTES, heldForTab, holdForTab, releaseTab } from "../extension/pending.js";
 import { viewForAstroComTab } from "../extension/popup-model.js";
 
-const NY_SKY = { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 };
-const SYDNEY_SKY = { utc: "2024-01-14T21:00:00Z", lat: -33.866667, lng: 151.2 };
+// What the astro.com screens keep for a tab: the sky, and a town or null.
+const NY_SKY = { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74, town: null };
+const SYDNEY_SKY = { utc: "2024-01-14T21:00:00Z", lat: -33.866667, lng: 151.2, town: "Sydney" };
 const FORM_URL = "https://www.astro.com/cgi/ade.cgi";
 const SIGN_IN_URL = "https://www.astro.com/cgi/awd.cgi?lang=e";
 const CREATE_ACCOUNT_URL = "https://www.astro.com/cgi/scus.cgi?act=new&";
@@ -53,9 +54,14 @@ test("the form's values are the UTC date and time, in the option values ade.cgi 
   // Seen on 2026-11-01: imon's values are 1 to 12, ihou's 0 to 23 (after "" and "u"),
   // and "h0w" is the first " 00:00 GMT / UT" time zone.
   assert.deepEqual(formValues(NY_SKY), { sday: "17", imon: "4", syar: "2024", ihou: "12", smin: "00", szon: "h0w" });
-  assert.deepEqual(formValues({ ...SYDNEY_SKY, utc: "2024-01-04T05:07:30Z" }), {
+  assert.deepEqual(formValues({ ...NY_SKY, utc: "2024-01-04T05:07:30Z" }), {
     sday: "4", imon: "1", syar: "2024", ihou: "5", smin: "07", szon: "h0w",
   });
+});
+
+test("a town goes in the birth town field, scit", () => {
+  assert.equal(formValues(SYDNEY_SKY).scit, "Sydney");
+  assert.equal("scit" in formValues(NY_SKY), false);
 });
 
 // --- Values kept for the astro.com tab -------------------------------------
@@ -68,10 +74,17 @@ test("the values survive the tab's navigation: what was kept for a tab comes bac
   assert.equal(await heldForTab(storage, 8, T0), null);
 });
 
-test("only the decided UTC and place are kept, with the time they were kept", async () => {
+test("only the decided UTC, place and town are kept, with the time they were kept", async () => {
   const storage = fakeStorage();
-  await holdForTab(storage, 7, { ...NY_SKY, extra: "not kept" }, T0);
-  assert.deepEqual(Object.values(storage.items), [{ sky: NY_SKY, heldAt: T0 }]);
+  await holdForTab(storage, 7, { ...SYDNEY_SKY, extra: "not kept" }, T0);
+  assert.deepEqual(Object.values(storage.items), [{ values: SYDNEY_SKY, heldAt: T0 }]);
+});
+
+test("values kept with no town come back with a null town", async () => {
+  const storage = fakeStorage();
+  const { town, ...sky } = NY_SKY;
+  await holdForTab(storage, 7, sky, T0);
+  assert.deepEqual(await heldForTab(storage, 7, T0), NY_SKY);
 });
 
 test("a cancelled conversion doesn't come back", async () => {
@@ -95,7 +108,7 @@ test("values from a later clock time, or a malformed entry, don't come back", as
   await holdForTab(storage, 7, NY_SKY, T0);
   const [key] = Object.keys(storage.items);
   assert.equal(await heldForTab(storage, 7, T0 - 1), null);
-  await storage.set({ [key]: { sky: { utc: 5 }, heldAt: T0 } });
+  await storage.set({ [key]: { values: { utc: 5 }, heldAt: T0 } });
   assert.equal(await heldForTab(storage, 7, T0), null);
   assert.deepEqual(storage.items, {});
 });
@@ -146,7 +159,11 @@ function field(name, value = "", options = null) {
   return element;
 }
 
-// The parts of ade.cgi's page that Chart Bridge reads, as seen signed out on 2026-11-01.
+// The parts of ade.cgi's page that Chart Bridge reads, as seen signed out on
+// 2026-11-01. Signed in, the same blank form has the same fields, a cid 25
+// characters long, and a greeting other than "Hello [not logged in]".
+const SIGNED_IN = { hello: ["Hello Test User"], cid: "x".repeat(25) };
+
 function formPage({ hello = ["Hello [not logged in]"], cid = "", typed = {}, missing = [], options = SELECT_OPTIONS } = {}) {
   const fields = [
     field("cid", cid),
@@ -155,7 +172,7 @@ function formPage({ hello = ["Hello [not logged in]"], cid = "", typed = {}, mis
     field("syar", typed.syar ?? ""),
     field("ihou", "", options.ihou),
     field("smin", typed.smin ?? ""),
-    field("scit"),
+    field("scit", typed.scit ?? ""),
     field("extset", "close"),
     field("szon", "au", options.szon),
   ].filter((element) => !missing.includes(element.name));
@@ -180,13 +197,15 @@ test("any other greeting, or none, is unknown: Chart Bridge never decides a brow
   }
 });
 
-test("a form with a date or time typed in, an existing record, or missing fields isn't blank", () => {
+test("a signed-in browser's blank form is blank, whatever its cid, and its greeting is unknown", () => {
+  assert.deepEqual(runInPage(readFormPage, formPage(SIGNED_IN)), { auth: "unknown", form: "blank" });
+});
+
+test("a form with a date or time typed in, or missing fields, isn't blank", () => {
   assert.equal(runInPage(readFormPage, formPage({ typed: { sday: "3" } })).form, "typed");
   assert.equal(runInPage(readFormPage, formPage({ typed: { smin: "15" } })).form, "typed");
-  assert.equal(runInPage(readFormPage, formPage({ cid: "1234" })).form, "existing-record");
   assert.equal(runInPage(readFormPage, formPage({ missing: ["form"] })).form, "unrecognised");
   assert.equal(runInPage(readFormPage, formPage({ missing: ["szon"] })).form, "unrecognised");
-  assert.equal(runInPage(readFormPage, formPage({ missing: ["cid"] })).form, "unrecognised");
 });
 
 test("filling a blank form sets the date, time and time zone, opens the extended settings, and leaves the town", () => {
@@ -205,14 +224,37 @@ test("filling a blank form sets the date, time and time zone, opens the extended
   assert.ok(page.field("szon").events.includes("change"));
 });
 
-test("filling never overwrites: a typed or existing form is left as it was", () => {
-  for (const [options, form] of [[{ typed: { syar: "1990" } }, "typed"], [{ cid: "1234" }, "existing-record"]]) {
-    const page = formPage(options);
-    assert.deepEqual(runInPage(fillForm, page, formValues(NY_SKY)), { filled: false, form });
-    assert.equal(page.field("sday").value, options.typed?.sday ?? "");
-    assert.equal(page.field("szon").value, "au");
-    assert.equal(page.field("extset").value, "close");
-  }
+test("a town is filled in too, and the cursor is left in it to pick astro.com's match", () => {
+  const page = formPage(SIGNED_IN);
+  assert.deepEqual(runInPage(fillForm, page, formValues(SYDNEY_SKY)), { filled: true });
+  assert.equal(page.field("scit").value, "Sydney");
+  assert.equal(page.field("scit").focused, true);
+  assert.ok(page.field("scit").events.includes("input"));
+});
+
+test("a town typed in already is kept, and the rest is still filled in", () => {
+  const page = formPage({ ...SIGNED_IN, typed: { scit: "Parramatta" } });
+  assert.deepEqual(runInPage(fillForm, page, formValues(SYDNEY_SKY)), { filled: true });
+  assert.equal(page.field("scit").value, "Parramatta");
+  assert.equal(page.field("sday").value, "14");
+});
+
+test("a signed-in browser's blank form is filled in, and its cid is left alone", () => {
+  const page = formPage(SIGNED_IN);
+  assert.deepEqual(runInPage(fillForm, page, formValues(NY_SKY)), { filled: true });
+  assert.equal(page.field("sday").value, "17");
+  assert.equal(page.field("cid").value, SIGNED_IN.cid);
+});
+
+// A saved chart's form is assumed to show its date and time, so this check is
+// also what keeps a saved chart from being changed.
+test("filling never overwrites: a form with a date or time in it is left as it was", () => {
+  const page = formPage({ typed: { syar: "1990" } });
+  assert.deepEqual(runInPage(fillForm, page, formValues(NY_SKY)), { filled: false, form: "typed" });
+  assert.equal(page.field("syar").value, "1990");
+  assert.equal(page.field("sday").value, "");
+  assert.equal(page.field("szon").value, "au");
+  assert.equal(page.field("extset").value, "close");
 });
 
 test("a value the form has no option for fills in nothing", () => {
@@ -258,7 +300,7 @@ test("a signed-out browser is asked to sign in or create an account, and can sti
     message:
       "astro.com requires an account to generate charts. Sign in to your existing account or create a free account to continue.",
     notes: [
-      "Chart Bridge keeps these values for this tab while you sign in. Afterwards, open astro.com's form in this tab and click Chart Bridge again.",
+      "Chart Bridge keeps these values for the astro.com tab while you sign in. Afterwards, open astro.com's form there and click the Chart Bridge icon in the toolbar again.",
     ],
     sky: NY_SKY,
     buttons: [
@@ -270,14 +312,11 @@ test("a signed-out browser is asked to sign in or create an account, and can sti
   });
 });
 
-test("a form that isn't blank is never filled: the popup offers a blank one instead", () => {
+test("a form with a date or time in it is never filled: the popup offers a blank one instead", () => {
   const typed = viewForAstroComTab(NY_SKY, { kind: "form", auth: "unknown", form: "typed" });
   assert.equal(typed.message, "This form already has a date or time in it. Chart Bridge fills in only a blank form, so it won't change what's there.");
   assert.deepEqual(typed.buttons, [{ label: "Open a blank form", url: FORM_URL, here: true }, CANCEL]);
 
-  const existing = viewForAstroComTab(NY_SKY, { kind: "form", auth: "unknown", form: "existing-record" });
-  assert.equal(existing.message, "This form changes a chart saved in your astro.com account. Chart Bridge fills in only a new entry, so it won't change this one.");
-  assert.deepEqual(existing.buttons, typed.buttons);
 
   // Even signed out: the sign-in prompt would offer to fill in a form that mustn't be filled.
   assert.equal(viewForAstroComTab(NY_SKY, { kind: "form", auth: "signed-out", form: "typed" }).state, typed.state);
@@ -298,12 +337,21 @@ test("on any other astro.com page, such as after a failed sign-in, the values wa
     rows: ROWS,
     warnings: [],
     message: "Chart Bridge is keeping these values for this tab.",
-    notes: ["When you're signed in, open astro.com's birth data form in this tab and click Chart Bridge again to fill it in."],
+    notes: ["When you're signed in, open astro.com's birth data form in this tab and click the Chart Bridge icon in the toolbar again to fill it in."],
     sky: NY_SKY,
     buttons: [OPEN_FORM_HERE, CANCEL],
   });
   // Nothing in the view navigates on its own: there is no redirect for a failed sign-in to loop through.
   assert.deepEqual(Object.keys(view).filter((key) => !["state", "rows", "warnings", "message", "notes", "sky", "buttons"].includes(key)), []);
+});
+
+test("a kept town is shown on the astro.com tab and named in what gets filled in", () => {
+  const view = viewForAstroComTab(SYDNEY_SKY, { kind: "form", auth: "unknown", form: "blank" });
+  assert.deepEqual(view.rows[4], ["Town", "Sydney"]);
+  assert.equal(
+    view.notes[0],
+    "Chart Bridge fills in the birthday, hour, minute, the 00:00 GMT / UT time zone and the town Sydney. Choose astro.com's match nearest this place, and check the coordinates it shows.",
+  );
 });
 
 test("seconds dropped from the form are named on the astro.com tab too", () => {
