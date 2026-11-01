@@ -4,11 +4,13 @@ import { readdirSync, readFileSync } from "node:fs";
 import { chartFromRecord, exportRecord, parseAaf, writeAaf } from "../extension/core/aaf.js";
 import { ZONE_OFFSETS } from "../extension/core/civiltime.js";
 import { analyzePage } from "../extension/core/index.js";
+import { chartFromHor, parseHor } from "../extension/core/morinus-hor.js";
 
 const root = new URL("../fixtures/", import.meta.url);
 const astroSeek = (name) => analyzePage(JSON.parse(readFileSync(new URL(`astroseek/${name}`, root), "utf8")));
 const aaf = (name) => readFileSync(new URL(`aaf/${name}`, root), "utf8");
 const charts = (text) => parseAaf(text).map(chartFromRecord);
+const morinus = (name) => chartFromHor(parseHor(new Uint8Array(readFileSync(new URL(`morinus/${name}.p2.hor`, root)))));
 
 const HEADER = "#: AstroChart Bridge";
 const UT_NOTE =
@@ -100,12 +102,29 @@ test("the sky of a Stellarium Web tab is written in Universal Time", () => {
   assert.equal(writeAaf([record]), `${HEADER}\n${UT_NOTE}\n#A93:*,*,*,14.1.2024,21:00,*,*\n#B93:*,33s52,151e12,0h,0\n`);
 });
 
+test("a Morinus chart entered in a zone keeps its local time, zone and daylight saving", () => {
+  assert.equal(writeAaf([exportRecord(morinus("ny-est-plus-dst"))]), `${HEADER}\n#A93:*,*,*,17.4.2024,8:00,*,*\n#B93:*,40n43,74w00,5hw00,1\n`);
+  assert.equal(
+    writeAaf([exportRecord(morinus("kathmandu-0545"))]),
+    `${HEADER}\n#A93:*,*,*,17.4.2024,8:00,*,*\n#B93:*,27n43,85e19,5he45,0\n`,
+  );
+});
+
+test("a Morinus chart in Greenwich time, or read from a screenshot, is written in Universal Time", () => {
+  assert.equal(exportRecord(morinus("greenwich")).basis, "utc");
+  assert.equal(exportRecord(morinus("greenwich-with-dst")).basis, "utc");
+  // The screenshot reader's charts are Morinus's too, but say nothing of a zone.
+  const screenshot = { site: "morinus", local: "2024-04-17T08:00:00", lat: 40.716667, lng: -74, zoneLabel: "UT", utc: "2024-04-17T08:00:00Z" };
+  assert.equal(exportRecord(screenshot).basis, "utc");
+});
+
 test("every chart keeps its instant and place through AAF and back", () => {
   const sources = [
     ...readdirSync(new URL("astroseek/", root)).map(astroSeek),
     ...charts(NY_TEXT),
     ...charts(aaf("astrolog-8.00-new-york.aaf")),
     ...charts(aaf("astrolog-8.00-delhi-seconds.aaf")),
+    ...["ny-est-plus-dst", "kolkata-0530", "kathmandu-0545", "sydney-south", "greenwich", "greenwich-with-dst"].map(morinus),
     { utc: "2024-04-17T12:00:30Z", lat: 0, lng: -0.5 },
   ].filter((chart) => typeof chart.utc === "string");
   assert.ok(sources.length >= 10);

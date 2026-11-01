@@ -8,7 +8,7 @@ The parser and writer are in `extension/core/aaf.js`; the screens are in `extens
 
 ## Opening an AAF file
 
-1. Open the popup on any page that isn't a chart, and click **Open an AAF file**. A new tab opens the import page (`import.html`).
+1. Open the popup on any page that isn't a chart, and click **Open an AAF or Morinus file**. A new tab opens the import page (`import.html`), which also opens Morinus files ([docs/morinus-hor.md](morinus-hor.md)).
 2. Choose or drop a `.aaf` file anywhere on the page, or paste the text and click **Read pasted text**. The file is read in the browser and isn't sent anywhere.
 3. The page lists every chart in the file by name, local date and time, and birthplace. A file with one chart shows it at once.
 4. Choose a chart. Its screen is the popup's: name, local time, offset, UTC, birthplace and coordinates, with **Open sky** (Stellarium Web), **Open chart in Astro-Seek**, **Save as AAF file** and **Enter in astro.com…**. The astro.com screen puts the file's first and last name in astro.com's First name and Last name boxes, where you can change them before opening the form.
@@ -21,7 +21,7 @@ A chart that can't be opened is still listed, and choosing it says why (see [Wha
 
 - an Astro-Seek or astro.com chart page
 - a Stellarium Web tab
-- a chart opened from an AAF file
+- a chart opened from an AAF file or a Morinus file
 
 It doesn't appear while you still have to choose between readings or type an offset. The screenshot page doesn't offer it yet.
 

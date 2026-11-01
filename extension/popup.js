@@ -181,7 +181,7 @@ async function showTab(tab) {
 }
 
 // A page AstroChart Bridge doesn't read can still lead to a chart: a screenshot,
-// pasted text, an AAF file, a .astrochart.json file, or Stellarium Desktop.
+// pasted text, an AAF or Morinus file, a .astrochart.json file, or Stellarium Desktop.
 function show(view, { offerScreenshot = false, onButton = openLink } = {}) {
   render(app, view, onButton);
   if (offerScreenshot) {
@@ -192,7 +192,7 @@ function show(view, { offerScreenshot = false, onButton = openLink } = {}) {
     app.append(
       pageButton("Read a screenshot instead", "screenshot.html"),
       pageButton("Paste chart text instead", "paste.html"),
-      pageButton("Open an AAF file", "import.html"),
+      pageButton("Open an AAF or Morinus file", "import.html"),
       pageButton("Open a chart file", "chart.html"),
       fromDesktop,
       desktopHintLine(),

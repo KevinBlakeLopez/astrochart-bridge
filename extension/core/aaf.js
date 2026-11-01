@@ -320,10 +320,11 @@ const ZONE_SPLITS = {
 
 /**
  * The AAF record for a chart whose UTC is decided: a natal result from
- * analyzePage, analyzeScreenshot or chartFromRecord, or the sky of a
- * Stellarium Web tab. AAF wants the standard offset and the daylight saving
- * apart, so the local time is kept only where the source states both: an AAF
- * chart, or an Astro-Seek chart whose zone label AstroChart Bridge has checked.
+ * analyzePage, analyzeScreenshot, chartFromRecord or chartFromHor, or the sky
+ * of a Stellarium Web tab. AAF wants the standard offset and the daylight
+ * saving apart, so the local time is kept only where the source states both:
+ * an AAF chart, a Morinus file entered in a zone, or an Astro-Seek chart whose
+ * zone label AstroChart Bridge has checked.
  * Every other chart is written in Universal Time, which is never wrong, and
  * basis says so. Nothing else is filled in: unknown names and places stay null.
  *
@@ -357,6 +358,22 @@ export function exportRecord(chart) {
       lat,
       lng,
       zoneName: chart.zoneLabel,
+    };
+  }
+
+  // A Morinus file entered in a zone states the zone and the daylight saving
+  // apart, as AAF does. A Morinus screenshot has no morinus, and no zone.
+  if (chart.site === "morinus" && chart.morinus?.timeBasis === "zone") {
+    const { zoneOffsetMinutes, daylightSaving } = chart.morinus;
+    return {
+      ...unnamed,
+      basis: "local",
+      local: chart.local,
+      standardOffsetMinutes: zoneOffsetMinutes,
+      timeType: daylightSaving ? "1" : "0",
+      lat,
+      lng,
+      zoneName: null,
     };
   }
 
