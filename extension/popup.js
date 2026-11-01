@@ -8,6 +8,7 @@ import { isStellariumWeb, skyFromEngine } from "./core/stellarium.js";
 import { BUSY, desktopHint, viewForDesktopImport, viewForDesktopSend, withDesktopSend } from "./desktop-model.js";
 import { heldForTab, holdForTab, releaseTab } from "./pending.js";
 import { viewFor, viewForAstroComTab, viewForSky } from "./popup-model.js";
+import { desktopPreferred, setDesktopPreferred } from "./preference.js";
 import { HOST_PERMISSION, probe, readSky, sendSky } from "./stellarium-desktop.js";
 import { desktopHintLine, render } from "./view.js";
 
@@ -16,13 +17,26 @@ const app = document.getElementById("app");
 // Where the values for an astro.com tab are kept. The browser empties it when it quits.
 const held = chrome.storage.session;
 
+// Where the user's default between Stellarium Web and Stellarium Desktop is
+// kept: on this computer, until they change it.
+const prefs = chrome.storage.local;
+
+// Whether Stellarium Desktop is that default, read as the popup opens and
+// changed only by the user's click.
+let preferred = false;
+
 main().catch((error) => {
   const view = { state: "refused", message: "Chart Bridge couldn't read this tab.", code: String(error?.message ?? error) };
   show(view, { offerScreenshot: true });
 });
 
 async function main() {
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  // A preference that can't be read leaves Stellarium Web the default.
+  const [[tab], desktop] = await Promise.all([
+    chrome.tabs.query({ active: true, currentWindow: true }),
+    desktopPreferred(prefs).catch(() => false),
+  ]);
+  preferred = desktop;
   const url = tab?.url ?? "";
 
   // On Stellarium Web, the sky comes from its engine: the address doesn't change
@@ -38,7 +52,7 @@ async function main() {
       return;
     }
     const sky = skyFromEngine(engine);
-    show(withDesktopSend(withAafExport(viewForSky(sky), sky)));
+    showChart(withAafExport(viewForSky(sky), sky));
     return;
   }
 
@@ -69,7 +83,7 @@ async function main() {
     func: extractorFor(url),
   });
   const result = analyzePage({ url, input });
-  show(withDesktopSend(withAafExport(viewFor(result), result)));
+  showChart(withAafExport(viewFor(result), result));
 }
 
 // Runs inside the Stellarium Web page itself (world "MAIN"), where its engine
@@ -116,7 +130,7 @@ function astroComTabButtons(tab, sky) {
   };
 }
 
-function show(view, { offerScreenshot = false, onButton = chartButtons(view) } = {}) {
+function show(view, { offerScreenshot = false, onButton = openLink } = {}) {
   render(app, view, onButton);
   if (offerScreenshot) {
     const fromDesktop = document.createElement("button");
@@ -145,10 +159,30 @@ async function checkDesktop(hint) {
   if (hint.isConnected) hint.textContent = text;
 }
 
-// What a chart screen's buttons do: open a link, or send the sky to
-// Stellarium Desktop, coming back to this screen on Cancel.
-function chartButtons(view) {
-  return (button, sky) => (button.does === "send-to-desktop" ? sendToDesktop(sky, view) : openLink(button, sky));
+// A chart screen, its desktop button placed by the user's default. changed
+// says they have just switched it, so the screen confirms it with Undo.
+function showChart(base, changed = false) {
+  const view = withDesktopSend(base, { preferred, changed });
+  show(view, { onButton: chartButtons(view, base) });
+}
+
+// What a chart screen's buttons do: open a link, send the sky to Stellarium
+// Desktop (coming back to this screen on Cancel), or switch the default and
+// draw this chart again with its buttons swapped.
+function chartButtons(view, base) {
+  return (button, sky) => {
+    if (button.does === "send-to-desktop") return sendToDesktop(sky, view);
+    if (button.does === "prefer-desktop" || button.does === "prefer-web") {
+      return switchDefault(button.does === "prefer-desktop", () => showChart(base, true));
+    }
+    return openLink(button, sky);
+  };
+}
+
+async function switchDefault(toDesktop, redraw) {
+  await setDesktopPreferred(prefs, toDesktop);
+  preferred = toDesktop;
+  redraw();
 }
 
 // Stellarium Desktop is reached only from these two clicks. Each asks for
@@ -161,7 +195,7 @@ async function sendToDesktop(sky, back) {
     return;
   }
   showDesktop(BUSY.send, null);
-  showDesktop(viewForDesktopSend(await sendSky(sky), sky), back);
+  showDesktop(viewForDesktopSend(await sendSky(sky), sky, { preferred }), back);
 }
 
 async function importFromDesktop() {
@@ -183,6 +217,12 @@ function desktopButtons(back) {
     if (button.does === "send-to-desktop") return sendToDesktop(sky, back);
     if (button.does === "import-from-desktop") return importFromDesktop();
     if (button.does === "close") return window.close();
+    // Only the sent screen offers these, so it is what's drawn again.
+    if (button.does === "prefer-desktop" || button.does === "prefer-web") {
+      return switchDefault(button.does === "prefer-desktop", () =>
+        showDesktop(viewForDesktopSend({ state: "sent" }, sky, { preferred, changed: true }), back),
+      );
+    }
     return openLink(button, sky);
   };
 }

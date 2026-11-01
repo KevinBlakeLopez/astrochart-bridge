@@ -33,6 +33,14 @@ What changes in Stellarium, and what doesn't:
 
 The button is on every chart screen with a sky: a chart page's, once its UTC is decided, and a Stellarium Web tab's. The screenshot, pasted-text and AAF pages don't have it yet.
 
+## Making Stellarium Desktop the default
+
+After a chart has gone to Stellarium, the **Sent to Stellarium Desktop** screen offers **Use Stellarium Desktop by default**. Chart screens then lead with **Send to Stellarium Desktop** in the main style, and **Open sky** follows it in the secondary style. Nothing is sent without a click either way.
+
+To change it back, use the line under the buttons on any chart screen: "Stellarium Desktop is your default for charts. **Make Stellarium Web the default**". The screen redraws at once with **Open sky** first again, and says "Stellarium Web is the default again. **Undo**". The same line is on the sent screen.
+
+A Stellarium Web tab's screen keeps **Open chart in Astro-Seek** as its main button, since there is no sky to open there, but shows the same line. The choice is kept in the browser on this computer only, and isn't synced to your browser account.
+
 ## Checking whether Stellarium is ready
 
 Once you've allowed Chart Bridge to connect to `127.0.0.1`, the popup checks Stellarium each time it opens on a chart, or on a page that isn't one. It asks Stellarium for its status, changes nothing, and gives up after a second. A grey line under the button then says what it found:

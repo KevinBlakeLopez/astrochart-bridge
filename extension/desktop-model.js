@@ -9,13 +9,51 @@ import { ASTRO_SEEK_NOTES, PRIVACY_NOTE, astroComStep, placeText, utcText } from
 // sky is decided, like Open sky.
 const SENDS = new Set(["ready", "choose", "enter-offset", "to-astro-seek"]);
 
+// The screens whose main button is Open sky, which Stellarium Desktop takes
+// over as the default. A Stellarium Web tab's main button is Astro-Seek's.
+const OPENS_SKY = new Set(["ready", "choose", "enter-offset"]);
+
+const DESKTOP_SEND = { label: "Send to Stellarium Desktop" };
+
 /**
  * The view with a Send to Stellarium Desktop button, or the view unchanged.
+ * With Stellarium Desktop the default, the button comes first in the main
+ * style and Open sky follows in the secondary one. Wherever it is the
+ * default, a line under the buttons says so with a link to change it back;
+ * just after a change, the line confirms it with Undo.
  *
  * @param {object} view  from viewFor or viewForSky
+ * @param {{ preferred?: boolean, changed?: boolean }} [default_]
+ *   preferred: Stellarium Desktop is the default; changed: the user has just switched
  */
-export function withDesktopSend(view) {
-  return SENDS.has(view.state) ? { ...view, desktop: { label: "Send to Stellarium Desktop" } } : view;
+export function withDesktopSend(view, { preferred = false, changed = false } = {}) {
+  if (!SENDS.has(view.state)) return view;
+  const choice = defaultChoice({ preferred, changed });
+  const sends = { ...view, desktop: { ...DESKTOP_SEND } };
+  if (choice) sends.defaultChoice = choice;
+  if (preferred && OPENS_SKY.has(view.state)) {
+    sends.desktop.primary = true;
+    sends.buttons = (view.buttons ?? [{ label: "Open sky", opens: "stellarium" }]).map((button) =>
+      button.opens === "stellarium" ? { ...button, secondary: true } : button,
+    );
+  }
+  return sends;
+}
+
+// The line that says which is the default and changes it, or null where
+// there's nothing to say: Stellarium Web as the default, unchanged, on a
+// chart screen. The sent screen offers the change even then, as a button.
+function defaultChoice({ preferred, changed, offer = false }) {
+  if (preferred && changed) {
+    return {
+      text: "Stellarium Desktop is now your default for charts. Every chart screen has a link to change it back.",
+      label: "Undo",
+      does: "prefer-web",
+    };
+  }
+  if (preferred) return { text: "Stellarium Desktop is your default for charts.", label: "Make Stellarium Web the default", does: "prefer-web" };
+  if (changed) return { text: "Stellarium Web is the default again.", label: "Undo", does: "prefer-desktop" };
+  return offer ? { text: null, label: "Use Stellarium Desktop by default", does: "prefer-desktop" } : null;
 }
 
 // The line under the desktop buttons once the popup has checked Stellarium
@@ -116,8 +154,9 @@ const MISMATCH_NAMES = { time: "time", "clock-running": "paused clock", latitude
  *
  * @param {Awaited<ReturnType<typeof import("./stellarium-desktop.js").sendSky>> | { state: "no-permission" }} result
  * @param {{ utc: string, lat: number, lng: number }} sky  the sky that was sent
+ * @param {{ preferred?: boolean, changed?: boolean }} [default_]  as for withDesktopSend
  */
-export function viewForDesktopSend(result, sky) {
+export function viewForDesktopSend(result, sky, { preferred = false, changed = false } = {}) {
   if (result.state !== "sent") return problem(result, { retry: "send-to-desktop", direction: "send", sky });
   return {
     state: "desktop-sent",
@@ -133,6 +172,7 @@ export function viewForDesktopSend(result, sky) {
     ],
     sky,
     buttons: [{ label: "Done", does: "close" }],
+    defaultChoice: defaultChoice({ preferred, changed, offer: true }),
   };
 }
 

@@ -324,7 +324,13 @@ Needs Stellarium 25.1 or later with its Remote Control server on: the setup step
 - [ ] **Open sky** opens a Stellarium Web tab whose address contains `date=2024-01-14T21%3A00%3A00Z&lat=-33.86667&lng=151.2`.
 - [ ] In Stellarium's Remote Control settings, tick **Access requires authentication**, type any password, click **Save settings**, then untick and tick **Server enabled**. **Import from Stellarium Desktop** says "Stellarium asks for a password", and the browser doesn't show its own password box. Untick it again the same way.
 - [ ] The Console stays empty throughout.
-- [ ] Put Stellarium's place and time back as noted in step 1, and start its clock.
+- [ ] Open the popup on test 3 and click **Send to Stellarium Desktop**. Under **Done**, the sent screen has a **Use Stellarium Desktop by default** button. Click it: the screen stays, and a line says "Stellarium Desktop is now your default for charts. Every chart screen has a link to change it back." with an **Undo** link.
+- [ ] Open the popup on test 1. **Send to Stellarium Desktop** is first, in blue; **Open sky** follows in the secondary style; and under them a line says "Stellarium Desktop is your default for charts." with a **Make Stellarium Web the default** link. Close the browser and open it again: the popup on test 1 still leads with **Send to Stellarium Desktop**.
+- [ ] On test 4 (a skipped time), both buttons are faded until a reading is picked, whichever is first.
+- [ ] Click **Make Stellarium Web the default**. Without closing, the popup shows **Open sky** first in blue again, **Send to Stellarium Desktop** below it, and "Stellarium Web is the default again." with **Undo**. **Undo** brings back the order of the step before. Make Stellarium Web the default again, close the popup and reopen it on test 1: there is no default line.
+- [ ] On a Stellarium Web tab (test 12), with Stellarium Desktop the default, **Open chart in Astro-Seek** stays first and the default line is under the buttons.
+- [ ] On an iPad or another touch screen, the **Make Stellarium Web the default** link sits on its own line and is easy to tap.
+- [ ] Put Stellarium's place and time back as noted in step 1, and start its clock. Make Stellarium Web the default if it isn't.
 
 ## Test 18: Safari on iPad
 

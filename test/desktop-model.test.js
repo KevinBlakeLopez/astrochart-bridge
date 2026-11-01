@@ -58,7 +58,69 @@ test("sent: says what Stellarium was given, that its clock is paused, and about 
     ],
     sky: NY,
     buttons: [{ label: "Done", does: "close" }],
+    defaultChoice: { text: null, label: "Use Stellarium Desktop by default", does: "prefer-desktop" },
   });
+});
+
+// Choosing the default happens where it has just worked; the confirmation
+// says where to change it back.
+test("sent: choosing Stellarium Desktop as the default, then changing it back", () => {
+  assert.deepEqual(viewForDesktopSend({ state: "sent" }, NY, { preferred: true, changed: true }).defaultChoice, {
+    text: "Stellarium Desktop is now your default for charts. Every chart screen has a link to change it back.",
+    label: "Undo",
+    does: "prefer-web",
+  });
+  assert.deepEqual(viewForDesktopSend({ state: "sent" }, NY, { preferred: true }).defaultChoice, {
+    text: "Stellarium Desktop is your default for charts.",
+    label: "Make Stellarium Web the default",
+    does: "prefer-web",
+  });
+  assert.deepEqual(viewForDesktopSend({ state: "sent" }, NY, { preferred: false, changed: true }).defaultChoice, {
+    text: "Stellarium Web is the default again.",
+    label: "Undo",
+    does: "prefer-desktop",
+  });
+});
+
+test("with Stellarium Desktop the default, a ready screen leads with it and Open sky follows", () => {
+  const view = viewFor(analyze("ny-2024-04-17"), { timeZone: "America/Los_Angeles" });
+  const preferred = withDesktopSend(view, { preferred: true });
+  assert.deepEqual(preferred.desktop, { ...SEND, primary: true });
+  assert.deepEqual(preferred.buttons, [{ label: "Open sky", opens: "stellarium", secondary: true }]);
+  assert.deepEqual(preferred.defaultChoice, {
+    text: "Stellarium Desktop is your default for charts.",
+    label: "Make Stellarium Web the default",
+    does: "prefer-web",
+  });
+});
+
+test("an astro.com chart keeps Open chart in Astro-Seek as it was, and only Open sky steps back", () => {
+  const view = { state: "ready", sky: NY, notes: [], buttons: [{ label: "Open sky", opens: "stellarium" }, { label: "Open chart in Astro-Seek", opens: "astro-seek" }] };
+  assert.deepEqual(withDesktopSend(view, { preferred: true }).buttons, [
+    { label: "Open sky", opens: "stellarium", secondary: true },
+    { label: "Open chart in Astro-Seek", opens: "astro-seek" },
+  ]);
+});
+
+// Its main action is the Astro-Seek chart, so nothing moves; the line to
+// change the default is there anyway, wherever the desktop button is.
+test("a Stellarium Web tab keeps its buttons but shows the default line", () => {
+  const view = withDesktopSend(viewForSky(NY), { preferred: true });
+  assert.deepEqual(view.desktop, SEND);
+  assert.equal(view.defaultChoice.does, "prefer-web");
+});
+
+test("just after switching back to Stellarium Web, the chart screen offers Undo", () => {
+  const view = viewFor(analyze("ny-2024-04-17"), { timeZone: "America/Los_Angeles" });
+  const switched = withDesktopSend(view, { preferred: false, changed: true });
+  assert.deepEqual(switched.desktop, SEND);
+  assert.equal(switched.buttons, view.buttons);
+  assert.deepEqual(switched.defaultChoice, { text: "Stellarium Web is the default again.", label: "Undo", does: "prefer-desktop" });
+});
+
+test("with Stellarium Web the default, a chart screen has no default line", () => {
+  const view = viewFor(analyze("ny-2024-04-17"), { timeZone: "America/Los_Angeles" });
+  assert.equal(withDesktopSend(view).defaultChoice, undefined);
 });
 
 test("unreachable: the requested message, every setup step, and Try again", () => {
