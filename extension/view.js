@@ -14,11 +14,13 @@ const OPEN_SKY = [{ label: "Open sky", opens: "stellarium" }];
 /**
  * @param {HTMLElement} container  its children are replaced
  * @param {ReturnType<typeof import("./popup-model.js").viewFor>} view
- * @param {(url: string) => void | Promise<void>} openLink  called with the link the button opens
+ * @param {(button: { url?: string, holds?: boolean, here?: boolean, does?: string }, sky: object | null) => void | Promise<void>} onButton
+ *   called with the clicked button, its link worked out, and the sky the screen has decided
  * @param {object | null} [back]  the view a Cancel button goes back to, for a view reached through next
  */
-export function render(container, view, openLink, back = null) {
+export function render(container, view, onButton, back = null) {
   const parts = [];
+  if (view.heading) parts.push(heading(view.heading));
   if (view.rows) parts.push(rowList(view.rows));
   for (const warning of view.warnings ?? []) parts.push(paragraph(warning, "warning"));
   if (view.message) parts.push(paragraph(view.message));
@@ -28,11 +30,15 @@ export function render(container, view, openLink, back = null) {
     // The sky the buttons open: set from the start on a ready screen, and only
     // once a reading is picked or a valid offset is typed on the others. A view
     // with its own url (the Astro-Seek chart from a Stellarium tab) opens that.
+    // A button with does names an action instead of a link, for onButton to take.
     let sky = view.sky ?? null;
     const buttons = view.url
-      ? [linkButton(view.button, () => openLink(view.url))]
-      : (view.buttons ?? OPEN_SKY).map(({ label, opens, url }) =>
-          linkButton(label, () => openLink(url ?? LINKS[opens](sky))));
+      ? [linkButton(view.button, () => onButton({ url: view.url }, sky))]
+      : (view.buttons ?? OPEN_SKY).map(({ label, opens, secondary, ...button }) => {
+          const element = linkButton(label, () => onButton({ ...button, url: button.url ?? LINKS[opens]?.(sky) }, sky));
+          if (secondary) element.className = "secondary";
+          return element;
+        });
     const setSky = (next) => {
       sky = next;
       for (const button of buttons) button.disabled = !view.url && sky === null;
@@ -45,11 +51,11 @@ export function render(container, view, openLink, back = null) {
     parts.push(...buttons);
 
     // A further screen, such as the values to enter in astro.com, is drawn in
-    // place of this one, and Cancel draws this one again. Nothing is stored.
+    // place of this one, and Cancel draws this one again. Going there and back stores nothing.
     if (view.next) {
-      parts.push(secondaryButton(view.next.label, () => render(container, view.next.view, openLink, view)));
+      parts.push(secondaryButton(view.next.label, () => render(container, view.next.view, onButton, view)));
     }
-    if (back) parts.push(secondaryButton("Cancel", () => render(container, back, openLink)));
+    if (back) parts.push(secondaryButton("Cancel", () => render(container, back, onButton)));
   }
 
   container.replaceChildren(...parts);
@@ -59,6 +65,12 @@ function secondaryButton(label, onClick) {
   const button = linkButton(label, onClick);
   button.className = "secondary";
   return button;
+}
+
+function heading(text) {
+  const element = document.createElement("h1");
+  element.textContent = text;
+  return element;
 }
 
 export function paragraph(text, className) {
