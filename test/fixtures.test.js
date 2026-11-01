@@ -16,6 +16,21 @@ for (const file of readdirSync(dir).filter((name) => name.endsWith(".json")).sor
   });
 }
 
+// Fixtures keep only the page's header block, the lines Chart Bridge reads;
+// tools/trim-fixture.mjs trims a new capture and records what the whole page
+// showed in capture. On every natal page, each label readChart looks for
+// appeared exactly once.
+for (const file of readdirSync(dir).filter((name) => name.endsWith(".json")).sort()) {
+  const { expected, capture } = fixture(file);
+  test(`fixture ${file} is trimmed`, () => {
+    assert.ok(capture, "run tools/trim-fixture.mjs on it before committing");
+  });
+  if (expected?.kind !== "natal" || !capture) continue;
+  test(`fixture ${file}: each label appeared once on the whole page`, () => {
+    for (const [label, count] of Object.entries(capture.labelCounts)) assert.equal(count, 1, label);
+  });
+}
+
 test("a readChart refusal comes back unchanged", () => {
   const { url } = fixture("ny-2024-04-17.json");
   assert.deepEqual(analyzePage({ url, text: "" }), { kind: "refused", reason: "unreadable-page" });
