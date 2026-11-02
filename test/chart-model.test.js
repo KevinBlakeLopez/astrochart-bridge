@@ -1,5 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { fromFragment, parse, toFragment, toPortable } from "../extension/core/portable.js";
 import {
   MAX_FILE_BYTES,
@@ -9,7 +10,9 @@ import {
   qrViewFor,
   readChartFile,
   readLink,
+  keepFileForImport,
   shareDataFor,
+  takeFileForImport,
   viewForImport,
 } from "../extension/chart-model.js";
 import { ASTRO_SEEK_NOTES } from "../extension/popup-model.js";
@@ -394,3 +397,84 @@ test("the link is shared under a title with no birth data in it", () => {
     url: `https://example.org/chart.html#${toFragment(chart)}`,
   });
 });
+
+// --- Files for the import page ---
+
+const morinus = () => new Uint8Array(readFileSync(new URL("../fixtures/morinus/ny-est-plus-dst.p2.hor", import.meta.url)));
+const aafText = readFileSync(new URL("../fixtures/aaf/astrolog-8.00-new-york.aaf", import.meta.url));
+
+test("a Morinus or AAF file is told apart from a chart file, by its name or its start", () => {
+  assert.deepEqual(readChartFile(morinus(), "Test.hor"), { kind: "refused", reason: "morinus-file" });
+  // Protocol 2 and later start with PROTO, which no JSON does.
+  assert.deepEqual(readChartFile(morinus(), "download"), { kind: "refused", reason: "morinus-file" });
+  assert.deepEqual(readChartFile(new Uint8Array(aafText), "chart.AAF"), { kind: "refused", reason: "aaf-file" });
+  assert.deepEqual(readChartFile(new Uint8Array(aafText), "chart.txt"), { kind: "refused", reason: "aaf-file" });
+  // Even past the chart file limit, since a Morinus file's notes can be long.
+  assert.deepEqual(readChartFile(new Uint8Array(MAX_FILE_BYTES + 1), "long.hor"), { kind: "refused", reason: "morinus-file" });
+  const { chart } = received(NY, NY_SOURCE);
+  assert.deepEqual(readChartFile(encode(fileFor(chart).text), "chart-2024-04-17.astrochart.json"), { kind: "portable", chart });
+});
+
+test("in the extension, a Morinus or AAF file is offered to the import page", () => {
+  assert.deepEqual(viewForImport({ kind: "refused", reason: "morinus-file" }, { from: "file", canImport: true }), {
+    state: "refused",
+    message: "This is a Morinus chart file (.hor), not an AstroChart Bridge chart. It opens on the page for AAF and Morinus files.",
+    code: "morinus-file",
+    importButton: "Open it there",
+  });
+  assert.deepEqual(viewForImport({ kind: "refused", reason: "aaf-file" }, { from: "file", canImport: true }), {
+    state: "refused",
+    message: "This is an AAF file, not an AstroChart Bridge chart. It opens on the page for AAF and Morinus files.",
+    code: "aaf-file",
+    importButton: "Open it there",
+  });
+});
+
+test("on the web, a Morinus or AAF file is sent to the extension, which has the import page", () => {
+  assert.deepEqual(viewForImport({ kind: "refused", reason: "morinus-file" }, { from: "file" }), {
+    state: "refused",
+    message:
+      "This is a Morinus chart file (.hor), not an AstroChart Bridge chart. The AstroChart Bridge extension opens it: click Open an AAF or Morinus file in its popup.",
+    code: "morinus-file",
+  });
+});
+
+// A stand-in for sessionStorage.
+function memoryStorage() {
+  const items = new Map();
+  return {
+    getItem: (key) => items.get(key) ?? null,
+    setItem: (key, value) => items.set(key, String(value)),
+    removeItem: (key) => items.delete(key),
+    get size() {
+      return items.size;
+    },
+  };
+}
+
+test("a file kept for the import page is taken back once, as it was", () => {
+  const storage = memoryStorage();
+  const bytes = morinus();
+  assert.equal(keepFileForImport(storage, "Test.hor", bytes), true);
+  assert.deepEqual(takeFileForImport(storage), { name: "Test.hor", bytes });
+  assert.equal(takeFileForImport(storage), null);
+  assert.equal(storage.size, 0);
+});
+
+test("nothing kept, or something else under the key, gives nothing", () => {
+  const storage = memoryStorage();
+  assert.equal(takeFileForImport(storage), null);
+  storage.setItem("astrochart-bridge:file-for-import", "not json");
+  assert.equal(takeFileForImport(storage), null);
+  assert.equal(storage.size, 0);
+  storage.setItem("astrochart-bridge:file-for-import", JSON.stringify({ name: 3, base64: "%%" }));
+  assert.equal(takeFileForImport(storage), null);
+});
+
+test("a file too big to keep, or storage that refuses, is reported, not thrown", () => {
+  assert.equal(keepFileForImport(memoryStorage(), "big.hor", new Uint8Array(300_000)), false);
+  const refusing = { setItem() { throw new Error("QuotaExceededError"); }, getItem() { throw new Error("SecurityError"); }, removeItem() {} };
+  assert.equal(keepFileForImport(refusing, "Test.hor", morinus()), false);
+  assert.equal(takeFileForImport(refusing), null);
+});
+

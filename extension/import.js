@@ -6,6 +6,7 @@
 // inserted with textContent.
 import { decodeAafFile, viewForAafText } from "./aaf-model.js";
 import { openLink as openPageLink } from "./astro-com-page.js";
+import { takeFileForImport } from "./chart-model.js";
 import { isHorFile } from "./core/morinus-hor.js";
 import { viewForHorFile } from "./hor-model.js";
 import { paragraph, render } from "./view.js";
@@ -25,8 +26,11 @@ document.addEventListener("drop", (event) => {
 
 async function readFile(file) {
   if (!file) return;
-  const bytes = new Uint8Array(await file.arrayBuffer());
-  if (isHorFile(file.name, bytes)) {
+  readBytes(file.name, new Uint8Array(await file.arrayBuffer()));
+}
+
+function readBytes(name, bytes) {
+  if (isHorFile(name, bytes)) {
     show(viewForHorFile(bytes));
     return;
   }
@@ -62,3 +66,14 @@ function show(view, warning) {
 
 // Links, and the astro.com buttons, as on the screenshot and paste pages.
 const openLink = (button) => openPageLink(app, button);
+
+// A file the receiving page sent here, when it was given one it doesn't
+// read. Last, once openLink is defined. sessionStorage itself can throw when
+// the browser blocks storage.
+let handed = null;
+try {
+  handed = takeFileForImport(sessionStorage);
+} catch {
+  handed = null;
+}
+if (handed) readBytes(handed.name, handed.bytes);

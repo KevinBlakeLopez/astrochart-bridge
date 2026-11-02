@@ -4,8 +4,9 @@
 // nothing is stored or sent until a button is clicked. Every decision is made
 // in chart-model.js and drawn by view.js.
 import {
-  MAX_FILE_BYTES,
+  MAX_IMPORT_BYTES,
   fileFor,
+  keepFileForImport,
   linkBase,
   linkFor,
   qrViewFor,
@@ -27,6 +28,9 @@ const fileInput = document.getElementById("file");
 // Where a copied link points: this page on the web, the receiving page when
 // this is the extension's copy, or nowhere, which hides Copy link.
 const base = linkBase(location.href, RECEIVER_URL);
+
+// The extension's copy has the import page, for Morinus and AAF files, next to it.
+const canImport = location.protocol.endsWith("-extension:");
 
 // Whether the browser's share sheet takes a link. Firefox on the desktop has
 // no share sheet, and neither has every embedded browser.
@@ -75,14 +79,18 @@ function showLink() {
 async function openFile(file) {
   if (!file) return;
   const id = ++latest;
-  const result =
-    file.size > MAX_FILE_BYTES ? { kind: "refused", reason: "too-large" } : readChartFile(new Uint8Array(await file.arrayBuffer()));
+  // Read up to the import page's limit, to tell a Morinus or AAF file;
+  // readChartFile refuses a chart file past its own.
+  const bytes = file.size > MAX_IMPORT_BYTES ? null : new Uint8Array(await file.arrayBuffer());
+  const result = bytes === null ? { kind: "refused", reason: "too-large" } : readChartFile(bytes, file.name);
   if (id !== latest) return;
-  show(result, "file");
+  show(result, "file", bytes && { name: file.name, bytes });
   if (result.kind === "portable") status.textContent = `Opened ${file.name}.`;
 }
 
-function show(result, from) {
+// file is the one result was read from, which a Morinus or AAF file's
+// button sends on to the import page.
+function show(result, from, file = null) {
   chart = result?.kind === "portable" ? result.chart : null;
   shareableFile = chart === null ? null : fileForSharing(chart);
   status.textContent = "";
@@ -91,8 +99,28 @@ function show(result, from) {
   hideQr();
   // The main action while there is no chart; one among several once there is.
   openFileButton.className = chart === null ? "" : "secondary";
-  const options = { canCopy: base !== null, canShare, canShareFiles: shareableFile !== null, from };
-  render(app, viewForImport(result, options), onButton);
+  const options = { canCopy: base !== null, canShare, canShareFiles: shareableFile !== null, canImport, from };
+  const view = viewForImport(result, options);
+  render(app, view, onButton);
+  if (view.importButton && file) app.append(importButton(view.importButton, file));
+}
+
+// Goes to the import page in this tab, with the file kept for it there.
+function importButton(label, { name, bytes }) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.textContent = label;
+  button.addEventListener("click", () => {
+    let kept = false;
+    try {
+      kept = keepFileForImport(sessionStorage, name, bytes);
+    } catch {
+      kept = false;
+    }
+    if (kept) location.assign("import.html");
+    else status.textContent = "AstroChart Bridge couldn't pass the file on. Click Open an AAF or Morinus file in the popup and choose it there.";
+  });
+  return button;
 }
 
 // The chart's file, when this browser's share sheet says it takes it. Asked

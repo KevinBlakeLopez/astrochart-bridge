@@ -78,6 +78,19 @@ const EMPTY = {
 // A chart file is under 1 KB; parse's own limit is 16,384 characters.
 export const MAX_FILE_BYTES = 16_384;
 
+// Files the extension's import page opens, said as they are, and where to go:
+// the import page in the extension, the extension itself on the web.
+const OTHER_FILES = {
+  "morinus-file": "This is a Morinus chart file (.hor), not an AstroChart Bridge chart.",
+  "aaf-file": "This is an AAF file, not an AstroChart Bridge chart.",
+};
+const IN_EXTENSION = "It opens on the page for AAF and Morinus files.";
+const ON_THE_WEB = "The AstroChart Bridge extension opens it: click Open an AAF or Morinus file in its popup.";
+
+// The largest file read to tell what it is, and kept for the import page: its
+// own limit for a Morinus file, whose notes can be long.
+export const MAX_IMPORT_BYTES = 256 * 1024;
+
 /**
  * The chart in a page's fragment, or null when there is no fragment at all.
  *
@@ -91,11 +104,19 @@ export function readLink(hash) {
 /**
  * The chart in a .astrochart.json file's bytes. Only UTF-8 is read, and bytes
  * that aren't are refused rather than replaced; a byte-order mark is dropped.
+ * A Morinus or AAF file is refused as what it is, so the page can point to
+ * the one that opens it: told by its name, or by how it starts. A .hor from
+ * Python 3 starts with pickle's PROTO byte; an AAF file has a line that
+ * starts #A93:.
  *
  * @param {Uint8Array} bytes
- * @returns {ReturnType<typeof parse>}
+ * @param {string} [name]  the file's name
+ * @returns {ReturnType<typeof parse> | { kind: "refused", reason: "morinus-file" | "aaf-file" }}
  */
-export function readChartFile(bytes) {
+export function readChartFile(bytes, name = "") {
+  if (/\.hor$/i.test(name) || bytes[0] === 0x80) return { kind: "refused", reason: "morinus-file" };
+  const start = String.fromCharCode(...bytes.subarray(0, 4096));
+  if (/\.aaf$/i.test(name) || /(?:^|[\r\n])#A93:/i.test(start)) return { kind: "refused", reason: "aaf-file" };
   if (bytes.length > MAX_FILE_BYTES) return { kind: "refused", reason: "too-large" };
   let text;
   try {
@@ -110,13 +131,23 @@ export function readChartFile(bytes) {
  * What the receiving page shows for readLink's or readChartFile's result.
  *
  * @param {ReturnType<typeof readLink>} result
- * @param {{ timeZone?: string, canCopy?: boolean, canShare?: boolean, canShareFiles?: boolean, from?: "link" | "file" }} [options]
+ * @param {{ timeZone?: string, canCopy?: boolean, canShare?: boolean, canShareFiles?: boolean, canImport?: boolean,
+ *   from?: "link" | "file" }} [options]
  *   timeZone is passed on to viewFor; canCopy is false when linkBase has
  *   nowhere to point; canShare and canShareFiles say whether the browser's
- *   share sheet takes a link and this chart's file; from words a refusal
+ *   share sheet takes a link and this chart's file; canImport, that this is
+ *   the extension's copy, with an import page; from words a refusal
  */
-export function viewForImport(result, { canCopy = true, canShare = false, canShareFiles = false, from = "link", ...options } = {}) {
+export function viewForImport(
+  result,
+  { canCopy = true, canShare = false, canShareFiles = false, canImport = false, from = "link", ...options } = {},
+) {
   if (result === null) return { ...EMPTY, notes: [], buttons: [] };
+  // importButton is drawn by the page: a view's own buttons wait for a sky.
+  if (result.kind === "refused" && Object.hasOwn(OTHER_FILES, result.reason)) {
+    const message = `${OTHER_FILES[result.reason]} ${canImport ? IN_EXTENSION : ON_THE_WEB}`;
+    return { state: "refused", message, code: result.reason, ...(canImport ? { importButton: "Open it there" } : {}) };
+  }
   if (result.kind === "refused") {
     return { state: "refused", message: REFUSALS[from][result.reason] ?? DAMAGED[from], code: result.reason };
   }
@@ -234,4 +265,55 @@ export function qrViewFor(base, chart) {
  */
 export function shareDataFor(base, chart) {
   return { title: "AstroChart Bridge chart", url: linkFor(base, chart) };
+}
+
+// The file kept between the receiving page and the import page, in the tab's
+// own sessionStorage, which goes with the tab when the page changes and goes
+// away when it closes. The import page takes it out as soon as it reads it.
+const IMPORT_KEY = "astrochart-bridge:file-for-import";
+
+/**
+ * Keeps a chosen or dropped file for the import page this tab goes to next.
+ * false when it is too big or the storage refuses it, as in a private window.
+ *
+ * @param {Pick<Storage, "setItem">} storage  sessionStorage
+ * @param {string} name
+ * @param {Uint8Array} bytes
+ * @returns {boolean}
+ */
+export function keepFileForImport(storage, name, bytes) {
+  if (bytes.length > MAX_IMPORT_BYTES) return false;
+  let binary = "";
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  try {
+    storage.setItem(IMPORT_KEY, JSON.stringify({ name, base64: btoa(binary) }));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * The file keepFileForImport kept, taken out of storage so it is read once,
+ * or null when there is none, or what is there isn't one.
+ *
+ * @param {Pick<Storage, "getItem" | "removeItem">} storage  sessionStorage
+ * @returns {{ name: string, bytes: Uint8Array } | null}
+ */
+export function takeFileForImport(storage) {
+  let text;
+  try {
+    text = storage.getItem(IMPORT_KEY);
+    storage.removeItem(IMPORT_KEY);
+  } catch {
+    return null;
+  }
+  if (text === null) return null;
+  try {
+    const { name, base64 } = JSON.parse(text);
+    if (typeof name !== "string" || typeof base64 !== "string") return null;
+    return { name, bytes: Uint8Array.from(atob(base64), (char) => char.charCodeAt(0)) };
+  } catch {
+    return null;
+  }
 }
