@@ -191,29 +191,44 @@ const OPEN_SKY_BUTTON = { label: "Open Stellarium Web", opens: "stellarium" };
 
 export const ASTRO_SEEK_SAVE_LABEL = "Save in Astro-Seek…";
 
-// Shown wherever Save in Astro-Seek… is offered.
-export const ASTRO_SEEK_SAVE_NOTE =
-  "Save in Astro-Seek… opens the Add person form of your Astro-Seek account with this date, time and place in UT/GMT, and the chart's name and town when it has them, and chooses the town in Astro-Seek's list. It asks for access to www.astro-seek.com first. Gender and Add person are left to you.";
+// Shown wherever Save in Astro-Seek… is offered, in place of Open chart in
+// Astro-Seek's note on what it sends. One note for both keeps the popup's
+// astro.com screen under the 600px a popup is shown at: its chart, like
+// every popup screen's, has no name or town, so the note takes one line, as
+// Open chart in Astro-Seek's did. The browser's own prompt says that saving
+// asks for access, and the box under Birth city that Gender and Add person
+// are the person's.
+export const ASTRO_SEEK_SAVE_NOTE = "Opening or saving sends this date, time and place to astro-seek.com.";
+export const ASTRO_SEEK_SAVE_NAMED_NOTE =
+  "Opening or saving sends this date, time and place to astro-seek.com; saving also sends the chart's name and town, if it has them.";
+const ASTRO_SEEK_OPEN_NOTE = ASTRO_SEEK_NOTES[1];
 
 /**
  * A screen with Open chart in Astro-Seek, with Save in Astro-Seek… right
- * after it and its note. The button saves the chart in the signed-in
- * account's private astro database (astro-seek-open.js), so only the popup
- * and the extension's own pages offer it, not the shared chart page, which is
- * also a website. Like Open chart in Astro-Seek, it waits for the screen to
- * decide the sky. A screen built on one that has them, such as a screenshot
- * of an astro.com chart on the popup's astro.com screen, isn't given them twice.
+ * after it, and its note in place of Open chart in Astro-Seek's, or last.
+ * The button saves the chart in the signed-in account's private astro
+ * database (astro-seek-open.js), so only the popup and the extension's own
+ * pages offer it, not the shared chart page, which is also a website. Like
+ * Open chart in Astro-Seek, it waits for the screen to decide the sky. A
+ * screen built on one that has them, such as a screenshot of an astro.com
+ * chart on the popup's astro.com screen, isn't given them twice.
  *
  * @param {object} view  with a button that opens "astro-seek"
  * @param {{ town?: string | null, name?: { first: string, last: string } | null }} [chart]
  *   the chart's town and name, for the form's Birth city and Name
  */
 export function withAstroSeekSave(view, { town = null, name = null } = {}) {
-  const button = { label: ASTRO_SEEK_SAVE_LABEL, saves: { town, name: nickFor(name) }, secondary: true };
+  const saves = { town, name: nickFor(name) };
+  const button = { label: ASTRO_SEEK_SAVE_LABEL, saves, secondary: true };
   const at = view.buttons.findIndex(({ opens }) => opens === "astro-seek") + 1;
+  const note = saves.town === null && saves.name === null ? ASTRO_SEEK_SAVE_NOTE : ASTRO_SEEK_SAVE_NAMED_NOTE;
+  const notes = view.notes.includes(ASTRO_SEEK_OPEN_NOTE)
+    ? view.notes.map((each) => (each === ASTRO_SEEK_OPEN_NOTE ? note : each))
+    : [...view.notes, note];
+  const noted = view.notes.includes(ASTRO_SEEK_SAVE_NOTE) || view.notes.includes(ASTRO_SEEK_SAVE_NAMED_NOTE);
   return {
     ...view,
-    notes: view.notes.includes(ASTRO_SEEK_SAVE_NOTE) ? view.notes : [...view.notes, ASTRO_SEEK_SAVE_NOTE],
+    notes: noted ? view.notes : notes,
     buttons: view.buttons.some(({ saves }) => saves) ? view.buttons : [...view.buttons.slice(0, at), button, ...view.buttons.slice(at)],
   };
 }

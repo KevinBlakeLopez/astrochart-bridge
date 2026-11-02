@@ -22,7 +22,7 @@ test("a ready screenshot shows the popup's screen, with the compare note first a
   const { notes, buttons, ...rest } = viewForScreenshot(NY, LA);
   assert.deepEqual({ ...rest, notes: popup.notes, buttons: popup.buttons }, popup);
   assert.match(notes[0], /nothing checks the latitude/);
-  assert.deepEqual(notes.slice(1), [...popup.notes, ...ASTRO_SEEK_NOTES, ASTRO_SEEK_SAVE_NOTE]);
+  assert.deepEqual(notes.slice(1), [...popup.notes, ASTRO_SEEK_NOTES[0], ASTRO_SEEK_SAVE_NOTE]);
 });
 
 test("a screenshot opens the sky or the Astro-Seek chart, or shares it", () => {
@@ -76,7 +76,7 @@ test("an astro.com chart image's screen lists Astro-Seek's notes once", () => {
   const popup = viewFor(lilly, LA);
   const view = viewForScreenshot(lilly, LA);
   assert.deepEqual(view.notes.slice(1), popup.notes);
-  assert.deepEqual(view.notes.slice(-ASTRO_SEEK_NOTES.length - 1), [...ASTRO_SEEK_NOTES, ASTRO_SEEK_SAVE_NOTE]);
+  assert.deepEqual(view.notes.slice(-2), [ASTRO_SEEK_NOTES[0], ASTRO_SEEK_SAVE_NOTE]);
   assert.deepEqual(view.buttons, popup.buttons);
 });
 
@@ -99,7 +99,7 @@ test("a Solar Fire chart with nothing to check its offset says so, after the pop
     "Nothing in this Solar Fire screenshot checks its UTC offset. Compare the Offset row with the screenshot.",
   ]);
   assert.deepEqual(view.buttons, [...ASTRO_SEEK_BUTTONS, { label: "Save in Astro-Seek…", saves: { town: null, name: null }, secondary: true }, SHARE_BUTTON]);
-  assert.deepEqual(view.notes.slice(-ASTRO_SEEK_NOTES.length - 1), [...ASTRO_SEEK_NOTES, ASTRO_SEEK_SAVE_NOTE]);
+  assert.deepEqual(view.notes.slice(-2), [ASTRO_SEEK_NOTES[0], ASTRO_SEEK_SAVE_NOTE]);
   const either = viewForScreenshot({ ...streisand, site: "solar-fire-or-astro-gold" }, LA);
   assert.match(either.warnings[0], /^Nothing in this Solar Fire or Astro Gold screenshot/);
 });

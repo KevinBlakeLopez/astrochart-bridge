@@ -4,7 +4,9 @@ import { astroSeekSaveUrl } from "../extension/core/astroseek.js";
 import { fromFragment, toFragment, toPortable } from "../extension/core/portable.js";
 import { viewForImport } from "../extension/chart-model.js";
 import {
+  ASTRO_SEEK_NOTES,
   ASTRO_SEEK_SAVE_BUSY,
+  ASTRO_SEEK_SAVE_NAMED_NOTE,
   ASTRO_SEEK_SAVE_NOTE,
   actionGroups,
   viewForAstroSeekSave,
@@ -29,7 +31,14 @@ test("Save in Astro-Seek… comes right after Open chart in Astro-Seek, with its
   );
   assert.deepEqual(view.buttons[2], { label: "Save in Astro-Seek…", saves: { town: null, name: null }, secondary: true });
   assert.deepEqual(view.notes, ["a note", ASTRO_SEEK_SAVE_NOTE]);
-  assert.match(ASTRO_SEEK_SAVE_NOTE, /asks for access to www\.astro-seek\.com first/);
+  assert.equal(ASTRO_SEEK_SAVE_NOTE, "Opening or saving sends this date, time and place to astro-seek.com.");
+});
+
+test("its note takes the place of Open chart in Astro-Seek's, keeping a popup screen short", () => {
+  const view = withAstroSeekSave({ ...SCREEN, notes: ["a note", ...ASTRO_SEEK_NOTES, "a last note"] });
+  assert.deepEqual(view.notes, ["a note", ASTRO_SEEK_NOTES[0], ASTRO_SEEK_SAVE_NOTE, "a last note"]);
+  // Open chart in Astro-Seek's note took one line of the popup, and so does this one.
+  assert.ok(ASTRO_SEEK_SAVE_NOTE.length <= ASTRO_SEEK_NOTES[1].length);
 });
 
 test("the chart's town goes in as it is, and its name in one piece, as Astro-Seek's single Name field takes it", () => {
@@ -38,6 +47,14 @@ test("the chart's town goes in as it is, and its name in one piece, as Astro-See
   assert.deepEqual(saves({ first: " Example ", last: "" }), { town: "New York", name: "Example" });
   assert.deepEqual(saves({ first: "", last: "" }), { town: "New York", name: null });
   assert.deepEqual(saves(null), { town: "New York", name: null });
+});
+
+test("a chart with a name or a town has the note say saving sends them too", () => {
+  const note = (chart) => withAstroSeekSave(SCREEN, chart).notes.at(-1);
+  assert.equal(note({ town: "New York" }), ASTRO_SEEK_SAVE_NAMED_NOTE);
+  assert.equal(note({ name: { first: "Example", last: "" } }), ASTRO_SEEK_SAVE_NAMED_NOTE);
+  assert.equal(note({ name: { first: " ", last: "" } }), ASTRO_SEEK_SAVE_NOTE);
+  assert.match(ASTRO_SEEK_SAVE_NAMED_NOTE, /^Opening or saving sends this date, time and place to astro-seek\.com; saving also sends the chart's name and town/);
 });
 
 test("a screen that already has the button and its note isn't given them twice", () => {

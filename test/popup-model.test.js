@@ -67,7 +67,7 @@ test("ready: an astro.com chart shows its stated offset and no zone label, and c
     notes: [
       `Stellarium Web's clock will show 05:00 on 17 Apr, your computer's time. That's 08:00 on 17 Apr at the birthplace. ${RUNNING}`,
       PRIVACY_NOTE,
-      ...ASTRO_SEEK_NOTES,
+      ASTRO_SEEK_NOTES[0],
       ASTRO_SEEK_SAVE_NOTE,
     ],
     sky: { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 },
