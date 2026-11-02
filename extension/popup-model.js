@@ -1,3 +1,4 @@
+import { formTime, localOffset, zoneWords } from "./core/astrocom.js";
 import { astroSeekUrl } from "./core/astroseek.js";
 import { parseOffset, utcFromOffset } from "./core/civiltime.js";
 import { toPortable } from "./core/portable.js";
@@ -130,7 +131,7 @@ export function viewFor(result, { timeZone, town = null } = {}) {
   if (result.site === "astro-com") {
     return { ...ready, notes: [...ready.notes, ...ASTRO_SEEK_NOTES], buttons: chartButtons(ASTRO_SEEK_BUTTONS) };
   }
-  return result.site === "astro-seek" ? { ...ready, next: astroComStep(ready.sky, { town }) } : ready;
+  return result.site === "astro-seek" ? { ...ready, next: astroComStep(ready.sky, { town, local }) } : ready;
 }
 
 /**
@@ -290,14 +291,14 @@ export const ASTRO_COM_BUSY = { state: "astro-com-busy", message: "Opening astro
  * The two-click way, when the user declined access to www.astro.com: the
  * values, and a button that only keeps them for the tab it opens.
  *
- * @param {{ utc: string, lat: number, lng: number, town: string | null }} values
+ * @param {{ utc: string, lat: number, lng: number, local: string | null, town: string | null }} values
  */
 export function viewForAstroComManual(values) {
   return {
     state: "astro-com-manual",
     ...astroComValues(values),
     message: "AstroChart Bridge can't fill in the form without access to www.astro.com.",
-    notes: [`After the astro.com tab opens, ${TOOLBAR_STEP}`],
+    notes: [...zoneNotes(values), `After the astro.com tab opens, ${TOOLBAR_STEP}`],
     sky: { utc: values.utc, lat: values.lat, lng: values.lng },
     buttons: [{ label: "Open astro.com's form", url: FORM_URL, holds: { ...values } }],
   };
@@ -308,7 +309,7 @@ export function viewForAstroComManual(values) {
  * up on another page. On the screenshot page, also a form that needs a choice
  * first, which the popup on its tab offers. Its values are kept for its tab.
  *
- * @param {{ utc: string, lat: number, lng: number, town: string | null }} values
+ * @param {{ utc: string, lat: number, lng: number, local: string | null, town: string | null }} values
  * @param {"not-filled" | "choose"} [outcome]  openAndFill's
  */
 export function viewForAstroComNotFilled(values, outcome = "not-filled") {
@@ -319,7 +320,7 @@ export function viewForAstroComNotFilled(values, outcome = "not-filled") {
       outcome === "choose"
         ? "astro.com's form is open, but something needs your choice first, such as signing in."
         : "astro.com's form didn't finish opening, so AstroChart Bridge couldn't fill it in yet.",
-    notes: [`Switch to the astro.com tab, then ${TOOLBAR_STEP}`],
+    notes: [...zoneNotes(values), `Switch to the astro.com tab, then ${TOOLBAR_STEP}`],
     sky: { utc: values.utc, lat: values.lat, lng: values.lng },
     buttons: [{ label: "Go to the astro.com tab", does: "show-tab" }],
   };
@@ -383,12 +384,13 @@ export const astroComStep = (sky, chart = {}) => ({ label: "Enter in astro.comâ€
  * place, in the form's own terms, and links to the form and to signing in.
  *
  * @param {{ utc: string, lat: number, lng: number }} sky
- * @param {{ town?: string | null, name?: { first: string, last: string } | null }} [chart]  the town and
- *   name the chart gives, filled in with the rest
+ * @param {{ local?: string | null, town?: string | null, name?: { first: string, last: string } | null }} [chart]
+ *   the local time, town and name the chart gives, filled in with the rest. A
+ *   sky with no local time, such as Stellarium's, goes in as Universal Time.
  */
-export function viewForAstroCom({ utc, lat, lng }, { town = null, name = null } = {}) {
+export function viewForAstroCom({ utc, lat, lng }, { local = null, town = null, name = null } = {}) {
   const sky = { utc, lat, lng };
-  const held = { ...sky, town, name };
+  const held = { ...sky, local, town, name };
   return {
     state: "to-astro-com",
     // The name is in its boxes, not the rows, so it shows once.
@@ -399,7 +401,9 @@ export function viewForAstroCom({ utc, lat, lng }, { town = null, name = null } 
       { part: "last", label: "Last name", text: name?.last ?? "" },
     ],
     notes: [
-      "The date and time are Universal Time, so they can differ from the local birth date and time.",
+      // A local time that is Universal Time needs no note.
+      ...(local === null ? ["The date and time are Universal Time, so they can differ from the local birth date and time."] : []),
+      ...zoneNotes(held),
       townNote(town),
       NAME_NOTE,
       ...ASTRO_COM_NOTES,
@@ -438,8 +442,8 @@ const UNFILLABLE = {
  * start a loop. A browser not seen signed out may be signed in, so it is never
  * held up by a sign-in prompt.
  *
- * @param {{ utc: string, lat: number, lng: number, town: string | null, name: { first: string, last: string } | null }} sky
- *   from heldForTab
+ * @param {{ utc: string, lat: number, lng: number, local: string | null, town: string | null,
+ *   name: { first: string, last: string } | null }} sky  from heldForTab
  * @param {{ kind: "form" } & ReturnType<typeof import("./core/astrocom.js").readFormPage> | { kind: "other" }} page
  */
 export function viewForAstroComTab(sky, page) {
@@ -459,7 +463,7 @@ export function viewForAstroComTab(sky, page) {
 
   if (Object.hasOwn(UNFILLABLE, page.form)) {
     const { buttons, ...screen } = UNFILLABLE[page.form];
-    return { ...screen, ...values, notes: [], sky, buttons: copy(buttons) };
+    return { ...screen, ...values, notes: zoneNotes(sky, { filled: false }), sky, buttons: copy(buttons) };
   }
 
   if (page.auth === "signed-out") {
@@ -491,6 +495,7 @@ export function viewForAstroComTab(sky, page) {
         (sky.town === null
           ? "Choose the town nearest this place yourself, and check the coordinates astro.com shows."
           : "Choose astro.com's match nearest this place, and check the coordinates it shows."),
+      ...zoneNotes(sky),
       "AstroChart Bridge doesn't submit the form, and forgets these values once it has filled them in.",
     ],
     sky,
@@ -499,23 +504,29 @@ export function viewForAstroComTab(sky, page) {
 }
 
 // What filling in sets: "the birthday, hour, minute, the 00:00 GMT / UT time zone and the town Sydney".
-function filledText({ town = null, name = null }) {
-  const parts = ["the birthday", "hour", "minute", "the 00:00 GMT / UT time zone"];
+// The automatic time zone is the form's default, so it isn't named.
+function filledText({ utc, local = null, town = null, name = null }) {
+  const parts = ["the birthday", "hour", "minute"];
+  if (formTime({ utc, local }).szon === "h0w") parts.push("the 00:00 GMT / UT time zone");
   if (name !== null) parts.push("the name");
   if (town !== null) parts.push(`the town ${town}`);
   return `${parts.slice(0, -1).join(", ")} and ${parts.at(-1)}`;
 }
 
 // The rows and warnings every astro.com screen shows: the form's values in its own terms.
-// An empty name part, such as the first name of an event, has no row.
-function astroComValues({ utc, lat, lng, town = null, name = null }) {
-  const [year, month, day] = utc.slice(0, 10).split("-");
-  const seconds = Number(utc.slice(17, 19));
+// An empty name part, such as the first name of an event, has no row. With the
+// automatic time zone, the Offset row is the chart's, to check astro.com's against.
+function astroComValues({ utc, lat, lng, local = null, town = null, name = null }) {
+  const { time, szon } = formTime({ utc, local });
+  const [year, month, day] = time.slice(0, 10).split("-");
+  const seconds = Number(time.slice(17, 19));
   return {
     rows: [
       ["Birthday", `${Number(day)} ${MONTH_NAMES[Number(month) - 1]} ${year}`],
-      ["Hour, min", utc.slice(11, 16)],
-      ["Time zone", "00:00 GMT / UT, under show / hide extended settings"],
+      ["Hour, min", time.slice(11, 16)],
+      ...(szon === "au"
+        ? [["Time zone", "automatic time zone, the form's default"], ["Offset", offsetText(localOffset(utc, local))]]
+        : [["Time zone", "00:00 GMT / UT, under show / hide extended settings"]]),
       ["Place", placeText(lat, lng)],
       ...(town === null ? [] : [["Town", town]]),
       ...(name === null || name.first === "" ? [] : [["First name", name.first]]),
@@ -523,6 +534,24 @@ function astroComValues({ utc, lat, lng, town = null, name = null }) {
     ],
     warnings: seconds === 0 ? [] : [`astro.com takes whole minutes, so the ${seconds} seconds are left out.`],
   };
+}
+
+// What an astro.com screen says about the automatic time zone, which is
+// astro.com's to decide: the zone it should pick, who checks it, and how to
+// enter the chart in Universal Time instead. Every way of filling in the form
+// checks it on the page (watchZone); a form filled in by hand is checked by
+// the person. Nothing for Universal Time.
+function zoneNotes({ utc, local = null }, { filled = true } = {}) {
+  if (formTime({ utc, local }).szon === "h0w") return [];
+  const offset = localOffset(utc, local);
+  const [year, month, day] = utc.slice(0, 10).split("-");
+  const zone = `${zoneWords(offset)} (${offsetText(offset)})`;
+  return [
+    "The date and time are the chart's local time, and astro.com's automatic time zone looks up the zone for the town you choose. " +
+      (filled
+        ? `It should be ${zone}: AstroChart Bridge checks it on the page once you choose the town, and offers Universal Time there if it isn't.`
+        : `Check that it's ${zone}. If it isn't, choose 00:00 GMT / UT under show / hide extended settings and enter ${Number(day)} ${MONTH_NAMES[Number(month) - 1]} ${year}, ${utc.slice(11, 16)} instead.`),
+  ];
 }
 
 // "EDT, DST" â†’ "EDT"

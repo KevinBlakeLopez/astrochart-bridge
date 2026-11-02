@@ -12,7 +12,7 @@ const LA = { timeZone: "America/Los_Angeles" };
 const NY_SKY = { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 };
 // What each astro.com button keeps for the tab it opens: the sky and, when the
 // chart names one, the town to fill in.
-const NY_HELD = { ...NY_SKY, town: null, name: null };
+const NY_HELD = { ...NY_SKY, local: null, town: null, name: null };
 
 // AstroChart Bridge can't tell from this tab whether the browser is signed in to
 // astro.com, so the sign-in advice is a note beside the form button, never a
@@ -80,6 +80,34 @@ test("seconds the form can't take are named, not silently dropped", () => {
   assert.deepEqual(view.warnings, ["astro.com takes whole minutes, so the 30 seconds are left out."]);
 });
 
+test("a chart's local time is listed with the automatic time zone and the offset it should have", () => {
+  const local = "2024-04-17T08:00:00";
+  const view = viewForAstroCom(NY_SKY, { local });
+  assert.deepEqual(view.rows, [
+    ["Birthday", "17 April 2024"],
+    ["Hour, min", "08:00"],
+    ["Time zone", "automatic time zone, the form's default"],
+    ["Offset", "UTC-04:00"],
+    ["Place", "40°43'N, 74°0'W"],
+  ]);
+  assert.equal(
+    view.notes[0],
+    "The date and time are the chart's local time, and astro.com's automatic time zone looks up the zone for the town you choose. " +
+      "It should be 4 h west (UTC-04:00): AstroChart Bridge checks it on the page once you choose the town, and offers Universal Time there if it isn't.",
+  );
+  assert.equal(view.notes.some((note) => note.startsWith("The date and time are Universal Time")), false);
+  assert.deepEqual(view.buttons[0].holds, { ...NY_HELD, local });
+});
+
+test("a half-hour offset is named in astro.com's words, and a local time that is UT is listed as UT", () => {
+  const delhi = { utc: "2024-04-17T06:30:00Z", lat: 28.6, lng: 77.2 };
+  assert.match(viewForAstroCom(delhi, { local: "2024-04-17T12:00:00" }).notes[0], /It should be 5 h 30 min east \(UTC\+05:30\):/);
+  const ut = viewForAstroCom(NY_SKY, { local: "2024-04-17T12:00:00" });
+  assert.deepEqual(ut.rows[2], ["Time zone", "00:00 GMT / UT, under show / hide extended settings"]);
+  // The date and time are both local and UT, so neither note applies.
+  assert.equal(ut.notes[0].startsWith("astro.com asks for a country and town"), true);
+});
+
 test("a chart that names its town shows it, says it will be filled in, and keeps it for the tab", () => {
   const view = viewForAstroCom(NY_SKY, { town: "New York" });
   assert.deepEqual(view.rows[4], ["Town", "New York"]);
@@ -87,7 +115,7 @@ test("a chart that names its town shows it, says it will be filled in, and keeps
     view.notes[1],
     "astro.com asks for a country and town, not coordinates. AstroChart Bridge fills in the town New York; choose the match nearest this place and check the coordinates astro.com shows.",
   );
-  assert.deepEqual(view.buttons.map((button) => button.holds), Array(3).fill({ ...NY_SKY, town: "New York", name: null }));
+  assert.deepEqual(view.buttons.map((button) => button.holds), Array(3).fill({ ...NY_SKY, local: null, town: "New York", name: null }));
   assert.equal(viewForAstroCom(NY_SKY).rows.length, 4);
 });
 
@@ -122,13 +150,17 @@ test(`a name part longer than astro.com's ${NAME_LENGTH} characters is warned ab
 
 test("an Astro-Seek chart's town, from its address, reaches the astro.com screen", () => {
   const view = viewFor(analyze("ny-2024-04-17"), { ...LA, town: "New York" });
-  assert.deepEqual(view.next, { label: "Enter in astro.com…", view: viewForAstroCom(NY_SKY, { town: "New York" }) });
+  assert.deepEqual(view.next, {
+    label: "Enter in astro.com…",
+    view: viewForAstroCom(NY_SKY, { local: "2024-04-17T08:00:00", town: "New York" }),
+  });
+  // A Stellarium sky has no local time.
   assert.deepEqual(viewForSky(NY_SKY, { ...LA, town: "New York" }).next.view, viewForAstroCom(NY_SKY, { town: "New York" }));
 });
 
 test("an Astro-Seek chart with a decided UTC leads to the astro.com screen", () => {
   const view = viewFor(analyze("ny-2024-04-17"), LA);
-  assert.deepEqual(view.next, { label: "Enter in astro.com…", view: viewForAstroCom(NY_SKY) });
+  assert.deepEqual(view.next, { label: "Enter in astro.com…", view: viewForAstroCom(NY_SKY, { local: "2024-04-17T08:00:00" }) });
 });
 
 test("an astro.com chart doesn't lead back to astro.com", () => {

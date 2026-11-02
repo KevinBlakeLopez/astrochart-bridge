@@ -297,7 +297,8 @@ const isoDate = ({ year, month, day }) => `${pad(year, 4)}-${pad(month)}-${pad(d
 // astro.com's birth data form, ade.cgi, as seen signed out on 2026-11-01: a
 // POST form named "start" whose fields are named sday, imon (a select of 1 to
 // 12), syar, ihou (a select of "", "u" and 0 to 23), smin, and szon (a select
-// of time zones, "h0w" first among the " 00:00 GMT / UT" ones). szon sits in
+// of time zones: "au", "automatic time zone", selected, then "h0w" first among
+// the " 00:00 GMT / UT" ones, and half-hour zones written like "h3w30"). szon sits in
 // the extended settings, whose toggle sets the hidden extset field from
 // "close" to "open" and shows #extended. Signed in, the same blank form has
 // the same fields; its hidden cid, empty signed out, is 25 characters long, so
@@ -332,24 +333,83 @@ export function isBirthDataForm(url) {
 }
 
 /**
- * The values for ade.cgi's fields for a decided UTC and the chart's town and
- * name, by field name. The seconds are left out: the form takes whole minutes.
- * The town, when there is one, goes in the birth town field, scit, and the
- * name, when there is one, in the first and last name fields, sfnm and snam.
+ * The time to enter in ade.cgi and its time zone. astro.com recommends its
+ * automatic time zone, au, the form's default, which looks the zone up in its
+ * atlas for the town and local time chosen. So a chart's local time goes in
+ * with au. A chart with no local time, such as a sky from Stellarium, goes in
+ * as Universal Time with h0w, " 00:00 GMT / UT", and so does one whose local
+ * time is Universal Time: with h0w that is the same moment whatever town is
+ * chosen, as for a chart entered in UT on Astro-Seek.
  *
- * @param {{ utc: string, town?: string | null, name?: { first: string, last: string } | null }} values
- * @returns {{ sday: string, imon: string, syar: string, ihou: string, smin: string, szon: "h0w",
+ * @param {{ utc: string, local?: string | null }} values  local is the chart's
+ *   local time, YYYY-MM-DDTHH:MM:SS, or null
+ * @returns {{ time: string, szon: "au" | "h0w" }}  time is YYYY-MM-DDTHH:MM:SS
+ */
+export function formTime({ utc, local = null }) {
+  const ut = utc.slice(0, 19);
+  return local === null || local === ut ? { time: ut, szon: "h0w" } : { time: local, szon: "au" };
+}
+
+// Minutes from Universal Time to a chart's local time: -240 for 08:00 local at 12:00 UT.
+export const localOffset = (utc, local) => (Date.parse(`${local}Z`) - Date.parse(utc)) / 60_000;
+
+/**
+ * An offset in the words of ade.cgi's time zone line, to the nearest minute:
+ * -240 is "4 h west", 330 "5 h 30 min east", 0 "GMT/UT".
+ *
+ * @param {number} minutes
+ */
+export function zoneWords(minutes) {
+  const size = Math.round(Math.abs(minutes));
+  if (size === 0) return "GMT/UT";
+  const [hours, rest] = [Math.floor(size / 60), size % 60];
+  return `${hours} h${rest === 0 ? "" : ` ${rest} min`} ${minutes < 0 ? "west" : "east"}`;
+}
+
+/**
+ * What watchZone checks astro.com's automatic time zone against, or null when
+ * the form is filled in as Universal Time and there is nothing to check: the
+ * chart's offset, the date and time filled in, and the Universal Time to
+ * enter instead.
+ *
+ * @param {{ utc: string, local?: string | null }} values
+ * @returns {{ offsetMinutes: number, zone: string, filled: Record<string, string>,
+ *   ut: Record<string, string>, utText: string } | null}
+ */
+export function zoneCheck({ utc, local = null }) {
+  if (formTime({ utc, local }).szon !== "au") return null;
+  const offset = localOffset(utc, local);
+  const clock = ({ sday, imon, syar, ihou, smin }) => ({ sday, imon, syar, ihou, smin });
+  return {
+    offsetMinutes: Math.round(offset),
+    zone: zoneWords(offset),
+    filled: { ...clock(formValues({ utc, local })), szon: "au" },
+    ut: { ...clock(formValues({ utc })), szon: "h0w" },
+    utText: `${utc.slice(0, 10)} ${utc.slice(11, 16)}`,
+  };
+}
+
+/**
+ * The values for ade.cgi's fields for a decided UTC, the chart's local time,
+ * and its town and name, by field name. The time and zone are formTime's. The
+ * seconds are left out: the form takes whole minutes. The town, when there is
+ * one, goes in the birth town field, scit, and the name, when there is one,
+ * in the first and last name fields, sfnm and snam.
+ *
+ * @param {{ utc: string, local?: string | null, town?: string | null, name?: { first: string, last: string } | null }} values
+ * @returns {{ sday: string, imon: string, syar: string, ihou: string, smin: string, szon: "au" | "h0w",
  *   scit?: string, sfnm?: string, snam?: string }}
  */
-export function formValues({ utc, town = null, name = null }) {
-  const [year, month, day] = utc.slice(0, 10).split("-");
+export function formValues({ utc, local = null, town = null, name = null }) {
+  const { time, szon } = formTime({ utc, local });
+  const [year, month, day] = time.slice(0, 10).split("-");
   return {
     sday: String(Number(day)),
     imon: String(Number(month)),
     syar: year,
-    ihou: String(Number(utc.slice(11, 13))),
-    smin: utc.slice(14, 16),
-    szon: "h0w",
+    ihou: String(Number(time.slice(11, 13))),
+    smin: time.slice(14, 16),
+    szon,
     ...(town === null ? {} : { scit: town }),
     ...(name === null ? {} : { sfnm: name.first, snam: name.last }),
   };
@@ -421,4 +481,95 @@ export function fillForm(values) {
   }
   field("scit").focus();
   return { filled: true };
+}
+
+// ade.cgi's time zone line, #zz in the extended settings, which the page
+// fills in from adejs.cgi?func=get_su_mo_asc_map once a town is chosen, as
+// seen on 2026-11-01: "time zone:" then "4 h west", "3 h 30 min west",
+// "5 h 45 min east" or "GMT/UT", a comma, and "Standard Time", "Daylight
+// Saving T." or "War Time"; or "Local Mean Time" with no offset. A skipped or
+// repeated clock time adds a line starting "ATTENTION:". It is empty until a
+// town is chosen.
+
+/**
+ * Watches the time zone astro.com's automatic time zone picks, once a form is
+ * filled in with it, and compares it with zoneCheck's offset. When they
+ * differ, or the line can't be read, a note goes under the time zone row with
+ * a button that enters the chart's Universal Time with the 00:00 GMT / UT
+ * time zone instead. A wrong town gives a wrong zone and wrong coordinates,
+ * which Universal Time doesn't mend, so the note asks about the town first. Stops once the date, time or time zone differs from what was filled in, so
+ * whatever the person changes is theirs, or once the button is used. Never
+ * submits.
+ *
+ * @param {NonNullable<ReturnType<typeof zoneCheck>>} check
+ * @returns {{ watching: boolean }}
+ */
+export function watchZone(check) {
+  const fields = document.forms.namedItem("start")?.elements;
+  const field = (name) => fields?.namedItem(name) ?? null;
+  const zone = document.getElementById("zz");
+  // One watch per line, marked on it, whether or not its note is showing.
+  if (!zone || !Object.keys(check.ut).every(field) || zone.dataset.astrochartBridge) return { watching: false };
+  zone.dataset.astrochartBridge = "watching";
+
+  const note = document.createElement("div");
+  note.id = "astrochart-bridge-zone";
+  // #zz floats right of the time zone select, so the note goes after the
+  // select, below both, as seen on 2026-11-01.
+  note.style.cssText = "clear: both; margin: 0.5em 0; padding: 0.5em 0.75em; border: 2px solid #b00020; background: #fff; color: #222;";
+  const message = document.createElement("p");
+  const button = document.createElement("button");
+  button.type = "button";
+  button.textContent = "Enter in Universal Time";
+  note.append(message, button);
+
+  const observer = new MutationObserver(() => update());
+  const stop = () => {
+    observer.disconnect();
+    delete zone.dataset.astrochartBridge;
+  };
+  const unchanged = () => Object.entries(check.filled).every(([name, value]) => field(name).value === value);
+  const show = (text) => {
+    message.textContent = `AstroChart Bridge: ${text}`;
+    if (!note.isConnected) field("szon").after(note);
+  };
+
+  function update() {
+    if (!unchanged()) {
+      stop();
+      note.remove();
+      return;
+    }
+    // \s takes in the no-break space after the comma.
+    const text = zone.textContent.replace(/\s+/g, " ").trim();
+    if (text === "") return note.remove();
+    // Its <br>s add no space, so "time zone:" and "ATTENTION:" run into the text around them.
+    const line = text.replace(/^time zone: ?/, "").split("ATTENTION")[0].trim();
+    const read = /^(?:GMT\/UT|(\d{1,2}) h(?: (\d{1,2}) min)? (west|east)),/.exec(line);
+    if (!read) {
+      show(`astro.com's time zone here is "${line}", which can't be checked against this chart's ${check.zone}. Check that the town is right. If it is, you can enter the chart in Universal Time instead.`);
+      return;
+    }
+    const size = Number(read[1] ?? 0) * 60 + Number(read[2] ?? 0);
+    const minutes = read[3] === "west" ? 0 - size : size;
+    if (minutes === check.offsetMinutes) return note.remove();
+    const words = line.split(",")[0];
+    show(`this chart is ${check.zone} of Universal Time, but astro.com's automatic time zone for this town is ${words}. Check that the town is right. If it is, enter the chart in Universal Time instead.`);
+  }
+
+  button.addEventListener("click", () => {
+    stop();
+    for (const [name, value] of Object.entries(check.ut)) {
+      const element = field(name);
+      element.value = value;
+      element.dispatchEvent(new Event("input", { bubbles: true }));
+      element.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+    message.textContent = `AstroChart Bridge entered ${check.utText} with the 00:00 GMT / UT time zone. That is the chart's own Universal Time, so the moment is the chart's, whatever astro.com's warning about manual time zones says.`;
+    button.remove();
+  });
+
+  observer.observe(zone, { childList: true, characterData: true, subtree: true });
+  update();
+  return { watching: true };
 }

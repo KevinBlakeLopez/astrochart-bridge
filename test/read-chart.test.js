@@ -109,6 +109,26 @@ test("printed seconds carry into the local time and the printed UT", () => {
   });
 });
 
+// Safari's innerText runs the header block into one line, with a space, or
+// nothing, between a value and the next label.
+const ONE_LINE =
+  "Date of Birth (local time):17 April 2024 - 08:00  (EDT, DST) Universal Time (UT/GMT):17 April 2024 - 12:00  " +
+  "Local Sidereal Time (LST):20:48:26House system:Placidus system Latitude, Longitude:40°43'N, 74°0'W City:New York";
+
+test("Safari's one-line header reads like the lines Chrome gives", () => {
+  assert.deepEqual(readChart({ url: NY.url, text: `\n${ONE_LINE}\nCountry:  United States (US), NY\n` }), NY_RESULT);
+});
+
+test("a value run into a label readChart doesn't know is unreadable", () => {
+  const text = ONE_LINE.replace(" City:", " Country:");
+  assert.deepEqual(readChart({ url: NY.url, text }), refused("unreadable-page"));
+});
+
+test("a second Universal Time on Safari's one line makes the page ambiguous", () => {
+  const text = ONE_LINE.replace(" Local", " Universal Time (UT/GMT):17 April 2024 - 12:00 Local");
+  assert.deepEqual(readChart({ url: NY.url, text }), refused("ambiguous-page"));
+});
+
 test("a local line without a zone label has no zoneLabel", () => {
   assert.deepEqual(readChart({ url: NY.url, text: TEXT.replace("  (EDT, DST)", "") }), { ...NY_RESULT, zoneLabel: null });
 });

@@ -24,7 +24,7 @@ It opens natal charts, plus horary charts from a screenshot. Transit, synastry, 
 - **Stellarium Web**, with **Open Stellarium Web**.
 - **Stellarium Desktop**, at `127.0.0.1` on your computer. See [docs/stellarium-desktop.md](docs/stellarium-desktop.md) for turning on the Remote Control plugin.
 - **Astro-Seek**, with **Open chart in Astro-Seek**.
-- **astro.com's birth data form**, with **Enter in astro.com…**. AstroChart Bridge fills in the form, with the chart's town and name when it has them, but never submits it or signs you in.
+- **astro.com's birth data form**, with **Enter in astro.com…**. AstroChart Bridge fills in the form, with the chart's town and name when it has them, but never submits it or signs you in. A chart's local time goes in with astro.com's automatic time zone, and once you choose the town AstroChart Bridge checks the zone astro.com picks against the chart's offset, offering Universal Time on the page if they differ.
 - **An AAF file**, with **Save as AAF file**.
 - **Another device**, with **Share…**: a link, a QR code of the link, a `.astrochart.json` file or the system's share sheet. The receiving page, `chart.html`, opens the chart without the extension.
 

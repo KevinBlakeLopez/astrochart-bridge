@@ -3,7 +3,7 @@
 // the tab, renders the view and opens what its button links to.
 import { withAafExport } from "./aaf-model.js";
 import { linkFor } from "./chart-model.js";
-import { ASTRO_COM_ACCESS, openAndFill } from "./astro-com-open.js";
+import { ASTRO_COM_ACCESS, openAndFill, watchFilledZone } from "./astro-com-open.js";
 import { fillForm, formValues, isAstroComPage, isBirthDataForm, readFormPage } from "./core/astrocom.js";
 import { townFromUrl } from "./core/astroseek.js";
 import { analyzePage, classifyUrl, extractorFor } from "./core/index.js";
@@ -149,6 +149,7 @@ function astroComTabButtons(tab, sky) {
         show(viewForAstroComTab(sky, { kind: "form", auth: "unknown", form }), { onButton: astroComTabButtons(tab, sky) });
         return;
       }
+      await watchFilledZone(chrome.scripting, tab.id, sky);
     }
     if (button.does === "fill" || button.does === "release") await releaseTab(held, tab.id);
     await chrome.tabs.update(tab.id, button.here ? { url: button.url, active: true } : { active: true });

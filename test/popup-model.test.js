@@ -42,7 +42,7 @@ test("ready: New York, seen from Los Angeles", () => {
     sky: { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 },
     buttons: [OPEN_SKY, SHARE],
     // test/astro-com-handoff.test.js covers the astro.com screen itself.
-    next: { label: "Enter in astro.com…", view: viewForAstroCom({ utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 }) },
+    next: { label: "Enter in astro.com…", view: viewForAstroCom({ utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 }, { local: "2024-04-17T08:00:00" }) },
   });
 });
 

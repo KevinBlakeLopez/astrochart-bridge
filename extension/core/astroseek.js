@@ -60,6 +60,20 @@ const LABEL_LOCAL = "Date of Birth (local time):";
 const LABEL_UT = "Universal Time (UT/GMT):";
 const LABEL_COORDS = "Latitude, Longitude:";
 
+// Chrome and Firefox give each label and value a line of its own. Safari runs
+// the whole header block into one line: "Date of Birth (local time):1 January
+// 1970 - 00:00  (PST) Universal Time (UT/GMT):1 January 1970 - 08:00  Local
+// Sidereal Time (LST):06:49:14House system:…". Breaking the text around these
+// labels gives the same lines in both. The last two are the labels that follow
+// a value readChart reads, so that value ends where they begin.
+const LINE_LABELS = [LABEL_LOCAL, LABEL_UT, LABEL_COORDS, "Local Sidereal Time (LST):", "City:"];
+// Takes the spaces and at most one line break on each side of a label, so text
+// that already has its labels on lines of their own comes out unchanged.
+const AROUND_LABEL = new RegExp(
+  `\\n?[^\\S\\n]*(${LINE_LABELS.map((label) => label.replace(/[()]/g, "\\$&")).join("|")})[^\\S\\n]*\\n?`,
+  "g",
+);
+
 // "17 April 2024 - 08:00  (EDT, DST)" on natal pages; traditional chart pages
 // add seconds, "08:00:00". The gap before the label includes a no-break space,
 // which \s matches. Some pages use three-letter month names.
@@ -102,7 +116,10 @@ export function readChart({ url, text }) {
   const birth = readUrl(url);
   if (!birth) return refused("incomplete-url");
 
-  const lines = text.split("\n").map((line) => line.trim());
+  const lines = text
+    .replace(AROUND_LABEL, "\n$1\n")
+    .split("\n")
+    .map((line) => line.trim());
   const valueAfter = {};
   for (const label of [LABEL_LOCAL, LABEL_UT, LABEL_COORDS]) {
     const at = lines.flatMap((line, i) => (line === label ? [i] : []));
