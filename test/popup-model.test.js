@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { analyzePage } from "../extension/core/index.js";
-import { ASTRO_SEEK_NOTES, viewFor, viewForAstroCom, offsetPreview } from "../extension/popup-model.js";
+import { ASTRO_SEEK_NOTES, offersOtherWays, viewFor, viewForAstroCom, offsetPreview } from "../extension/popup-model.js";
 
 const fixture = (name) =>
   JSON.parse(readFileSync(new URL(`../fixtures/astroseek/${name}.json`, import.meta.url), "utf8"));
@@ -245,6 +245,22 @@ test("refused: chart pages AstroChart Bridge couldn't read show their code", () 
       code: reason,
     });
   }
+});
+
+test("refused: every page but a transit or compatibility chart offers the other ways in", () => {
+  assert.equal(offersOtherWays(analyze("transit-sydney-2026-11-01")), false);
+  assert.equal(offersOtherWays(analyze("compatibility-sydney-ny")), false);
+  const offered = [
+    analyzePage({ url: "https://example.com/", input: { text: "" } }),
+    analyzePage({ url: "https://www.astro.com/astro-databank/Stallone,_Sylvester", input: {} }),
+    analyzePage({ url: "https://www.astro.com/cgi/chart.cgi?btyp=w2gw&rs=2&;&nhor=26", input: {} }),
+    analyzePage({ url: ASTRO_COM, input: { links: [] } }),
+    analyzePage({ url: fixture("ny-2024-04-17").url, input: { text: "" } }),
+    ...["unreadable-record", "unseen-field-9", "local-mean-time", "calendar-unsupported", "page-url-mismatch"].map(
+      (reason) => ({ kind: "refused", reason }),
+    ),
+  ];
+  for (const result of offered) assert.equal(offersOtherWays(result), true, result.reason);
 });
 
 test("refused: a page that doesn't match its address", () => {

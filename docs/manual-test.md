@@ -133,6 +133,7 @@ https://horoscopes.astro-seek.com/calculate-asteroids/?narozeni_den=17&narozeni_
 Go to `https://example.com`.
 
 - [ ] The popup shows "Open an Astro-Seek or astro.com birth chart to use AstroChart Bridge." and five buttons, **Read a screenshot instead**, **Paste chart text instead**, **Open an AAF or Morinus file**, **Open a chart file** and **Import from Stellarium Desktop**, and the Console has no errors. Until AstroChart Bridge has been allowed to connect to `127.0.0.1` (test 17), nothing connects there and no grey line follows the last button.
+- [ ] Go to `https://www.astro.com/astro-databank/Stallone,_Sylvester`. The popup shows "Astro-Databank charts aren't supported yet…" and the same five buttons. A transit or compatibility page (tests 5 and 6) still shows none.
 - [ ] AstroChart Bridge's toolbar button shows its icon, a gold star above a blue arch, and AstroChart Bridge's card on the browser's extensions page shows it too.
 
 ## Test 9: a browser page

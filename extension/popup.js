@@ -13,6 +13,7 @@ import { heldForTab, holdForTab, releaseTab } from "./pending.js";
 import {
   ASTRO_COM_BUSY,
   chartToShare,
+  offersOtherWays,
   viewFor,
   viewForAstroComManual,
   viewForAstroComNotFilled,
@@ -73,8 +74,7 @@ async function main() {
   }
 
   // Pages AstroChart Bridge doesn't handle are refused before any script runs on them.
-  // A page on a site AstroChart Bridge doesn't read may still have a chart on screen,
-  // in an image or a PDF; a screenshot of a transit or compatibility page wouldn't help.
+  // A page it doesn't read may still have a chart on screen, in an image or a PDF.
   const page = classifyUrl(url);
 
   // An astro.com page that isn't a chart AstroChart Bridge reads may be a tab opened
@@ -89,7 +89,7 @@ async function main() {
   }
 
   if (page.kind === "refused") {
-    show(viewFor(page), { offerScreenshot: page.reason === "unsupported" });
+    show(viewFor(page), { offerScreenshot: offersOtherWays(page) });
     return;
   }
 
@@ -99,6 +99,10 @@ async function main() {
     func: extractorFor(url),
   });
   const result = analyzePage({ url, input });
+  if (result.kind === "refused") {
+    show(viewFor(result), { offerScreenshot: offersOtherWays(result) });
+    return;
+  }
   // Share… needs the result the screen was drawn from: its local time, and
   // how its UTC was decided.
   sharing = result;

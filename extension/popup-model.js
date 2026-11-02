@@ -38,6 +38,21 @@ const REFUSALS = {
 // message and show their code, so a bug report says which check failed.
 const UNREADABLE = "AstroChart Bridge couldn't read this chart page.";
 
+// A transit or compatibility chart isn't a birth chart, so a screenshot or
+// copy of it wouldn't help.
+const NOT_A_BIRTH_CHART = new Set(["transit", "synastry"]);
+
+/**
+ * Whether a refused page's screen also offers the other ways in: a
+ * screenshot, pasted text, a chart file or Stellarium Desktop. A chart page
+ * AstroChart Bridge couldn't read still has its birth data on screen.
+ *
+ * @param {{ kind: "refused", reason: string }} result
+ */
+export function offersOtherWays(result) {
+  return !NOT_A_BIRTH_CHART.has(result.reason);
+}
+
 const WARNINGS = {
   "zone-label-unknown": ({ zoneLabel }) =>
     zoneLabel === null
