@@ -12,7 +12,9 @@
     <main>
       <h1>Open an AAF or Morinus file</h1>
       <p>Choose or drop an AAF (.aaf) file or a Morinus chart (.hor) anywhere on this page, or paste an AAF file's text below. Astrolog and other astrology programs save charts in AAF.</p>
-      <p><input id="file" type="file" accept=".aaf,.hor,.txt,text/plain" aria-label="Choose an AAF or Morinus file"></p>
+      <!-- No accept filter: macOS file dialogs grey out extensions no app on the
+           computer registers, such as .hor and .aaf. import.js decides by content. -->
+      <p><input id="file" type="file" aria-label="Choose an AAF or Morinus file"></p>
       <textarea id="text" rows="5" spellcheck="false" placeholder="#A93:Name,First name,*,17.4.2024,8:00,Place,Country&#10;#B93:*,40n43,74w00,5hw00,1" aria-label="AAF text"></textarea>
       <p><button id="read" class="secondary">Read pasted text</button></p>
       <p class="note">The file is read on this computer and isn't sent anywhere.</p>
