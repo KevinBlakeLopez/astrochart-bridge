@@ -1,3 +1,5 @@
+import { TOWN_LIMIT_KM, chooseListedTown } from "./towns.js";
+
 const ORIGIN = "https://www.astro.com";
 const CHART_PATH = "/cgi/chart.cgi";
 
@@ -590,35 +592,20 @@ export function watchZone(check) {
 // "New York, NY (US) = New York" and "New York City, NY (US) = New York" at
 // 40n43, 74w00, with the same atlas record but for the name.
 
-// How far a match may be from the chart's coordinates to count as its town.
-export const TOWN_LIMIT_KM = 25;
+export { TOWN_LIMIT_KM };
 
 /**
  * Which of astro.com's matches for a chart's town to choose, from their text
- * and the chart's coordinates. Only matches within TOWN_LIMIT_KM count. Of
- * those, the one named as the chart's town, ignoring case and accents, is
- * chosen, so "New York" chooses New York, NY over New York City, NY at the
- * same place; or, when none is so named, the only one. Otherwise the person
- * is asked, nearest first. A match whose coordinates can't be read is left out.
+ * and the chart's coordinates, by towns.js's rules: so "New York" chooses New
+ * York, NY over New York City, NY at the same place. A match whose
+ * coordinates can't be read is left out.
  *
  * @param {string[]} items  the matches' text, in astro.com's order
  * @param {{ town: string, lat: number, lng: number }} chart
- * @returns {{ kind: "pick", match: Match } | { kind: "ask", matches: Match[] } | { kind: "none", listed: number }}
- *   where a Match is { text, away }: its text and its distance in words
+ * @returns {ReturnType<typeof chooseListedTown>}
  */
-export function chooseTown(items, { town, lat, lng }) {
-  const near = items
-    .map((text) => ({ text, place: listedPlace(text) }))
-    .filter(({ place }) => place !== null)
-    .map(({ text, place }) => ({ text, name: place.name, km: distanceKm(lat, lng, place.lat, place.lng) }))
-    .filter(({ km }) => km <= TOWN_LIMIT_KM)
-    .sort((a, b) => a.km - b.km);
-  const match = ({ text, km }) => ({ text, away: km < 1 ? "less than 1 km" : `${Math.round(km)} km` });
-  const named = near.filter(({ name }) => sameName(name, town.split(",")[0]));
-  if (named.length === 1) return { kind: "pick", match: match(named[0]) };
-  if (named.length === 0 && near.length === 1) return { kind: "pick", match: match(near[0]) };
-  if (near.length === 0) return { kind: "none", listed: items.length };
-  return { kind: "ask", matches: near.map(match) };
+export function chooseTown(items, chart) {
+  return chooseListedTown(items.map((text) => ({ text, place: listedPlace(text) })), chart);
 }
 
 // A match's name, before its first comma, and its coordinates, its last two
@@ -629,18 +616,6 @@ function listedPlace(text) {
   const lat = parseAngle(parts.at(-2), "n", "s", 90);
   const lng = parseAngle(parts.at(-1), "e", "w", 180);
   return lat === null || lng === null ? null : { name: parts[0], lat, lng };
-}
-
-const plainName = (name) => name.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase().replace(/\s+/g, " ").trim();
-const sameName = (a, b) => plainName(a) === plainName(b);
-
-// Great-circle distance on a sphere of the Earth's mean radius.
-function distanceKm(lat1, lng1, lat2, lng2) {
-  const rad = Math.PI / 180;
-  const a =
-    Math.sin(((lat2 - lat1) * rad) / 2) ** 2 +
-    Math.cos(lat1 * rad) * Math.cos(lat2 * rad) * Math.sin(((lng2 - lng1) * rad) / 2) ** 2;
-  return 2 * 6371 * Math.asin(Math.min(1, Math.sqrt(a)));
 }
 
 // readTownList and showTownChoice run in the form's tab, like fillForm.
