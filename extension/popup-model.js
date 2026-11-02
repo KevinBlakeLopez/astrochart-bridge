@@ -160,7 +160,14 @@ export function viewFor(result, { timeZone, town = null } = {}) {
       { town: result.town ?? null, name: result.name ?? null },
     );
   }
-  return result.site === "astro-seek" ? { ...ready, next: astroComStep(ready.sky, { town, local }) } : ready;
+  if (result.site !== "astro-seek") return ready;
+  // A chart Astro-Seek placed by coordinates, such as one AstroChart Bridge
+  // opens, names no town, and Astro-Seek's own save link leaves its Birth city
+  // to be typed. Save in Astro-Seek… chooses it instead, first under Take the
+  // chart elsewhere. A chart with a town saves well from Astro-Seek's own
+  // link, in its own time zone. No note: the chart is already on astro-seek.com.
+  const buttons = town === null ? chartButtons([OPEN_SKY_BUTTON, astroSeekSaveButton()]) : ready.buttons;
+  return { ...ready, buttons, next: astroComStep(ready.sky, { town, local }) };
 }
 
 /**
@@ -222,9 +229,9 @@ const ASTRO_SEEK_OPEN_NOTE = ASTRO_SEEK_NOTES[1];
  * @param {{ town?: string | null, name?: { first: string, last: string } | null }} [chart]
  *   the chart's town and name, for the form's Birth city and Name
  */
-export function withAstroSeekSave(view, { town = null, name = null } = {}) {
-  const saves = { town, name: nickFor(name) };
-  const button = { label: ASTRO_SEEK_SAVE_LABEL, saves, secondary: true };
+export function withAstroSeekSave(view, chart = {}) {
+  const button = astroSeekSaveButton(chart);
+  const { saves } = button;
   const at = view.buttons.findIndex(({ opens }) => opens === "astro-seek") + 1;
   const note = saves.town === null && saves.name === null ? ASTRO_SEEK_SAVE_NOTE : ASTRO_SEEK_SAVE_NAMED_NOTE;
   const notes = view.notes.includes(ASTRO_SEEK_OPEN_NOTE)
@@ -236,6 +243,12 @@ export function withAstroSeekSave(view, { town = null, name = null } = {}) {
     notes: noted ? view.notes : notes,
     buttons: view.buttons.some(({ saves }) => saves) ? view.buttons : [...view.buttons.slice(0, at), button, ...view.buttons.slice(at)],
   };
+}
+
+// Save in Astro-Seek… for a chart's town and name, which popup.js and
+// astro-com-page.js pass to astro-seek-open.js with the sky the screen decided.
+function astroSeekSaveButton({ town = null, name = null } = {}) {
+  return { label: ASTRO_SEEK_SAVE_LABEL, saves: { town, name: nickFor(name) }, secondary: true };
 }
 
 // Astro-Seek's form has one Name field, so a name's two parts go in it as one.

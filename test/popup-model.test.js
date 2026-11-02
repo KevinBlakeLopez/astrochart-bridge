@@ -26,7 +26,8 @@ const SHARE = { label: "Share…", does: "share", secondary: true };
 const OPEN_SKY = { label: "Open Stellarium Web", opens: "stellarium" };
 
 test("ready: New York, seen from Los Angeles", () => {
-  assert.deepEqual(viewFor(analyze("ny-2024-04-17"), LOS_ANGELES), {
+  // The popup passes the town the Astro-Seek page's address names.
+  assert.deepEqual(viewFor(analyze("ny-2024-04-17"), { ...LOS_ANGELES, town: "New York" }), {
     state: "ready",
     rows: [
       ["Local time", "17 Apr 2024, 08:00 (EDT, DST)"],
@@ -42,8 +43,19 @@ test("ready: New York, seen from Los Angeles", () => {
     sky: { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 },
     buttons: [OPEN_SKY, SHARE],
     // test/astro-com-handoff.test.js covers the astro.com screen itself.
-    next: { label: "Enter in astro.com…", view: viewForAstroCom({ utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 }, { local: "2024-04-17T08:00:00" }) },
+    next: {
+      label: "Enter in astro.com…",
+      view: viewForAstroCom({ utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 }, { local: "2024-04-17T08:00:00", town: "New York" }),
+    },
   });
+});
+
+test("ready: an Astro-Seek chart placed by coordinates can be saved in Astro-Seek, with no note", () => {
+  const view = viewFor(analyze("manual-ut-2024-04-17-0000"), LOS_ANGELES);
+  assert.deepEqual(view.buttons, [OPEN_SKY, { label: "Save in Astro-Seek…", saves: { town: null, name: null }, secondary: true }, SHARE]);
+  // The chart is already on astro-seek.com, so no note says what saving sends there.
+  assert.deepEqual(view.notes, [view.notes[0], PRIVACY_NOTE]);
+  assert.equal(view.next.label, "Enter in astro.com…");
 });
 
 // Astro-Seek charts, such as New York above, have only Open Stellarium Web: they are already on Astro-Seek.

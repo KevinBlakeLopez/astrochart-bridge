@@ -16,7 +16,7 @@ const NY = { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 };
 const SEND = { label: "Send to Stellarium Desktop" };
 
 test("a ready chart screen gets the Send to Stellarium Desktop button", () => {
-  const view = viewFor(analyze("ny-2024-04-17"), { timeZone: "America/Los_Angeles" });
+  const view = viewFor(analyze("ny-2024-04-17"), { timeZone: "America/Los_Angeles", town: "New York" });
   assert.deepEqual(withDesktopSend(view), { ...view, desktop: SEND });
 });
 
@@ -83,7 +83,7 @@ test("sent: choosing Stellarium Desktop as the default, then changing it back", 
 });
 
 test("with Stellarium Desktop the default, a ready screen leads with it and Open Stellarium Web follows", () => {
-  const view = viewFor(analyze("ny-2024-04-17"), { timeZone: "America/Los_Angeles" });
+  const view = viewFor(analyze("ny-2024-04-17"), { timeZone: "America/Los_Angeles", town: "New York" });
   const preferred = withDesktopSend(view, { preferred: true });
   assert.deepEqual(preferred.desktop, { ...SEND, primary: true });
   // Share… stays where viewFor put it, after Open Stellarium Web.
@@ -115,7 +115,7 @@ test("a Stellarium Web tab keeps its buttons but shows the default line", () => 
 });
 
 test("just after switching back to Stellarium Web, the chart screen offers Undo", () => {
-  const view = viewFor(analyze("ny-2024-04-17"), { timeZone: "America/Los_Angeles" });
+  const view = viewFor(analyze("ny-2024-04-17"), { timeZone: "America/Los_Angeles", town: "New York" });
   const switched = withDesktopSend(view, { preferred: false, changed: true });
   assert.deepEqual(switched.desktop, SEND);
   assert.equal(switched.buttons, view.buttons);
@@ -123,7 +123,7 @@ test("just after switching back to Stellarium Web, the chart screen offers Undo"
 });
 
 test("with Stellarium Web the default, a chart screen has no default line", () => {
-  const view = viewFor(analyze("ny-2024-04-17"), { timeZone: "America/Los_Angeles" });
+  const view = viewFor(analyze("ny-2024-04-17"), { timeZone: "America/Los_Angeles", town: "New York" });
   assert.equal(withDesktopSend(view).defaultChoice, undefined);
 });
 
