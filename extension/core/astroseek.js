@@ -1,4 +1,9 @@
+import { chooseListedTown } from "./towns.js";
+
 const HOST = "horoscopes.astro-seek.com";
+// The account's pages, such as its private astro database, are on www.
+const ACCOUNT_HOST = "www.astro-seek.com";
+const DATABASE_PATH = "/my-profile-astro-database";
 
 const refused = (reason) => ({ kind: "refused", reason });
 
@@ -314,19 +319,15 @@ const UTC_PARTS = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})Z$/;
  * @param {{ utc: string, lat: number, lng: number }} sky
  * @returns {string}
  */
-export function astroSeekUrl({ utc, lat, lng }) {
-  const match = UTC_PARTS.exec(typeof utc === "string" ? utc : "");
-  if (!match) throw new Error(`astroSeekUrl needs a UTC instant like 2024-04-17T12:00:00Z, got ${utc}`);
-  const [, year, month, day, hour, minute, second] = match;
-  const latitude = degreesMinutes(lat);
-  const longitude = degreesMinutes(lng);
+export function astroSeekUrl(sky) {
+  const { year, month, day, hour, minute, second, latitude, longitude } = formParts(sky, "astroSeekUrl");
 
   const url = new URL(`https://${HOST}/calculate-birth-chart-horoscope-online/`);
   url.search = new URLSearchParams([
     ["input_natal", "1"],
     ["send_calculation", "1"],
-    ["narozeni_den", String(Number(day))],
-    ["narozeni_mesic", String(Number(month))],
+    ["narozeni_den", day],
+    ["narozeni_mesic", month],
     ["narozeni_rok", year],
     ["narozeni_hodina", hour],
     ["narozeni_minuta", minute],
@@ -358,6 +359,181 @@ export function astroSeekUrl({ utc, lat, lng }) {
     ["tolerance_paral", "0"],
   ]);
   return url.href;
+}
+
+/**
+ * Astro-Seek's page for adding a chart to the signed-in account's private
+ * astro database, filled in for a UTC instant and place, with a name. Like
+ * astroSeekUrl, the time goes in as UT/GMT with no daylight saving and the
+ * place as coordinates. The parameters copy, in order, the "Add into my
+ * database" link on the chart astroSeekUrl opened for 2024-04-17 12:00 UT at
+ * 40°43'N, 74°0'W, seen signed in on 2026-11-01, with the name in nick.
+ *
+ * Opened signed in, it shows Astro-Seek's Add person form with the name,
+ * date, time, coordinates and UT/GMT filled in, Gender at Male and Birth city
+ * empty. That form doesn't save a chart properly without a city, and saves a
+ * town typed into the link with an unknown country, so the town is left to
+ * be chosen from the form's own list.
+ *
+ * Throws when utc isn't YYYY-MM-DDTHH:MM:SSZ, like astroSeekUrl.
+ *
+ * @param {{ utc: string, lat: number, lng: number }} sky
+ * @param {{ name?: string | null }} [chart]  the chart's name in one piece, as
+ *   Astro-Seek's form has a single Name field
+ * @returns {string}
+ */
+export function astroSeekSaveUrl(sky, { name = null } = {}) {
+  const { year, month, day, hour, minute, second, latitude, longitude } = formParts(sky, "astroSeekSaveUrl");
+  // Only the north and west form has been seen; S and E are assumed.
+  const place = `Manually place: ${latitude.deg}°${latitude.min}'${latitude.negative ? "S" : "N"}, ${longitude.deg}°${longitude.min}'${longitude.negative ? "W" : "E"}`;
+
+  const url = new URL(`https://${ACCOUNT_HOST}${DATABASE_PATH}`);
+  url.search = new URLSearchParams([
+    ["typ", "save_birth_data"],
+    ["source", "osobni_horoskop"],
+    ["narozeni_den", day],
+    ["narozeni_mesic", month],
+    ["narozeni_rok", year],
+    ["narozeni_hodina", hour],
+    ["narozeni_minuta", minute],
+    ["narozeni_sekunda", second],
+    ["narozeni_sirka_stupne", String(latitude.deg)],
+    ["narozeni_sirka_minuty", String(latitude.min)],
+    ["narozeni_sirka_smer", String(latitude.negative)],
+    ["narozeni_delka_stupne", String(longitude.deg)],
+    ["narozeni_delka_minuty", String(longitude.min)],
+    ["narozeni_delka_smer", String(longitude.negative)],
+    ["narozeni_timezone_form", "0"],
+    ["narozeni_timezone_dst_form", "0"],
+    ["narozeni_mesto_hidden", place],
+    ["narozeni_stat_hidden", ""],
+    ["narozeni_podstat_kratky_hidden", ""],
+    ["narozeni_tzid_id", "0"],
+    ["birth_city_save", ""],
+    ["nick", name?.trim() ?? ""],
+  ]);
+  return url.href;
+}
+
+// Astro-Seek's Birth city field, as seen on 2026-11-01, is jQuery UI's
+// autocomplete on #city. Its city search, api_gmaps3.php?term=New%20York,
+// answers with matches such as { value: "New York, USA, New York", label:
+// "New York, USA, New York (40n43, 74w0)", id: "336" }, and jQuery UI lists
+// each match by its label. "New York" lists both New York and New York City,
+// USA, New York at 40n43, 74w0.
+
+/**
+ * Which of Astro-Seek's Birth city matches to choose for a chart's town, from
+ * their labels and the chart's coordinates, by towns.js's rules: so "New
+ * York" chooses New York, USA, New York over New York City at the same place.
+ * A label whose coordinates can't be read is left out.
+ *
+ * @param {string[]} labels  the matches' labels, in Astro-Seek's order
+ * @param {{ town: string, lat: number, lng: number }} chart
+ * @returns {ReturnType<typeof chooseListedTown>}
+ */
+export function chooseCity(labels, chart) {
+  return chooseListedTown(labels.map((text) => ({ text, place: cityPlace(text) })), chart);
+}
+
+// "New York, USA, New York (40n43, 74w0)": the name before the first comma,
+// then the latitude and longitude in brackets at the end, in degrees and
+// whole minutes.
+const CITY_LABEL = /^([^,]+),.* \((\d{1,2})([ns])(\d{1,2}), (\d{1,3})([ew])(\d{1,2})\)$/;
+
+// A label's name and coordinates, or null when it isn't in CITY_LABEL's form
+// or its numbers are out of range.
+function cityPlace(label) {
+  const match = CITY_LABEL.exec(label);
+  if (!match) return null;
+  const [, name, latDeg, latSide, latMin, lngDeg, lngSide, lngMin] = match;
+  if (Number(latMin) > 59 || Number(lngMin) > 59) return null;
+  const lat = degrees(Number(latDeg), Number(latMin), latSide === "s");
+  const lng = degrees(Number(lngDeg), Number(lngMin), lngSide === "w");
+  return Math.abs(lat) > 90 || Math.abs(lng) > 180 ? null : { name: name.trim(), lat, lng };
+}
+
+/**
+ * Whether a page is the account's private astro database, where
+ * astroSeekSaveUrl leads, whatever its parameters.
+ *
+ * @param {string} url
+ */
+export function isSavePage(url) {
+  try {
+    const page = new URL(url);
+    return page.origin === `https://${ACCOUNT_HOST}` && page.pathname === DATABASE_PATH;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * What the save page's tab needs to know about it, as seen on 2026-11-01.
+ * Signed in, every Astro-Seek page's menu links to /logout; signed out, it
+ * links to /login (its Login and Account items) and /registration. auth is
+ * read from those links' addresses, not their words: "signed-in" with a
+ * /logout link and no /login one, "signed-out" the other way round, and
+ * "unknown" with both or neither. Every page, signed in or out, also has a
+ * /login link inside an HTML comment; a comment holds no elements, so the
+ * page's links leave it out, though a search of the page's source would
+ * find it. form is the Add person form,
+ * form#form_jina_osoba, when it has the fields AstroChart Bridge fills in or
+ * checks: "city-empty" while its Birth city is empty, as astroSeekSaveUrl
+ * leaves it, and "city-typed" once it holds anything, which is never
+ * replaced. Runs in the tab, so it uses nothing from this module.
+ *
+ * @returns {{ auth: "signed-in" | "signed-out" | "unknown", form: "city-empty" | "city-typed" | "unrecognised" }}
+ */
+export function readSavePage() {
+  const paths = new Set();
+  for (const link of document.querySelectorAll("a[href]")) {
+    try {
+      const target = new URL(link.href);
+      if (target.hostname === "astro-seek.com" || target.hostname.endsWith(".astro-seek.com")) paths.add(target.pathname);
+    } catch {
+      // An address URL can't read says nothing either way.
+    }
+  }
+  const logout = paths.has("/logout");
+  const login = paths.has("/login");
+  const auth = logout && !login ? "signed-in" : login && !logout ? "signed-out" : "unknown";
+
+  const fields = document.getElementById("form_jina_osoba")?.elements;
+  const names = [
+    "nick",
+    "narozeni_city",
+    "narozeni_sirka_stupne",
+    "narozeni_sirka_minuty",
+    "narozeni_sirka_smer",
+    "narozeni_delka_stupne",
+    "narozeni_delka_minuty",
+    "narozeni_delka_smer",
+    "narozeni_timezone_form",
+    "narozeni_timezone_dst_form",
+  ];
+  if (!names.every((name) => fields?.namedItem(name))) return { auth, form: "unrecognised" };
+  return { auth, form: fields.namedItem("narozeni_city").value.trim() === "" ? "city-empty" : "city-typed" };
+}
+
+// The birth form's values for a UTC instant and place: the day and month
+// without a leading zero, the year and time as written, and the coordinates
+// as degreesMinutes gives them. Throws, naming the caller, when utc isn't
+// YYYY-MM-DDTHH:MM:SSZ.
+function formParts({ utc, lat, lng }, caller) {
+  const match = UTC_PARTS.exec(typeof utc === "string" ? utc : "");
+  if (!match) throw new Error(`${caller} needs a UTC instant like 2024-04-17T12:00:00Z, got ${utc}`);
+  const [, year, month, day, hour, minute, second] = match;
+  return {
+    year,
+    month: String(Number(month)),
+    day: String(Number(day)),
+    hour,
+    minute,
+    second,
+    latitude: degreesMinutes(lat),
+    longitude: degreesMinutes(lng),
+  };
 }
 
 // 40.716667 → { deg: 40, min: 43, negative: 0 }, the form's whole minutes and
