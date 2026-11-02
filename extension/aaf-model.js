@@ -102,8 +102,11 @@ export function viewForAafChart(result, options) {
 }
 
 // A record's name for astro.com's form, or null when the file gives neither part.
+// A record with only a last name gives it as the first name, which astro.com's
+// form needs, as nameFromText does.
 function aafName({ firstName, lastName }) {
-  return firstName || lastName ? { first: firstName ?? "", last: lastName ?? "" } : null;
+  if (firstName) return { first: firstName, last: lastName ?? "" };
+  return lastName ? { first: lastName, last: "" } : null;
 }
 
 const UT_NOTES = {

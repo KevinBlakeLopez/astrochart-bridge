@@ -336,19 +336,20 @@ const MONTH_NAMES = [
 export const NAME_LENGTH = 40;
 
 const NAME_NOTE =
-  "The name goes in astro.com's first and last name fields, and you can change it here first. An event's name goes in Last name, as astro.com keeps it.";
+  "The name goes in astro.com's first and last name fields, and you can change it here first. A name in one piece goes in First name, which astro.com won't save a chart without.";
 
 /**
  * The name for astro.com's form from a chart that keeps it as one string, as
- * pasted text and Morinus do: all of it is the last name, as astro.com keeps
- * an event's. Runs of spaces become one, as a person would type it.
+ * pasted text and Morinus do: all of it is the first name, since astro.com's
+ * form refuses a chart with no first name ("Please write something as 'first
+ * name'", seen on 2026-11-01). Runs of spaces become one, as a person would type it.
  *
  * @param {string | null | undefined} text
- * @returns {{ first: "", last: string } | null}
+ * @returns {{ first: string, last: "" } | null}
  */
 export function nameFromText(text) {
-  const last = text?.replace(/\s+/g, " ").trim() ?? "";
-  return last === "" ? null : { first: "", last };
+  const first = text?.replace(/\s+/g, " ").trim() ?? "";
+  return first === "" ? null : { first, last: "" };
 }
 
 /**

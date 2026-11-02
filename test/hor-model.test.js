@@ -51,9 +51,9 @@ test("a Greenwich chart says so, needs no zone note, and saves in Universal Time
   assert.ok(view.download.note);
 });
 
-test("a Morinus chart can be entered in astro.com, with its one name field as the last name and its place as the town", () => {
+test("a Morinus chart can be entered in astro.com, with its one name field as the first name and its place as the town", () => {
   const { view } = viewOf("ny-est-plus-dst").items[0];
-  const name = { first: "", last: "Test" };
+  const name = { first: "Test", last: "" };
   assert.deepEqual(view.next, {
     label: "Enter in astro.com…",
     view: viewForAstroCom(view.sky, { local: "2024-04-17T08:00:00", name, town: "New York" }),
@@ -61,7 +61,7 @@ test("a Morinus chart can be entered in astro.com, with its one name field as th
   assert.equal(view.next.view.buttons[0].holds.town, "New York");
   // Accented and non-Latin letters reach the boxes as Morinus saved them.
   const unicode = viewOf("unicode-text").items[0].view;
-  assert.deepEqual(unicode.next.view.nameBoxes.map((box) => box.text), ["", "Nagy Róbert 東京 \\ test"]);
+  assert.deepEqual(unicode.next.view.nameBoxes.map((box) => box.text), ["Nagy Róbert 東京 \\ test", ""]);
 });
 
 test("a Morinus chart with no place enters astro.com with no town", () => {

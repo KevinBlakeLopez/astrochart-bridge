@@ -194,6 +194,11 @@ test("a chart can be entered in astro.com with its name split as the file splits
   assert.deepEqual(astrologView.next.view.buttons[0].holds.name, { first: "New York Test", last: "" });
 });
 
+test("a record with only a last name enters astro.com with it as the first name, which the form needs", () => {
+  const { view } = viewForAafText(NY_TEXT.replace("Test,New York,", "Test,*,"), LA).items[0];
+  assert.deepEqual(view.next.view.buttons[0].holds.name, { first: "Test", last: "" });
+});
+
 test("a record with neither name part enters astro.com with no name", () => {
   const { view } = viewForAafText(NY_TEXT.replace("Test,New York,", "*,*,"), LA).items[0];
   assert.equal(view.next.view.buttons[0].holds.name, null);

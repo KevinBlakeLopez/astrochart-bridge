@@ -158,10 +158,10 @@ test("a confirmed entry opens the sky or the Astro-Seek chart, from the popup's 
   assert.deepEqual(view.buttons, [...ASTRO_SEEK_BUTTONS, SHARE_BUTTON]);
 });
 
-test("a confirmed entry can be entered in astro.com, with the text's name as its last name", () => {
+test("a confirmed entry can be entered in astro.com, with the text's name as its first name", () => {
   const entry = { date: "1985-06-15", time: "10:30:00", lat: 47.6062, lng: -122.3321, offsetMinutes: -420 };
   const { name } = formOf(LABELLED);
-  assert.deepEqual(name, { first: "", last: "Example Person" });
+  assert.deepEqual(name, { first: "Example Person", last: "" });
   const view = viewForEntry(entry, { name, ...LA });
   assert.deepEqual(view.next, { label: "Enter in astro.com…", view: viewForAstroCom(view.sky, { local: "1985-06-15T10:30:00", name }) });
   assert.equal(view.next.view.buttons[0].holds.name, name);
@@ -201,7 +201,7 @@ test("with the offset box empty, the other four boxes give a chart for astro.com
 
 test("a chart for astro.com alone opens its screen with no UTC, the text's name and town, and says why", () => {
   const chart = { local: "1985-06-15T10:30:00", lat: 47.6062, lng: -122.3321 };
-  const name = { first: "", last: "Example Person" };
+  const name = { first: "Example Person", last: "" };
   const view = viewForLocalEntry(chart, { name, town: "Seattle" });
   const astroCom = viewForAstroCom({ utc: null, lat: chart.lat, lng: chart.lng }, { local: chart.local, name, town: "Seattle" });
   assert.equal(view.state, "to-astro-com");
@@ -218,7 +218,7 @@ test("text with no name, or a blank one, enters astro.com with no name", () => {
 });
 
 test("a name's runs of spaces become one, as a person would type it", () => {
-  assert.deepEqual(formOf("Name: Example   Person\nDate of Birth: 15 June 1985").name, { first: "", last: "Example Person" });
+  assert.deepEqual(formOf("Name: Example   Person\nDate of Birth: 15 June 1985").name, { first: "Example Person", last: "" });
 });
 
 // --- Share… ---

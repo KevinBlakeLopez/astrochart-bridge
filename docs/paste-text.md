@@ -127,7 +127,7 @@ The sky and the chart need all five of:
 
 Everything else is shown on the form for you to compare and is never sent: the place, the time zone as written, the house system, the zodiac and the ayanamsa.
 
-The name goes only to astro.com's form. **Enter in astro.com…** puts all of it in the Last name box, as astro.com keeps an event's name, and you can move part of it to First name, change it or clear it before opening the form. Astro-Seek, Stellarium Web and shared links and files never get it.
+The name goes only to astro.com's form. **Enter in astro.com…** puts all of it in the First name box, which astro.com's form won't save a chart without, and you can move part of it to Last name, change it or clear it before opening the form. Astro-Seek, Stellarium Web and shared links and files never get it.
 
 ## Time zones and offsets
 

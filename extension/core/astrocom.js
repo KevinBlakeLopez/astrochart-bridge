@@ -336,21 +336,21 @@ export function isBirthDataForm(url) {
  * The time to enter in ade.cgi and its time zone. astro.com recommends its
  * automatic time zone, au, the form's default, which looks the zone up in its
  * atlas for the town and local time chosen. So a chart's local time goes in
- * with au. A chart with no local time, such as a sky from Stellarium, goes in
- * as Universal Time with h0w, " 00:00 GMT / UT", and so does one whose local
- * time is Universal Time: with h0w that is the same moment whatever town is
- * chosen, as for a chart entered in UT on Astro-Seek. A chart with a local
- * time and no UTC, pasted with no offset, goes in with au: the zone is
- * astro.com's alone to decide.
+ * with au, even when it is Universal Time, as for a chart in London in winter,
+ * or one entered in UT on Astro-Seek or as Greenwich time in Morinus: once the
+ * town is chosen, watchZone checks astro.com's zone against the chart's
+ * offset and offers UT if they differ. A chart with no local time, such as a
+ * sky from Stellarium, goes in as Universal Time with h0w, " 00:00 GMT / UT",
+ * the same moment whatever town is chosen. A chart with a local time and no
+ * UTC, pasted with no offset, goes in with au: the zone is astro.com's alone
+ * to decide.
  *
  * @param {{ utc: string | null, local?: string | null }} values  local is the
  *   chart's local time, YYYY-MM-DDTHH:MM:SS, or null; utc is null only with a local time
  * @returns {{ time: string, szon: "au" | "h0w" }}  time is YYYY-MM-DDTHH:MM:SS
  */
 export function formTime({ utc, local = null }) {
-  if (utc === null) return { time: local, szon: "au" };
-  const ut = utc.slice(0, 19);
-  return local === null || local === ut ? { time: ut, szon: "h0w" } : { time: local, szon: "au" };
+  return local === null ? { time: utc.slice(0, 19), szon: "h0w" } : { time: local, szon: "au" };
 }
 
 // Minutes from Universal Time to a chart's local time: -240 for 08:00 local at 12:00 UT.
@@ -557,7 +557,8 @@ export function watchZone(check) {
     const minutes = read[3] === "west" ? 0 - size : size;
     if (minutes === check.offsetMinutes) return note.remove();
     const words = line.split(",")[0];
-    show(`this chart is ${check.zone} of Universal Time, but astro.com's automatic time zone for this town is ${words}. Check that the town is right. If it is, enter the chart in Universal Time instead.`);
+    const chart = check.offsetMinutes === 0 ? "at Universal Time" : `${check.zone} of Universal Time`;
+    show(`this chart is ${chart}, but astro.com's automatic time zone for this town is ${words}. Check that the town is right. If it is, enter the chart in Universal Time instead.`);
   }
 
   button.addEventListener("click", () => {
@@ -575,4 +576,165 @@ export function watchZone(check) {
   observer.observe(zone, { childList: true, characterData: true, subtree: true });
   update();
   return { watching: true };
+}
+
+// astro.com's list of matching towns, as seen on 2026-11-01: jQuery UI's
+// autocomplete on scit, one ul.ui-autocomplete added to the page and hidden
+// with an inline "display: none" while closed. Each match is a li.ui-menu-item
+// holding a .ui-menu-item-wrapper whose text ends in the town's latitude and
+// longitude, written as in nd=: "London, ENG (UK) = England (UK), 51n30, 0w10",
+// "São Paulo, BRAS = Brazil, 23s3309, 46w3729". A script's click on a match,
+// even once the list is hidden, does what a person's choice does: it fills
+// the hidden spli field with astro.com's atlas record, puts the match's text
+// in scit, closes the list, and looks the time zone up. "New York" lists both
+// "New York, NY (US) = New York" and "New York City, NY (US) = New York" at
+// 40n43, 74w00, with the same atlas record but for the name.
+
+// How far a match may be from the chart's coordinates to count as its town.
+export const TOWN_LIMIT_KM = 25;
+
+/**
+ * Which of astro.com's matches for a chart's town to choose, from their text
+ * and the chart's coordinates. Only matches within TOWN_LIMIT_KM count. Of
+ * those, the one named as the chart's town, ignoring case and accents, is
+ * chosen, so "New York" chooses New York, NY over New York City, NY at the
+ * same place; or, when none is so named, the only one. Otherwise the person
+ * is asked, nearest first. A match whose coordinates can't be read is left out.
+ *
+ * @param {string[]} items  the matches' text, in astro.com's order
+ * @param {{ town: string, lat: number, lng: number }} chart
+ * @returns {{ kind: "pick", match: Match } | { kind: "ask", matches: Match[] } | { kind: "none", listed: number }}
+ *   where a Match is { text, away }: its text and its distance in words
+ */
+export function chooseTown(items, { town, lat, lng }) {
+  const near = items
+    .map((text) => ({ text, place: listedPlace(text) }))
+    .filter(({ place }) => place !== null)
+    .map(({ text, place }) => ({ text, name: place.name, km: distanceKm(lat, lng, place.lat, place.lng) }))
+    .filter(({ km }) => km <= TOWN_LIMIT_KM)
+    .sort((a, b) => a.km - b.km);
+  const match = ({ text, km }) => ({ text, away: km < 1 ? "less than 1 km" : `${Math.round(km)} km` });
+  const named = near.filter(({ name }) => sameName(name, town.split(",")[0]));
+  if (named.length === 1) return { kind: "pick", match: match(named[0]) };
+  if (named.length === 0 && near.length === 1) return { kind: "pick", match: match(near[0]) };
+  if (near.length === 0) return { kind: "none", listed: items.length };
+  return { kind: "ask", matches: near.map(match) };
+}
+
+// A match's name, before its first comma, and its coordinates, its last two
+// parts; or null when they aren't in nd='s form.
+function listedPlace(text) {
+  const parts = text.split(", ");
+  if (parts.length < 3) return null;
+  const lat = parseAngle(parts.at(-2), "n", "s", 90);
+  const lng = parseAngle(parts.at(-1), "e", "w", 180);
+  return lat === null || lng === null ? null : { name: parts[0], lat, lng };
+}
+
+const plainName = (name) => name.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase().replace(/\s+/g, " ").trim();
+const sameName = (a, b) => plainName(a) === plainName(b);
+
+// Great-circle distance on a sphere of the Earth's mean radius.
+function distanceKm(lat1, lng1, lat2, lng2) {
+  const rad = Math.PI / 180;
+  const a =
+    Math.sin(((lat2 - lat1) * rad) / 2) ** 2 +
+    Math.cos(lat1 * rad) * Math.cos(lat2 * rad) * Math.sin(((lng2 - lng1) * rad) / 2) ** 2;
+  return 2 * 6371 * Math.asin(Math.min(1, Math.sqrt(a)));
+}
+
+// readTownList and showTownChoice run in the form's tab, like fillForm.
+
+/**
+ * astro.com's matches for the town fillForm typed, once its list shows them.
+ * "waiting" until the list opens; "changed" once the town field holds
+ * anything else, such as a town the person typed.
+ *
+ * @param {string} town
+ * @returns {{ state: "waiting" | "changed" } | { state: "listed", items: string[] }}
+ */
+export function readTownList(town) {
+  const scit = document.forms.namedItem("start")?.elements.namedItem("scit") ?? null;
+  if (!scit || scit.value !== town) return { state: "changed" };
+  const menu = [...document.querySelectorAll("ul.ui-autocomplete")].find((list) => list.style.display !== "none");
+  if (!menu) return { state: "waiting" };
+  return { state: "listed", items: [...menu.querySelectorAll(".ui-menu-item-wrapper")].map((item) => item.textContent) };
+}
+
+/**
+ * Acts on chooseTown's choice for the town fillForm typed: chooses the match
+ * in astro.com's list as a person would, or asks in a box under the town
+ * field. Once a match is chosen, the box says which and how far it is from
+ * the chart's coordinates, with a button that lists astro.com's matches
+ * again. Asked, the box lists the near matches as buttons; with no near
+ * match, it says so. Either way astro.com's list is closed so the box shows.
+ * The box goes once the person types in the town field. Never submits.
+ *
+ * @param {ReturnType<typeof chooseTown>} choice
+ * @param {string} town
+ * @param {number} limitKm  TOWN_LIMIT_KM, for the box's words
+ * @returns {{ shown: boolean }}
+ */
+export function showTownChoice(choice, town, limitKm) {
+  const scit = document.forms.namedItem("start")?.elements.namedItem("scit") ?? null;
+  if (!scit || scit.value !== town) return { shown: false };
+  document.getElementById("astrochart-bridge-town")?.remove();
+
+  const note = document.createElement("div");
+  note.id = "astrochart-bridge-town";
+  const message = document.createElement("p");
+  const buttons = document.createElement("div");
+  note.append(message, buttons);
+  const say = (text, { warn }) => {
+    message.textContent = `AstroChart Bridge: ${text}`;
+    note.style.cssText = `clear: both; margin: 0.5em 0; padding: 0.5em 0.75em; border: 2px solid ${warn ? "#b00020" : "#888"}; background: #fff; color: #222;`;
+    buttons.replaceChildren();
+  };
+  const button = (text, onClick) => {
+    const element = document.createElement("button");
+    element.type = "button";
+    element.textContent = text;
+    element.style.margin = "0 0.5em 0.25em 0";
+    element.addEventListener("click", onClick);
+    buttons.append(element);
+  };
+  // Types the town again, as fillForm did, so astro.com lists its matches.
+  const listAgain = () => {
+    note.remove();
+    scit.value = town;
+    scit.focus();
+    scit.dispatchEvent(new Event("input", { bubbles: true }));
+  };
+  const choose = ({ text, away }) => {
+    const items = [...document.querySelectorAll("ul.ui-autocomplete .ui-menu-item-wrapper")];
+    const item = items.find((element) => element.textContent === text);
+    if (!item) {
+      say(`astro.com's list no longer has "${text}". Choose the town from its list.`, { warn: true });
+      button("List the matches again", listAgain);
+      return;
+    }
+    item.click();
+    say(`chose "${text}" from astro.com's list, ${away} from the chart's coordinates.`, { warn: false });
+    button("Choose another", listAgain);
+  };
+
+  if (choice.kind === "pick") choose(choice.match);
+  if (choice.kind === "ask") {
+    say(`more than one of astro.com's matches for "${town}" is within ${limitKm} km of the chart's coordinates. Which is the chart's town?`, { warn: true });
+    for (const match of choice.matches) button(`${match.text} (${match.away})`, () => choose(match));
+  }
+  if (choice.kind === "none") {
+    const which = choice.listed === 1 ? "astro.com's one match" : `none of astro.com's ${choice.listed} matches`;
+    const is = choice.listed === 1 ? "isn't" : "is";
+    say(`${which} for "${town}" ${is} within ${limitKm} km of the chart's coordinates. Choose the town from astro.com's list, or type a nearer one.`, { warn: true });
+    button("List the matches again", listAgain);
+  }
+  // astro.com's open list covers the box, as seen on 2026-11-01, and closes
+  // once the town field loses focus. Its matches stay in the page to choose.
+  if (choice.kind !== "pick") scit.blur();
+  // Typing in the town field makes the box's choice stale; the input events
+  // above are the script's own, so only the person's are heard.
+  scit.addEventListener("input", (event) => event.isTrusted && note.remove());
+  if (!note.isConnected) scit.after(note);
+  return { shown: true };
 }

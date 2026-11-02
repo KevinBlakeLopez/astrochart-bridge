@@ -157,7 +157,19 @@ Seen signed out on 2026-11-01, on `/cgi/ade.cgi` with test dates only. Nothing w
   The comma is followed by a no-break space, and `<br>`s separate "time zone:", the zone and any warning, so in `textContent` they run together. With no hour chosen, the request returns nothing.
 - **Typing "London" lists London (Conecuh County), Alabama first,** whose zone on 17 April 2024 is `5 h west`. A town picked in a hurry can give a zone hours away from the chart's, with no warning from astro.com.
 
-AstroChart Bridge fills in a chart's local time with `au` and reads `#zz` to check astro.com's zone against the chart's offset (`watchZone` in `extension/core/astrocom.js`). A chart with no local time, such as a Stellarium sky, or whose local time is Universal Time, is filled in with `h0w`.
+AstroChart Bridge fills in a chart's local time with `au` and reads `#zz` to check astro.com's zone against the chart's offset (`watchZone` in `extension/core/astrocom.js`). A chart whose local time is Universal Time goes in with `au` too, and is checked against GMT/UT. Only a chart with no local time, such as a Stellarium sky, is filled in with `h0w`.
+
+## Birth data form: the town list and the name
+
+Seen signed out on 2026-11-01, on `/cgi/ade.cgi` with test dates only. Nothing was submitted.
+
+- **The town list is jQuery UI's autocomplete** on `scit`, not the browser's own: one `ul.ui-autocomplete` added to the page, hidden with an inline `display: none` while closed. An `input` event sent by a script opens it, as typing does.
+- **Each match's text ends in its coordinates**, written as in `nd=`: `London, ENG (UK) = England (UK), 51n30, 0w10`, `São Paulo, BRAS = Brazil, 23s3309, 46w3729`. "London" listed 42 matches, "New York" 23, and "Sao Paulo" without its accent found São Paulo. "New York, NY", "New York, USA" and "Paris, France" listed the same towns as the town alone.
+- **A script's click on a match does what a person's choice does,** even once the list is hidden because focus moved: it fills `spli`, puts the match's text in `scit`, closes the list and looks the time zone up.
+- **"New York" lists two matches at the same place,** `New York, NY (US) = New York` and `New York City, NY (US) = New York`, both 40n43, 74w00, whose `spli` records differ only in the name.
+- **The form won't take a chart with no first name.** Not seen in the session above, which submitted nothing: on the same day, continuing a filled-in form with only a last name showed "Please check your data: Please write something as 'first name'."
+
+AstroChart Bridge chooses the chart's town among the matches by the chart's coordinates (`chooseTown` in `extension/core/astrocom.js`), and asks when more than one is near and none is named as the chart's town.
 
 ## Other observations
 

@@ -73,12 +73,15 @@ test("a chart's local time goes in with astro.com's automatic time zone, au", ()
   assert.deepEqual([late.sday, late.ihou, late.smin], ["17", "22", "30"]);
 });
 
-test("a sky with no local time, or a local time that is UT, goes in as UT with h0w", () => {
+test("a sky with no local time goes in as UT with h0w", () => {
   assert.deepEqual(formTime({ utc: NY_SKY.utc }), { time: "2024-04-17T12:00:00", szon: "h0w" });
   assert.deepEqual(formTime({ utc: NY_SKY.utc, local: null }), { time: "2024-04-17T12:00:00", szon: "h0w" });
-  // A chart entered in UT, as AstroChart Bridge opens Astro-Seek's: with au,
-  // astro.com would read 12:00 as the chosen town's local time.
-  assert.deepEqual(formTime({ utc: NY_SKY.utc, local: "2024-04-17T12:00:00" }), { time: "2024-04-17T12:00:00", szon: "h0w" });
+});
+
+test("a local time that is UT goes in with au too, for watchZone to check against GMT/UT", () => {
+  // A chart in London in winter, or one entered in UT on Astro-Seek or as Greenwich time in Morinus.
+  assert.deepEqual(formTime({ utc: NY_SKY.utc, local: "2024-04-17T12:00:00" }), { time: "2024-04-17T12:00:00", szon: "au" });
+  assert.deepEqual(zoneCheck({ utc: NY_SKY.utc, local: "2024-04-17T12:00:00" }).zone, "GMT/UT");
 });
 
 test("a town goes in the birth town field, scit", () => {
@@ -526,7 +529,6 @@ test("the check holds the chart's offset, what was filled in, and the Universal 
   });
   // A form filled in as Universal Time has nothing to check.
   assert.equal(zoneCheck(NY_SKY), null);
-  assert.equal(zoneCheck({ ...NY_SKY, local: "2024-04-17T12:00:00" }), null);
 });
 
 // A filled-in form with ade.cgi's time zone line, #zz, which the page fills
@@ -617,6 +619,16 @@ test("half-hour and GMT/UT zones are read too", () => {
   assert.equal(page.message(), null);
   page.pickTown(ZZ.london);
   assert.match(page.message(), /this chart is 3 h 30 min west of Universal Time, but astro\.com's automatic time zone for this town is GMT\/UT\./);
+});
+
+test("a chart whose local time is UT is fine in London in winter, and gets the note in New York", () => {
+  const london = { utc: "2024-01-15T08:00:00Z", lat: 51.5, lng: -0.166667, local: "2024-01-15T08:00:00" };
+  const page = zonePage(london);
+  runInPage(watchZone, page, zoneCheck(london));
+  page.pickTown(ZZ.london);
+  assert.equal(page.message(), null);
+  page.pickTown(ZZ.nyStandard);
+  assert.match(page.message(), /this chart is at Universal Time, but astro\.com's automatic time zone for this town is 5 h west\./);
 });
 
 test("a zone with no offset, such as local mean time, can't be checked and says so", () => {

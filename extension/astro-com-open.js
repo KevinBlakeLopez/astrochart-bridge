@@ -3,7 +3,18 @@
 // while it does: the tab opens behind it, and comes to the front only when
 // there is nothing left for the user to decide. Each function takes the
 // browser APIs it uses, so tests can pass stand-ins.
-import { fillForm, formValues, isBirthDataForm, readFormPage, watchZone, zoneCheck } from "./core/astrocom.js";
+import {
+  TOWN_LIMIT_KM,
+  chooseTown,
+  fillForm,
+  formValues,
+  isBirthDataForm,
+  readFormPage,
+  readTownList,
+  showTownChoice,
+  watchZone,
+  zoneCheck,
+} from "./core/astrocom.js";
 import { holdForTab, releaseTab } from "./pending.js";
 
 // The manifest's optional host permission, asked for when the form button is clicked.
@@ -12,6 +23,12 @@ export const ASTRO_COM_ACCESS = { origins: ["https://www.astro.com/*"] };
 // astro.com's form loaded within a few seconds when seen; its page waits for
 // its advertising before it counts as loaded, so the wait allows for more.
 export const LOAD_TIMEOUT_MS = 20_000;
+
+// astro.com listed a town's matches within about 2.5 seconds when seen, in a
+// tab at the front. The form's tab is behind the popup, where browsers may run
+// its timers less often, so the wait allows for more.
+export const TOWN_LIST_TIMEOUT_MS = 8_000;
+const TOWN_LIST_POLL_MS = 250;
 
 /**
  * Waits for a tab to finish loading. Listens only while it waits.
@@ -80,6 +97,7 @@ export async function openAndFill({ tabs, scripting, storage }, { url, values, t
       return { outcome: "choose", tabId, page: { kind: "form", auth: page.auth, form: fill?.form ?? "unrecognised" } };
     }
     await watchFilledZone(scripting, tabId, values);
+    await chooseFilledTown(scripting, tabId, values);
   } catch {
     // The tab navigated away, or the browser refused the script.
     return notFilled;
@@ -101,4 +119,36 @@ export async function watchFilledZone(scripting, tabId, values) {
   const check = zoneCheck(values);
   if (check === null) return;
   await scripting.executeScript({ target: { tabId }, func: watchZone, args: [check] }).catch(() => {});
+}
+
+/**
+ * Once a form is filled in with a town, waits for astro.com's list of its
+ * matches and has the tab choose the chart's town among them, or ask
+ * (chooseTown, showTownChoice). The form is filled in either way, so a list
+ * that doesn't come in time, a town field the person already typed in, or a
+ * script that can't run leaves the town to the person, as before.
+ *
+ * @param {typeof chrome.scripting} scripting
+ * @param {number} tabId
+ * @param {{ lat: number, lng: number, town?: string | null }} values
+ * @param {{ timeoutMs?: number, pollMs?: number }} [wait]
+ */
+export async function chooseFilledTown(scripting, tabId, values, { timeoutMs = TOWN_LIST_TIMEOUT_MS, pollMs = TOWN_LIST_POLL_MS } = {}) {
+  const { town = null, lat, lng } = values;
+  if (town === null) return;
+  const deadline = Date.now() + timeoutMs;
+  try {
+    for (;;) {
+      const [{ result: list }] = await scripting.executeScript({ target: { tabId }, func: readTownList, args: [town] });
+      if (list?.state === "listed") {
+        const choice = chooseTown(list.items, { town, lat, lng });
+        await scripting.executeScript({ target: { tabId }, func: showTownChoice, args: [choice, town, TOWN_LIMIT_KM] });
+        return;
+      }
+      if (list?.state !== "waiting" || Date.now() >= deadline) return;
+      await new Promise((resolve) => setTimeout(resolve, pollMs));
+    }
+  } catch {
+    // The tab navigated away, or the browser refused the script.
+  }
 }

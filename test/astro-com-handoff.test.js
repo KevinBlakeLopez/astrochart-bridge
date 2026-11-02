@@ -22,7 +22,7 @@ const SIGN_IN_NOTE =
 const ACCESS_NOTE =
   "The first time, your browser asks to let AstroChart Bridge read and change www.astro.com pages. It uses that only to fill in the form in the tab it opens. If you say no, it shows the values to fill in yourself.";
 const NAME_NOTE =
-  "The name goes in astro.com's first and last name fields, and you can change it here first. An event's name goes in Last name, as astro.com keeps it.";
+  "The name goes in astro.com's first and last name fields, and you can change it here first. A name in one piece goes in First name, which astro.com won't save a chart without.";
 const EMPTY_BOXES = [
   { part: "first", label: "First name", text: "" },
   { part: "last", label: "Last name", text: "" },
@@ -117,13 +117,12 @@ test("a chart with no UTC is listed with the automatic time zone and no offset, 
   assert.deepEqual(view.buttons[0].holds, { ...NY_HELD, utc: null, local, town: "New York" });
 });
 
-test("a half-hour offset is named in astro.com's words, and a local time that is UT is listed as UT", () => {
+test("a half-hour offset is named in astro.com's words, and a local time that is UT goes in with the automatic time zone", () => {
   const delhi = { utc: "2024-04-17T06:30:00Z", lat: 28.6, lng: 77.2 };
   assert.match(viewForAstroCom(delhi, { local: "2024-04-17T12:00:00" }).notes[0], /It should be 5 h 30 min east \(UTC\+05:30\):/);
   const ut = viewForAstroCom(NY_SKY, { local: "2024-04-17T12:00:00" });
-  assert.deepEqual(ut.rows[2], ["Time zone", "00:00 GMT / UT, under show / hide extended settings"]);
-  // The date and time are both local and UT, so neither note applies.
-  assert.equal(ut.notes[0].startsWith("astro.com asks for a country and town"), true);
+  assert.deepEqual(ut.rows[2], ["Time zone", "automatic time zone, the form's default"]);
+  assert.match(ut.notes[0], /It should be GMT\/UT \(UTC\+00:00\):/);
 });
 
 test("a chart that names its town shows it, says it will be filled in, and keeps it for the tab", () => {

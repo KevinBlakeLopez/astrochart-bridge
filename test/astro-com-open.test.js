@@ -1,8 +1,18 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
-import { ASTRO_COM_ACCESS, openAndFill, tabLoaded } from "../extension/astro-com-open.js";
-import { fillForm, formValues, readFormPage, watchZone, zoneCheck } from "../extension/core/astrocom.js";
+import { ASTRO_COM_ACCESS, chooseFilledTown, openAndFill, tabLoaded } from "../extension/astro-com-open.js";
+import {
+  TOWN_LIMIT_KM,
+  chooseTown,
+  fillForm,
+  formValues,
+  readFormPage,
+  readTownList,
+  showTownChoice,
+  watchZone,
+  zoneCheck,
+} from "../extension/core/astrocom.js";
 import { heldForTab } from "../extension/pending.js";
 import {
   ASTRO_COM_BUSY,
@@ -70,8 +80,20 @@ function fakeTabs() {
   };
 }
 
-// A stand-in for chrome.scripting that answers for readFormPage and fillForm.
-function fakeScripting({ page = { auth: "unknown", form: "blank" }, fill = { filled: true }, watch = { watching: true } } = {}) {
+// astro.com's list for "New York", abridged from what it showed on 2026-11-01.
+const NEW_YORK_LIST = ["New York, FL (US) = Florida, 30n50, 87w12", "New York, NY (US) = New York, 40n43, 74w00"];
+const LISTED = { state: "listed", items: NEW_YORK_LIST };
+
+// A stand-in for chrome.scripting that answers for readFormPage, fillForm,
+// watchZone and the town list: lists answers readTownList in turn, its last
+// answer once the rest are used.
+function fakeScripting({
+  page = { auth: "unknown", form: "blank" },
+  fill = { filled: true },
+  watch = { watching: true },
+  lists = [LISTED],
+  choose = { shown: true },
+} = {}) {
   const calls = [];
   return {
     calls,
@@ -83,6 +105,12 @@ function fakeScripting({ page = { auth: "unknown", form: "blank" }, fill = { fil
         if (watch instanceof Error) throw watch;
         return [{ result: watch }];
       }
+      if (func === readTownList) {
+        const list = lists.length > 1 ? lists.shift() : lists[0];
+        if (list instanceof Error) throw list;
+        return [{ result: list }];
+      }
+      if (func === showTownChoice) return [{ result: choose }];
       throw new Error(`unexpected ${func.name}`);
     },
   };
@@ -115,6 +143,8 @@ test("a signed-in or unknown browser's blank form is filled in with no stop, and
   assert.deepEqual(browser.scripting.calls, [
     { tabId: 40, func: "readFormPage", args: undefined },
     { tabId: 40, func: "fillForm", args: [formValues(VALUES)] },
+    { tabId: 40, func: "readTownList", args: ["New York"] },
+    { tabId: 40, func: "showTownChoice", args: [chooseTown(NEW_YORK_LIST, VALUES), "New York", TOWN_LIMIT_KM] },
   ]);
   assert.equal(await heldForTab(browser.storage, 40), null);
   assert.equal(browser.tabs.listeners(), 0);
@@ -127,7 +157,43 @@ test("a form filled in with a local time has the tab check astro.com's automatic
   assert.deepEqual(browser.scripting.calls.slice(1), [
     { tabId: 40, func: "fillForm", args: [formValues(values)] },
     { tabId: 40, func: "watchZone", args: [zoneCheck(values)] },
+    { tabId: 40, func: "readTownList", args: ["New York"] },
+    { tabId: 40, func: "showTownChoice", args: [chooseTown(NEW_YORK_LIST, values), "New York", TOWN_LIMIT_KM] },
   ]);
+});
+
+test("the tab chooses the town among astro.com's matches once its list shows them", async () => {
+  const scripting = fakeScripting({ lists: [{ state: "waiting" }, { state: "waiting" }, LISTED] });
+  await chooseFilledTown(scripting, 40, VALUES, { pollMs: 1 });
+  assert.deepEqual(
+    scripting.calls.map(({ func }) => func),
+    ["readTownList", "readTownList", "readTownList", "showTownChoice"],
+  );
+  assert.deepEqual(scripting.calls[3].args[0], {
+    kind: "pick",
+    match: { text: "New York, NY (US) = New York, 40n43, 74w00", away: "less than 1 km" },
+  });
+});
+
+test("a chart with no town, a town field typed in, or a list that doesn't come leaves the town to the person", async () => {
+  const noTown = fakeScripting();
+  await chooseFilledTown(noTown, 40, { ...VALUES, town: null });
+  assert.deepEqual(noTown.calls, []);
+
+  const typed = fakeScripting({ lists: [{ state: "changed" }] });
+  await chooseFilledTown(typed, 40, VALUES);
+  assert.deepEqual(typed.calls.map(({ func }) => func), ["readTownList"]);
+
+  const slow = fakeScripting({ lists: [{ state: "waiting" }] });
+  await chooseFilledTown(slow, 40, VALUES, { timeoutMs: 30, pollMs: 5 });
+  assert.ok(slow.calls.length > 1);
+  assert.ok(slow.calls.every(({ func }) => func === "readTownList"));
+});
+
+test("a town list that can't be read still counts as filled in", async () => {
+  const browser = browserWith(fakeScripting({ lists: [new Error("Frame was removed")] }));
+  assert.deepEqual(await openThenLoad(browser), { outcome: "filled", tabId: 40 });
+  assert.equal(await heldForTab(browser.storage, 40), null);
 });
 
 test("a check that can't start leaves the form filled in, as if there were none", async () => {

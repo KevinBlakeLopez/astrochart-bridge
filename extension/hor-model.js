@@ -86,7 +86,7 @@ export function viewForHorFile(bytes, options) {
 /**
  * What to show for one chart: the popup's ready screen, with the name,
  * birthplace and the time as Morinus has it, or why it can't open. Its step
- * to enter the chart in astro.com takes Morinus's one name field as the last
+ * to enter the chart in astro.com takes Morinus's one name field as the first
  * name, as the paste page does, and the place as the town for astro.com's atlas.
  *
  * @param {ReturnType<typeof chartFromHor>} result
