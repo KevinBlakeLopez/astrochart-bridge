@@ -14,7 +14,7 @@ const analyze = (name) => {
 const CLOCK_NOTE = "Stellarium Web's clock shows your computer's time zone and keeps running.";
 const PRIVACY_NOTE =
   "Opening the sky sends this date, time and place to stellarium-web.org, and its page passes the link on to Google's advertising tags.";
-// The choose and enter-offset screens show both, the privacy note last, just above Open sky.
+// The choose and enter-offset screens show both, the privacy note last, just above Open Stellarium Web.
 // The ready screen replaces the general clock note with the exact time Stellarium will show.
 const NOTES = [CLOCK_NOTE, PRIVACY_NOTE];
 const RUNNING = "The clock starts running at once; its pause button stops it.";
@@ -23,7 +23,7 @@ const NY_PLACE = ["Place", "40°43'N, 74°0'W"];
 // Every screen with a chart of its own can share it; the button opens the
 // receiving page in a tab once a UTC is decided.
 const SHARE = { label: "Share…", does: "share", secondary: true };
-const OPEN_SKY = { label: "Open sky", opens: "stellarium" };
+const OPEN_SKY = { label: "Open Stellarium Web", opens: "stellarium" };
 
 test("ready: New York, seen from Los Angeles", () => {
   assert.deepEqual(viewFor(analyze("ny-2024-04-17"), LOS_ANGELES), {
@@ -46,7 +46,7 @@ test("ready: New York, seen from Los Angeles", () => {
   });
 });
 
-// Astro-Seek charts, such as New York above, have only Open sky: they are already on Astro-Seek.
+// Astro-Seek charts, such as New York above, have only Open Stellarium Web: they are already on Astro-Seek.
 test("ready: an astro.com chart shows its stated offset and no zone label, and can open in Astro-Seek", () => {
   // The analyzePage result for the captured astro.com account chart, as test/index.test.js checks it.
   const result = {
@@ -72,7 +72,7 @@ test("ready: an astro.com chart shows its stated offset and no zone label, and c
     sky: { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 },
     // view.js opens stellariumUrl or astroSeekUrl of this sky, so Astro-Seek gets 12:00 UT.
     buttons: [
-      { label: "Open sky", opens: "stellarium" },
+      { label: "Open Stellarium Web", opens: "stellarium" },
       { label: "Open chart in Astro-Seek", opens: "astro-seek" },
       SHARE,
     ],

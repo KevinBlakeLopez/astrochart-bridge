@@ -27,7 +27,7 @@ test("a ready screenshot shows the popup's screen, with the compare note first a
 
 test("a screenshot opens the sky or the Astro-Seek chart, or shares it", () => {
   assert.deepEqual(viewForScreenshot(NY, LA).buttons, [
-    { label: "Open sky", opens: "stellarium" },
+    { label: "Open Stellarium Web", opens: "stellarium" },
     { label: "Open chart in Astro-Seek", opens: "astro-seek" },
     { label: "Share…", does: "share", secondary: true },
   ]);

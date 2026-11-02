@@ -72,10 +72,10 @@ https://horoscopes.astro-seek.com/calculate-birth-chart-horoscope-online/?input_
 ```
 
 - [ ] The popup shows Local time `17 Apr 2024, 08:00 (EDT, DST)`, Offset `UTC-04:00`, UTC `2024-04-17 12:00` and Place `40°43'N, 74°0'W`.
-- [ ] Below them are two grey notes, the one about Google last, then a blue **Open sky** button and an outlined **Share…** button (test 20).
+- [ ] Below them are two grey notes, the one about Google last, then a blue **Open Stellarium Web** button and an outlined **Share…** button (test 20).
 - [ ] The first note names the time Stellarium's clock will show in your computer's time zone, and says that's 08:00 on 17 Apr at the birthplace. On a Mac set to Pacific time it says 05:00 on 17 Apr.
-- [ ] After **Open sky**, Stellarium's clock (bottom right) shows the time the note named, give or take the seconds it has been running.
-- [ ] Clicking **Open sky** opens a Stellarium Web tab and closes the popup. The new tab's address contains `date=2024-04-17T12%3A00%3A00Z&lat=40.716667&lng=-74`.
+- [ ] After **Open Stellarium Web**, Stellarium's clock (bottom right) shows the time the note named, give or take the seconds it has been running.
+- [ ] Clicking **Open Stellarium Web** opens a Stellarium Web tab and closes the popup. The new tab's address contains `date=2024-04-17T12%3A00%3A00Z&lat=40.716667&lng=-74`.
 
 ## Test 2: Sydney
 
@@ -99,10 +99,10 @@ https://horoscopes.astro-seek.com/calculate-birth-chart-horoscope-online/?input_
 https://horoscopes.astro-seek.com/calculate-birth-chart-horoscope-online/?input_natal=1&send_calculation=1&narozeni_den=14&narozeni_mesic=3&narozeni_rok=2021&narozeni_hodina=02&narozeni_minuta=30&narozeni_sekunda=00&narozeni_city=New+York%2C+USA%2C+New+York&narozeni_mesto_hidden=New+York&narozeni_stat_hidden=US&narozeni_podstat_kratky_hidden=NY&narozeni_tzid_id=156&narozeni_sirka_stupne=40&narozeni_sirka_minuty=43&narozeni_sirka_smer=0&narozeni_delka_stupne=74&narozeni_delka_minuty=0&narozeni_delka_smer=1&narozeni_timezone_form=auto&narozeni_timezone_dst_form=auto&house_system=placidus&hid_fortune=1&hid_vertex=1&hid_chiron=1&hid_chiron_check=on&hid_lilith=1&hid_lilith_check=on&hid_uzel=1&hid_uzel_check=on&tolerance=1&aya=&tolerance_paral=0&zmena_nastaveni=1&aktivni_tab=&hide_aspects=0&dominanta_metoda=1&dominanta_rulership=1#tabs_redraw
 ```
 
-- [ ] The popup shows "Astro-Seek's page contradicts itself…", two readings with round buttons, and faded **Open sky** and **Share…** buttons.
-- [ ] Clicking the faded **Open sky** does nothing.
-- [ ] Pick the first reading (06:30) and click **Open sky**. The new tab's address contains `date=2021-03-14T06%3A30%3A00Z`.
-- [ ] Go back to the chart tab, open the popup again, pick the second reading (07:30) and click **Open sky**. The new tab's address contains `date=2021-03-14T07%3A30%3A00Z`.
+- [ ] The popup shows "Astro-Seek's page contradicts itself…", two readings with round buttons, and faded **Open Stellarium Web** and **Share…** buttons.
+- [ ] Clicking the faded **Open Stellarium Web** does nothing.
+- [ ] Pick the first reading (06:30) and click **Open Stellarium Web**. The new tab's address contains `date=2021-03-14T06%3A30%3A00Z`.
+- [ ] Go back to the chart tab, open the popup again, pick the second reading (07:30) and click **Open Stellarium Web**. The new tab's address contains `date=2021-03-14T07%3A30%3A00Z`.
 
 ## Test 5: a transit page
 
@@ -126,7 +126,7 @@ https://horoscopes.astro-seek.com/calculate-love-compatibility/?send_calculation
 https://horoscopes.astro-seek.com/calculate-asteroids/?narozeni_den=17&narozeni_mesic=4&narozeni_rok=2024&narozeni_hodina=08&narozeni_minuta=00&narozeni_sekunda=00&narozeni_mesto_hidden=New%20York&narozeni_stat_hidden=US&narozeni_podstat_kratky_hidden=NY&narozeni_tzid_id=156&narozeni_city=New%20York,%20USA,%20New%20York&narozeni_sirka_stupne=40&narozeni_sirka_minuty=43&narozeni_sirka_smer=0&narozeni_delka_stupne=74&narozeni_delka_minuty=0&narozeni_delka_smer=1&narozeni_timezone_form=auto&narozeni_timezone_dst_form=auto&house_system=placidus&styl_graf=&hid_fortune=on&hid_fortune_check=&hid_spirit=&hid_spirit_check=on&hid_syzygy=&hid_syzygy_check=on&hid_vertex=on&hid_vertex_check=&hid_chiron=&hid_chiron_check=on&hid_lilith=&hid_lilith_check=on&hid_uzel=&hid_uzel_check=on&tolerance=1&tolerance_paral=0&nick=&hide_aspects=0&duha=&hide_trans=&display_trans=&aya=&house_start=&naksha_posun=&naksha_nasobek=&custom_aya=&&&radix=1&aktivni_tab=1&ast_symbol=text&asteroidy_ukazat=1
 ```
 
-- [ ] The popup shows the same rows and notes as test 1, and **Open sky** opens an address containing `date=2024-04-17T12%3A00%3A00Z&lat=40.716667&lng=-74`.
+- [ ] The popup shows the same rows and notes as test 1, and **Open Stellarium Web** opens an address containing `date=2024-04-17T12%3A00%3A00Z&lat=40.716667&lng=-74`.
 
 ## Test 8: another website
 
@@ -146,7 +146,7 @@ Go to `chrome://extensions` in Chrome, `brave://extensions` in Brave, `edge://ex
 
 Switch the Mac's appearance (System Settings → Appearance) and reopen the popup on test 1.
 
-- [ ] In both modes the text is readable and the **Open sky** button has clear contrast.
+- [ ] In both modes the text is readable and the **Open Stellarium Web** button has clear contrast.
 
 ## Test 11: traditional charts
 
@@ -158,7 +158,7 @@ New York 2024:
 https://horoscopes.astro-seek.com/calculate-traditional-chart/?narozeni_den=17&narozeni_mesic=4&narozeni_rok=2024&narozeni_hodina=08&narozeni_minuta=00&narozeni_sekunda=00&narozeni_mesto_hidden=New%20York&narozeni_stat_hidden=US&narozeni_podstat_kratky_hidden=NY&narozeni_tzid_id=156&narozeni_city=New%20York,%20USA,%20New%20York&narozeni_sirka_stupne=40&narozeni_sirka_minuty=43&narozeni_sirka_smer=0&narozeni_delka_stupne=74&narozeni_delka_minuty=0&narozeni_delka_smer=1&narozeni_timezone_form=auto&narozeni_timezone_dst_form=auto&house_system=placidus&styl_graf=&hid_fortune=on&hid_fortune_check=&hid_spirit=&hid_spirit_check=on&hid_syzygy=&hid_syzygy_check=on&hid_vertex=on&hid_vertex_check=&hid_chiron=&hid_chiron_check=on&hid_lilith=&hid_lilith_check=on&hid_uzel=&hid_uzel_check=on&tolerance=1&tolerance_paral=0&nick=&hide_aspects=0&duha=&hide_trans=&display_trans=&aya=&house_start=&naksha_posun=&naksha_nasobek=&custom_aya=&&radix=1&aktivni_tab=1&house_system=whole_horizon&terms=
 ```
 
-- [ ] The popup shows the same rows and notes as test 1, and **Open sky** opens an address containing `date=2024-04-17T12%3A00%3A00Z&lat=40.716667&lng=-74`.
+- [ ] The popup shows the same rows and notes as test 1, and **Open Stellarium Web** opens an address containing `date=2024-04-17T12%3A00%3A00Z&lat=40.716667&lng=-74`.
 
 The skipped time:
 
@@ -193,14 +193,14 @@ The screenshot page reads the image on this computer with the Tesseract.js files
 - [ ] Within a few seconds the page shows the same rows as test 1. The first grey note says to compare the rows with the screenshot.
 - [ ] The Console is empty, and every request in the Network tab is a `chrome-extension://` address (`moz-extension://` in Firefox, `safari-web-extension://` in Safari).
 - [ ] **What AstroChart Bridge read** opens to show the text read from the screenshot.
-- [ ] **Open sky** opens a Stellarium Web tab whose address contains `date=2024-04-17T12%3A00%3A00Z&lat=40.716667&lng=-74`, and the screenshot tab stays open.
+- [ ] **Open Stellarium Web** opens a Stellarium Web tab whose address contains `date=2024-04-17T12%3A00%3A00Z&lat=40.716667&lng=-74`, and the screenshot tab stays open.
 - [ ] Below it is **Open chart in Astro-Seek**, and the last two grey notes say Astro-Seek will draw the chart in UT/GMT with no city, and that opening it sends the date, time and place to astro-seek.com.
 - [ ] **Open chart in Astro-Seek** opens the same chart as test 12: its header shows `17 Apr 2024 - 12:00  (Manually: GMT+00:00)`, Universal Time `17 Apr 2024 - 12:00` and `40°43'N, 74°0'W`.
 - [ ] Save the same screenshot as a file (**Cmd+Shift+4**). Dropping it onto the page and choosing it with **Choose File** give the same result.
 - [ ] Open the file in Preview, use **Tools → Adjust Size** to halve its width, and save. Dropping it gives the same result.
 - [ ] A screenshot of only the chart wheel shows "AstroChart Bridge couldn't find the birth data in this screenshot…" and `Code: unreadable-screenshot`.
 - [ ] In light and dark mode the page is readable, like the popup in test 10.
-- [ ] Open a chart drawing on astro.com and paste a screenshot of the whole drawing. The rows show the header's local date and time, its Univ.Time as UTC, and its coordinates. There is no zone label in the Local time row, and the page offers **Open sky** and **Open chart in Astro-Seek**.
+- [ ] Open a chart drawing on astro.com and paste a screenshot of the whole drawing. The rows show the header's local date and time, its Univ.Time as UTC, and its coordinates. There is no zone label in the Local time row, and the page offers **Open Stellarium Web** and **Open chart in Astro-Seek**.
 
 ## Test 14: entering a chart in astro.com
 
@@ -212,7 +212,7 @@ If AstroChart Bridge already has access to www.astro.com, remove it first, as in
 
 Open the test 1 URL and open the popup.
 
-- [ ] Below **Open sky** and **Share…** is **Enter in astro.com…**. On an astro.com account chart, if you have one, it isn't there.
+- [ ] Below **Open Stellarium Web** and **Share…** is **Enter in astro.com…**. On an astro.com account chart, if you have one, it isn't there.
 - [ ] **Enter in astro.com…** replaces the popup's screen with Birthday `17 April 2024`, Hour, min `12:00`, Time zone `00:00 GMT / UT, under show / hide extended settings`, Place `40°43'N, 74°0'W` and Town `New York`; "AstroChart Bridge opens astro.com's form and fills it in as it opens…"; empty **First name** and **Last name** boxes, each with its label to its left; six grey notes (the second saying AstroChart Bridge fills in the town New York, the third about the name boxes, the last about the browser asking for access); the buttons **Open astro.com's form**, **Sign in** and **Create account**; and **Cancel**.
 - [ ] **Cancel** brings back the test 1 screen.
 - [ ] **Open astro.com's form** makes the browser ask whether AstroChart Bridge may read and change www.astro.com. Note whether the popup stays open while it asks, in each browser. Click **Deny**: no tab opens, and the popup says "AstroChart Bridge can't fill in the form without access to www.astro.com.", shows the same five rows, the grey note "After the astro.com tab opens, click the AstroChart Bridge icon in the toolbar again to fill in the form." and one **Open astro.com's form** button.
@@ -244,7 +244,7 @@ Open the test 1 URL and open the popup.
 
 ### Saving
 
-- [ ] On the test 1 popup, below **Open sky** and above **Enter in astro.com…**, is **Save as AAF file**. Clicking it saves `chart-2024-04-17.aaf` to the browser's downloads folder without asking for a permission. Note whether the popup stays open.
+- [ ] On the test 1 popup, below **Open Stellarium Web** and above **Enter in astro.com…**, is **Save as AAF file**. Clicking it saves `chart-2024-04-17.aaf` to the browser's downloads folder without asking for a permission. Note whether the popup stays open.
 - [ ] The saved file reads `#: AstroChart Bridge`, then `#A93:*,*,*,17.4.2024,8:00,*,*`, then `#B93:*,40n43,74w00,5hw00,1`.
 - [ ] On an astro.com account chart, if you have one, **Save as AAF file** has a grey note below it saying the file gives the chart in Universal Time, and the file's `#B93` line ends `,0h,0`.
 - [ ] On the Stellarium Web tab from test 12, the popup has **Save as AAF file** with a note that the file gives the moment in Universal Time.
@@ -255,7 +255,7 @@ Open the test 1 URL and open the popup.
 
 - [ ] On the test 8 popup (another website), below **Paste chart text instead**, is **Open an AAF or Morinus file**. It opens the import page in a new tab and closes the popup.
 - [ ] Choose `fixtures/aaf/astrolog-8.00-new-york.aaf`. The page says "1 chart in this file." and shows Name `New York Test`, Local time `17 Apr 2024, 08:00`, Offset `UTC-04:00`, UTC `2024-04-17 12:00`, Birthplace `New York, NY (US)` and Place `40°43'N, 74°0'W`. The Console is empty.
-- [ ] **Open sky** opens Stellarium Web with `date=2024-04-17T12%3A00%3A00Z&lat=40.716667&lng=-74` in the address. **Open chart in Astro-Seek** opens the same chart at 12:00 UT, as in test 12.
+- [ ] **Open Stellarium Web** opens Stellarium Web with `date=2024-04-17T12%3A00%3A00Z&lat=40.716667&lng=-74` in the address. **Open chart in Astro-Seek** opens the same chart at 12:00 UT, as in test 12.
 - [ ] **Enter in astro.com…** shows the test 14 screen with First name `New York Test` and Last name empty, since Astrolog leaves the last name unknown. **Open astro.com's form** asks for access as in test 14, opens the form in a tab behind the page, and says something needs your choice first, as the screenshot page does in test 14. On that tab, the popup's rows include First name `New York Test`, and **Fill in anyway** fills in the form's first name.
 - [ ] Drag `fixtures/aaf/astrolog-8.00-delhi-seconds.aaf` onto the page. It shows Local time `1 Mar 1990, 06:15`, Offset `UTC+05:30` and UTC `1990-03-01 00:45`.
 - [ ] Paste these lines into the box and click **Read pasted text**:
@@ -293,14 +293,14 @@ Sun: 27°53' Aries
 - [ ] An orange warning says the text uses Whole Sign houses but Astro-Seek's chart will open with Placidus houses. Place, Time zone and Houses are listed as written, and the Sun line appears nowhere.
 - [ ] The Console is empty, and every request in the Network tab is a `chrome-extension://` address (`moz-extension://` in Firefox).
 - [ ] **Continue** shows Local time `17 Apr 2024, 08:00`, Offset `UTC-04:00`, UTC `2024-04-17 12:00` and Place `40°43'N, 74°0'W`. The first grey note says nothing checks the offset, and the last two are Astro-Seek's notes from test 13.
-- [ ] **Open sky** opens a Stellarium Web tab whose address contains `date=2024-04-17T12%3A00%3A00Z&lat=40.716667&lng=-74`, and the paste tab stays open.
+- [ ] **Open Stellarium Web** opens a Stellarium Web tab whose address contains `date=2024-04-17T12%3A00%3A00Z&lat=40.716667&lng=-74`, and the paste tab stays open.
 - [ ] **Open chart in Astro-Seek** opens the same chart as test 12: its header shows `17 Apr 2024 - 12:00  (Manually: GMT+00:00)`, Universal Time `17 Apr 2024 - 12:00` and `40°43'N, 74°0'W`.
 - [ ] Below the two blue buttons is **Share…**. It opens an AstroChart Bridge chart page in a new tab, and the paste tab stays open. That page shows the same Local time, Offset, UTC and Place rows, a From row reading `pasted text`, and an orange warning that the chart was read from pasted text and nothing checked its UTC offset.
 - [ ] On that page, **Download file** saves a `.astrochart.json` file. Open it in a text editor: it has the date, time, offset and coordinates, `"via": "paste"` and `"utcBasis": "declared"`, and no "New York", "EDT" or "Whole Sign".
 - [ ] **Back to the form**, add `Name: Example Person` as the first line of the big box and click **Read the text**. The form lists Name `Example Person`. **Continue**, then **Enter in astro.com…**: First name is empty and Last name is `Example Person`. **Cancel** goes back to the chart. A file downloaded through **Share…** has no "Example Person" in it.
 - [ ] Make the name line `Name: Moon landing commemoration of the year 1969 crew` and open **Enter in astro.com…** again. Last name holds all of it, and an orange line under the boxes says astro.com's name fields take 40 characters. Delete from the end until it fits: the line disappears.
 - [ ] **Back to the form** brings back the form with the same values. Change UTC offset to `-4` by typing it, **Continue**, **Share…**, and download the file again. It still says `"utcBasis": "declared"`, since -4 is the offset the text gave. Type `-5` instead and it says `"entered"`.
-- [ ] Change the Date to `1500-04-17` and **Continue**. **Open sky** still works, but **Share…** says AstroChart Bridge can't share a chart dated before 15 October 1582, with **Cancel** back to the chart.
+- [ ] Change the Date to `1500-04-17` and **Continue**. **Open Stellarium Web** still works, but **Share…** says AstroChart Bridge can't share a chart dated before 15 October 1582, with **Cancel** back to the chart.
 - [ ] Change Longitude to `74°0'E`. The line under it says `74°0'0"E`. **Continue** then shows Place `40°43'N, 74°0'E`. Change it back.
 - [ ] Clear the UTC offset box. **Continue** fades and does nothing when clicked. Type `-4` and it comes back.
 - [ ] Copy the sample again and click **Paste from clipboard**. Note which of these happens, in each browser: the form appears at once; the browser asks for permission first (allow it once, then try again and deny it); or an orange line says the browser didn't let AstroChart Bridge read the clipboard. If the browser refuses or you deny it, pasting with **Cmd+V** still works.
@@ -339,21 +339,21 @@ Needs Stellarium 25.1 or later with its Remote Control server on: the setup step
 2. If AstroChart Bridge already has access to `127.0.0.1`, remove it first: in Chrome, the extension's **Details** → **Site access**; in Firefox, `about:addons` → AstroChart Bridge → **Permissions**.
 3. Open the test 3 URL (New York 1944) and click the AstroChart Bridge icon.
 
-- [ ] Below **Open sky** is a **Send to Stellarium Desktop** button with the secondary style, and no grey line under it: without access, the popup doesn't check Stellarium.
+- [ ] Below **Open Stellarium Web** is a **Send to Stellarium Desktop** button with the secondary style, and no grey line under it: without access, the popup doesn't check Stellarium.
 - [ ] Clicking it makes the browser ask whether AstroChart Bridge may connect to `127.0.0.1`. Note whether the popup stays open while it asks, in each browser. Click **Deny**: the popup says "AstroChart Bridge needs your permission", with **Try again** and **Cancel**.
 - [ ] **Try again**, then allow it. The popup says "Sent to Stellarium Desktop" with UTC `1944-01-10 16:00` and Place `40°43'N, 74°0'W`. In Stellarium the clock is paused at 16:00 UTC on 10 January 1944, shown in Stellarium's own time zone, and the location is named `40.7167, -74`.
 - [ ] **Done** closes the popup. Nothing else in Stellarium changed: the view, landscape and selected object are as they were.
 - [ ] Open the popup on test 3 again. Within a second, a grey line under **Send to Stellarium Desktop** says "Stellarium Desktop is open and ready." Stellarium's time and place don't change.
 - [ ] In Stellarium, untick **Server enabled** in Remote Control's settings. Open the popup on test 2 (Sydney): the grey line says "Stellarium Desktop isn't reachable right now. The button shows how to set it up." Click **Send to Stellarium Desktop**. Without asking again, the popup says "Stellarium Desktop isn't reachable", with six numbered steps, a grey note about other devices on the network, **Try again** and **Cancel**. **Cancel** shows the Sydney chart again.
 - [ ] Tick **Server enabled** again and click **Try again** on that screen. Stellarium shows 21:00 UTC on 14 January 2024 at 33°52'S, 151°12'E.
-- [ ] Go to `https://example.com` and click the AstroChart Bridge icon. **Import from Stellarium Desktop** is the last button, with "Stellarium Desktop is open and ready." under it. It shows "From Stellarium Desktop" with UTC `2024-01-14 21:00` and Place `33°52'S, 151°12'E`, then **Open chart in Astro-Seek**, **Open sky** and **Enter in astro.com…**.
-- [ ] **Open sky** opens a Stellarium Web tab whose address contains `date=2024-01-14T21%3A00%3A00Z&lat=-33.86667&lng=151.2`.
+- [ ] Go to `https://example.com` and click the AstroChart Bridge icon. **Import from Stellarium Desktop** is the last button, with "Stellarium Desktop is open and ready." under it. It shows "From Stellarium Desktop" with UTC `2024-01-14 21:00` and Place `33°52'S, 151°12'E`, then **Open chart in Astro-Seek**, **Open Stellarium Web** and **Enter in astro.com…**.
+- [ ] **Open Stellarium Web** opens a Stellarium Web tab whose address contains `date=2024-01-14T21%3A00%3A00Z&lat=-33.86667&lng=151.2`.
 - [ ] In Stellarium's Remote Control settings, tick **Access requires authentication**, type any password, click **Save settings**, then untick and tick **Server enabled**. **Import from Stellarium Desktop** says "Stellarium asks for a password", and the browser doesn't show its own password box. Untick it again the same way.
 - [ ] The Console stays empty throughout.
 - [ ] Open the popup on test 3 and click **Send to Stellarium Desktop**. Under **Done**, the sent screen has a **Use Stellarium Desktop by default** button. Click it: the screen stays, and a line says "Stellarium Desktop is now your default for charts. Every chart screen has a link to change it back." with an **Undo** link.
-- [ ] Open the popup on test 1. **Send to Stellarium Desktop** is first, in blue; **Open sky** follows in the secondary style; and under them a line says "Stellarium Desktop is your default for charts." with a **Make Stellarium Web the default** link. Close the browser and open it again: the popup on test 1 still leads with **Send to Stellarium Desktop**.
+- [ ] Open the popup on test 1. **Send to Stellarium Desktop** is first, in blue; **Open Stellarium Web** follows in the secondary style; and under them a line says "Stellarium Desktop is your default for charts." with a **Make Stellarium Web the default** link. Close the browser and open it again: the popup on test 1 still leads with **Send to Stellarium Desktop**.
 - [ ] On test 4 (a skipped time), both buttons are faded until a reading is picked, whichever is first.
-- [ ] Click **Make Stellarium Web the default**. Without closing, the popup shows **Open sky** first in blue again, **Send to Stellarium Desktop** below it, and "Stellarium Web is the default again." with **Undo**. **Undo** brings back the order of the step before. Make Stellarium Web the default again, close the popup and reopen it on test 1: there is no default line.
+- [ ] Click **Make Stellarium Web the default**. Without closing, the popup shows **Open Stellarium Web** first in blue again, **Send to Stellarium Desktop** below it, and "Stellarium Web is the default again." with **Undo**. **Undo** brings back the order of the step before. Make Stellarium Web the default again, close the popup and reopen it on test 1: there is no default line.
 - [ ] On a Stellarium Web tab (test 12), with Stellarium Desktop the default, **Open chart in Astro-Seek** stays first and the default line is under the buttons.
 - [ ] On an iPad or another touch screen, the **Make Stellarium Web the default** link sits on its own line and is easy to tap.
 - [ ] Put Stellarium's place and time back as noted in step 1, and start its clock. Make Stellarium Web the default if it isn't.
@@ -366,7 +366,7 @@ Run this on each iPad you have, and note its model, size and iPadOS version. Whe
 - [ ] On `https://example.com`, tap **Import from Stellarium Desktop** and note what the popup shows. There's no Stellarium Desktop on an iPad for it to reach at `127.0.0.1`.
 - [ ] In portrait and in landscape, the popup's text isn't cut off and it doesn't scroll sideways. Every button and each reading in test 4 is easy to tap with a finger.
 - [ ] With a keyboard and trackpad attached, note whether the buttons are the same size as without them. Without them they are at least 44 points tall; with them they may be smaller.
-- [ ] **Open sky** opens Stellarium Web in a new tab and the popup closes.
+- [ ] **Open Stellarium Web** opens Stellarium Web in a new tab and the popup closes.
 - [ ] On that Stellarium tab:
   - [ ] Drag with one finger to look around.
   - [ ] Pinch to zoom.
@@ -398,9 +398,9 @@ http://127.0.0.1:8778/chart.html#v1=eyJmb3JtYXQiOiJjaGFydC1icmlkZ2UiLCJ2ZXJzaW9u
 
 ### A: desktop
 
-- [ ] The page shows Local time `17 Apr 2024, 08:00 (EDT, DST)`, Offset `UTC-04:00`, UTC `2024-04-17 12:00`, Place `40°43'N, 74°0'W` and From `Astro-Seek page`, four grey notes, **Open sky**, **Open chart in Astro-Seek**, **Copy link**, **Show QR code**, **Download file** and **Open a chart file**. In a browser with a share sheet (test 22), **Share link…** and possibly **Share file…** are there too. There is no **Enter in astro.com…** or **Share…**.
+- [ ] The page shows Local time `17 Apr 2024, 08:00 (EDT, DST)`, Offset `UTC-04:00`, UTC `2024-04-17 12:00`, Place `40°43'N, 74°0'W` and From `Astro-Seek page`, four grey notes, **Open Stellarium Web**, **Open chart in Astro-Seek**, **Copy link**, **Show QR code**, **Download file** and **Open a chart file**. In a browser with a share sheet (test 22), **Share link…** and possibly **Share file…** are there too. There is no **Enter in astro.com…** or **Share…**.
 - [ ] The address bar shows `chart.html` with nothing after it, and **Back** doesn't bring the `#v1=…` part back.
-- [ ] Nothing opens by itself. **Open sky** opens the same Stellarium address as test 1; **Open chart in Astro-Seek** opens a chart for 17 April 2024 12:00 UT at 40°43'N, 74°0'W.
+- [ ] Nothing opens by itself. **Open Stellarium Web** opens the same Stellarium address as test 1; **Open chart in Astro-Seek** opens a chart for 17 April 2024 12:00 UT at 40°43'N, 74°0'W.
 - [ ] **Copy link** says "Link copied.", and pasting gives exactly the link above. If the browser refuses, the link appears selected in a field below the message instead.
 - [ ] **Download file** saves `chart-2024-04-17.astrochart.json`. Opened in a text editor, it shows the chart's fields indented, with `"utcOffsetSeconds": -14400`.
 - [ ] Open the browser's History list. Note whether it shows the address with `#v1=…`: the page removes it from the tab's address and its Back entry, but whether a browser's History list keeps the original address hasn't been checked in any browser.
@@ -413,7 +413,7 @@ http://127.0.0.1:8778/chart.html#v1=eyJmb3JtYXQiOiJjaGFydC1icmlkZ2UiLCJ2ZXJzaW9u
 A phone reaches the page through the Mac's address on the local network, which makes the folder visible to that network while the server runs. Serve it with `--bind 0.0.0.0` instead, find the Mac's address in System Settings → Network, and replace `127.0.0.1` in the link with it. That address is plain http, so browsers refuse **Copy link** there and show the field instead; only an https host can test copying.
 
 - [ ] On iPhone Safari, iPad Safari (portrait and landscape), Chrome for Android and Firefox for Android: the same rows and buttons as in A, nothing wider than the screen, and the buttons easy to tap.
-- [ ] **Open sky** opens Stellarium Web in a new tab at the same time and place.
+- [ ] **Open Stellarium Web** opens Stellarium Web in a new tab at the same time and place.
 - [ ] **Copy link** shows the field with the link selected, and the system's copy works on it.
 
 ## Test 20: sharing a chart from the extension
@@ -423,7 +423,7 @@ Copied links point at `RECEIVER_URL` in `extension/share-config.js`, the receivi
 - [ ] On the test 1 chart, **Share…** opens a tab at `chrome-extension://…/chart.html` (`moz-extension://…` in Firefox) and closes the popup. The tab shows the same rows as test 19 A, From `Astro-Seek page`, and the address has nothing after `chart.html`.
 - [ ] **Copy link** says "Link copied.", and the pasted link starts `https://kevinblakelopez.github.io/astrochart-bridge/chart.html#v1=`. Pasting it after `http://127.0.0.1:8778/chart.html` in place of that address, with the test 19 server running, shows the same chart.
 - [ ] **Download file** saves `chart-2024-04-17.astrochart.json`, in Chrome and in Firefox.
-- [ ] **Open sky** on that tab opens the same Stellarium address as test 1.
+- [ ] **Open Stellarium Web** on that tab opens the same Stellarium address as test 1.
 - [ ] On the test 4 chart, **Share…** is faded until a reading is picked. Pick the second reading (the label EST), then **Share…**: the tab shows Offset `UTC-05:00` and UTC `2021-03-14 07:30`.
 - [ ] On an astro.com account chart (test 14's), **Share…** opens a tab showing From `astro.com page`.
 - [ ] On the screenshot page from test 13, **Share…** opens a tab showing From `Astro-Seek screenshot` and the warning to compare the rows. The screenshot page stays open.
@@ -467,7 +467,7 @@ Note which buttons each browser shows: the page offers each only where the brows
 `docs/morinus-hor.md` explains what AstroChart Bridge reads. The files are `fixtures/morinus/` in this repo: invented charts, each saved with several pickle protocols. If Morinus is installed, also open a chart you saved in it yourself.
 
 - [ ] On the import page (test 15), choose `fixtures/morinus/ny-est-plus-dst.p2.hor`. The page says "1 chart in this file." and shows Name `Test`, Local time `17 Apr 2024, 08:00`, Offset `UTC-04:00`, Entered as `UTC-05:00 zone, with daylight saving`, UTC `2024-04-17 12:00`, Birthplace `New York` and Place `40°43'N, 74°0'W`, with a note that Morinus saves the offset entered, not the time zone. The Console is empty.
-- [ ] **Open sky** opens Stellarium Web with `date=2024-04-17T12%3A00%3A00Z&lat=40.716667&lng=-74` in the address. **Save as AAF file** saves a file whose `#B93` line is `#B93:*,40n43,74w00,5hw00,1`.
+- [ ] **Open Stellarium Web** opens Stellarium Web with `date=2024-04-17T12%3A00%3A00Z&lat=40.716667&lng=-74` in the address. **Save as AAF file** saves a file whose `#B93` line is `#B93:*,40n43,74w00,5hw00,1`.
 - [ ] **Enter in astro.com…** shows the test 14 screen with First name empty and Last name `Test`. Choose `fixtures/morinus/unicode-text.p2.hor` and do the same: Last name is `Nagy Róbert 東京 \ test`, with its accents and Japanese letters intact.
 - [ ] Drag `fixtures/morinus/sydney-south.p0.hor` onto the page. It shows Offset `UTC+11:00`, UTC `2024-01-14 21:00` and Place `33°52'S, 151°12'E`.
 - [ ] Choose `fixtures/morinus/greenwich-with-dst.p4.hor`. It shows Entered as `Greenwich time, with daylight saving`, UTC `2024-04-17 07:00` and a warning that Morinus takes an hour off.

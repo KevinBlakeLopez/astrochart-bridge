@@ -6,10 +6,10 @@ import { ASTRO_SEEK_NOTES, PRIVACY_NOTE, astroComStep, placeText, utcText } from
 
 // Every screen with a sky to open: a chart page's, once its UTC can be
 // decided, and a Stellarium Web tab's. view.js keeps the button off until the
-// sky is decided, like Open sky.
+// sky is decided, like Open Stellarium Web.
 const SENDS = new Set(["ready", "choose", "enter-offset", "to-astro-seek"]);
 
-// The screens whose main button is Open sky, which Stellarium Desktop takes
+// The screens whose main button is Open Stellarium Web, which Stellarium Desktop takes
 // over as the default. A Stellarium Web tab's main button is Astro-Seek's.
 const OPENS_SKY = new Set(["ready", "choose", "enter-offset"]);
 
@@ -18,7 +18,7 @@ const DESKTOP_SEND = { label: "Send to Stellarium Desktop" };
 /**
  * The view with a Send to Stellarium Desktop button, or the view unchanged.
  * With Stellarium Desktop the default, the button comes first in the main
- * style and Open sky follows in the secondary one. Wherever it is the
+ * style and Open Stellarium Web follows in the secondary one. Wherever it is the
  * default, a line under the buttons says so with a link to change it back;
  * just after a change, the line confirms it with Undo.
  *
@@ -33,7 +33,7 @@ export function withDesktopSend(view, { preferred = false, changed = false } = {
   if (choice) sends.defaultChoice = choice;
   if (preferred && OPENS_SKY.has(view.state)) {
     sends.desktop.primary = true;
-    sends.buttons = (view.buttons ?? [{ label: "Open sky", opens: "stellarium" }]).map((button) =>
+    sends.buttons = (view.buttons ?? [{ label: "Open Stellarium Web", opens: "stellarium" }]).map((button) =>
       button.opens === "stellarium" ? { ...button, secondary: true } : button,
     );
   }
@@ -200,7 +200,7 @@ export function viewForDesktopImport(result) {
     sky,
     buttons: [
       { label: "Open chart in Astro-Seek", opens: "astro-seek" },
-      { label: "Open sky", opens: "stellarium", secondary: true },
+      { label: "Open Stellarium Web", opens: "stellarium", secondary: true },
     ],
     next: astroComStep(sky),
   };

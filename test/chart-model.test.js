@@ -30,7 +30,7 @@ function received(sky, source) {
 }
 
 const BUTTONS = [
-  { label: "Open sky", opens: "stellarium" },
+  { label: "Open Stellarium Web", opens: "stellarium" },
   { label: "Open chart in Astro-Seek", opens: "astro-seek" },
   { label: "Copy link", does: "copy", secondary: true },
   { label: "Show QR code", does: "qr", secondary: true },
@@ -383,7 +383,7 @@ test("neither share button, and no note, where the browser can't share", () => {
 test("with nowhere to point a link, Share link… goes too, but Share file… stays", () => {
   const view = viewForImport(received(NY, NY_SOURCE), { ...LOS_ANGELES, canCopy: false, canShare: true, canShareFiles: true });
   assert.deepEqual(view.buttons.map((button) => button.label), [
-    "Open sky", "Open chart in Astro-Seek", "Download file", "Share file…",
+    "Open Stellarium Web", "Open chart in Astro-Seek", "Download file", "Share file…",
   ]);
 });
 

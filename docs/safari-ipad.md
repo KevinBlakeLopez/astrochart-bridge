@@ -69,7 +69,7 @@ Test 18 in `docs/manual-test.md` covers these:
 
 - **Opening astro.com's form:** **Open astro.com's form** opens astro.com in a background tab, keeps the values for it, then brings it to the front.
   - [A WebKit bug](https://bugs.webkit.org/show_bug.cgi?id=286759) and an [Apple forum report](https://developer.apple.com/forums/thread/774313) say Safari on iOS 18.3 and later brings such a tab to the front at once.
-  - If that happens, the popup could close before the values are kept. **Open sky** doesn't open tabs this way.
+  - If that happens, the popup could close before the values are kept. **Open Stellarium Web** doesn't open tabs this way.
 - **Screenshot reading:** WebKit bug reports say iOS gives WebAssembly less memory than a Mac. Tesseract.js, which reads screenshots, may run out of memory on some iPads.
 - **The page Astro-Seek serves:** iPads usually ask websites for their desktop pages, but Apple names iPad mini as one that may get a site's mobile layout.
   - AstroChart Bridge reads the date, time and place from the address and checks them against the page's text.
