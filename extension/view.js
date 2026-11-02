@@ -47,12 +47,16 @@ export function render(container, view, onButton, back = null) {
     // Sends the decided sky to Stellarium Desktop, for onButton to do: first,
     // in the main style, when it is the user's default, and otherwise right
     // after Open Stellarium Web, or last on a screen without it.
+    let sendButton = null;
     if (view.desktop) {
       const send = () => onButton({ does: "send-to-desktop" }, sky);
-      if (view.desktop.primary) buttons.unshift(linkButton(view.desktop.label, send));
-      else {
+      if (view.desktop.primary) {
+        sendButton = linkButton(view.desktop.label, send);
+        buttons.unshift(sendButton);
+      } else {
+        sendButton = secondaryButton(view.desktop.label, send);
         const web = view.url ? -1 : (view.buttons ?? OPEN_SKY).findIndex(({ opens }) => opens === "stellarium");
-        buttons.splice(web === -1 ? buttons.length : web + 1, 0, secondaryButton(view.desktop.label, send));
+        buttons.splice(web === -1 ? buttons.length : web + 1, 0, sendButton);
       }
     }
     const setSky = (next) => {
@@ -65,9 +69,13 @@ export function render(container, view, onButton, back = null) {
     if (typed) parts.push(...nameFields(view.nameBoxes, typed));
     for (const note of view.notes) parts.push(paragraph(note, "note"));
     setSky(sky);
-    parts.push(...buttons);
-    // Empty until the popup has checked Stellarium, which may be after this is drawn.
-    if (view.desktop) parts.push(desktopHintLine());
+    // The line about Stellarium Desktop goes right under its button, not after
+    // Share…. Empty until the popup has checked Stellarium, which may be after
+    // this is drawn.
+    for (const button of buttons) {
+      parts.push(button);
+      if (button === sendButton) parts.push(desktopHintLine());
+    }
 
     // Which app is the default, with a link to change it, right under the
     // buttons it affects. With no text, the change is offered as a button.
