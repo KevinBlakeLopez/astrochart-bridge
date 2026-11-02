@@ -99,6 +99,24 @@ test("a chart's local time is listed with the automatic time zone and the offset
   assert.deepEqual(view.buttons[0].holds, { ...NY_HELD, local });
 });
 
+test("a chart with no UTC is listed with the automatic time zone and no offset, for the person to check", () => {
+  const local = "2024-04-17T08:00:00";
+  const view = viewForAstroCom({ ...NY_SKY, utc: null }, { local, town: "New York" });
+  assert.deepEqual(view.rows, [
+    ["Birthday", "17 April 2024"],
+    ["Hour, min", "08:00"],
+    ["Time zone", "automatic time zone, the form's default"],
+    ["Place", "40°43'N, 74°0'W"],
+    ["Town", "New York"],
+  ]);
+  assert.equal(
+    view.notes[0],
+    "The date and time are the chart's local time, and astro.com's automatic time zone looks up the zone for the town you choose. " +
+      "AstroChart Bridge has no UTC offset to check it against, so check the time zone astro.com shows for the town and date.",
+  );
+  assert.deepEqual(view.buttons[0].holds, { ...NY_HELD, utc: null, local, town: "New York" });
+});
+
 test("a half-hour offset is named in astro.com's words, and a local time that is UT is listed as UT", () => {
   const delhi = { utc: "2024-04-17T06:30:00Z", lat: 28.6, lng: 77.2 };
   assert.match(viewForAstroCom(delhi, { local: "2024-04-17T12:00:00" }).notes[0], /It should be 5 h 30 min east \(UTC\+05:30\):/);

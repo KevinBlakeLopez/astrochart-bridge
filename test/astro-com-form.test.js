@@ -98,6 +98,27 @@ test("a name goes in the first and last name fields, sfnm and snam", () => {
 
 // --- Values kept for the astro.com tab -------------------------------------
 
+// A chart pasted with no offset: its local time, and no UTC.
+const NY_NO_UTC = { ...NY_SKY, utc: null, local: "2024-04-17T08:00:00", town: "New York" };
+
+test("a chart with a local time and no UTC goes in with au, and has no zone to check", () => {
+  assert.deepEqual(formTime(NY_NO_UTC), { time: "2024-04-17T08:00:00", szon: "au" });
+  assert.deepEqual(formValues(NY_NO_UTC), {
+    sday: "17", imon: "4", syar: "2024", ihou: "8", smin: "00", szon: "au", scit: "New York",
+  });
+  assert.equal(zoneCheck(NY_NO_UTC), null);
+});
+
+test("a chart with no UTC is kept with its local time, and comes back only with one", async () => {
+  const storage = fakeStorage();
+  await holdForTab(storage, 7, NY_NO_UTC, T0);
+  assert.deepEqual(await heldForTab(storage, 7, T0), NY_NO_UTC);
+  for (const local of [null, "2024-04-17 08:00"]) {
+    await holdForTab(storage, 7, { ...NY_NO_UTC, local }, T0);
+    assert.equal(await heldForTab(storage, 7, T0), null, JSON.stringify(local));
+  }
+});
+
 test("the values survive the tab's navigation: what was kept for a tab comes back for it", async () => {
   const storage = fakeStorage();
   await holdForTab(storage, 7, NY_SKY, T0);

@@ -5,7 +5,7 @@ import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, SHARE_BUTTON, viewFor, viewForAst
 import { analyzeEntry } from "../extension/core/index.js";
 import { serialize, skyFor } from "../extension/core/portable.js";
 import { linkFor, readLink, viewForImport } from "../extension/chart-model.js";
-import { chartForEntry, checkField, entryFor, formFor, viewForEntry } from "../extension/paste-model.js";
+import { chartForEntry, checkField, entryFor, formFor, localEntryFor, viewForEntry, viewForLocalEntry } from "../extension/paste-model.js";
 
 // Invented birth data, as a desktop program's labelled text might give it.
 const LABELLED = [
@@ -38,7 +38,7 @@ test("the form fills each box from the text and says which line it came from", (
   );
 });
 
-test("the other fields are shown as written, with a note that places aren't looked up", () => {
+test("the other fields are shown as written, with a note that only astro.com gets the place", () => {
   const form = formOf(LABELLED);
   assert.deepEqual(form.rows, [
     ["Name", "Example Person"],
@@ -48,7 +48,7 @@ test("the other fields are shown as written, with a note that places aren't look
     ["Zodiac", "Tropical"],
   ]);
   assert.deepEqual(form.warnings, []);
-  assert.match(form.notes.at(-1), /doesn't look places up/);
+  assert.match(form.notes.at(-1), /doesn't look places up\..*astro\.com's form gets the place as its town/);
 });
 
 test("each box's text reads back as the value it was filled from", () => {
@@ -165,6 +165,50 @@ test("a confirmed entry can be entered in astro.com, with the text's name as its
   const view = viewForEntry(entry, { name, ...LA });
   assert.deepEqual(view.next, { label: "Enter in astro.com…", view: viewForAstroCom(view.sky, { local: "1985-06-15T10:30:00", name }) });
   assert.equal(view.next.view.buttons[0].holds.name, name);
+});
+
+test("the text's place goes in astro.com's town field", () => {
+  const entry = { date: "1985-06-15", time: "10:30:00", lat: 47.6062, lng: -122.3321, offsetMinutes: -420 };
+  const { town } = formOf(LABELLED);
+  assert.equal(town, "Seattle, Washington, USA");
+  const view = viewForEntry(entry, { town, ...LA });
+  assert.deepEqual(view.next.view, viewForAstroCom(view.sky, { local: "1985-06-15T10:30:00", town }));
+  assert.equal(view.next.view.buttons[0].holds.town, town);
+});
+
+test("text with no place, or two, enters astro.com with no town", () => {
+  assert.equal(formOf("Date of Birth: 15 June 1985").town, null);
+  assert.equal(formOf("Date of Birth: 15 June 1985\nPlace: Seattle\nCity: Tacoma").town, null);
+  const entry = { date: "1985-06-15", time: "10:30:00", lat: 47.6062, lng: -122.3321, offsetMinutes: -420 };
+  assert.equal(viewForEntry(entry, LA).next.view.buttons[0].holds.town, null);
+});
+
+test("a form whose text gives no offset says only astro.com can open it; one with an offset doesn't", () => {
+  const form = formOf("Date of Birth: 15 June 1985 10:30\nLatitude: 47.6062\nLongitude: -122.3321\nCity: Seattle");
+  assert.match(form.notes.at(-1), /^With the UTC offset left empty, the chart can open only in astro\.com/);
+  assert.equal(formOf(LABELLED).notes.some((note) => note.startsWith("With the UTC offset left empty")), false);
+});
+
+test("with the offset box empty, the other four boxes give a chart for astro.com alone", () => {
+  const values = { date: "1985-06-15", time: "10:30:00", lat: 47.6062, lng: -122.3321, offset: null };
+  assert.equal(entryFor(values), null);
+  assert.deepEqual(localEntryFor(values, ""), { local: "1985-06-15T10:30:00", lat: 47.6062, lng: -122.3321 });
+  assert.deepEqual(localEntryFor(values, "  "), localEntryFor(values, ""));
+  // Text in the offset box that doesn't read keeps the button disabled.
+  assert.equal(localEntryFor(values, "soon"), null);
+  for (const name of ["date", "time", "lat", "lng"]) assert.equal(localEntryFor({ ...values, [name]: null }, ""), null, name);
+});
+
+test("a chart for astro.com alone opens its screen with no UTC, the text's name and town, and says why", () => {
+  const chart = { local: "1985-06-15T10:30:00", lat: 47.6062, lng: -122.3321 };
+  const name = { first: "", last: "Example Person" };
+  const view = viewForLocalEntry(chart, { name, town: "Seattle" });
+  const astroCom = viewForAstroCom({ utc: null, lat: chart.lat, lng: chart.lng }, { local: chart.local, name, town: "Seattle" });
+  assert.equal(view.state, "to-astro-com");
+  assert.match(view.notes[0], /^No UTC offset was entered, so this chart can open only in astro\.com\./);
+  assert.deepEqual(view.notes.slice(1), astroCom.notes);
+  assert.deepEqual(view.buttons, astroCom.buttons);
+  assert.equal(view.buttons[0].holds.utc, null);
 });
 
 test("text with no name, or a blank one, enters astro.com with no name", () => {

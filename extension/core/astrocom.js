@@ -339,13 +339,16 @@ export function isBirthDataForm(url) {
  * with au. A chart with no local time, such as a sky from Stellarium, goes in
  * as Universal Time with h0w, " 00:00 GMT / UT", and so does one whose local
  * time is Universal Time: with h0w that is the same moment whatever town is
- * chosen, as for a chart entered in UT on Astro-Seek.
+ * chosen, as for a chart entered in UT on Astro-Seek. A chart with a local
+ * time and no UTC, pasted with no offset, goes in with au: the zone is
+ * astro.com's alone to decide.
  *
- * @param {{ utc: string, local?: string | null }} values  local is the chart's
- *   local time, YYYY-MM-DDTHH:MM:SS, or null
+ * @param {{ utc: string | null, local?: string | null }} values  local is the
+ *   chart's local time, YYYY-MM-DDTHH:MM:SS, or null; utc is null only with a local time
  * @returns {{ time: string, szon: "au" | "h0w" }}  time is YYYY-MM-DDTHH:MM:SS
  */
 export function formTime({ utc, local = null }) {
+  if (utc === null) return { time: local, szon: "au" };
   const ut = utc.slice(0, 19);
   return local === null || local === ut ? { time: ut, szon: "h0w" } : { time: local, szon: "au" };
 }
@@ -368,16 +371,16 @@ export function zoneWords(minutes) {
 
 /**
  * What watchZone checks astro.com's automatic time zone against, or null when
- * the form is filled in as Universal Time and there is nothing to check: the
- * chart's offset, the date and time filled in, and the Universal Time to
- * enter instead.
+ * there is nothing to check: when the form is filled in as Universal Time, or
+ * the chart has no UTC to check the zone against. Otherwise the chart's
+ * offset, the date and time filled in, and the Universal Time to enter instead.
  *
- * @param {{ utc: string, local?: string | null }} values
+ * @param {{ utc: string | null, local?: string | null }} values
  * @returns {{ offsetMinutes: number, zone: string, filled: Record<string, string>,
  *   ut: Record<string, string>, utText: string } | null}
  */
 export function zoneCheck({ utc, local = null }) {
-  if (formTime({ utc, local }).szon !== "au") return null;
+  if (utc === null || formTime({ utc, local }).szon !== "au") return null;
   const offset = localOffset(utc, local);
   const clock = ({ sday, imon, syar, ihou, smin }) => ({ sday, imon, syar, ihou, smin });
   return {
@@ -396,7 +399,7 @@ export function zoneCheck({ utc, local = null }) {
  * one, goes in the birth town field, scit, and the name, when there is one,
  * in the first and last name fields, sfnm and snam.
  *
- * @param {{ utc: string, local?: string | null, town?: string | null, name?: { first: string, last: string } | null }} values
+ * @param {{ utc: string | null, local?: string | null, town?: string | null, name?: { first: string, last: string } | null }} values
  * @returns {{ sday: string, imon: string, syar: string, ihou: string, smin: string, szon: "au" | "h0w",
  *   scit?: string, sfnm?: string, snam?: string }}
  */

@@ -38,6 +38,47 @@ const LABELS = new Map(
   }).flatMap(([reader, labels]) => labels.map((label) => [label, reader])),
 );
 
+// Labels that aren't read but end the value before them, when a copy runs a
+// page's rows together on one line, as one of Astro-Seek's did:
+// "…00:00  (PST)Universal Time (UT/GMT):1 January 1970 - 08:00  Local Sidereal Time (LST):22:35:14House system:…".
+const SKIPPED_LABELS = ["universal time", "local sidereal time", "sidereal time", "country"];
+
+// Any label, read or skipped, that ends in a colon or equals sign, with a
+// bracketed note before it as in "Universal Time (UT/GMT):". Longer labels
+// come first, so "Chart Name" is found before "Name". The separators are the
+// ones labelKey turns into spaces.
+const RUN_ON_LABEL = new RegExp(
+  `(?:${[...LABELS.keys(), ...SKIPPED_LABELS]
+    .sort((a, b) => b.length - a.length)
+    .map((label) => label.split(" ").join("[\\s_\\-.,/]+"))
+    .join("|")})(?:\\s*\\([^)]*\\))?\\s*[:=]`,
+  "gi",
+);
+
+/**
+ * One line of pasted text as the labelled lines run together in it: split
+ * before each label after its first that starts with a capital letter, as a
+ * page's labels do. "Velocity:" has no "City:" in it, and a lower-case
+ * "key=value" is never split, since nothing marks where its key starts.
+ *
+ * @param {string} line
+ * @returns {string[]}
+ */
+function runOnLines(line) {
+  const starts = [...line.matchAll(RUN_ON_LABEL)].map((match) => match.index).filter((at) => at > 0 && /[A-Z]/.test(line[at]));
+  return [0, ...starts].map((start, i, all) => line.slice(start, all[i + 1]));
+}
+
+/**
+ * Pasted text with the labelled lines run together in it put on lines of
+ * their own, for the desktop programs' readers, which read whole lines.
+ *
+ * @param {string} text
+ */
+export function separateLabels(text) {
+  return text.split(/\r\n|\r|\n/).flatMap(runOnLines).join("\n");
+}
+
 // "Date of Birth (local time)" → "date of birth", "birth_date" → "birth date"
 const labelKey = (label) =>
   label
@@ -104,13 +145,17 @@ export function readText(text) {
   if (text.length > MAX_TEXT_LENGTH) return refused("too-long");
 
   const sightings = new Map();
+  // Labels run together on one line are read as lines of their own, each
+  // with the number of the line they share.
   text.split(/\r\n|\r|\n/).forEach((original, index) => {
-    const match = LINE.exec(normalize(original));
-    const reader = match && match[2] !== "" ? LABELS.get(labelKey(match[1])) : undefined;
-    if (!reader) return;
-    for (const [field, reading] of READERS[reader](match[2])) {
-      if (!sightings.has(field)) sightings.set(field, []);
-      sightings.get(field).push({ line: index + 1, text: match[2], ...reading });
+    for (const piece of runOnLines(normalize(original))) {
+      const match = LINE.exec(piece);
+      const reader = match && match[2] !== "" ? LABELS.get(labelKey(match[1])) : undefined;
+      if (!reader) continue;
+      for (const [field, reading] of READERS[reader](match[2])) {
+        if (!sightings.has(field)) sightings.set(field, []);
+        sightings.get(field).push({ line: index + 1, text: match[2], ...reading });
+      }
     }
   });
   if (sightings.size === 0) return refused("no-birth-data");

@@ -4,7 +4,7 @@
 // only ever inserted with textContent or an input's value, never as HTML.
 import { openLink as openPageLink } from "./astro-com-page.js";
 import { linkFor } from "./chart-model.js";
-import { chartForEntry, checkField, entryFor, formForText, viewForEntry } from "./paste-model.js";
+import { chartForEntry, checkField, entryFor, formForText, localEntryFor, viewForEntry, viewForLocalEntry } from "./paste-model.js";
 import { viewForShareRefusal } from "./popup-model.js";
 import { paragraph, render } from "./view.js";
 
@@ -45,32 +45,43 @@ function formElement(form) {
   const element = document.createElement("form");
   element.noValidate = true;
   const values = {};
+  let offsetText = "";
   const submit = document.createElement("button");
   submit.type = "submit";
-  submit.textContent = "Continue";
-  // The form is the only gate: Continue stays off until all five boxes read.
+  // The form is the only gate: Continue stays off until all five boxes read,
+  // or all but an empty offset box, which leads to astro.com alone.
+  const chosen = () => {
+    const entry = entryFor(values);
+    if (entry) return { entry };
+    const local = localEntryFor(values, offsetText);
+    return local && { local };
+  };
   const update = () => {
-    submit.disabled = entryFor(values) === null;
+    const next = chosen();
+    submit.disabled = next === null;
+    submit.textContent = next?.local ? "Continue to astro.com" : "Continue";
   };
 
   for (const field of form.fields) {
     element.append(
-      fieldElement(field, (value) => {
+      fieldElement(field, (value, text) => {
         values[field.name] = value;
+        if (field.name === "offset") offsetText = text;
         update();
       }),
     );
   }
   for (const warning of form.warnings) element.append(paragraph(warning, "warning"));
-  if (form.rows.length > 0) element.append(paragraph("Also in the text, not sent anywhere:", "note"), rowList(form.rows));
+  if (form.rows.length > 0) element.append(paragraph("Also in the text:", "note"), rowList(form.rows));
   for (const note of form.notes) element.append(paragraph(note, "note"));
   element.append(submit);
   update();
 
   element.addEventListener("submit", (event) => {
     event.preventDefault();
-    const entry = entryFor(values);
-    if (entry) showReady(element, entry, form);
+    const next = chosen();
+    if (next?.entry) showReady(element, next.entry, form);
+    else if (next?.local) showLocal(element, next.local, form);
   });
   return element;
 }
@@ -96,7 +107,7 @@ function fieldElement(field, onValue) {
     const { value, message } = checkField(field.name, input.value);
     status.textContent = message;
     status.className = value === null && message !== "" ? "preview warning" : "preview";
-    onValue(value);
+    onValue(value, input.value);
   };
   input.addEventListener("input", check);
 
@@ -126,7 +137,7 @@ function fieldElement(field, onValue) {
 // back to this screen.
 function showReady(formElementToKeep, entry, form) {
   const screen = document.createElement("div");
-  const view = viewForEntry(entry, { warnings: form.warnings, name: form.name });
+  const view = viewForEntry(entry, { warnings: form.warnings, name: form.name, town: form.town });
   const onButton = async (button) => {
     // Links, and the astro.com buttons of the step after this screen, as on the screenshot page.
     if (button.does !== "share") return openPageLink(screen, button);
@@ -138,11 +149,23 @@ function showReady(formElementToKeep, entry, form) {
     await chrome.tabs.create({ url: linkFor(chrome.runtime.getURL("chart.html"), shared.chart) });
   };
   render(screen, view, onButton);
+  app.replaceChildren(screen, backButton(formElementToKeep));
+}
+
+// A form left without an offset goes straight to the astro.com screen, whose
+// buttons work as on the ready screen's astro.com step.
+function showLocal(formElementToKeep, local, form) {
+  const screen = document.createElement("div");
+  render(screen, viewForLocalEntry(local, { name: form.name, town: form.town }), (button) => openPageLink(screen, button));
+  app.replaceChildren(screen, backButton(formElementToKeep));
+}
+
+function backButton(formElementToKeep) {
   const back = document.createElement("button");
   back.className = "secondary";
   back.textContent = "Back to the form";
   back.addEventListener("click", () => app.replaceChildren(formElementToKeep));
-  app.replaceChildren(screen, back);
+  return back;
 }
 
 function rowList(rows) {

@@ -138,7 +138,7 @@ test("a program's text its reader turns down gives the form with a warning and t
   const form = formForText(lines(...east));
   assert.equal(form.state, "form");
   assert.deepEqual(form.warnings, [
-    "This text is laid out like a desktop astrology program's, but its sidereal time doesn't fit its time, offset and longitude, so AstroChart Bridge didn't use that program's reading (sidereal-mismatch). Check each value against the text.",
+    "This text is laid out like an astrology program's or site's, but its sidereal time doesn't fit its time, offset and longitude, so AstroChart Bridge didn't use that program's reading (sidereal-mismatch). Check each value against the text.",
   ]);
   assert.ok(form.fields.every((field) => field.text === ""));
 });
@@ -184,6 +184,32 @@ test("text too long to read is refused before any program's reader sees it", () 
   assert.equal(formForText(lines(...JHORA, "x".repeat(100_001))).code, "too-long");
 });
 
-test("Astro-Seek's and astro.com's labels don't count as a program's", () => {
+test("Astro-Seek's Date of Birth alone and astro.com's labels don't count as a program's", () => {
   assert.equal(analyzeProgramText("Date of Birth: June 15, 1985\nUniv.Time: 17:30"), null);
+});
+
+// An Astro-Seek chart page's data as one copy gave it, its rows run together.
+const ASTRO_SEEK_COPY = lines(
+  "Date of Birth (local time):15 June 1985 - 10:30  (PDT)Universal Time (UT/GMT):15 June 1985 - 17:30  " +
+    "Local Sidereal Time (LST):02:56:26House system:Placidus systemLatitude, Longitude:47°36'N, 122°20'WCity:Seattle",
+  "Country:United States United States (US), WA",
+);
+
+test("text copied from an Astro-Seek chart page fills all five boxes, the offset from its Universal Time", () => {
+  const form = formForText(ASTRO_SEEK_COPY);
+  assert.deepEqual(
+    form.fields.map(({ name, text }) => [name, text]),
+    [["date", "1985-06-15"], ["time", "10:30"], ["lat", "47.6"], ["lng", "-122.333333"], ["offset", "-07:00"]],
+  );
+  assert.equal(box(form, "offset").source, "Read as Astro-Seek's text.");
+  assert.equal(form.notes[1], "Read as Astro-Seek's text: its birth data is laid out the way Astro-Seek prints it.");
+  assert.deepEqual(form.warnings, []);
+  assert.deepEqual(form.statedOffsets, [-420]);
+});
+
+test("Astro-Seek text whose sidereal time doesn't fit is turned down, and readText's values stay", () => {
+  const form = formForText(ASTRO_SEEK_COPY.replace("122°20'W", "122°20'E"));
+  assert.match(form.warnings[0], /\(sidereal-mismatch\)/);
+  assert.equal(box(form, "offset").text, "");
+  assert.equal(box(form, "lng").text, "122.333333");
 });

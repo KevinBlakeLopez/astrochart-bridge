@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { MAX_TEXT_LENGTH, readField, readText } from "../extension/core/text.js";
+import { MAX_TEXT_LENGTH, readField, readText, separateLabels } from "../extension/core/text.js";
 
 // Every sample uses invented birth data for an invented person.
 
@@ -285,6 +285,45 @@ test("two different birth dates or names mean two charts, and are refused", () =
 test("a line repeated, or a value read twice the same, counts once", () => {
   const text = "Date of Birth: 15 June 1985\nBorn: 15 June 1985 at 10:30\nDate of Birth: 15 June 1985";
   assert.deepEqual(readText(text).fields.date, { line: 1, text: "15 June 1985", value: "1985-06-15" });
+});
+
+// An Astro-Seek chart's data as one copy gave it, its rows run together.
+const RUN_ON =
+  "Date of Birth (local time):15 June 1985 - 10:30  (PDT)Universal Time (UT/GMT):15 June 1985 - 17:30  " +
+  "Local Sidereal Time (LST):10:05:12House system:Placidus systemLatitude, Longitude:47°36'N, 122°19'WCity:Seattle\n" +
+  "Country:United States United States (US), WA";
+
+test("labels run together on one line are read as lines of their own, at that line", () => {
+  assert.deepEqual(readText(RUN_ON).fields, {
+    date: { line: 1, text: "15 June 1985 - 10:30  (PDT)", value: "1985-06-15" },
+    time: { line: 1, text: "15 June 1985 - 10:30  (PDT)", value: "10:30:00" },
+    houses: { line: 1, text: "Placidus system", value: "placidus" },
+    lat: { line: 1, text: "47°36'N, 122°19'W", value: 47.6 },
+    lng: { line: 1, text: "47°36'N, 122°19'W", value: -122.316667 },
+    place: { line: 1, text: "Seattle", value: "Seattle" },
+  });
+});
+
+test("separateLabels puts each run-on label on a line of its own", () => {
+  assert.equal(
+    separateLabels(RUN_ON),
+    [
+      "Date of Birth (local time):15 June 1985 - 10:30  (PDT)",
+      "Universal Time (UT/GMT):15 June 1985 - 17:30  ",
+      "Local Sidereal Time (LST):10:05:12",
+      "House system:Placidus system",
+      "Latitude, Longitude:47°36'N, 122°19'W",
+      "City:Seattle",
+      "Country:United States United States (US), WA",
+    ].join("\n"),
+  );
+});
+
+test("a label is split off only where it starts with a capital and ends in a colon", () => {
+  for (const line of ["Place: Velocity: 3", "notes=see city=Seattle", "Place: Mexico City"]) {
+    assert.equal(separateLabels(line), line, line);
+  }
+  assert.equal(readText("Born: 15 June 1985 Time of Birth: 10:30").fields.time?.value, "10:30:00");
 });
 
 test("offsets that disagree are a conflict, with both kept", () => {
