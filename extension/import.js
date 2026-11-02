@@ -7,6 +7,7 @@
 import { decodeAafFile, viewForAafText } from "./aaf-model.js";
 import { openLink as openPageLink } from "./astro-com-page.js";
 import { takeFileForImport } from "./chart-model.js";
+import { renderChart } from "./desktop-page.js";
 import { isHorFile } from "./core/morinus-hor.js";
 import { viewForHorFile } from "./hor-model.js";
 import { paragraph, render } from "./view.js";
@@ -47,14 +48,14 @@ function show(view, warning) {
   app.replaceChildren();
 
   if (view.items.length === 1) {
-    render(app, view.items[0].view, openLink);
+    showChart(view.items[0].view);
   } else if (view.items.length > 1) {
     const choices = document.createElement("fieldset");
     for (const item of view.items) {
       const input = document.createElement("input");
       input.type = "radio";
       input.name = "chart";
-      input.addEventListener("change", () => render(app, item.view, openLink));
+      input.addEventListener("change", () => showChart(item.view));
       const label = document.createElement("label");
       label.append(input, item.label);
       choices.append(label);
@@ -62,6 +63,12 @@ function show(view, warning) {
     parts.push(choices);
   }
   list.replaceChildren(...parts);
+}
+
+// A chart, with Send to Stellarium Desktop, as in the popup; without it,
+// should Stellarium's side fail. A refusal is drawn as it is.
+function showChart(chart) {
+  renderChart(app, chart, openLink).catch(() => render(app, chart, openLink));
 }
 
 // Links, and the astro.com buttons, as on the screenshot and paste pages.

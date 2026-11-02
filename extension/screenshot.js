@@ -7,6 +7,7 @@ import Tesseract from "./vendor/tesseract/tesseract.esm.min.js";
 import { openLink as openPageLink } from "./astro-com-page.js";
 import { analyzeScreenshot } from "./core/index.js";
 import { linkFor } from "./chart-model.js";
+import { renderChart } from "./desktop-page.js";
 import { chartToShare, viewForShareRefusal } from "./popup-model.js";
 import { viewForScreenshot } from "./screenshot-model.js";
 import { paragraph, render } from "./view.js";
@@ -94,20 +95,22 @@ async function recognize(file) {
   return data.text;
 }
 
-// As in the popup: Share… opens the receiving page in a tab with the chart in
-// its link, and a chart the format can't carry says why.
+// As in the popup: Send to Stellarium Desktop, and Share…, which opens the
+// receiving page in a tab with the chart in its link, or says why a chart the
+// format can't carry can't go, with Cancel back to the chart.
 function showChart(result) {
   const view = viewForScreenshot(result);
-  const onButton = async (button, sky) => {
+  const onButton = async (button, sky, screen) => {
     if (button.does !== "share") return openLink(button);
     const shared = chartToShare(result, sky, "screenshot");
     if (shared.kind === "refused") {
-      render(app, viewForShareRefusal(shared.reason), onButton, view);
+      render(app, viewForShareRefusal(shared.reason), screen.onButton, screen.view);
       return;
     }
     await chrome.tabs.create({ url: linkFor(chrome.runtime.getURL("chart.html"), shared.chart) });
   };
-  render(app, view, onButton);
+  // Without the desktop button, should Stellarium's side fail.
+  renderChart(app, view, onButton).catch(() => render(app, view, onButton));
 }
 
 // Links, and the astro.com buttons, as on the paste page.

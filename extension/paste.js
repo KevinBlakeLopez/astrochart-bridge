@@ -4,6 +4,7 @@
 // only ever inserted with textContent or an input's value, never as HTML.
 import { openLink as openPageLink } from "./astro-com-page.js";
 import { linkFor } from "./chart-model.js";
+import { renderChart } from "./desktop-page.js";
 import { chartForEntry, checkField, entryFor, formForText, localEntryFor, viewForEntry, viewForLocalEntry } from "./paste-model.js";
 import { viewForShareRefusal } from "./popup-model.js";
 import { paragraph, render } from "./view.js";
@@ -138,17 +139,18 @@ function fieldElement(field, onValue) {
 function showReady(formElementToKeep, entry, form) {
   const screen = document.createElement("div");
   const view = viewForEntry(entry, { warnings: form.warnings, name: form.name, town: form.town });
-  const onButton = async (button) => {
+  const onButton = async (button, sky, drawn) => {
     // Links, and the astro.com buttons of the step after this screen, as on the screenshot page.
     if (button.does !== "share") return openPageLink(screen, button);
     const shared = chartForEntry(entry, form.statedOffsets);
     if (shared.kind === "refused") {
-      render(screen, viewForShareRefusal(shared.reason), onButton, view);
+      render(screen, viewForShareRefusal(shared.reason), drawn.onButton, drawn.view);
       return;
     }
     await chrome.tabs.create({ url: linkFor(chrome.runtime.getURL("chart.html"), shared.chart) });
   };
-  render(screen, view, onButton);
+  // With Send to Stellarium Desktop, as in the popup; without it, should Stellarium's side fail.
+  renderChart(screen, view, onButton).catch(() => render(screen, view, onButton));
   app.replaceChildren(screen, backButton(formElementToKeep));
 }
 

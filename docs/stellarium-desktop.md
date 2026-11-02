@@ -18,9 +18,9 @@ Leave **Enable CORS** unticked. AstroChart Bridge doesn't need it, and it lets w
 
 ## Sending a chart to Stellarium
 
-1. Open the popup on a chart, as for **Open Stellarium Web**.
+1. Open a chart, as for **Open Stellarium Web**: in the popup on a chart page, or on the screenshot, paste or import page (an AAF or Morinus file).
 2. Click **Send to Stellarium Desktop**. The first time, your browser asks whether AstroChart Bridge may connect to `127.0.0.1`. Allow it.
-3. The popup says **Sent to Stellarium Desktop** once Stellarium shows the chart's moment and place.
+3. The screen says **Sent to Stellarium Desktop** once Stellarium shows the chart's moment and place. **Done** closes the popup; on the other pages it goes back to the chart.
 
 AstroChart Bridge pauses Stellarium's clock, sets its latitude and longitude, sets the time, and then reads Stellarium's own status back to check all three took. An "ok" from Stellarium isn't enough: it answers "ok" even for values it ignored.
 

@@ -360,6 +360,8 @@ Needs Stellarium 25.1 or later with its Remote Control server on: the setup step
 - [ ] Click **Make Stellarium Web the default**. Without closing, the popup shows **Open Stellarium Web** first in blue again, **Send to Stellarium Desktop** below it, and "Stellarium Web is the default again." with **Undo**. **Undo** brings back the order of the step before. Make Stellarium Web the default again, close the popup and reopen it on test 1: there is no default line.
 - [ ] On a Stellarium Web tab (test 12), with Stellarium Desktop the default, **Open chart in Astro-Seek** stays first and the default line is under the buttons.
 - [ ] On an iPad or another touch screen, the **Make Stellarium Web the default** link sits on its own line and is easy to tap.
+- [ ] On the import page, open `fixtures/morinus/ny-est-plus-dst.p2.hor`. Below **Open Stellarium Web** is **Send to Stellarium Desktop**; within a second a grey line under it says "Stellarium Desktop is open and ready." Click it: Stellarium shows 2024-04-17 12:00 UTC at 40.7167, -74, the page says **Sent to Stellarium Desktop**, and **Done** shows the chart again, with the page still open.
+- [ ] Do the same from the screenshot page (test 13) and the paste page (test 16), each with a chart that has its UTC decided.
 - [ ] Put Stellarium's place and time back as noted in step 1, and start its clock. Make Stellarium Web the default if it isn't.
 
 ## Test 18: Safari on iPad
