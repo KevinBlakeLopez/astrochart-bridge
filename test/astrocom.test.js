@@ -208,6 +208,23 @@ test("both URLs must carry btyp", () => {
   assert.deepEqual(read([linkWith(pgidFor(CHART_URL.replace("&btyp=2", "")))]), refused("page-url-mismatch"));
 });
 
+// astro.com also separates parameters with ";", as in the address of a chart
+// page seen on 2026-11-01: ?;smon=11;rs=0;sday=2;btyp=2;syr=2026;mth=gw;clang=e;gm=a1;nhor=13.
+// The page and chart URLs here are PAGE_URL and CHART_URL written that way.
+const SEMICOLONS = (url) => url.replace("?", "?;").replaceAll("&", ";");
+
+test("a page or chart URL that separates its parameters with ; reads the same", () => {
+  assert.deepEqual(read([LINK], SEMICOLONS(PAGE_URL)), { nd: TEST });
+  assert.deepEqual(read([linkWith(pgidFor(SEMICOLONS(CHART_URL)))]), { nd: TEST });
+  assert.deepEqual(read([linkWith(pgidFor(SEMICOLONS(CHART_URL)))], SEMICOLONS(PAGE_URL)), { nd: TEST });
+  assert.deepEqual(read([LINK], SEMICOLONS(PAGE_URL).replace("btyp=2", "btyp=3")), refused("page-url-mismatch"));
+});
+
+test("a ; written inside nd= splits the record, which parseNd refuses", () => {
+  const link = linkWith(pgidFor(CHART_URL.replace(",Test,", ",Te;st,")));
+  assert.deepEqual(readChart({ url: PAGE_URL, links: [link] }), refused("unreadable-record"));
+});
+
 test("a key on one side only is fine", () => {
   assert.deepEqual(read([LINK], `${PAGE_URL}&pa=nmo&lang=e`), { nd: TEST });
   assert.deepEqual(read([linkWith(pgidFor(CHART_URL.replace("&sday=1", "")))]), { nd: TEST });
@@ -277,6 +294,9 @@ test("account charts of a seen type are natal", () => {
     `${CHART}?smon=11&nhor=26&sday=1&btyp=2&nho2=1&pa=nmo&syr=2026&lang=e&gm=a1&mth=gw`,
     `${PAGE_URL}&lang=g`,
     `${PAGE_URL}#top`,
+    // Parameters separated by ";", as astro.com also writes them.
+    SEMICOLONS(PAGE_URL),
+    `${CHART}?;smon=11;rs=0;sday=2;btyp=2;syr=2026;mth=gw;clang=e;gm=a1;nhor=26`,
   ]) {
     assert.deepEqual(classifyUrl(url), { kind: "natal" }, url);
   }
@@ -286,6 +306,7 @@ test("Astro-Databank pages and charts are refused as databank", () => {
   for (const url of [
     `${CHART}?wgid=wgeJw9TsEKgzAU`,
     `${PAGE_URL}&wgid=wgeJw9TsEKgzAU`,
+    `${SEMICOLONS(PAGE_URL)};wgid=wgeJw9TsEKgzAU`,
     "https://www.astro.com/astro-databank/Stallone,_Sylvester",
   ]) {
     assert.deepEqual(classifyUrl(url), refused("databank"), url);
@@ -307,6 +328,8 @@ test("other astro.com chart pages are refused as a chart type not supported yet"
     PAGE_URL.replace("mth=gw", "mth=atw"),
     PAGE_URL.replace("&mth=gw", ""),
     `${PAGE_URL}&btyp=3`,
+    SEMICOLONS(PAGE_URL).replace("mth=gw", "mth=atw"),
+    `${SEMICOLONS(PAGE_URL)};nhor=27`,
   ]) {
     assert.deepEqual(classifyUrl(url), refused("unsupported-chart"), url);
   }

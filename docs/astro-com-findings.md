@@ -11,7 +11,10 @@ The account chart below, "Test", uses the same invented birth data as the Astro-
   ```
   https://www.astro.com/cgi/chart.cgi?btyp=w2gw&rs=2&;&nhor=26
   https://www.astro.com/cgi/chart.cgi?gm=a1&nhor=26&nho2=1&btyp=2&mth=gw&sday=1&smon=11&syr=2026&rs=0
+  https://www.astro.com/cgi/chart.cgi?;smon=11;rs=0;sday=2;btyp=2;syr=2026;mth=gw;clang=e;gm=a1;nhor=13
   ```
+
+  The last address separates its parameters with `;`, which astro.com reads like `&`. `URL.searchParams` splits on `&` only, so it reads that query as one parameter named `;smon`.
 
 - **Astro-Databank charts.** Public entries such as `https://www.astro.com/astro-databank/Stallone,_Sylvester`. The chart thumbnail on that page links to `chart.cgi?wgid=…`, and the `wgid` value carries the birth data.
 

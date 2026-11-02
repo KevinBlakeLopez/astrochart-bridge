@@ -30,7 +30,7 @@ export function classifyUrl(url) {
   // instead of naming a chart saved in the account.
   if (page.pathname.startsWith("/astro-databank/")) return refused("databank");
   if (page.pathname !== CHART_PATH) return refused("unsupported");
-  const params = page.searchParams;
+  const params = queryParams(page);
   if (params.has("wgid")) return refused("databank");
 
   // Every other chart page is refused as a chart type of its own, so the
@@ -42,6 +42,15 @@ export function classifyUrl(url) {
   const btyp = only(params, "btyp");
   const mth = only(params, "mth");
   return NATAL.some((type) => type.btyp === btyp && type.mth === mth) ? { kind: "natal" } : refused("unsupported-chart");
+}
+
+// astro.com separates a query's parameters with ";" as well as "&", as in
+// chart.cgi?;smon=11;rs=0;…;nhor=13, and reads both the same. URL's
+// searchParams splits on "&" only, so every parameter this file reads comes
+// from here. A ";" written unencoded inside nd= splits the record too, which
+// leaves it too few fields for parseNd.
+function queryParams(url) {
+  return new URLSearchParams(url.search.replaceAll(";", "&"));
 }
 
 // A parameter's value when it appears exactly once, else null.
@@ -116,10 +125,10 @@ export function readPgid({ url, links }) {
 
   const chart = unwrapPgid([...pgids][0]);
   // nd2 is the account's second chart slot, not the chart drawn, so it is never read.
-  const nd = chart?.searchParams.getAll("nd") ?? [];
+  const nd = chart ? queryParams(chart).getAll("nd") : [];
   if (nd.length !== 1) return refused("unreadable-link");
 
-  return agrees(page.searchParams, chart.searchParams) ? { nd: nd[0] } : refused("page-url-mismatch");
+  return agrees(queryParams(page), queryParams(chart)) ? { nd: nd[0] } : refused("page-url-mismatch");
 }
 
 // The pgid of a drawing link, or null for any other link.
@@ -130,7 +139,7 @@ function drawingPgid(href) {
   } catch {
     return null;
   }
-  const pgid = link.searchParams.getAll("pgid");
+  const pgid = queryParams(link).getAll("pgid");
   return link.origin === ORIGIN && link.pathname === DRAWING_PATH && pgid.length === 1 ? pgid[0] : null;
 }
 
