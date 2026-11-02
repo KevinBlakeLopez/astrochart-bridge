@@ -72,7 +72,8 @@ export function viewForAafText(text, options) {
  * What to show for one record: the popup's ready screen for an astro.com
  * chart, with the name and birthplace the file gives, or why it can't open.
  * Its step to enter the chart in astro.com takes the name as the file splits
- * it, first and last.
+ * it, first and last, and the place without its country as the town, since
+ * astro.com's form asks for the country apart.
  *
  * @param {ReturnType<typeof chartFromRecord>} result
  * @param {{ timeZone?: string }} [options]  passed on to viewFor
@@ -94,7 +95,7 @@ export function viewForAafChart(result, options) {
       warnings: warnings.map((code) => WARNINGS[code]?.(chart) ?? code),
       notes: [...view.notes, ...ASTRO_SEEK_NOTES],
       buttons: [...ASTRO_SEEK_BUTTONS],
-      ...(view.sky ? { next: astroComStep(view.sky, { local: chart.local, name: aafName(chart.aaf) }) } : {}),
+      ...(view.sky ? { next: astroComStep(view.sky, { local: chart.local, name: aafName(chart.aaf), town: chart.aaf.place }) } : {}),
     },
     result,
   );
