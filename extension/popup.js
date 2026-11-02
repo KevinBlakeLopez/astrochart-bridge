@@ -8,7 +8,7 @@ import { ASTRO_SEEK_ACCESS, openAndSave } from "./astro-seek-open.js";
 import { fillForm, formValues, isAstroComPage, isBirthDataForm, readFormPage } from "./core/astrocom.js";
 import { townFromUrl } from "./core/astroseek.js";
 import { analyzePage, classifyUrl, extractorFor } from "./core/index.js";
-import { isStellariumWeb, skyFromEngine } from "./core/stellarium.js";
+import { isStellariumWeb, readEngine, skyFromEngine, townFromPlace } from "./core/stellarium.js";
 import { BUSY, viewForDesktopImport } from "./desktop-model.js";
 import { checkDesktop, renderChart } from "./desktop-page.js";
 import { heldForTab, holdForTab, releaseTab } from "./pending.js";
@@ -60,8 +60,10 @@ async function main() {
       show(viewFor({ kind: "refused", reason: "stellarium-unreadable" }));
       return;
     }
+    // Stellarium Web names the place it shows, which astro.com's and
+    // Astro-Seek's forms can take as the town.
     const sky = skyFromEngine(engine);
-    showChart(withAafExport(viewForSky(sky), sky));
+    showChart(withAafExport(viewForSky(sky, { town: townFromPlace(engine.place, sky) }), sky));
     return;
   }
 
@@ -100,17 +102,6 @@ async function main() {
   sharing = result;
   // An Astro-Seek chart's address names its town, which astro.com's form can take.
   showChart(withAafExport(viewFor(result, { town: townFromUrl(url) }), result));
-}
-
-// Runs inside the Stellarium Web page itself (world "MAIN"), where its engine
-// lives. Firefox runs scripts there from version 128, the manifest's
-// strict_min_version. The browser copies this function into the page, so it
-// can't use anything else from this file. The path to the engine was read from
-// frontend 1.16.0.
-function readEngine() {
-  const core = document.querySelector("#app")?.__vue_app__?.config?.globalProperties?.$stel?.core;
-  const engine = core && { utcMjd: core.utc, latitudeRad: core.latitude, longitudeRad: core.longitude };
-  return engine && Object.values(engine).every(Number.isFinite) ? engine : null;
 }
 
 // The popup was opened on this tab, so activeTab lets it read and fill in the

@@ -403,7 +403,9 @@ export function viewForShareRefusal(reason) {
  * it there. The tab is already Stellarium Web, so there's no button for it.
  *
  * @param {{ utc: string, lat: number, lng: number }} sky  from skyFromEngine
- * @param {{ timeZone?: string, town?: string | null }} [options]  as for viewFor
+ * @param {{ timeZone?: string, town?: string | null }} [options]  timeZone as for
+ *   viewFor; town, the name Stellarium Web gives the place (townFromPlace),
+ *   for astro.com's and Astro-Seek's forms
  */
 export function viewForSky(sky, { timeZone, town = null } = {}) {
   const clock = clockParts(sky.utc, timeZone);
@@ -421,7 +423,7 @@ export function viewForSky(sky, { timeZone, town = null } = {}) {
     sky,
     buttons: [{ label: "Open chart in Astro-Seek", opens: "astro-seek" }],
     next: astroComStep(sky, { town }),
-  });
+  }, { town });
 }
 
 // astro.com's pages, as seen signed out on 2026-11-01. Its birth data form
