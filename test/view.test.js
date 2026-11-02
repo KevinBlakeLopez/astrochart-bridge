@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { astroSeekUrl } from "../extension/core/astroseek.js";
 import { analyzePage } from "../extension/core/index.js";
 import { withDesktopSend } from "../extension/desktop-model.js";
 import { viewFor, viewForSky, withOtherWays } from "../extension/popup-model.js";
@@ -64,10 +65,25 @@ test("on a Stellarium Web tab's screen, the line follows the button there too", 
   assert.deepEqual(drawn(view), [
     "[Take the chart elsewhere]",
     "Open chart in Astro-Seek",
+    "Save in Astro-Seek…",
     "Enter in astro.com…",
     "[See the sky]",
     "Send to Stellarium Desktop",
     "(Stellarium Desktop line)",
+  ]);
+});
+
+test("on a Stellarium Web tab's screen, every button gets the tab's sky, Send to Stellarium Desktop too", () => {
+  const sky = { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 };
+  const container = { replaceChildren: (...parts) => (container.parts = parts) };
+  const clicks = [];
+  render(container, withDesktopSend(viewForSky(sky)), (button, decided) => clicks.push([button.does ?? button.url ?? "saves", decided]));
+  const buttons = container.parts.filter(({ tag, textContent }) => tag === "button" && textContent !== "Enter in astro.com…");
+  for (const button of buttons) button.listeners.click();
+  assert.deepEqual(clicks, [
+    [astroSeekUrl(sky), sky],
+    ["saves", sky],
+    ["send-to-desktop", sky],
   ]);
 });
 
