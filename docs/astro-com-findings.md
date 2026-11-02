@@ -11,7 +11,10 @@ The account chart below, "Test", uses the same invented birth data as the Astro-
   ```
   https://www.astro.com/cgi/chart.cgi?btyp=w2gw&rs=2&;&nhor=26
   https://www.astro.com/cgi/chart.cgi?gm=a1&nhor=26&nho2=1&btyp=2&mth=gw&sday=1&smon=11&syr=2026&rs=0
+  https://www.astro.com/cgi/chart.cgi?;smon=11;rs=0;sday=2;btyp=2;syr=2026;mth=gw;clang=e;gm=a1;nhor=13
   ```
+
+  The last address separates its parameters with `;`, which astro.com reads like `&`. `URL.searchParams` splits on `&` only, so it reads that query as one parameter named `;smon`.
 
 - **Astro-Databank charts.** Public entries such as `https://www.astro.com/astro-databank/Stallone,_Sylvester`. The chart thumbnail on that page links to `chart.cgi?wgid=…`, and the `wgid` value carries the birth data.
 
@@ -45,7 +48,7 @@ Account charts and Databank charts carry the birth data in the same comma-separa
 | 4–6 | `17,4,2024` | `6,7,1946` | Day, month, year |
 | 7 | `8:00` | `19:20` | Local time, `H:MM`. `H:MM:SS` seen once (`7:30:03`). |
 | 8 | `h4w` | `h4w` | Zone code, see below |
-| 9 | `gad` | `gad` | Unknown. `gad` with every `h` zone seen, `gal` with every `m` zone. **Hypothesis:** the last letter is the zone kind (`d` daylight saving, `l` local mean time). No standard-time sample yet to test it. |
+| 9 | `gad` | `gad` | Unknown. `gad` with every daylight-saving `h` zone seen, `gas` with the one standard-time `h` zone (below), `gal` with every `m` zone. **Hypothesis:** the last letter is the zone kind (`d` daylight saving, `s` standard time, `l` local mean time). The `ga` before it is unexplained. |
 | 10 | `0` | `0` | Unknown |
 | 11 | `New York` | `New%20York` | Place. Percent-encoded inside `wgid` only. |
 | 12 | `NY (US)` | `NY%20(US)` | State or country |
@@ -68,6 +71,7 @@ Place names contain no commas in any sample, but a reader should split the recor
 ### Zone codes
 
 - **`h4w`:** whole hours west of Universal Time, with daylight saving already applied. **Verified** on "Test": 8:00 local at UTC−04:00 gives 12:00, the Univ.Time printed in its image. The Databank pages for Trump and Stallone print it as `EDT h4w (is daylight saving time)`.
+- **`h5w` with field 9 `gas`:** standard time, seen once, on an account chart for 6 January 1947, 7:01, in Pennsylvania (read on 2026-11-01 with a console snippet that printed fields 4 to 10 only). 7:01 local at UTC−05:00 gives 12:01, the Univ.Time printed in its image, so the `h` code is the offset as it stands whether field 9 says `gad` or `gas`.
 - **`m10e0`:** local mean time for the meridian 10°0'E. Einstein's Databank page prints `LMT m10e0 (is local mean time)`. The offset is 4 minutes per degree, so 40 minutes here.
 - **`m0w10`:** local mean time for 0°10'W, seen once. Its offset is 40 seconds, which shows local-mean-time offsets are not always whole minutes.
 - **Not yet seen:** half-hour and quarter-hour zones, and `h` zones east of Universal Time. A form such as `h5e30` would fit the pattern but is a guess.

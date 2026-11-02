@@ -30,7 +30,7 @@ export function classifyUrl(url) {
   // instead of naming a chart saved in the account.
   if (page.pathname.startsWith("/astro-databank/")) return refused("databank");
   if (page.pathname !== CHART_PATH) return refused("unsupported");
-  const params = page.searchParams;
+  const params = queryParams(page);
   if (params.has("wgid")) return refused("databank");
 
   // Every other chart page is refused as a chart type of its own, so the
@@ -42,6 +42,15 @@ export function classifyUrl(url) {
   const btyp = only(params, "btyp");
   const mth = only(params, "mth");
   return NATAL.some((type) => type.btyp === btyp && type.mth === mth) ? { kind: "natal" } : refused("unsupported-chart");
+}
+
+// astro.com separates a query's parameters with ";" as well as "&", as in
+// chart.cgi?;smon=11;rs=0;…;nhor=13, and reads both the same. URL's
+// searchParams splits on "&" only, so every parameter this file reads comes
+// from here. A ";" written unencoded inside nd= splits the record too, which
+// leaves it too few fields for parseNd.
+function queryParams(url) {
+  return new URLSearchParams(url.search.replaceAll(";", "&"));
 }
 
 // A parameter's value when it appears exactly once, else null.
@@ -69,9 +78,11 @@ export function readChart({ url, links }) {
   // Checked before field 9, which reads "gal" beside every local-mean-time
   // zone seen, so these charts get the reason that explains them.
   if (chart.zone.kind === "local-mean-time") return refused("local-mean-time");
-  // Field 9 is unexplained. Only "gad" has been seen beside an offset zone;
-  // "gal" there could mean another calendar, which would shift the sky.
-  if (chart.field9 !== "gad") return refused("unseen-field-9");
+  // Field 9 is unexplained. Only "gad" (daylight saving) and "gas" (standard
+  // time) have been seen beside an offset zone, and the offset already
+  // includes daylight saving, so both are read the same. "gal" there could
+  // mean another calendar, which would shift the sky.
+  if (!OFFSET_FIELD_9.has(chart.field9)) return refused("unseen-field-9");
 
   const { local, lat, lng } = chart;
   return { local, offsetMinutes: chart.zone.offsetMinutes, lat, lng };
@@ -114,10 +125,10 @@ export function readPgid({ url, links }) {
 
   const chart = unwrapPgid([...pgids][0]);
   // nd2 is the account's second chart slot, not the chart drawn, so it is never read.
-  const nd = chart?.searchParams.getAll("nd") ?? [];
+  const nd = chart ? queryParams(chart).getAll("nd") : [];
   if (nd.length !== 1) return refused("unreadable-link");
 
-  return agrees(page.searchParams, chart.searchParams) ? { nd: nd[0] } : refused("page-url-mismatch");
+  return agrees(queryParams(page), queryParams(chart)) ? { nd: nd[0] } : refused("page-url-mismatch");
 }
 
 // The pgid of a drawing link, or null for any other link.
@@ -128,7 +139,7 @@ function drawingPgid(href) {
   } catch {
     return null;
   }
-  const pgid = link.searchParams.getAll("pgid");
+  const pgid = queryParams(link).getAll("pgid");
   return link.origin === ORIGIN && link.pathname === DRAWING_PATH && pgid.length === 1 ? pgid[0] : null;
 }
 
@@ -169,10 +180,11 @@ function agrees(page, chart) {
 // every field after it, so any other count is refused.
 const FIELD_COUNT = 18;
 
-// Only ever seen as "gad", beside every h zone, or "gal", beside every
-// local-mean-time zone. Its meaning is unknown, so it is passed on for the
-// caller to judge rather than read.
-const FIELD_9 = new Set(["gad", "gal"]);
+// Only ever seen as "gad" or "gas", beside h zones in daylight saving and
+// standard time, or "gal", beside every local-mean-time zone. Its meaning is
+// unknown, so it is passed on for the caller to judge rather than read.
+const FIELD_9 = new Set(["gad", "gas", "gal"]);
+const OFFSET_FIELD_9 = new Set(["gad", "gas"]);
 
 // "8:00", "7:30:03"
 const TIME = /^(\d{1,2}):(\d{2})(?::(\d{2}))?$/;
@@ -193,7 +205,7 @@ const ANGLE = /^(\d{1,3})([nsew])(\d{1,2}|\d{4})$/;
  * @returns {{
  *   local: string,
  *   zone: { kind: "offset", offsetMinutes: number } | { kind: "local-mean-time", meridian: number },
- *   field9: "gad" | "gal",
+ *   field9: "gad" | "gas" | "gal",
  *   lat: number,
  *   lng: number,
  * } | null}

@@ -20,7 +20,7 @@ test("a ready chart screen gets the Send to Stellarium Desktop button", () => {
   assert.deepEqual(withDesktopSend(view), { ...view, desktop: SEND });
 });
 
-// The button stays off until a reading is picked or an offset typed, like Open sky.
+// The button stays off until a reading is picked or an offset typed, like Open Stellarium Web.
 test("the choose and enter-offset screens get it too", () => {
   const choose = viewFor(analyze("ny-2021-03-14-gap"));
   assert.equal(choose.state, "choose");
@@ -82,13 +82,13 @@ test("sent: choosing Stellarium Desktop as the default, then changing it back", 
   });
 });
 
-test("with Stellarium Desktop the default, a ready screen leads with it and Open sky follows", () => {
+test("with Stellarium Desktop the default, a ready screen leads with it and Open Stellarium Web follows", () => {
   const view = viewFor(analyze("ny-2024-04-17"), { timeZone: "America/Los_Angeles" });
   const preferred = withDesktopSend(view, { preferred: true });
   assert.deepEqual(preferred.desktop, { ...SEND, primary: true });
-  // Share… stays where viewFor put it, after Open sky.
+  // Share… stays where viewFor put it, after Open Stellarium Web.
   assert.deepEqual(preferred.buttons, [
-    { label: "Open sky", opens: "stellarium", secondary: true },
+    { label: "Open Stellarium Web", opens: "stellarium", secondary: true },
     { label: "Share…", does: "share", secondary: true },
   ]);
   assert.deepEqual(preferred.defaultChoice, {
@@ -98,10 +98,10 @@ test("with Stellarium Desktop the default, a ready screen leads with it and Open
   });
 });
 
-test("an astro.com chart keeps Open chart in Astro-Seek as it was, and only Open sky steps back", () => {
-  const view = { state: "ready", sky: NY, notes: [], buttons: [{ label: "Open sky", opens: "stellarium" }, { label: "Open chart in Astro-Seek", opens: "astro-seek" }] };
+test("an astro.com chart keeps Open chart in Astro-Seek as it was, and only Open Stellarium Web steps back", () => {
+  const view = { state: "ready", sky: NY, notes: [], buttons: [{ label: "Open Stellarium Web", opens: "stellarium" }, { label: "Open chart in Astro-Seek", opens: "astro-seek" }] };
   assert.deepEqual(withDesktopSend(view, { preferred: true }).buttons, [
-    { label: "Open sky", opens: "stellarium", secondary: true },
+    { label: "Open Stellarium Web", opens: "stellarium", secondary: true },
     { label: "Open chart in Astro-Seek", opens: "astro-seek" },
   ]);
 });
@@ -215,7 +215,7 @@ test("import: the sky Stellarium shows, opening in Astro-Seek or Stellarium Web,
   ]);
   assert.deepEqual(view.buttons, [
     { label: "Open chart in Astro-Seek", opens: "astro-seek" },
-    { label: "Open sky", opens: "stellarium", secondary: true },
+    { label: "Open Stellarium Web", opens: "stellarium", secondary: true },
   ]);
   assert.equal(view.sky, NY);
   assert.equal(view.next.label, "Enter in astro.com…");

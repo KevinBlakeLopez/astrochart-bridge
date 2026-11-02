@@ -6,11 +6,11 @@ Findings are marked by how they were established. **Verified** means observed: d
 
 ## 1. Executive conclusion
 
-**Decision, 1 November 2026:** route A (§4). AstroChart Bridge is licensed under AGPL-3.0-or-later, and gate 1 passes once that licence is on `main`. The rest of this document records the spike as it stood before the decision.
+**Decision, 1 November 2026:** route A (§4). AstroChart Bridge is licensed under AGPL-3.0-or-later, and gate 1 passes once that licence is on `main`. The rest of this document records the spike as it stood before the decision, except for gate 4, which ran after it (§8).
 
 - **The function exists and can be reached.** `swe_vis_limit_mag()` is compiled into the published `@kuntay/swisseph` 0.2.2 binary and exported (Verified). The package doesn't wrap it, but its documented `raw` escape hatch hands over the Emscripten module, so a small local wrapper can call it. No rebuild is needed.
 - **Licensing stops it here.** AstroChart Bridge has no licence. `@kuntay/swisseph` is AGPL-3.0-or-later, and Swiss Ephemeris is AGPL or a paid Professional License. Shipping the library in the extension, or on the receiving page, means distributing AstroChart Bridge under the AGPL. That is the owner's decision, so the spike stopped before adding the dependency (gate 1).
-- **Swiss Ephemeris has edges a wrapper must handle** (Verified natively, §8). It returns stale results when only the atmosphere changes between calls. It reports impossible input as success with NaN results, or as "below horizon". It falls back from Swiss Ephemeris files to the Moshier ephemeris without telling the caller. Its limiting magnitude jumps about 1.1 magnitudes where photopic vision switches to scotopic.
+- **Swiss Ephemeris has edges a wrapper must handle** (Verified natively, and in the WebAssembly at gate 4, §8). It returns stale results when only the atmosphere changes between calls. It reports impossible input as success with NaN results, or as "below horizon". It falls back from Swiss Ephemeris files to the Moshier ephemeris without telling the caller. Its limiting magnitude jumps about 1.1 magnitudes where photopic vision switches to scotopic.
 - **Helioscope V1 wasn't ready for implementation until a licensing route was chosen** (§4). With route A chosen, the next step is the prototype in §10. The route from there is short: the published binary, a wrapper of about 40 lines, the Moshier ephemeris (no data files), and the existing Stellarium links with two small additions each (§7).
 
 | Gate | Result | Basis |
@@ -18,7 +18,7 @@ Findings are marked by how they were established. **Verified** means observed: d
 | 1. Licensing | **Decided: route A**, AGPL-3.0-or-later. Before that, a material concern that needed the owner's decision | §4 |
 | 2. Browser compatibility | Not run, because gate 1 stopped incorporation. Nothing found that blocks it | §5 (Read, plus binary decoding) |
 | 3. Visibility function | Passed | §3 (Verified in the binary and the glue) |
-| 4. Numerical validation | Not run against the WebAssembly. A native reference built from the same C sources is ready to compare with | §8 |
+| 4. Numerical validation | **Passed in Node**, after the decision. In 3,757 calls, the published WebAssembly matches native Swiss Ephemeris built from the same C sources | §8 (Verified) |
 | 5. Integration | Passed at design level | §6, §7 |
 
 ## 2. Repository findings
@@ -81,7 +81,7 @@ The owner chooses between four routes. None was started.
 
 ## 5. Browser compatibility assessment
 
-This wasn't run: no prototype was built, because gate 1 stopped incorporation (§4). Reading the package and decoding its binary shows the following.
+This wasn't run: no prototype was built, because gate 1 stopped incorporation (§4). Reading the package and decoding its binary shows the following. The speed and isolation rows also give what gate 4 measured in Node, after the decision.
 
 | Concern | Finding |
 |---|---|
@@ -95,8 +95,8 @@ This wasn't run: no prototype was built, because gate 1 stopped incorporation (�
 | Memory | **Verified** from the binary: 16.3 MiB of linear memory at start, growing to at most 2 GiB, not shared |
 | Size | In 0.2.2, `swisseph.wasm` is 562,903 bytes and `swisseph.mjs` 76,449 bytes. The vendored Tesseract files come to about 7 MB |
 | Service worker | There isn't one, and none is needed. Helioscope should run in an extension page in a tab, like the screenshot page, because the popup closes when it loses focus |
-| Speed | **Verified natively:** under 0.03 ms a call. The search in §6 makes about 600 calls a chart. WebAssembly speed isn't measured |
-| Isolation | **Read:** each `createSwissEph()` call makes a new WebAssembly instance (`tools/build-wasm.mjs:114-118`). That's also how to start with empty caches (§8) |
+| Speed | **Verified natively:** under 0.03 ms a call. The search in §6 makes about 600 calls a chart. **Verified in Node 24** at gate 4: the WebAssembly takes about 23 µs a call, and about 1.3 ms to create an instance |
+| Isolation | **Read:** each `createSwissEph()` call makes a new WebAssembly instance (`tools/build-wasm.mjs:114-118`). **Verified in Node** at gate 4: a new instance starts with empty caches (§8) |
 
 Manual test 13 checks that each supported browser runs Tesseract's WebAssembly under this policy. This spike didn't run it.
 
@@ -222,8 +222,9 @@ So "View in Stellarium" needs no new transport, just two optional fields for Ste
   - the Moshier ephemeris (`helflag` 4)
   - the C library's default atmosphere and observer (all inputs 0): pressure and temperature from the elevation, 40 % humidity, aerosol from humidity, age 36, Snellen ratio 1, naked eye
   - the Moon included
+- **The WebAssembly, in Node**, after the licence decision: the published 0.2.2 package against that native reference, for gate 4 (below).
 
-What didn't run: the WebAssembly itself (gates 2 and 4, §1), and any Helioscope code, since none exists.
+What didn't run: the WebAssembly in a browser extension page (gate 2, §1), and any Helioscope code, since none exists.
 
 ### `swe_vis_limit_mag` behaviour, verified natively
 
@@ -275,6 +276,31 @@ The Venus inferior-conjunction row is the case a rule based only on longitude ge
 
 Agreement between the WebAssembly and this native build would show that the port is faithful, and nothing more. Both run the same C code, so neither validates Schaefer's model against what people actually see. That would need records of observations, and is out of scope.
 
+### Gate 4: the WebAssembly against native
+
+**Verified** on 1 November 2026, after the licence decision. The published `@kuntay/swisseph` 0.2.2 ran in Node 24.14.1 through a local wrapper over `raw.cwrap`, about 40 lines long. The wrapper writes every input afresh for each call, because Swiss Ephemeris rewrites them in place (item 2). The same 3,757 `swe_vis_limit_mag` calls ran, in the same order, through the WebAssembly and through two native builds of the harness. One was Apple clang 17 at `-O2`, and the other added `-ffp-contract=off`, which stops the compiler fusing multiplications and additions. The calls were grouped into 22 sessions, and each session ran in a fresh process or a fresh instance:
+
+- the reference call, and 25 calls for the edge cases above
+- the stale-extinction pairs of item 5, each with a fresh run of its second call
+- 20 calls a second apart across the photopic-to-scotopic switch of item 7
+- every 2-minute sample in the 14 observation windows of the reference cases
+- 3,000 seeded random calls from 1600 to 2400, covering the five planets and the Moon, latitudes from 60° S to 60° N, elevations up to 3,000 m, five atmospheres, three observers and four sets of flags
+
+| Comparison | Return codes | Bit-identical calls | Largest difference |
+|---|---|---|---|
+| WebAssembly against native `-O2 -ffp-contract=off` | The same in all 3,757 | 2,892 | 5.9×10⁻¹³ magnitudes, 1.3×10⁻¹¹° |
+| WebAssembly against native `-O2` | The same in all 3,757 | 1,512 | 8.6×10⁻⁹ magnitudes, 1.8×10⁻⁷° (the Sun's azimuth) |
+| Native `-O2` against native `-O2 -ffp-contract=off` | The same in all 3,757 | 1,513 | The same as the row above |
+
+- **The port is faithful**, which is all this comparison can show. The default native build's larger gap comes from the compiler, since the two native builds differ from each other by exactly as much.
+- **Strings:** the error strings and the rewritten object names were identical in every call.
+- **Behaviour:** items 2, 4, 5, 7, 8, 9 and 10, and the Sun in item 11, came out the same in the WebAssembly.
+- **Repeatability and speed:** the WebAssembly's results were bit-identical from one run to the next. It took about 23 µs a call, and about 1.3 ms to create an instance.
+
+The reference values in §8 and §10 come from the default `-O2` build. A test that compares the WebAssembly with them therefore needs a tolerance above that build's differences.
+
+The comparison script and the native harness aren't committed.
+
 ### Test plan for V1, to be written before the code
 
 - **Engine boundary:** the reference cases above as fixtures. The WebAssembly must match the native values within a tolerance measured at gate 4, not assumed.
@@ -314,5 +340,5 @@ Agreement between the WebAssembly and this native build would show that the port
 ## 10. Recommended next step
 
 1. **Choose the licensing route** (§4). Done: route A, on 1 November 2026.
-2. **Build an isolated prototype for gates 2 and 4**, outside the production extension. A scratch extension page loads the vendored package and calls `swe_vis_limit_mag` through `raw.cwrap` for Venus from New York at 2025-01-10 22:35:00 UTC, with the C defaults and Moshier. It compares the result with the native one: `ret` 0, limiting magnitude 3.01164805937693, Venus −4.528168498295062, altitude 30.449427707878943. Run it in Chrome, Firefox and Safari, and run the same comparison in Node from `test/`.
+2. **Build an isolated prototype for gates 2 and 4**, outside the production extension. A scratch extension page loads the vendored package and calls `swe_vis_limit_mag` through `raw.cwrap` for Venus from New York at 2025-01-10 22:35:00 UTC, with the C defaults and Moshier. It compares the result with the native one: `ret` 0, limiting magnitude 3.01164805937693, Venus −4.528168498295062, altitude 30.449427707878943. Run it in Chrome, Firefox and Safari, and run the same comparison in Node from `test/`. Gate 4 is done: it ran in Node on 1 November 2026, from a script outside the repository (§8). The browser runs are still to do.
 3. **Then the proof of concept** the brief describes: Venus, New York, the evening window of 10 January 2025, and one visibility calculation returning the structured result of §6, with the tests written first.

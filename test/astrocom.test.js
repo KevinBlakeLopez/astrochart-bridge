@@ -55,6 +55,15 @@ test("a local-mean-time zone is returned with its meridian", () => {
   assert.deepEqual(parseNd(variant({ 8: "m0w10", 9: "gal" })).zone, { kind: "local-mean-time", meridian: -0.166667 });
 });
 
+test("standard time is field 9 gas, beside an offset that has no daylight saving", () => {
+  assert.deepEqual(parseNd(variant({ 4: "10", 5: "1", 8: "h5w", 9: "gas" })), {
+    ...TEST_RESULT,
+    local: "2024-01-10T08:00:00",
+    zone: { kind: "offset", offsetMinutes: -300 },
+    field9: "gas",
+  });
+});
+
 test("0°0' west is 0, not -0", () => {
   assert.ok(Object.is(parseNd(variant({ 13: "0w0" })).lng, 0));
   assert.ok(Object.is(parseNd(variant({ 8: "h0w" })).zone.offsetMinutes, 0));
@@ -80,7 +89,7 @@ test("zone codes not seen before are refused", () => {
 });
 
 test("field 9 values not seen before are refused", () => {
-  for (const value of ["gas", "jul", ""]) {
+  for (const value of ["gaw", "jul", ""]) {
     assert.equal(parseNd(variant({ 9: value })), null, JSON.stringify(value));
   }
 });
@@ -199,6 +208,23 @@ test("both URLs must carry btyp", () => {
   assert.deepEqual(read([linkWith(pgidFor(CHART_URL.replace("&btyp=2", "")))]), refused("page-url-mismatch"));
 });
 
+// astro.com also separates parameters with ";", as in the address of a chart
+// page seen on 2026-11-01: ?;smon=11;rs=0;sday=2;btyp=2;syr=2026;mth=gw;clang=e;gm=a1;nhor=13.
+// The page and chart URLs here are PAGE_URL and CHART_URL written that way.
+const SEMICOLONS = (url) => url.replace("?", "?;").replaceAll("&", ";");
+
+test("a page or chart URL that separates its parameters with ; reads the same", () => {
+  assert.deepEqual(read([LINK], SEMICOLONS(PAGE_URL)), { nd: TEST });
+  assert.deepEqual(read([linkWith(pgidFor(SEMICOLONS(CHART_URL)))]), { nd: TEST });
+  assert.deepEqual(read([linkWith(pgidFor(SEMICOLONS(CHART_URL)))], SEMICOLONS(PAGE_URL)), { nd: TEST });
+  assert.deepEqual(read([LINK], SEMICOLONS(PAGE_URL).replace("btyp=2", "btyp=3")), refused("page-url-mismatch"));
+});
+
+test("a ; written inside nd= splits the record, which parseNd refuses", () => {
+  const link = linkWith(pgidFor(CHART_URL.replace(",Test,", ",Te;st,")));
+  assert.deepEqual(readChart({ url: PAGE_URL, links: [link] }), refused("unreadable-record"));
+});
+
 test("a key on one side only is fine", () => {
   assert.deepEqual(read([LINK], `${PAGE_URL}&pa=nmo&lang=e`), { nd: TEST });
   assert.deepEqual(read([linkWith(pgidFor(CHART_URL.replace("&sday=1", "")))]), { nd: TEST });
@@ -242,6 +268,17 @@ test("a date before the Gregorian calendar began is refused, two-digit years too
   assert.equal(parseNd(`,Test,e,29,2,1,8:00,h4w,gad,0,New York,NY (US),74w00,40n43,f,45,-24500,61`), null);
 });
 
+// An invented New York chart in January, when the city keeps standard time:
+// 08:00 at UTC-05:00, as astro.com wrote a captured standard-time record.
+test("reads a standard-time chart with its offset as written", () => {
+  assert.deepEqual(chartFrom([linkWithNd({ 4: "10", 5: "1", 8: "h5w", 9: "gas" })]), {
+    local: "2024-01-10T08:00:00",
+    offsetMinutes: -300,
+    lat: 40.716667,
+    lng: -74,
+  });
+});
+
 test("an offset zone beside field 9 gal is refused", () => {
   assert.deepEqual(chartFrom([linkWithNd({ 9: "gal" })]), refused("unseen-field-9"));
 });
@@ -257,6 +294,9 @@ test("account charts of a seen type are natal", () => {
     `${CHART}?smon=11&nhor=26&sday=1&btyp=2&nho2=1&pa=nmo&syr=2026&lang=e&gm=a1&mth=gw`,
     `${PAGE_URL}&lang=g`,
     `${PAGE_URL}#top`,
+    // Parameters separated by ";", as astro.com also writes them.
+    SEMICOLONS(PAGE_URL),
+    `${CHART}?;smon=11;rs=0;sday=2;btyp=2;syr=2026;mth=gw;clang=e;gm=a1;nhor=26`,
   ]) {
     assert.deepEqual(classifyUrl(url), { kind: "natal" }, url);
   }
@@ -266,6 +306,7 @@ test("Astro-Databank pages and charts are refused as databank", () => {
   for (const url of [
     `${CHART}?wgid=wgeJw9TsEKgzAU`,
     `${PAGE_URL}&wgid=wgeJw9TsEKgzAU`,
+    `${SEMICOLONS(PAGE_URL)};wgid=wgeJw9TsEKgzAU`,
     "https://www.astro.com/astro-databank/Stallone,_Sylvester",
   ]) {
     assert.deepEqual(classifyUrl(url), refused("databank"), url);
@@ -287,6 +328,8 @@ test("other astro.com chart pages are refused as a chart type not supported yet"
     PAGE_URL.replace("mth=gw", "mth=atw"),
     PAGE_URL.replace("&mth=gw", ""),
     `${PAGE_URL}&btyp=3`,
+    SEMICOLONS(PAGE_URL).replace("mth=gw", "mth=atw"),
+    `${SEMICOLONS(PAGE_URL)};nhor=27`,
   ]) {
     assert.deepEqual(classifyUrl(url), refused("unsupported-chart"), url);
   }

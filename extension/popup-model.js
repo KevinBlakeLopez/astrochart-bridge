@@ -11,7 +11,7 @@ export const PRIVACY_NOTE =
   "Opening the sky sends this date, time and place to stellarium-web.org, and its page passes the link on to Google's advertising tags.";
 
 // Shown on the choose and enter-offset screens, the privacy note last, just above
-// Open sky. The ready screen knows its UTC, so it names the exact clock time instead.
+// Open Stellarium Web. The ready screen knows its UTC, so it names the exact clock time instead.
 const NOTES = [CLOCK_NOTE, PRIVACY_NOTE];
 
 const RUNNING = "The clock starts running at once; its pause button stops it.";
@@ -37,6 +37,21 @@ const REFUSALS = {
 // Every other refusal means the chart page couldn't be read. They share one
 // message and show their code, so a bug report says which check failed.
 const UNREADABLE = "AstroChart Bridge couldn't read this chart page.";
+
+// A transit or compatibility chart isn't a birth chart, so a screenshot or
+// copy of it wouldn't help.
+const NOT_A_BIRTH_CHART = new Set(["transit", "synastry"]);
+
+/**
+ * Whether a refused page's screen also offers the other ways in: a
+ * screenshot, pasted text, a chart file or Stellarium Desktop. A chart page
+ * AstroChart Bridge couldn't read still has its birth data on screen.
+ *
+ * @param {{ kind: "refused", reason: string }} result
+ */
+export function offersOtherWays(result) {
+  return !NOT_A_BIRTH_CHART.has(result.reason);
+}
 
 const WARNINGS = {
   "zone-label-unknown": ({ zoneLabel }) =>
@@ -142,15 +157,15 @@ export const ASTRO_SEEK_NOTES = [
 // The buttons of a screen whose chart can also open in Astro-Seek. Both open the
 // same decided UTC and place: Astro-Seek's chart in UT/GMT, as from a Stellarium tab.
 export const ASTRO_SEEK_BUTTONS = [
-  { label: "Open sky", opens: "stellarium" },
+  { label: "Open Stellarium Web", opens: "stellarium" },
   { label: "Open chart in Astro-Seek", opens: "astro-seek" },
 ];
 
-const OPEN_SKY_BUTTON = { label: "Open sky", opens: "stellarium" };
+const OPEN_SKY_BUTTON = { label: "Open Stellarium Web", opens: "stellarium" };
 
 // Opens the receiving page in a tab, with the chart in its link, to copy the
 // link or download the file. Offered on every screen with a chart of its own;
-// like Open sky, it waits for a reading or offset to decide the UTC. A
+// like Open Stellarium Web, it waits for a reading or offset to decide the UTC. A
 // Stellarium tab has no birthplace time, so its screen doesn't offer it.
 export const SHARE_BUTTON = { label: "Share…", does: "share", secondary: true };
 

@@ -18,7 +18,7 @@ Leave **Enable CORS** unticked. AstroChart Bridge doesn't need it, and it lets w
 
 ## Sending a chart to Stellarium
 
-1. Open the popup on a chart, as for **Open sky**.
+1. Open the popup on a chart, as for **Open Stellarium Web**.
 2. Click **Send to Stellarium Desktop**. The first time, your browser asks whether AstroChart Bridge may connect to `127.0.0.1`. Allow it.
 3. The popup says **Sent to Stellarium Desktop** once Stellarium shows the chart's moment and place.
 
@@ -35,9 +35,9 @@ The button is on every chart screen with a sky: a chart page's, once its UTC is 
 
 ## Making Stellarium Desktop the default
 
-After a chart has gone to Stellarium, the **Sent to Stellarium Desktop** screen offers **Use Stellarium Desktop by default**. Chart screens then lead with **Send to Stellarium Desktop** in the main style, and **Open sky** follows it in the secondary style. Nothing is sent without a click either way.
+After a chart has gone to Stellarium, the **Sent to Stellarium Desktop** screen offers **Use Stellarium Desktop by default**. Chart screens then lead with **Send to Stellarium Desktop** in the main style, and **Open Stellarium Web** follows it in the secondary style. Nothing is sent without a click either way.
 
-To change it back, use the line under the buttons on any chart screen: "Stellarium Desktop is your default for charts. **Make Stellarium Web the default**". The screen redraws at once with **Open sky** first again, and says "Stellarium Web is the default again. **Undo**". The same line is on the sent screen.
+To change it back, use the line under the buttons on any chart screen: "Stellarium Desktop is your default for charts. **Make Stellarium Web the default**". The screen redraws at once with **Open Stellarium Web** first again, and says "Stellarium Web is the default again. **Undo**". The same line is on the sent screen.
 
 A Stellarium Web tab's screen keeps **Open chart in Astro-Seek** as its main button, since there is no sky to open there, but shows the same line. The choice is kept in the browser on this computer only, and isn't synced to your browser account.
 
@@ -57,7 +57,7 @@ Until you've allowed the connection, the popup doesn't check and shows no line: 
 
 ## Importing from Stellarium
 
-On a page that isn't a chart, the popup offers **Import from Stellarium Desktop**. It reads the moment and place Stellarium is showing and offers **Open chart in Astro-Seek**, **Open sky** and **Enter in astro.com…**.
+On a page that isn't a chart, the popup offers **Import from Stellarium Desktop**. It reads the moment and place Stellarium is showing and offers **Open chart in Astro-Seek**, **Open Stellarium Web** and **Enter in astro.com…**.
 
 - Pause Stellarium's clock first. A running clock gives the moment AstroChart Bridge read it, and Stellarium doesn't move its clock while its window isn't being drawn, so that moment can lag behind.
 - The time is read to the second, in UTC. Stellarium's place name and time zone aren't used: every destination takes UTC and coordinates.

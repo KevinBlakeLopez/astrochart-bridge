@@ -9,7 +9,7 @@ import { NAME_LENGTH, nameWarning, offsetPreview, withName } from "./popup-model
 const LINKS = { stellarium: stellariumUrl, "astro-seek": astroSeekUrl };
 
 // The button every screen with a sky has, unless the view lists its own.
-const OPEN_SKY = [{ label: "Open sky", opens: "stellarium" }];
+const OPEN_SKY = [{ label: "Open Stellarium Web", opens: "stellarium" }];
 
 /**
  * @param {HTMLElement} container  its children are replaced
