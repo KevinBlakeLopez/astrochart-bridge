@@ -384,8 +384,6 @@ export function astroSeekUrl(sky) {
  */
 export function astroSeekSaveUrl(sky, { name = null } = {}) {
   const { year, month, day, hour, minute, second, latitude, longitude } = formParts(sky, "astroSeekSaveUrl");
-  // Only the north and west form has been seen; S and E are assumed.
-  const place = `Manually place: ${latitude.deg}°${latitude.min}'${latitude.negative ? "S" : "N"}, ${longitude.deg}°${longitude.min}'${longitude.negative ? "W" : "E"}`;
 
   const url = new URL(`https://${ACCOUNT_HOST}${DATABASE_PATH}`);
   url.search = new URLSearchParams([
@@ -405,7 +403,7 @@ export function astroSeekSaveUrl(sky, { name = null } = {}) {
     ["narozeni_delka_smer", String(longitude.negative)],
     ["narozeni_timezone_form", "0"],
     ["narozeni_timezone_dst_form", "0"],
-    ["narozeni_mesto_hidden", place],
+    ["narozeni_mesto_hidden", `Manually place: ${placeText(latitude, longitude)}`],
     ["narozeni_stat_hidden", ""],
     ["narozeni_podstat_kratky_hidden", ""],
     ["narozeni_tzid_id", "0"],
@@ -514,6 +512,220 @@ export function readSavePage() {
   ];
   if (!names.every((name) => fields?.namedItem(name))) return { auth, form: "unrecognised" };
   return { auth, form: fields.namedItem("narozeni_city").value.trim() === "" ? "city-empty" : "city-typed" };
+}
+
+/**
+ * The chart's place and time zone as the Add person form holds them once
+ * astroSeekSaveUrl has filled it in: the coordinates in whole minutes, and
+ * UT/GMT with daylight saving not observed. guardChartPlace keeps them.
+ *
+ * @param {{ lat: number, lng: number }} sky
+ * @returns {{ values: Record<string, string>, text: string }}  values by field
+ *   name, and the coordinates in words, such as "40°43'N, 74°0'W"
+ */
+export function savePlace({ lat, lng }) {
+  const latitude = degreesMinutes(lat);
+  const longitude = degreesMinutes(lng);
+  return {
+    values: {
+      narozeni_sirka_stupne: String(latitude.deg),
+      narozeni_sirka_minuty: String(latitude.min),
+      narozeni_sirka_smer: String(latitude.negative),
+      narozeni_delka_stupne: String(longitude.deg),
+      narozeni_delka_minuty: String(longitude.min),
+      narozeni_delka_smer: String(longitude.negative),
+      narozeni_timezone_form: "0",
+      narozeni_timezone_dst_form: "0",
+    },
+    text: placeText(latitude, longitude),
+  };
+}
+
+// "40°43'N, 74°0'W", as Astro-Seek writes a place entered by coordinates.
+// Only the north and west form has been seen; S and E are assumed.
+const placeText = (latitude, longitude) =>
+  `${latitude.deg}°${latitude.min}'${latitude.negative ? "S" : "N"}, ${longitude.deg}°${longitude.min}'${longitude.negative ? "W" : "E"}`;
+
+// typeCity, readCityList, showCityChoice and guardChartPlace run in the save
+// page's tab, like readSavePage. Astro-Seek's Birth city list is assumed to be
+// built as astro.com's is, both being jQuery UI's autocomplete: a
+// ul.ui-autocomplete added to the page and hidden with an inline "display:
+// none" while closed, one li.ui-menu-item per match. It hasn't been seen yet.
+
+/**
+ * Types a chart's town into the Add person form's empty Birth city, the way
+ * a person would, so Astro-Seek's city search lists its matches. A Birth city
+ * that already holds anything is left as it is.
+ *
+ * @param {string} town
+ * @returns {{ typed: true } | { typed: false, form: "city-typed" | "unrecognised" }}
+ */
+export function typeCity(town) {
+  const city = document.getElementById("form_jina_osoba")?.elements.namedItem("narozeni_city") ?? null;
+  if (!city) return { typed: false, form: "unrecognised" };
+  if (city.value.trim() !== "") return { typed: false, form: "city-typed" };
+  city.value = town;
+  city.focus();
+  city.dispatchEvent(new Event("input", { bubbles: true }));
+  return { typed: true };
+}
+
+/**
+ * Astro-Seek's matches for the town typeCity typed, once its list shows them:
+ * "waiting" until a list with matches opens; "changed" once Birth city holds
+ * anything else, such as a town the person typed.
+ *
+ * @param {string} town
+ * @returns {{ state: "waiting" | "changed" } | { state: "listed", labels: string[] }}
+ */
+export function readCityList(town) {
+  const city = document.getElementById("form_jina_osoba")?.elements.namedItem("narozeni_city") ?? null;
+  if (!city || city.value !== town) return { state: "changed" };
+  const menu = [...document.querySelectorAll("ul.ui-autocomplete")].find(
+    (list) => list.style.display !== "none" && list.querySelector("li.ui-menu-item"),
+  );
+  if (!menu) return { state: "waiting" };
+  return { state: "listed", labels: [...menu.querySelectorAll("li.ui-menu-item")].map((item) => item.textContent.trim()) };
+}
+
+/**
+ * Acts on the city to choose for a chart, in a box under Birth city: chooses
+ * chooseCity's pick in Astro-Seek's list as a person would, or asks, or says
+ * there's no near match, no list, or no town to type. Once a match is chosen,
+ * the box says which and how far it is from the chart's coordinates, with a
+ * button that lists the matches again, and reminds the person of Gender,
+ * which Astro-Seek starts at Male. The box goes once the person types in
+ * Birth city. Never submits.
+ *
+ * @param {ReturnType<typeof chooseCity> | { kind: "no-list" } | { kind: "no-town" }} choice
+ * @param {string | null} town  null only with "no-town"
+ * @param {number} limitKm  TOWN_LIMIT_KM, for the box's words
+ * @returns {{ shown: boolean }}
+ */
+export function showCityChoice(choice, town, limitKm) {
+  const city = document.getElementById("form_jina_osoba")?.elements.namedItem("narozeni_city") ?? null;
+  if (!city || (town !== null && city.value !== town)) return { shown: false };
+  document.getElementById("astrochart-bridge-city")?.remove();
+
+  const note = document.createElement("div");
+  note.id = "astrochart-bridge-city";
+  const message = document.createElement("p");
+  const buttons = document.createElement("div");
+  note.append(message, buttons);
+  const say = (text, { warn }) => {
+    message.textContent = `AstroChart Bridge: ${text}`;
+    note.style.cssText = `clear: both; margin: 0.5em 0; padding: 0.5em 0.75em; border: 2px solid ${warn ? "#b00020" : "#888"}; background: #fff; color: #222;`;
+    buttons.replaceChildren();
+  };
+  const button = (text, onClick) => {
+    const element = document.createElement("button");
+    element.type = "button";
+    element.textContent = text;
+    element.style.margin = "0 0.5em 0.25em 0";
+    element.addEventListener("click", onClick);
+    buttons.append(element);
+  };
+  const gender = "Check Gender, which Astro-Seek starts at Male, then press Add person.";
+  // Types the town again, as typeCity did, so Astro-Seek lists its matches.
+  const listAgain = () => {
+    note.remove();
+    city.value = town;
+    city.focus();
+    city.dispatchEvent(new Event("input", { bubbles: true }));
+  };
+  const choose = ({ text, away }) => {
+    const items = [...document.querySelectorAll("ul.ui-autocomplete li.ui-menu-item")];
+    const item = items.find((element) => element.textContent.trim() === text);
+    if (!item) {
+      say(`Astro-Seek's list no longer has "${text}". Choose the city from its list.`, { warn: true });
+      button("List the matches again", listAgain);
+      return;
+    }
+    // jQuery UI 1.12 puts each match's text in a .ui-menu-item-wrapper, which
+    // astro.com's list takes the click on; older versions have none.
+    (item.querySelector(".ui-menu-item-wrapper") ?? item).click();
+    say(`chose "${text}" from Astro-Seek's list, ${away} from the chart's coordinates. ${gender}`, { warn: false });
+    button("Choose another", listAgain);
+  };
+
+  if (choice.kind === "pick") choose(choice.match);
+  if (choice.kind === "ask") {
+    say(`more than one of Astro-Seek's matches for "${town}" is within ${limitKm} km of the chart's coordinates. Which is the chart's town?`, { warn: true });
+    for (const match of choice.matches) button(`${match.text} (${match.away})`, () => choose(match));
+  }
+  if (choice.kind === "none") {
+    const which = choice.listed === 1 ? "Astro-Seek's one match" : `none of Astro-Seek's ${choice.listed} matches`;
+    const is = choice.listed === 1 ? "isn't" : "is";
+    say(`${which} for "${town}" ${is} within ${limitKm} km of the chart's coordinates. Choose the city from Astro-Seek's list, or type a nearer one.`, { warn: true });
+    button("List the matches again", listAgain);
+  }
+  if (choice.kind === "no-list") {
+    say(`Astro-Seek didn't list its matches for "${town}" in time. Choose the city from its list.`, { warn: true });
+    button("List the matches again", listAgain);
+  }
+  if (choice.kind === "no-town") {
+    say(`the chart names no town, and Astro-Seek saves a chart only with a Birth city chosen from its list. Type the town and choose it; the chart's coordinates and UT/GMT stay as they are. ${gender}`, { warn: true });
+  }
+  if (choice.kind !== "pick") city.blur();
+  // Typing in Birth city makes the box's choice stale; the input events above
+  // are the script's own, so only the person's are heard.
+  city.addEventListener("input", (event) => event.isTrusted && note.remove());
+  if (!note.isConnected) city.after(note);
+  return { shown: true };
+}
+
+/**
+ * Keeps the chart's coordinates and UT/GMT in the Add person form while the
+ * person finishes it: choosing a Birth city may set the city's own, which
+ * hasn't been seen yet. Four times a second, a field that no longer holds
+ * savePlace's value is set back, quietly, so the page's own scripts don't
+ * react, and a note under the time zone says the chart's place is back.
+ * A field the person changes is theirs and is left alone. Stops when the form
+ * is submitted, or after 30 minutes. Never submits.
+ *
+ * @param {ReturnType<typeof savePlace>} place
+ * @returns {{ guarding: boolean }}
+ */
+export function guardChartPlace(place) {
+  const GUARD_MS = 30 * 60_000;
+  const form = document.getElementById("form_jina_osoba");
+  const fields = form?.elements;
+  const names = Object.keys(place.values);
+  if (!names.every((name) => fields?.namedItem(name))) return { guarding: false };
+  if (form.dataset.astrochartBridgeGuard === "on") return { guarding: true };
+  form.dataset.astrochartBridgeGuard = "on";
+
+  const theirs = new Set();
+  for (const name of names) {
+    const claim = (event) => event.isTrusted && theirs.add(name);
+    fields.namedItem(name).addEventListener("input", claim);
+    fields.namedItem(name).addEventListener("change", claim);
+  }
+  const note = document.createElement("p");
+  note.id = "astrochart-bridge-place";
+  note.style.cssText = "clear: both; margin: 0.5em 0; padding: 0.5em 0.75em; border: 2px solid #888; background: #fff; color: #222;";
+  note.textContent = `AstroChart Bridge: Astro-Seek changed the latitude, longitude or time zone, so the chart's are back: ${place.text}, UT/GMT with no daylight saving. Change them here yourself if you mean to.`;
+
+  const timer = setInterval(() => {
+    let putBack = false;
+    for (const name of names) {
+      const element = fields.namedItem(name);
+      if (theirs.has(name) || element.value === place.values[name]) continue;
+      element.value = place.values[name];
+      putBack = true;
+    }
+    if (putBack && !note.isConnected) {
+      const dst = fields.namedItem("narozeni_timezone_dst_form");
+      (dst.parentElement && dst.parentElement !== form ? dst.parentElement : dst).after(note);
+    }
+  }, 250);
+  const stop = () => {
+    clearInterval(timer);
+    delete form.dataset.astrochartBridgeGuard;
+  };
+  form.addEventListener("submit", stop);
+  setTimeout(stop, GUARD_MS);
+  return { guarding: true };
 }
 
 // The birth form's values for a UTC instant and place: the day and month

@@ -16,6 +16,7 @@ import {
   zoneCheck,
 } from "./core/astrocom.js";
 import { holdForTab, releaseTab } from "./pending.js";
+import { tabLoaded } from "./tabs.js";
 
 // The manifest's optional host permission, asked for when the form button is clicked.
 export const ASTRO_COM_ACCESS = { origins: ["https://www.astro.com/*"] };
@@ -30,40 +31,7 @@ export const LOAD_TIMEOUT_MS = 20_000;
 export const TOWN_LIST_TIMEOUT_MS = 8_000;
 const TOWN_LIST_POLL_MS = 250;
 
-/**
- * Waits for a tab to finish loading. Listens only while it waits.
- *
- * @param {typeof chrome.tabs} tabs
- * @param {number} tabId
- * @param {number} timeoutMs
- * @returns {Promise<chrome.tabs.Tab | null>}  the loaded tab, or null when it
- *   closed or didn't load in time
- */
-export function tabLoaded(tabs, tabId, timeoutMs) {
-  return new Promise((resolve) => {
-    let timer;
-    const finish = (tab) => {
-      clearTimeout(timer);
-      tabs.onUpdated.removeListener(onUpdated);
-      tabs.onRemoved.removeListener(onRemoved);
-      resolve(tab);
-    };
-    const onUpdated = (id, change, tab) => {
-      if (id === tabId && change.status === "complete") finish(tab);
-    };
-    const onRemoved = (id) => {
-      if (id === tabId) finish(null);
-    };
-    tabs.onUpdated.addListener(onUpdated);
-    tabs.onRemoved.addListener(onRemoved);
-    timer = setTimeout(() => finish(null), timeoutMs);
-    // The tab may have loaded before the listeners were added.
-    tabs.get(tabId).then(
-      (tab) => tab.status === "complete" && finish(tab),
-      () => finish(null),
-    );
-  });
-}
+export { tabLoaded };
 
 /**
  * Opens the form in a background tab, keeps the values for it, and fills it
