@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { withAafExport } from "../extension/aaf-model.js";
 import { analyzePage } from "../extension/core/index.js";
 import { withDesktopSend } from "../extension/desktop-model.js";
 import { viewFor, viewForSky, withOtherWays } from "../extension/popup-model.js";
@@ -15,12 +16,14 @@ const analyze = (name) => {
 
 // Just enough of a page for view.js to draw into: elements keep their text,
 // class, children and listeners, and the container keeps what it was given.
+// A link's click, which saves a file in a browser, does nothing here.
 globalThis.document = {
   createElement: (tag) => {
     const element = {
       tag, className: "", textContent: "", disabled: false, children: [], listeners: {},
       append: (...nodes) => element.children.push(...nodes),
       addEventListener: (type, listener) => (element.listeners[type] = listener),
+      click: () => {},
     };
     return element;
   },
@@ -123,4 +126,18 @@ test("Read a different chart's buttons don't wait for the sky", () => {
   const view = viewFor(analyze("ny-2024-04-17"), { timeZone: "America/Los_Angeles" });
   const { parts } = popupScreen({ ...view, sky: undefined });
   assert.deepEqual(parts.at(-1).children.filter(({ tag, disabled }) => tag === "button" && disabled), []);
+});
+
+test("the AAF file's note shows once the file is saved, not before", (t) => {
+  // Saving revokes the file's link a minute later.
+  t.mock.timers.enable({ apis: ["setTimeout"] });
+  const sky = { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 };
+  const container = { replaceChildren: (...parts) => (container.parts = parts) };
+  render(container, withAafExport(viewForSky(sky), sky), () => {});
+  const save = container.parts.find(({ tag, textContent }) => tag === "button" && textContent === "Save as AAF file");
+  const note = container.parts[container.parts.indexOf(save) + 1];
+  assert.match(note.textContent, /Universal Time/);
+  assert.equal(note.hidden, true);
+  save.listeners.click();
+  assert.equal(note.hidden, false);
 });

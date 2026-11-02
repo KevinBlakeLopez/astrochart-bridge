@@ -21,9 +21,12 @@
   }
 }
 
+/* Chrome and Firefox show a popup at most 600px tall, scrolling the rest. At
+   440px wide, the tallest chart screens, an astro.com chart or one with
+   Astro-Seek's orange warning, fit with Read a different chart in view. */
 body {
   margin: 0;
-  width: 360px;
+  width: 440px;
   font: 13px/1.4 system-ui, sans-serif;
   color: var(--text);
   background: var(--background);
@@ -89,7 +92,7 @@ dd {
 
 /* The label over a group of a screen's actions, such as See the sky. */
 h2.group {
-  margin: 14px 0 6px;
+  margin: 8px 0 4px;
   font-size: 12px;
   font-weight: 600;
   color: var(--muted);
@@ -98,12 +101,12 @@ h2.group {
 /* Read a different chart: the other ways in, closed until opened. Classed,
    since the screenshot page has a details box of its own. */
 details.more {
-  margin-top: 14px;
+  margin-top: 8px;
   border-top: 1px solid var(--line);
 }
 
 details.more summary {
-  padding: 10px 0 2px;
+  padding: 6px 0 0;
   font-weight: 600;
   color: var(--accent);
   cursor: pointer;
@@ -180,7 +183,7 @@ input[type="text"] {
 
 button {
   width: 100%;
-  padding: 8px;
+  padding: 6px;
   font: inherit;
   font-weight: 600;
   color: var(--on-accent);
@@ -202,7 +205,7 @@ button.secondary {
 }
 
 button + button {
-  margin-top: 8px;
+  margin-top: 6px;
 }
 
 /* A touch screen, such as an iPad's: everything tapped is at least the 44

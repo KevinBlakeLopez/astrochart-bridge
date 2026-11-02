@@ -71,11 +71,18 @@ export function render(container, view, onButton, back = null) {
         line.append(link);
         return [line];
       },
-      // The chart as an AAF file, made by aaf-model.js. Saving it sends nothing anywhere.
-      download: () => [
-        secondaryButton(view.download.label, () => saveFile(view.download)),
-        ...(view.download.note ? [paragraph(view.download.note, "note")] : []),
-      ],
+      // The chart as an AAF file, made by aaf-model.js. Saving it sends nothing
+      // anywhere. Its note, such as why the file is in Universal Time, shows
+      // once the file is saved, keeping the screen short enough for a popup.
+      download: () => {
+        const note = view.download.note ? paragraph(view.download.note, "note") : null;
+        if (note) note.hidden = true;
+        const save = () => {
+          saveFile(view.download);
+          if (note) note.hidden = false;
+        };
+        return [secondaryButton(view.download.label, save), ...(note ? [note] : [])];
+      },
       // A further screen, such as the values to enter in astro.com, is drawn in
       // place of this one, and Cancel draws this one again. Going there and back stores nothing.
       next: () => [secondaryButton(view.next.label, () => render(container, view.next.view, onButton, view))],

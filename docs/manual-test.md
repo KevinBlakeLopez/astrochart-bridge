@@ -179,6 +179,7 @@ https://stellarium-web.org/?date=2024-04-17T12%3A00%3A00Z&lat=40.716667&lng=-74
 
 - [ ] The popup shows Stellarium time matching Stellarium's own clock (05:00 on 17 Apr 2024 on a Mac set to Pacific time), UTC `2024-04-17 12:00` and Place `40°43'N, 74°0'W`, two grey notes, and an **Open chart in Astro-Seek** button.
 - [ ] **Open chart in Astro-Seek** opens an Astro-Seek birth chart whose header shows `17 Apr 2024 - 12:00  (Manually: GMT+00:00)`, Universal Time `17 Apr 2024 - 12:00` and `40°43'N, 74°0'W`.
+- [ ] Click the AstroChart Bridge icon on that Astro-Seek chart. The popup has an orange warning that it can't check the zone label "Manually: GMT+00:00", and the whole screen, down to **Read a different chart**, shows without scrolling.
 - [ ] On that Astro-Seek chart, the popup shows UTC `2024-04-17 12:00` and the same place, so the round trip comes back to the same sky.
 - [ ] Back on the Stellarium tab, change the time (for example the hour arrow in the time panel) and reopen the popup. It shows the new time, not the time in the address bar.
 
@@ -255,8 +256,8 @@ Open the test 1 URL and open the popup.
 
 - [ ] On the test 1 popup, below **Open Stellarium Web** and above **Enter in astro.com…**, is **Save as AAF file**. Clicking it saves `chart-2024-04-17.aaf` to the browser's downloads folder without asking for a permission. Note whether the popup stays open.
 - [ ] The saved file reads `#: AstroChart Bridge`, then `#A93:*,*,*,17.4.2024,8:00,*,*`, then `#B93:*,40n43,74w00,5hw00,1`.
-- [ ] On an astro.com account chart, if you have one, **Save as AAF file** has a grey note below it saying the file gives the chart in Universal Time, and the file's `#B93` line ends `,0h,0`.
-- [ ] On the Stellarium Web tab from test 12, the popup has **Save as AAF file** with a note that the file gives the moment in Universal Time.
+- [ ] On an astro.com account chart, if you have one, **Save as AAF file** has no note under it until it's clicked. Then, if the popup stays open, a grey note says the file gives the chart in Universal Time, and the file's `#B93` line ends `,0h,0`.
+- [ ] On the Stellarium Web tab from test 12, the popup has **Save as AAF file**, and once it's clicked, a note that the file gives the moment in Universal Time.
 - [ ] On the test 4 popup (choose a reading), there is no **Save as AAF file**.
 - [ ] If Astrolog is installed, open each saved file in it (**File / Open Chart**). It shows the same date, time and place.
 
