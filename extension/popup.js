@@ -22,9 +22,10 @@ import {
   viewForAstroComTab,
   viewForShareRefusal,
   viewForSky,
+  withOtherWays,
 } from "./popup-model.js";
 import { HOST_PERMISSION, readSky } from "./stellarium-desktop.js";
-import { desktopHintLine, groupLabel, render } from "./view.js";
+import { desktopHintLine, render, wayGroups } from "./view.js";
 
 const app = document.getElementById("app");
 
@@ -183,34 +184,33 @@ function show(view, { offerScreenshot = false, onButton = openLink } = {}) {
   checkDesktop(app.querySelector(".desktop-hint")).catch(() => {});
 }
 
-// Each OTHER_WAYS group under its label. Import from Stellarium Desktop has
-// the line about Stellarium under it, as Send to Stellarium Desktop does.
+// Each OTHER_WAYS group under its label. Import from Stellarium Desktop is
+// the last button, so the line about Stellarium goes right under it, as under
+// Send to Stellarium Desktop.
 function otherWays() {
-  return OTHER_WAYS.flatMap(({ label, buttons }) => [
-    groupLabel(label),
-    ...buttons.flatMap(({ label, page, does }) => {
-      if (page) return [pageButton(label, page)];
-      const button = document.createElement("button");
-      button.className = "secondary";
-      button.textContent = label;
-      if (does === "import-from-desktop") button.addEventListener("click", importFromDesktop);
-      return [button, desktopHintLine()];
-    }),
-  ]);
+  return [...wayGroups(OTHER_WAYS, otherWay), desktopHintLine()];
 }
 
-// A chart screen, with Send to Stellarium Desktop from desktop-page.js. The
-// sent screen's Done closes the popup.
+// An OTHER_WAYS button: one of the extension's pages in a tab, or Import from
+// Stellarium Desktop, called straight from the click as it needs.
+function otherWay({ page }) {
+  return page ? openPage(page) : importFromDesktop();
+}
+
+// A chart screen, with Send to Stellarium Desktop from desktop-page.js and
+// Read a different chart from withOtherWays. The sent screen's Done closes the popup.
 function showChart(base) {
-  renderChart(app, base, chartButtons, { onDone: () => window.close() }).catch((error) => {
+  renderChart(app, withOtherWays(base), chartButtons, { onDone: () => window.close() }).catch((error) => {
     show({ state: "refused", message: "AstroChart Bridge couldn't show this chart.", code: String(error?.message ?? error) });
   });
 }
 
-// What a chart screen's own buttons do: open a link, or Share…, whose refusal
-// goes back to the screen on Cancel. desktop-page.js takes the desktop ones.
+// What a chart screen's own buttons do: open a link, Share…, whose refusal
+// goes back to the screen on Cancel, or one of Read a different chart's other
+// ways. desktop-page.js takes the desktop ones.
 function chartButtons(button, sky, screen) {
   if (button.does === "share") return share(sky, screen.view, screen.onButton);
+  if (button.page || button.does === "import-from-desktop") return otherWay(button);
   return openLink(button, sky);
 }
 
@@ -263,14 +263,8 @@ async function openLink({ url, holds, fills }) {
   window.close();
 }
 
-// A button that opens one of the extension's own pages in a new tab.
-function pageButton(label, page) {
-  const button = document.createElement("button");
-  button.className = "secondary";
-  button.textContent = label;
-  button.addEventListener("click", async () => {
-    await chrome.tabs.create({ url: chrome.runtime.getURL(page) });
-    window.close();
-  });
-  return button;
+// Opens one of the extension's own pages in a new tab.
+async function openPage(page) {
+  await chrome.tabs.create({ url: chrome.runtime.getURL(page) });
+  window.close();
 }

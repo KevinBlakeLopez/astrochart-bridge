@@ -73,6 +73,12 @@ export const OTHER_WAYS = [
   },
 ];
 
+// The popup's chart screens offer the other ways in too, for a different
+// chart than the page's, in a box that stays closed until it's opened.
+export function withOtherWays(view) {
+  return { ...view, more: { label: "Read a different chart", groups: OTHER_WAYS } };
+}
+
 const WARNINGS = {
   "zone-label-unknown": ({ zoneLabel }) =>
     zoneLabel === null

@@ -95,6 +95,20 @@ h2.group {
   color: var(--muted);
 }
 
+/* Read a different chart: the other ways in, closed until opened. Classed,
+   since the screenshot page has a details box of its own. */
+details.more {
+  margin-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+details.more summary {
+  padding: 10px 0 2px;
+  font-weight: 600;
+  color: var(--accent);
+  cursor: pointer;
+}
+
 /* A button that reads as a link, inside a line of text. */
 button.link {
   display: inline;
@@ -212,8 +226,14 @@ button + button {
     font-size: 13px;
   }
 
-  button {
+  button,
+  details.more summary {
     min-height: 44px;
+  }
+
+  details.more summary {
+    box-sizing: border-box;
+    padding-top: 12px;
   }
 
   label {

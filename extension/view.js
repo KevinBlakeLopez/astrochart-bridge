@@ -91,6 +91,9 @@ export function render(container, view, onButton, back = null) {
     for (const note of view.notes) parts.push(paragraph(note, "note"));
     setSky(sky);
     parts.push(...actions);
+    // The other ways to a chart, closed until opened, from withOtherWays. They
+    // don't open this screen's sky, so they don't wait for it.
+    if (view.more) parts.push(moreBox(view.more, (button) => onButton(button, sky)));
     if (back) parts.push(secondaryButton("Cancel", () => render(container, back, onButton)));
   }
 
@@ -127,6 +130,31 @@ export function groupLabel(text) {
   element.className = "group";
   element.textContent = text;
   return element;
+}
+
+/**
+ * popup-model.js's OTHER_WAYS groups, each under its label. A click passes
+ * the button, with the page it opens or what it does, to onChoose.
+ *
+ * @param {typeof import("./popup-model.js").OTHER_WAYS} groups
+ * @param {(button: { label: string, page?: string, does?: string }) => void} onChoose
+ * @returns {HTMLElement[]}
+ */
+export function wayGroups(groups, onChoose) {
+  return groups.flatMap(({ label, buttons }) => [
+    groupLabel(label),
+    ...buttons.map((button) => secondaryButton(button.label, () => onChoose(button))),
+  ]);
+}
+
+// A box of groups under a line that opens it, closed to begin with.
+function moreBox({ label, groups }, onChoose) {
+  const box = document.createElement("details");
+  box.className = "more";
+  const summary = document.createElement("summary");
+  summary.textContent = label;
+  box.append(summary, ...wayGroups(groups, onChoose));
+  return box;
 }
 
 export function paragraph(text, className) {

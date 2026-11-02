@@ -72,10 +72,11 @@ https://horoscopes.astro-seek.com/calculate-birth-chart-horoscope-online/?input_
 ```
 
 - [ ] The popup shows Local time `17 Apr 2024, 08:00 (EDT, DST)`, Offset `UTC-04:00`, UTC `2024-04-17 12:00` and Place `40°43'N, 74°0'W`.
-- [ ] Below them are two grey notes, the one about Google last, then a blue **Open Stellarium Web** button and an outlined **Share…** button (test 20).
+- [ ] Below them are two grey notes, the one about Google last. Under "See the sky" is a blue **Open Stellarium Web** button, and under "Take the chart elsewhere" an outlined **Share…** button (test 20).
 - [ ] The first note names the time Stellarium's clock will show in your computer's time zone, and says that's 08:00 on 17 Apr at the birthplace. On a Mac set to Pacific time it says 05:00 on 17 Apr.
 - [ ] After **Open Stellarium Web**, Stellarium's clock (bottom right) shows the time the note named, give or take the seconds it has been running.
 - [ ] Clicking **Open Stellarium Web** opens a Stellarium Web tab and closes the popup. The new tab's address contains `date=2024-04-17T12%3A00%3A00Z&lat=40.716667&lng=-74`.
+- [ ] At the bottom, **Read a different chart** is closed. Opened, it has test 8's five buttons under the same two labels, with no grey line under **Import from Stellarium Desktop**. **Read a screenshot** opens the screenshot page in a new tab and closes the popup.
 
 ## Test 2: Sydney
 
