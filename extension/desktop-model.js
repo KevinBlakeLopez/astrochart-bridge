@@ -2,7 +2,7 @@
 // there, and a screen for each result of stellarium-desktop.js's sendSky and
 // readSky. Nothing connects until a button is clicked, so a screen that can't
 // reach Stellarium explains how to set it up instead.
-import { ASTRO_SEEK_NOTES, PRIVACY_NOTE, astroComStep, placeText, utcText } from "./popup-model.js";
+import { ASTRO_SEEK_NOTES, PRIVACY_NOTE, astroComStep, placeText, utcText, withAstroSeekSave } from "./popup-model.js";
 
 // Every screen with a sky to open: a chart page's, once its UTC can be
 // decided, and a Stellarium Web tab's. view.js keeps the button off until the
@@ -185,7 +185,7 @@ export function viewForDesktopSend(result, sky, { preferred = false, changed = f
 export function viewForDesktopImport(result) {
   if (result.state !== "connected") return problem(result, { retry: "import-from-desktop", direction: "import", sky: null });
   const { sky } = result;
-  return {
+  return withAstroSeekSave({
     state: "from-desktop",
     heading: "From Stellarium Desktop",
     rows: [
@@ -203,7 +203,7 @@ export function viewForDesktopImport(result) {
       { label: "Open Stellarium Web", opens: "stellarium", secondary: true },
     ],
     next: astroComStep(sky),
-  };
+  });
 }
 
 // A failure's screen, with Try again repeating what was clicked. A state

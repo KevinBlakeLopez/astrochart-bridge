@@ -44,7 +44,7 @@ test("an astro.com chart's Open chart in Astro-Seek goes under Take the chart el
   };
   assert.deepEqual(groupsOf(chartScreen(result)), [
     [SKY, "Open Stellarium Web", "desktop"],
-    [ELSEWHERE, "Open chart in Astro-Seek", "Share…", "download"],
+    [ELSEWHERE, "Open chart in Astro-Seek", "Save in Astro-Seek…", "Share…", "download"],
   ]);
 });
 
@@ -64,7 +64,7 @@ test("a Stellarium Web tab's main button opens Astro-Seek, so Take the chart els
 
 test("the sky imported from Stellarium Desktop is grouped the same way", () => {
   assert.deepEqual(groupsOf(viewForDesktopImport({ state: "connected", sky: NY })), [
-    [ELSEWHERE, "Open chart in Astro-Seek", "next"],
+    [ELSEWHERE, "Open chart in Astro-Seek", "Save in Astro-Seek…", "next"],
     [SKY, "Open Stellarium Web"],
   ]);
 });

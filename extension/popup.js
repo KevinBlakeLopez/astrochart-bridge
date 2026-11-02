@@ -4,6 +4,7 @@
 import { withAafExport } from "./aaf-model.js";
 import { linkFor } from "./chart-model.js";
 import { ASTRO_COM_ACCESS, chooseFilledTown, openAndFill, watchFilledZone } from "./astro-com-open.js";
+import { ASTRO_SEEK_ACCESS, openAndSave } from "./astro-seek-open.js";
 import { fillForm, formValues, isAstroComPage, isBirthDataForm, readFormPage } from "./core/astrocom.js";
 import { townFromUrl } from "./core/astroseek.js";
 import { analyzePage, classifyUrl, extractorFor } from "./core/index.js";
@@ -13,6 +14,7 @@ import { checkDesktop, renderChart } from "./desktop-page.js";
 import { heldForTab, holdForTab, releaseTab } from "./pending.js";
 import {
   ASTRO_COM_BUSY,
+  ASTRO_SEEK_SAVE_BUSY,
   OTHER_WAYS,
   chartToShare,
   offersOtherWays,
@@ -20,6 +22,7 @@ import {
   viewForAstroComManual,
   viewForAstroComNotFilled,
   viewForAstroComTab,
+  viewForAstroSeekSave,
   viewForShareRefusal,
   viewForSky,
   withOtherWays,
@@ -175,6 +178,27 @@ async function showTab(tab) {
   window.close();
 }
 
+// Save in Astro-Seek…: asks for access to www.astro-seek.com first, while the
+// click still counts as the user's, then opens Astro-Seek's Add person form
+// behind the popup and chooses its town. Filled in, the form's tab comes to
+// the front for the person to finish; otherwise the popup says why, with a
+// way to the tab. Declined, it offers the form filled in by its address alone.
+async function saveInAstroSeek(sky, saves) {
+  const granted = await chrome.permissions.request(ASTRO_SEEK_ACCESS).catch(() => false);
+  if (!granted) {
+    show(viewForAstroSeekSave({ outcome: "declined" }, sky, saves));
+    return;
+  }
+  show(ASTRO_SEEK_SAVE_BUSY);
+  const result = await openAndSave({ tabs: chrome.tabs, scripting: chrome.scripting }, { values: { ...sky, ...saves } });
+  const tab = { id: result.tabId };
+  if (result.outcome === "filled") {
+    await showTab(tab);
+    return;
+  }
+  show(viewForAstroSeekSave(result, sky, saves), { onButton: (button) => (button.does === "show-tab" ? showTab(tab) : openLink(button)) });
+}
+
 // A page AstroChart Bridge doesn't read can still lead to a chart: a screenshot,
 // pasted text, an AAF or Morinus file, a .astrochart.json file, or Stellarium
 // Desktop, in popup-model.js's OTHER_WAYS groups.
@@ -247,8 +271,10 @@ function showImport(view) {
   });
 }
 
-// holds is what an astro.com button keeps for the tab it opens.
-async function openLink({ url, holds, fills }) {
+// holds is what an astro.com button keeps for the tab it opens; saves is
+// Save in Astro-Seek…'s town and name, for the sky the screen decided.
+async function openLink({ url, holds, fills, saves }, sky) {
+  if (saves) return saveInAstroSeek(sky, saves);
   if (fills) return openForm(url, holds);
   if (!holds) {
     await chrome.tabs.create({ url });

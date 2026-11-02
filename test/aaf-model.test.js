@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { chartFromRecord, parseAaf } from "../extension/core/aaf.js";
 import { analyzePage } from "../extension/core/index.js";
 import { decodeAafFile, viewForAafChart, viewForAafText, withAafExport } from "../extension/aaf-model.js";
-import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, viewFor, viewForAstroCom, viewForSky } from "../extension/popup-model.js";
+import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, ASTRO_SEEK_SAVE_NAMED_NOTE, viewFor, viewForAstroCom, viewForSky } from "../extension/popup-model.js";
 
 const LA = { timeZone: "America/Los_Angeles" };
 const astroSeek = (name) =>
@@ -40,8 +40,11 @@ test("a chart from AAF opens like an astro.com chart, with its name and birthpla
   ]);
   assert.equal(view.state, "ready");
   assert.deepEqual(view.sky, { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 });
-  assert.deepEqual(view.buttons, ASTRO_SEEK_BUTTONS);
-  assert.deepEqual(view.notes, [...plain.notes, ...ASTRO_SEEK_NOTES]);
+  assert.deepEqual(view.buttons, [
+    ...ASTRO_SEEK_BUTTONS,
+    { label: "Save in Astro-Seek…", saves: { town: "New York", name: "New York Test" }, secondary: true },
+  ]);
+  assert.deepEqual(view.notes, [...plain.notes, ASTRO_SEEK_NOTES[0], ASTRO_SEEK_SAVE_NAMED_NOTE]);
   assert.deepEqual(view.warnings, []);
   assert.equal(view.download.filename, "chart-2024-04-17.aaf");
 });

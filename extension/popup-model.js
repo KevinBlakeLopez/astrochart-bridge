@@ -1,5 +1,5 @@
 import { formTime, localOffset, zoneWords } from "./core/astrocom.js";
-import { astroSeekUrl } from "./core/astroseek.js";
+import { astroSeekSaveUrl, astroSeekUrl } from "./core/astroseek.js";
 import { parseOffset, utcFromOffset } from "./core/civiltime.js";
 import { toPortable } from "./core/portable.js";
 import { HOLD_MINUTES } from "./pending.js";
@@ -154,7 +154,7 @@ export function viewFor(result, { timeZone, town = null } = {}) {
   // An astro.com chart can also open in Astro-Seek. An Astro-Seek page already
   // shows its chart there, and leads to the values to enter in astro.com instead.
   if (result.site === "astro-com") {
-    return { ...ready, notes: [...ready.notes, ...ASTRO_SEEK_NOTES], buttons: chartButtons(ASTRO_SEEK_BUTTONS) };
+    return withAstroSeekSave({ ...ready, notes: [...ready.notes, ...ASTRO_SEEK_NOTES], buttons: chartButtons(ASTRO_SEEK_BUTTONS) });
   }
   return result.site === "astro-seek" ? { ...ready, next: astroComStep(ready.sky, { town, local }) } : ready;
 }
@@ -188,6 +188,104 @@ export const ASTRO_SEEK_BUTTONS = [
 ];
 
 const OPEN_SKY_BUTTON = { label: "Open Stellarium Web", opens: "stellarium" };
+
+export const ASTRO_SEEK_SAVE_LABEL = "Save in Astro-Seek…";
+
+// Shown wherever Save in Astro-Seek… is offered, in place of Open chart in
+// Astro-Seek's note on what it sends. One note for both keeps the popup's
+// astro.com screen under the 600px a popup is shown at: its chart, like
+// every popup screen's, has no name or town, so the note takes one line, as
+// Open chart in Astro-Seek's did. The browser's own prompt says that saving
+// asks for access, and the box under Birth city that Gender and Add person
+// are the person's.
+export const ASTRO_SEEK_SAVE_NOTE = "Opening or saving sends this date, time and place to astro-seek.com.";
+export const ASTRO_SEEK_SAVE_NAMED_NOTE =
+  "Opening or saving sends this date, time and place to astro-seek.com; saving also sends the chart's name and town, if it has them.";
+const ASTRO_SEEK_OPEN_NOTE = ASTRO_SEEK_NOTES[1];
+
+/**
+ * A screen with Open chart in Astro-Seek, with Save in Astro-Seek… right
+ * after it, and its note in place of Open chart in Astro-Seek's, or last.
+ * The button saves the chart in the signed-in account's private astro
+ * database (astro-seek-open.js), so only the popup and the extension's own
+ * pages offer it, not the shared chart page, which is also a website. Like
+ * Open chart in Astro-Seek, it waits for the screen to decide the sky. A
+ * screen built on one that has them, such as a screenshot of an astro.com
+ * chart on the popup's astro.com screen, isn't given them twice.
+ *
+ * @param {object} view  with a button that opens "astro-seek"
+ * @param {{ town?: string | null, name?: { first: string, last: string } | null }} [chart]
+ *   the chart's town and name, for the form's Birth city and Name
+ */
+export function withAstroSeekSave(view, { town = null, name = null } = {}) {
+  const saves = { town, name: nickFor(name) };
+  const button = { label: ASTRO_SEEK_SAVE_LABEL, saves, secondary: true };
+  const at = view.buttons.findIndex(({ opens }) => opens === "astro-seek") + 1;
+  const note = saves.town === null && saves.name === null ? ASTRO_SEEK_SAVE_NOTE : ASTRO_SEEK_SAVE_NAMED_NOTE;
+  const notes = view.notes.includes(ASTRO_SEEK_OPEN_NOTE)
+    ? view.notes.map((each) => (each === ASTRO_SEEK_OPEN_NOTE ? note : each))
+    : [...view.notes, note];
+  const noted = view.notes.includes(ASTRO_SEEK_SAVE_NOTE) || view.notes.includes(ASTRO_SEEK_SAVE_NAMED_NOTE);
+  return {
+    ...view,
+    notes: noted ? view.notes : notes,
+    buttons: view.buttons.some(({ saves }) => saves) ? view.buttons : [...view.buttons.slice(0, at), button, ...view.buttons.slice(at)],
+  };
+}
+
+// Astro-Seek's form has one Name field, so a name's two parts go in it as one.
+function nickFor(name) {
+  const nick = [name?.first ?? "", name?.last ?? ""].map((part) => part.trim()).filter(Boolean).join(" ");
+  return nick === "" ? null : nick;
+}
+
+// Shown while Astro-Seek's form opens behind the popup.
+export const ASTRO_SEEK_SAVE_BUSY = { state: "astro-seek-busy", message: "Opening Astro-Seek's Add person form…", notes: [], buttons: [] };
+
+// What the screen says when the form isn't left filled in, by openAndSave's
+// outcome, or its page for "not-filled".
+const SAVE_MESSAGES = {
+  "signed-out": "Astro-Seek shows you signed out, and saves a chart only in an account. Sign in in its tab, then click Save in Astro-Seek… again.",
+  elsewhere: "Astro-Seek didn't show its Add person form. If it asks you to sign in, sign in, then click Save in Astro-Seek… again.",
+  "not-loaded": "Astro-Seek's form didn't finish opening in time, so AstroChart Bridge didn't choose its town.",
+  "city-typed": "Astro-Seek's form already had a Birth city, so AstroChart Bridge left it as it was.",
+  unrecognised: "AstroChart Bridge didn't recognise Astro-Seek's form, so it didn't choose its town.",
+};
+
+// What the person checks before Add person in a form AstroChart Bridge
+// didn't finish: choosing a city may change the coordinates and time zone.
+const CHECK_NOTE = "Before Add person, choose the Birth city in Astro-Seek's list if it isn't, then check that the coordinates and UT/GMT are still the chart's.";
+
+/**
+ * Save in Astro-Seek… when it didn't leave the form filled in: declined
+ * access to www.astro-seek.com, a signed-out browser, or a form it couldn't
+ * finish. Declined, a button opens the form anyway, filled in as far as its
+ * address goes; otherwise a button goes to the tab it opened.
+ *
+ * @param {{ outcome: "declined" | "signed-out" } | { outcome: "not-filled", page: keyof typeof SAVE_MESSAGES }} result
+ * @param {{ utc: string, lat: number, lng: number }} sky
+ * @param {{ town: string | null, name: string | null }} saves  the button's
+ */
+export function viewForAstroSeekSave(result, sky, saves) {
+  if (result.outcome === "declined") {
+    return {
+      state: "astro-seek-manual",
+      message: "AstroChart Bridge can't choose the town in Astro-Seek's form without access to www.astro-seek.com.",
+      notes: [`The form opens with this date, time and place in UT/GMT${saves.name ? ", and the name" : ""}. ${CHECK_NOTE}`],
+      sky,
+      buttons: [{ label: "Open Astro-Seek's form", url: astroSeekSaveUrl(sky, { name: saves.name }) }],
+    };
+  }
+  const page = result.outcome === "signed-out" ? "signed-out" : result.page;
+  const signIn = page === "signed-out" || page === "elsewhere";
+  return {
+    state: "astro-seek-not-filled",
+    message: SAVE_MESSAGES[page] ?? SAVE_MESSAGES.unrecognised,
+    notes: signIn ? [] : [CHECK_NOTE],
+    sky,
+    buttons: [{ label: "Go to the Astro-Seek tab", does: "show-tab" }],
+  };
+}
 
 // Opens the receiving page in a tab, with the chart in its link, to copy the
 // link or download the file. Offered on every screen with a chart of its own;

@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readText } from "../extension/core/text.js";
-import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, SHARE_BUTTON, viewFor, viewForAstroCom } from "../extension/popup-model.js";
+import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, ASTRO_SEEK_SAVE_NOTE, SHARE_BUTTON, viewFor, viewForAstroCom } from "../extension/popup-model.js";
 import { analyzeEntry } from "../extension/core/index.js";
 import { serialize, skyFor } from "../extension/core/portable.js";
 import { linkFor, readLink, viewForImport } from "../extension/chart-model.js";
@@ -154,8 +154,8 @@ test("a confirmed entry opens the sky or the Astro-Seek chart, from the popup's 
   assert.deepEqual(view.sky, popup.sky);
   assert.deepEqual(view.warnings, ["a form warning"]);
   assert.match(view.notes[0], /Nothing checks that this offset/);
-  assert.deepEqual(view.notes.slice(1), [...popup.notes, ...ASTRO_SEEK_NOTES]);
-  assert.deepEqual(view.buttons, [...ASTRO_SEEK_BUTTONS, SHARE_BUTTON]);
+  assert.deepEqual(view.notes.slice(1), [...popup.notes, ASTRO_SEEK_NOTES[0], ASTRO_SEEK_SAVE_NOTE]);
+  assert.deepEqual(view.buttons, [...ASTRO_SEEK_BUTTONS, { label: "Save in Astro-Seek…", saves: { town: null, name: null }, secondary: true }, SHARE_BUTTON]);
 });
 
 test("a confirmed entry can be entered in astro.com, with the text's name as its first name", () => {

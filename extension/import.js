@@ -71,8 +71,8 @@ function showChart(chart) {
   renderChart(app, chart, openLink).catch(() => render(app, chart, openLink));
 }
 
-// Links, and the astro.com buttons, as on the screenshot and paste pages.
-const openLink = (button) => openPageLink(app, button);
+// Links, the astro.com buttons and Save in Astro-Seek…, as on the screenshot and paste pages.
+const openLink = (button, sky) => openPageLink(app, button, sky);
 
 // A file the receiving page sent here, when it was given one it doesn't
 // read. Last, once openLink is defined. sessionStorage itself can throw when

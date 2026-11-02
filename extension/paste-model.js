@@ -1,7 +1,16 @@
 import { analyzeEntry, analyzeProgramText } from "./core/index.js";
 import { toPortable } from "./core/portable.js";
 import { MAX_TEXT_LENGTH, readField, readText } from "./core/text.js";
-import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, SHARE_BUTTON, astroComStep, nameFromText, viewFor, viewForAstroCom } from "./popup-model.js";
+import {
+  ASTRO_SEEK_BUTTONS,
+  ASTRO_SEEK_NOTES,
+  SHARE_BUTTON,
+  astroComStep,
+  nameFromText,
+  viewFor,
+  viewForAstroCom,
+  withAstroSeekSave,
+} from "./popup-model.js";
 import { PROGRAMS } from "./screenshot-model.js";
 
 // Each refusal readText can return. They keep their code on screen, like the
@@ -339,13 +348,16 @@ export function viewForLocalEntry({ local, lat, lng }, { name = null, town = nul
 export function viewForEntry(entry, { warnings = [], timeZone, name = null, town = null } = {}) {
   const result = analyzeEntry(entry);
   const view = viewFor(result, { timeZone });
-  return {
-    ...view,
-    warnings: [...view.warnings, ...warnings],
-    notes: [OFFSET_NOTE, ...view.notes, ...ASTRO_SEEK_NOTES],
-    buttons: [...ASTRO_SEEK_BUTTONS, SHARE_BUTTON].map((button) => ({ ...button })),
-    next: astroComStep(view.sky, { local: result.local, name, town }),
-  };
+  return withAstroSeekSave(
+    {
+      ...view,
+      warnings: [...view.warnings, ...warnings],
+      notes: [OFFSET_NOTE, ...view.notes, ...ASTRO_SEEK_NOTES],
+      buttons: [...ASTRO_SEEK_BUTTONS, SHARE_BUTTON].map((button) => ({ ...button })),
+      next: astroComStep(view.sky, { local: result.local, name, town }),
+    },
+    { town, name },
+  );
 }
 
 /**

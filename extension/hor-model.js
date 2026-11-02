@@ -3,7 +3,7 @@
 // draws, reusing the popup's screen for a chart and the AAF import's buttons.
 import { chartFromHor, parseHor } from "./core/morinus-hor.js";
 import { withAafExport } from "./aaf-model.js";
-import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, astroComStep, nameFromText, offsetText, viewFor } from "./popup-model.js";
+import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, astroComStep, nameFromText, offsetText, viewFor, withAstroSeekSave } from "./popup-model.js";
 
 // Why chartFromHor refused a chart. Each keeps its code on screen, like the
 // AAF import's refusals, so a bug report says which check failed.
@@ -109,14 +109,17 @@ export function viewForHorChart(result, options) {
     ...(morinus.chartType === "horary" ? [["Chart type", "Horary"]] : []),
   ];
   const withExport = withAafExport(
-    {
-      ...view,
-      rows: [...first, ...rows],
-      warnings: warnings.map((code) => WARNINGS[code] ?? code),
-      notes: [...view.notes, ...(morinus.timeBasis === "zone" ? [ZONE_NOTE] : []), ...ASTRO_SEEK_NOTES],
-      buttons: [...ASTRO_SEEK_BUTTONS],
-      ...(view.sky ? { next: astroComStep(view.sky, { local: chart.local, name: nameFromText(chart.name), town: chart.place }) } : {}),
-    },
+    withAstroSeekSave(
+      {
+        ...view,
+        rows: [...first, ...rows],
+        warnings: warnings.map((code) => WARNINGS[code] ?? code),
+        notes: [...view.notes, ...(morinus.timeBasis === "zone" ? [ZONE_NOTE] : []), ...ASTRO_SEEK_NOTES],
+        buttons: [...ASTRO_SEEK_BUTTONS],
+        ...(view.sky ? { next: astroComStep(view.sky, { local: chart.local, name: nameFromText(chart.name), town: chart.place }) } : {}),
+      },
+      { town: chart.place, name: nameFromText(chart.name) },
+    ),
     result,
   );
   // A Greenwich time is written as it is, so the AAF import's reason for UT doesn't apply.
