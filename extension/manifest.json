@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "AstroChart Bridge",
   "version": "0.1.0",
-  "description": "Open the sky for an Astro-Seek or astro.com natal chart in Stellarium Web or Stellarium Desktop.",
+  "description": "Open a natal chart's sky in Stellarium, or the chart in Astro-Seek or astro.com, from a chart page, screenshot, pasted text or file.",
   "icons": {
     "16": "icons/icon-16.png",
     "32": "icons/icon-32.png",
@@ -24,7 +24,11 @@
   },
   "browser_specific_settings": {
     "gecko": {
-      "strict_min_version": "128.0"
+      "id": "astrochart-bridge@kevinblakelopez.github.io",
+      "strict_min_version": "140.0",
+      "data_collection_permissions": {
+        "required": ["personallyIdentifyingInfo", "websiteContent"]
+      }
     },
     "safari": {
       "strict_min_version": "26.0"

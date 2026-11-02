@@ -4,7 +4,7 @@ AstroChart Bridge is a browser extension that takes the birth data from an astro
 
 It reads a chart from the page you're on, a screenshot, pasted text, an AAF file or a Morinus chart file. It works out the chart's Universal Time from what the source prints and refuses a chart rather than guess a time, an offset or a calendar.
 
-It runs in Chrome, Brave, Microsoft Edge, Firefox 128 or later and Safari 26 or later on macOS. In Safari on iPad it has to be wrapped in an app with Xcode; see [docs/safari-ipad.md](docs/safari-ipad.md).
+It runs in Chrome, Brave, Microsoft Edge, Firefox 140 or later and Safari 26 or later on macOS. In Safari on iPad it has to be wrapped in an app with Xcode; see [docs/safari-ipad.md](docs/safari-ipad.md).
 
 ## What it reads
 
@@ -33,6 +33,8 @@ It opens natal charts, plus horary charts from a screenshot. Transit, synastry, 
 There is no server, account or tracking. Charts are read in the browser, and nothing leaves your computer until you click a button that opens a site, which then gets only the chart's moment and place. astro.com's form also gets the chart's town and name, both shown on the screen before it opens, where the name can be changed or cleared. A shared chart travels inside its link or file, which never carries a name.
 
 The extension asks for `activeTab`, `scripting` and `storage`. It asks for two more only when a feature needs them, and the browser asks you first: `127.0.0.1`, to talk to Stellarium Desktop, and `www.astro.com`, to fill in astro.com's form as it opens.
+
+[docs/privacy.md](docs/privacy.md) has the details. It's the privacy policy the store listings link to.
 
 ## Installing for development
 
@@ -63,7 +65,7 @@ npm test
 | `extension/vendor/` | Tesseract.js for reading screenshots and lean-qr for QR codes, each with its licence. |
 | `test/` | `node --test` tests. |
 | `fixtures/` | Astro-Seek page captures, trimmed to their header block, and AAF files written by Astrolog. All use invented birth data. |
-| `tools/` | `package-safari.sh` makes the Xcode project for Safari; `site.mjs` builds the receiving page's site; `make-icons.mjs` draws the icons; `trim-fixture.mjs` trims a new Astro-Seek capture before it's committed. |
+| `tools/` | `package-safari.sh` makes the Xcode project for Safari; `package-stores.sh` packs a commit for the Chrome Web Store and Firefox Add-ons; `site.mjs` builds the receiving page's site; `make-icons.mjs` draws the icons; `trim-fixture.mjs` trims a new Astro-Seek capture before it's committed. |
 | `docs/` | Feature guides, the manual test checklist and notes on known issues. |
 
 ### Receiving page
@@ -77,6 +79,8 @@ Pushes to `main` run `.github/workflows/pages.yml`, which runs the tests and pub
 - [docs/stellarium-desktop.md](docs/stellarium-desktop.md): sending to and importing from Stellarium Desktop
 - [docs/portable-charts.md](docs/portable-charts.md): links, QR codes, chart files and the receiving page
 - [docs/safari-ipad.md](docs/safari-ipad.md): building for Safari on iPad
+- [docs/store-listing.md](docs/store-listing.md): submitting to the Chrome Web Store and Firefox Add-ons
+- [docs/privacy.md](docs/privacy.md): what AstroChart Bridge reads, sends and keeps
 - [docs/manual-test.md](docs/manual-test.md): the manual test checklist
 - [docs/astroseek-known-issues.md](docs/astroseek-known-issues.md): Astro-Seek behaviour worked around or to report
 - [docs/saved-charts-ideas.md](docs/saved-charts-ideas.md): ideas, not planned, for an account's saved charts

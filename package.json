@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "test": "node --test",
-    "package:safari": "tools/package-safari.sh"
+    "package:safari": "tools/package-safari.sh",
+    "package:stores": "tools/package-stores.sh"
   }
 }

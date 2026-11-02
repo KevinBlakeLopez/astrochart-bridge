@@ -30,7 +30,7 @@ After changing any file in `extension/`, click **Reload** on the AstroChart Brid
 
 ### Firefox
 
-AstroChart Bridge needs Firefox 128 or later.
+AstroChart Bridge needs Firefox 140 or later.
 
 1. Go to `about:debugging#/runtime/this-firefox`.
 2. Click **Load Temporary Add-on…**. Press **Cmd+Shift+G**, paste the path to the same `extension` folder, press Return, select `manifest.json` inside it and click **Open**. Firefox asks for a file in the folder, not the folder itself.

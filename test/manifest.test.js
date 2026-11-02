@@ -46,8 +46,29 @@ function pixels(png) {
 }
 
 test("the browser minimums are the versions the manual checklist runs in", () => {
-  assert.deepEqual(manifest.browser_specific_settings, {
-    gecko: { strict_min_version: "128.0" },
-    safari: { strict_min_version: "26.0" },
+  assert.equal(manifest.browser_specific_settings.gecko.strict_min_version, "140.0");
+  assert.equal(manifest.browser_specific_settings.safari.strict_min_version, "26.0");
+});
+
+// AMO ties the listing, and every installed copy's updates, to this ID: a
+// different one is a different add-on.
+test("the Firefox add-on ID is the one AMO has", () => {
+  assert.equal(manifest.browser_specific_settings.gecko.id, "astrochart-bridge@kevinblakelopez.github.io");
+});
+
+// Firefox shows this at install. The name and birth data go to astro.com's
+// form, and birth data read from a page goes into Stellarium Web and
+// Astro-Seek links, when the user asks. Firefox 140 is the first with the
+// consent screen, which is why it's the minimum. A change here changes what
+// users agree to, so it should be deliberate and match docs/privacy.md.
+test("the Firefox data collection declaration is the one the privacy page describes", () => {
+  assert.deepEqual(manifest.browser_specific_settings.gecko.data_collection_permissions, {
+    required: ["personallyIdentifyingInfo", "websiteContent"],
   });
+});
+
+// The Chrome Web Store shows the description as the listing's summary, and
+// allows it 132 characters at most.
+test("the description fits the Chrome Web Store's summary", () => {
+  assert.ok(manifest.description.length <= 132, `${manifest.description.length} characters`);
 });
