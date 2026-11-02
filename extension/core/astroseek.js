@@ -3,6 +3,7 @@ import { chooseListedTown } from "./towns.js";
 const HOST = "horoscopes.astro-seek.com";
 // The account's pages, such as its private astro database, are on www.
 const ACCOUNT_HOST = "www.astro-seek.com";
+const DATABASE_PATH = "/my-profile-astro-database";
 
 const refused = (reason) => ({ kind: "refused", reason });
 
@@ -386,7 +387,7 @@ export function astroSeekSaveUrl(sky, { name = null } = {}) {
   // Only the north and west form has been seen; S and E are assumed.
   const place = `Manually place: ${latitude.deg}°${latitude.min}'${latitude.negative ? "S" : "N"}, ${longitude.deg}°${longitude.min}'${longitude.negative ? "W" : "E"}`;
 
-  const url = new URL(`https://${ACCOUNT_HOST}/my-profile-astro-database`);
+  const url = new URL(`https://${ACCOUNT_HOST}${DATABASE_PATH}`);
   url.search = new URLSearchParams([
     ["typ", "save_birth_data"],
     ["source", "osobni_horoskop"],
@@ -450,6 +451,69 @@ function cityPlace(label) {
   const lat = degrees(Number(latDeg), Number(latMin), latSide === "s");
   const lng = degrees(Number(lngDeg), Number(lngMin), lngSide === "w");
   return Math.abs(lat) > 90 || Math.abs(lng) > 180 ? null : { name: name.trim(), lat, lng };
+}
+
+/**
+ * Whether a page is the account's private astro database, where
+ * astroSeekSaveUrl leads, whatever its parameters.
+ *
+ * @param {string} url
+ */
+export function isSavePage(url) {
+  try {
+    const page = new URL(url);
+    return page.origin === `https://${ACCOUNT_HOST}` && page.pathname === DATABASE_PATH;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * What the save page's tab needs to know about it, as seen on 2026-11-01.
+ * Signed in, every Astro-Seek page's menu links to /logout; signed out, it
+ * links to /login (its Login and Account items) and /registration. auth is
+ * read from those links' addresses, not their words: "signed-in" with a
+ * /logout link and no /login one, "signed-out" the other way round, and
+ * "unknown" with both or neither. Every page, signed in or out, also has a
+ * /login link inside an HTML comment; a comment holds no elements, so the
+ * page's links leave it out, though a search of the page's source would
+ * find it. form is the Add person form,
+ * form#form_jina_osoba, when it has the fields AstroChart Bridge fills in or
+ * checks: "city-empty" while its Birth city is empty, as astroSeekSaveUrl
+ * leaves it, and "city-typed" once it holds anything, which is never
+ * replaced. Runs in the tab, so it uses nothing from this module.
+ *
+ * @returns {{ auth: "signed-in" | "signed-out" | "unknown", form: "city-empty" | "city-typed" | "unrecognised" }}
+ */
+export function readSavePage() {
+  const paths = new Set();
+  for (const link of document.querySelectorAll("a[href]")) {
+    try {
+      const target = new URL(link.href);
+      if (target.hostname === "astro-seek.com" || target.hostname.endsWith(".astro-seek.com")) paths.add(target.pathname);
+    } catch {
+      // An address URL can't read says nothing either way.
+    }
+  }
+  const logout = paths.has("/logout");
+  const login = paths.has("/login");
+  const auth = logout && !login ? "signed-in" : login && !logout ? "signed-out" : "unknown";
+
+  const fields = document.getElementById("form_jina_osoba")?.elements;
+  const names = [
+    "nick",
+    "narozeni_city",
+    "narozeni_sirka_stupne",
+    "narozeni_sirka_minuty",
+    "narozeni_sirka_smer",
+    "narozeni_delka_stupne",
+    "narozeni_delka_minuty",
+    "narozeni_delka_smer",
+    "narozeni_timezone_form",
+    "narozeni_timezone_dst_form",
+  ];
+  if (!names.every((name) => fields?.namedItem(name))) return { auth, form: "unrecognised" };
+  return { auth, form: fields.namedItem("narozeni_city").value.trim() === "" ? "city-empty" : "city-typed" };
 }
 
 // The birth form's values for a UTC instant and place: the day and month
