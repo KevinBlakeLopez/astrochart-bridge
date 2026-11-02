@@ -26,21 +26,24 @@ globalThis.document = {
   },
 };
 
-// The screen's buttons in order, with the Stellarium Desktop line where it falls.
+// The screen's buttons in order, with the group labels and the Stellarium
+// Desktop line where they fall.
 function drawn(view) {
   const container = { replaceChildren: (...parts) => (container.parts = parts) };
   render(container, view, () => {});
   return container.parts
-    .filter(({ tag, className }) => tag === "button" || className.includes("desktop-hint"))
-    .map(({ tag, textContent }) => (tag === "button" ? textContent : "(Stellarium Desktop line)"));
+    .filter(({ tag, className }) => tag === "button" || tag === "h2" || className.includes("desktop-hint"))
+    .map(({ tag, textContent }) => (tag === "button" ? textContent : tag === "h2" ? `[${textContent}]` : "(Stellarium Desktop line)"));
 }
 
-test("the Stellarium Desktop line sits right under its button, not after Share…", () => {
+test("a chart screen's buttons are drawn under their labels, with the Stellarium Desktop line under its button", () => {
   const view = withDesktopSend(viewFor(analyze("ny-2024-04-17"), { timeZone: "America/Los_Angeles" }));
   assert.deepEqual(drawn(view), [
+    "[See the sky]",
     "Open Stellarium Web",
     "Send to Stellarium Desktop",
     "(Stellarium Desktop line)",
+    "[Take the chart elsewhere]",
     "Share…",
     "Enter in astro.com…",
   ]);
@@ -49,14 +52,29 @@ test("the Stellarium Desktop line sits right under its button, not after Share�
 test("with Stellarium Desktop the default, its line follows it to the top", () => {
   const view = withDesktopSend(viewFor(analyze("ny-2024-04-17"), { timeZone: "America/Los_Angeles" }), { preferred: true });
   assert.deepEqual(drawn(view).slice(0, 4), [
+    "[See the sky]",
     "Send to Stellarium Desktop",
     "(Stellarium Desktop line)",
     "Open Stellarium Web",
-    "Share…",
   ]);
 });
 
 test("on a Stellarium Web tab's screen, the line follows the button there too", () => {
   const view = withDesktopSend(viewForSky({ utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 }));
-  assert.deepEqual(drawn(view).slice(0, 3), ["Open chart in Astro-Seek", "Send to Stellarium Desktop", "(Stellarium Desktop line)"]);
+  assert.deepEqual(drawn(view), [
+    "[Take the chart elsewhere]",
+    "Open chart in Astro-Seek",
+    "Enter in astro.com…",
+    "[See the sky]",
+    "Send to Stellarium Desktop",
+    "(Stellarium Desktop line)",
+  ]);
+});
+
+test("the buttons that wait for the sky still wait for it, whichever group they're in", () => {
+  const view = withDesktopSend(viewFor(analyze("ny-2024-04-17"), { timeZone: "America/Los_Angeles" }));
+  const container = { replaceChildren: (...parts) => (container.parts = parts) };
+  render(container, { ...view, sky: undefined }, () => {});
+  const disabled = container.parts.filter(({ tag, disabled }) => tag === "button" && disabled).map(({ textContent }) => textContent);
+  assert.deepEqual(disabled, ["Open Stellarium Web", "Send to Stellarium Desktop", "Share…"]);
 });

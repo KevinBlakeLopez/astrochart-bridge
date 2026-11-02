@@ -87,6 +87,14 @@ dd {
   margin-top: 8px;
 }
 
+/* The label over a group of a screen's actions, such as See the sky. */
+h2.group {
+  margin: 14px 0 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
 /* A button that reads as a link, inside a line of text. */
 button.link {
   display: inline;
@@ -195,7 +203,8 @@ button + button {
     font-size: 17px;
   }
 
-  .note {
+  .note,
+  h2.group {
     font-size: 14px;
   }
 

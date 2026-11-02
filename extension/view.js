@@ -3,13 +3,10 @@
 // from a page or a screenshot is only ever inserted with textContent.
 import { astroSeekUrl } from "./core/astroseek.js";
 import { stellariumUrl } from "./core/stellarium.js";
-import { NAME_LENGTH, nameWarning, offsetPreview, withName } from "./popup-model.js";
+import { NAME_LENGTH, actionGroups, nameWarning, offsetPreview, withName } from "./popup-model.js";
 
 // What a button can open for the decided sky, by the name a view gives it.
 const LINKS = { stellarium: stellariumUrl, "astro-seek": astroSeekUrl };
-
-// The button every screen with a sky has, unless the view lists its own.
-const OPEN_SKY = [{ label: "Open Stellarium Web", opens: "stellarium" }];
 
 /**
  * @param {HTMLElement} container  its children are replaced
@@ -37,73 +34,63 @@ export function render(container, view, onButton, back = null) {
     // this name in place of the one the view gave it.
     const typed = view.nameBoxes ? Object.fromEntries(view.nameBoxes.map(({ part, text }) => [part, text])) : null;
     const withTyped = (button) => (typed && button.holds ? { ...button, holds: withName(button.holds, typed) } : button);
-    const buttons = view.url
-      ? [linkButton(view.button, () => onButton({ url: view.url }, sky))]
-      : (view.buttons ?? OPEN_SKY).map(({ label, opens, secondary, ...button }) => {
-          const element = linkButton(label, () => onButton(withTyped({ ...button, url: button.url ?? LINKS[opens]?.(sky) }), sky));
-          if (secondary) element.className = "secondary";
-          return element;
-        });
-    // Sends the decided sky to Stellarium Desktop, for onButton to do: first,
-    // in the main style, when it is the user's default, and otherwise right
-    // after Open Stellarium Web, or last on a screen without it.
-    let sendButton = null;
-    if (view.desktop) {
-      const send = () => onButton({ does: "send-to-desktop" }, sky);
-      if (view.desktop.primary) {
-        sendButton = linkButton(view.desktop.label, send);
-        buttons.unshift(sendButton);
-      } else {
-        sendButton = secondaryButton(view.desktop.label, send);
-        const web = view.url ? -1 : (view.buttons ?? OPEN_SKY).findIndex(({ opens }) => opens === "stellarium");
-        buttons.splice(web === -1 ? buttons.length : web + 1, 0, sendButton);
-      }
-    }
+    // The buttons that wait for the sky: the view's own and Send to Stellarium Desktop.
+    const buttons = [];
+    const waits = (button) => (buttons.push(button), button);
     const setSky = (next) => {
       sky = next;
       for (const button of buttons) button.disabled = !view.url && sky === null;
     };
+
+    // What each action from actionGroups draws.
+    const draw = {
+      url: () => [waits(linkButton(view.button, () => onButton({ url: view.url }, sky)))],
+      button: ({ button: { label, opens, secondary, ...button } }) => {
+        const element = linkButton(label, () => onButton(withTyped({ ...button, url: button.url ?? LINKS[opens]?.(sky) }), sky));
+        if (secondary) element.className = "secondary";
+        return [waits(element)];
+      },
+      // Sends the decided sky to Stellarium Desktop, for onButton to do, in the
+      // main style when it is the user's default. The line about Stellarium
+      // goes right under it, empty until the popup has checked Stellarium,
+      // which may be after this is drawn.
+      desktop: () => {
+        const send = () => onButton({ does: "send-to-desktop" }, sky);
+        const button = view.desktop.primary ? linkButton(view.desktop.label, send) : secondaryButton(view.desktop.label, send);
+        return [waits(button), desktopHintLine()];
+      },
+      // Which app is the default, with a link to change it, right under the
+      // buttons it affects. With no text, the change is offered as a button.
+      "default-choice": () => {
+        const { text, label, does } = view.defaultChoice;
+        const change = () => onButton({ does }, sky);
+        if (text === null) return [secondaryButton(label, change)];
+        const line = paragraph(`${text} `, "note default-choice");
+        const link = linkButton(label, change);
+        link.className = "link";
+        line.append(link);
+        return [line];
+      },
+      // The chart as an AAF file, made by aaf-model.js. Saving it sends nothing anywhere.
+      download: () => [
+        secondaryButton(view.download.label, () => saveFile(view.download)),
+        ...(view.download.note ? [paragraph(view.download.note, "note")] : []),
+      ],
+      // A further screen, such as the values to enter in astro.com, is drawn in
+      // place of this one, and Cancel draws this one again. Going there and back stores nothing.
+      next: () => [secondaryButton(view.next.label, () => render(container, view.next.view, onButton, view))],
+    };
+    const actions = actionGroups(view).flatMap(({ label, actions }) => [
+      ...(label ? [groupLabel(label)] : []),
+      ...actions.flatMap((action) => draw[action.kind](action)),
+    ]);
 
     if (view.state === "choose") parts.push(choiceList(view.choices, setSky));
     if (view.state === "enter-offset") parts.push(...offsetField(view, setSky));
     if (typed) parts.push(...nameFields(view.nameBoxes, typed));
     for (const note of view.notes) parts.push(paragraph(note, "note"));
     setSky(sky);
-    // The line about Stellarium Desktop goes right under its button, not after
-    // Share…. Empty until the popup has checked Stellarium, which may be after
-    // this is drawn.
-    for (const button of buttons) {
-      parts.push(button);
-      if (button === sendButton) parts.push(desktopHintLine());
-    }
-
-    // Which app is the default, with a link to change it, right under the
-    // buttons it affects. With no text, the change is offered as a button.
-    if (view.defaultChoice) {
-      const { text, label, does } = view.defaultChoice;
-      const change = () => onButton({ does }, sky);
-      if (text === null) {
-        parts.push(secondaryButton(label, change));
-      } else {
-        const line = paragraph(`${text} `, "note default-choice");
-        const link = linkButton(label, change);
-        link.className = "link";
-        line.append(link);
-        parts.push(line);
-      }
-    }
-
-    // The chart as an AAF file, made by aaf-model.js. Saving it sends nothing anywhere.
-    if (view.download) {
-      parts.push(secondaryButton(view.download.label, () => saveFile(view.download)));
-      if (view.download.note) parts.push(paragraph(view.download.note, "note"));
-    }
-
-    // A further screen, such as the values to enter in astro.com, is drawn in
-    // place of this one, and Cancel draws this one again. Going there and back stores nothing.
-    if (view.next) {
-      parts.push(secondaryButton(view.next.label, () => render(container, view.next.view, onButton, view)));
-    }
+    parts.push(...actions);
     if (back) parts.push(secondaryButton("Cancel", () => render(container, back, onButton)));
   }
 
@@ -130,6 +117,14 @@ function secondaryButton(label, onClick) {
 
 function heading(text) {
   const element = document.createElement("h1");
+  element.textContent = text;
+  return element;
+}
+
+// The label over one of actionGroups' groups.
+function groupLabel(text) {
+  const element = document.createElement("h2");
+  element.className = "group";
   element.textContent = text;
   return element;
 }

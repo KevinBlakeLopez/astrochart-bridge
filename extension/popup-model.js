@@ -173,6 +173,53 @@ export const SHARE_BUTTON = { label: "Share…", does: "share", secondary: true 
 // A screen's buttons, then Share…, as copies the caller can change.
 const chartButtons = (buttons) => [...buttons, SHARE_BUTTON].map((button) => ({ ...button }));
 
+// The labels over a screen's two kinds of action, when it has both.
+export const GROUP_LABELS = { sky: "See the sky", elsewhere: "Take the chart elsewhere" };
+
+/**
+ * The order view.js draws a screen's actions in, in labelled groups. The ways
+ * to see the sky, Open Stellarium Web and Send to Stellarium Desktop, go under
+ * See the sky, with the line that says which is the default. Every other
+ * action goes under Take the chart elsewhere: Share…, Open chart in
+ * Astro-Seek, the AAF file and the astro.com step among them. The group with
+ * the screen's main button comes first.
+ *
+ * A screen without both kinds is one group with no label, in the order it
+ * always had. The default line alone doesn't count as a way to see the sky:
+ * the sent screen has it beside Done.
+ *
+ * Send to Stellarium Desktop comes first when it is the user's default, and
+ * otherwise right after Open Stellarium Web, or last on a screen without it.
+ *
+ * @param {object} view  from viewFor, viewForSky and the like, with withDesktopSend's desktop
+ * @returns {{ label: string | null, actions: object[] }[]}  each action is
+ *   { kind: "button", button } for one of the view's buttons, or { kind } of
+ *   "url" (the view's own link), "desktop", "default-choice", "download" or "next"
+ */
+export function actionGroups(view) {
+  const actions = view.url ? [{ kind: "url" }] : (view.buttons ?? [OPEN_SKY_BUTTON]).map((button) => ({ kind: "button", button }));
+  if (view.desktop) {
+    const send = { kind: "desktop" };
+    const web = actions.findIndex(({ button }) => button?.opens === "stellarium");
+    if (view.desktop.primary) actions.unshift(send);
+    else actions.splice(web === -1 ? actions.length : web + 1, 0, send);
+  }
+  if (view.defaultChoice) actions.push({ kind: "default-choice" });
+  if (view.download) actions.push({ kind: "download" });
+  if (view.next) actions.push({ kind: "next" });
+
+  const sky = actions.filter((action) => opensSky(action) || action.kind === "default-choice");
+  const elsewhere = actions.filter((action) => !sky.includes(action));
+  if (!actions.some(opensSky) || elsewhere.length === 0) return [{ label: null, actions }];
+  const groups = [
+    { label: GROUP_LABELS.sky, actions: sky },
+    { label: GROUP_LABELS.elsewhere, actions: elsewhere },
+  ];
+  return opensSky(actions[0]) ? groups : groups.reverse();
+}
+
+const opensSky = ({ kind, button }) => kind === "desktop" || button?.opens === "stellarium";
+
 // How each candidate on the choose screen was worked out, by its basis.
 const CHOICE_BASES = { "printed UT": "printed" };
 
