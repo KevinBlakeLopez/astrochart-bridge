@@ -1,7 +1,7 @@
 import { analyzeEntry, analyzeProgramText } from "./core/index.js";
 import { toPortable } from "./core/portable.js";
 import { MAX_TEXT_LENGTH, readField, readText } from "./core/text.js";
-import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, SHARE_BUTTON, astroComStep, nameFromText, viewFor } from "./popup-model.js";
+import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, SHARE_BUTTON, astroComStep, nameFromText, viewFor, viewForAstroCom } from "./popup-model.js";
 import { PROGRAMS } from "./screenshot-model.js";
 
 // Each refusal readText can return. They keep their code on screen, like the
@@ -25,7 +25,8 @@ export const ENTRY_FIELDS = [
 ];
 
 // The other fields readText finds. They are shown as written, and only the
-// name goes anywhere: into astro.com's form, by the step after the form.
+// name and place go anywhere: into astro.com's form, by the step after the
+// form, the place as the town for its atlas to look up.
 const INFO_FIELDS = [
   ["name", "Name"],
   ["place", "Place"],
@@ -36,7 +37,17 @@ const INFO_FIELDS = [
 ];
 
 const FORM_NOTE = "Check each value against the text. Nothing is sent until you open the sky or the chart.";
-const PLACE_NOTE = "AstroChart Bridge doesn't look places up: it uses the latitude and longitude, not the place name.";
+const PLACE_NOTE =
+  "AstroChart Bridge doesn't look places up. Stellarium Web, Astro-Seek and Share use the latitude and longitude; astro.com's form gets the place as its town, for its own atlas to look up.";
+
+// On a form whose text gives no offset. astro.com's form takes the local time
+// and looks the zone up for the town; everything else needs the UTC.
+const NO_OFFSET_NOTE =
+  "With the UTC offset left empty, the chart can open only in astro.com, which looks up the time zone for the town. Stellarium Web, Astro-Seek and Share need the offset.";
+
+// Atop the astro.com screen for a form left without an offset.
+const LOCAL_ONLY_NOTE =
+  "No UTC offset was entered, so this chart can open only in astro.com. Go back to the form and enter one to open it in Stellarium Web or Astro-Seek, or to share it.";
 
 // First on the screen that opens the sky. The offset is the one value the form
 // can't check: that needs the zone's history at the birthplace.
@@ -63,6 +74,10 @@ const PROGRAM_REFUSALS = {
 };
 const PROGRAM_REFUSED = "it doesn't pass that program's checks";
 
+// The name each reader on the paste page gives as its site: the desktop
+// programs', and Astro-Seek's for text copied from its chart page.
+const SOURCES = { ...PROGRAMS, "astro-seek": "Astro-Seek" };
+
 // The programs that write an offset west of Greenwich with a plus sign, as
 // their readers read it.
 const WEST_PLUS = new Set(["solar-fire", "astro-gold", "solar-fire-or-astro-gold", "janus", "winstar"]);
@@ -73,8 +88,8 @@ const MONTH_NAMES = [
 ];
 
 /**
- * The review form for pasted text, as readText and the desktop programs'
- * readers read it.
+ * The review form for pasted text, as readText, the desktop programs' readers
+ * and Astro-Seek's read it.
  *
  * @param {string} text
  */
@@ -107,12 +122,12 @@ export function formFor(result, program = null) {
   if (result.kind === "refused" && !noLabels) return { state: "refused", message: REFUSALS[result.reason], code: result.reason };
   const fields = noLabels ? {} : result.fields;
   const values = read ? programValues(read) : {};
-  const name = read ? PROGRAMS[read.site] : null;
+  const name = read ? SOURCES[read.site] : null;
 
   const warnings = settingWarnings(fields);
   if (turnedDown) {
     warnings.unshift(
-      `This text is laid out like a desktop astrology program's, but ${Object.hasOwn(PROGRAM_REFUSALS, turnedDown) ? PROGRAM_REFUSALS[turnedDown] : PROGRAM_REFUSED}, so AstroChart Bridge didn't use that program's reading (${turnedDown}). Check each value against the text.`,
+      `This text is laid out like an astrology program's or site's, but ${Object.hasOwn(PROGRAM_REFUSALS, turnedDown) ? PROGRAM_REFUSALS[turnedDown] : PROGRAM_REFUSED}, so AstroChart Bridge didn't use that program's reading (${turnedDown}). Check each value against the text.`,
     );
   }
   if (read?.warnings?.includes("offset-unchecked")) {
@@ -124,20 +139,26 @@ export function formFor(result, program = null) {
     notes.push(`${name} writes offsets west of Greenwich with a plus sign, so its +7:00 is UTC-07:00 here.`);
   }
   if (fields.place) notes.push(PLACE_NOTE);
+  const boxes = ENTRY_FIELDS.map((field) => ({
+    name: field.name,
+    label: field.label,
+    placeholder: field.example,
+    ...merged(field.name, fields, values[field.name] ?? null, read),
+  }));
+  // An offset box left empty with nothing to pick from.
+  const offset = boxes.find((box) => box.name === "offset");
+  if (offset.text === "" && !offset.choices) notes.push(NO_OFFSET_NOTE);
 
   return {
     state: "form",
-    fields: ENTRY_FIELDS.map((field) => ({
-      name: field.name,
-      label: field.label,
-      placeholder: field.example,
-      ...merged(field.name, fields, values[field.name] ?? null, read),
-    })),
+    fields: boxes,
     rows: INFO_FIELDS.filter(([field]) => fields[field]).map(([field, label]) => [label, asWritten(fields[field])]),
     warnings,
     notes,
     statedOffsets: [...statedOffsets(fields.offset), ...(values.offset == null ? [] : [values.offset])],
     name: nameFromText(fields.name?.value),
+    // Null when the text gives two places.
+    town: fields.place?.value ?? null,
   };
 }
 
@@ -151,7 +172,7 @@ function programValues({ local, lat, lng, utcSource, offsetMinutes }) {
 function merged(name, fields, value, program) {
   const read = fields[name];
   if (!program) return prefill(name, fields);
-  const programName = PROGRAMS[program.site];
+  const programName = SOURCES[program.site];
   if (value === null) {
     // Only the offset can be missing, from a program that doesn't print it.
     if (read) return prefill(name, fields);
@@ -277,16 +298,45 @@ export function entryFor({ date, time, lat, lng, offset }) {
 }
 
 /**
+ * The chart astro.com alone can take, once the date, time and place boxes
+ * have values and the offset box is empty, else null: astro.com's form takes
+ * the local time and looks the zone up for the town, so it needs no offset.
+ * An offset box with text that doesn't read keeps the button disabled, as it
+ * does with entryFor.
+ *
+ * @param {Record<string, string | number | null>} values  as for entryFor
+ * @param {string} offsetText  the offset box's text
+ * @returns {{ local: string, lat: number, lng: number } | null}  local is YYYY-MM-DDTHH:MM:SS
+ */
+export function localEntryFor({ date, time, lat, lng }, offsetText) {
+  if (offsetText.trim() !== "") return null;
+  if ([date, time, lat, lng].some((value) => value === null || value === undefined)) return null;
+  return { local: `${date}T${time}`, lat, lng };
+}
+
+/**
+ * The astro.com screen for a localEntryFor chart: its local time and place,
+ * with no UTC, so astro.com's automatic time zone decides the moment.
+ *
+ * @param {NonNullable<ReturnType<typeof localEntryFor>>} chart
+ * @param {{ name?: { first: string, last: string } | null, town?: string | null }} [options]  formFor's
+ */
+export function viewForLocalEntry({ local, lat, lng }, { name = null, town = null } = {}) {
+  const view = viewForAstroCom({ utc: null, lat, lng }, { local, name, town });
+  return { ...view, notes: [LOCAL_ONLY_NOTE, ...view.notes] };
+}
+
+/**
  * The screen that opens the sky or the chart for a confirmed entry: the
  * popup's ready screen, with the form's warnings, a note that nothing checks
  * the offset, a second button that opens the chart in Astro-Seek, Share…, and
- * the step to enter it in astro.com with the text's name.
+ * the step to enter it in astro.com with the text's name and place.
  *
  * @param {ReturnType<typeof entryFor>} entry
- * @param {{ warnings?: string[], timeZone?: string, name?: { first: string, last: string } | null }} [options]
- *   timeZone is passed on to viewFor; name is formFor's
+ * @param {{ warnings?: string[], timeZone?: string, name?: { first: string, last: string } | null, town?: string | null }} [options]
+ *   timeZone is passed on to viewFor; name and town are formFor's
  */
-export function viewForEntry(entry, { warnings = [], timeZone, name = null } = {}) {
+export function viewForEntry(entry, { warnings = [], timeZone, name = null, town = null } = {}) {
   const result = analyzeEntry(entry);
   const view = viewFor(result, { timeZone });
   return {
@@ -294,7 +344,7 @@ export function viewForEntry(entry, { warnings = [], timeZone, name = null } = {
     warnings: [...view.warnings, ...warnings],
     notes: [OFFSET_NOTE, ...view.notes, ...ASTRO_SEEK_NOTES],
     buttons: [...ASTRO_SEEK_BUTTONS, SHARE_BUTTON].map((button) => ({ ...button })),
-    next: astroComStep(view.sky, { local: result.local, name }),
+    next: astroComStep(view.sky, { local: result.local, name, town }),
   };
 }
 

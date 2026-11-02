@@ -291,7 +291,7 @@ export const ASTRO_COM_BUSY = { state: "astro-com-busy", message: "Opening astro
  * The two-click way, when the user declined access to www.astro.com: the
  * values, and a button that only keeps them for the tab it opens.
  *
- * @param {{ utc: string, lat: number, lng: number, local: string | null, town: string | null }} values
+ * @param {{ utc: string | null, lat: number, lng: number, local: string | null, town: string | null }} values
  */
 export function viewForAstroComManual(values) {
   return {
@@ -309,7 +309,7 @@ export function viewForAstroComManual(values) {
  * up on another page. On the screenshot page, also a form that needs a choice
  * first, which the popup on its tab offers. Its values are kept for its tab.
  *
- * @param {{ utc: string, lat: number, lng: number, local: string | null, town: string | null }} values
+ * @param {{ utc: string | null, lat: number, lng: number, local: string | null, town: string | null }} values
  * @param {"not-filled" | "choose"} [outcome]  openAndFill's
  */
 export function viewForAstroComNotFilled(values, outcome = "not-filled") {
@@ -383,10 +383,12 @@ export const astroComStep = (sky, chart = {}) => ({ label: "Enter in astro.comâ€
  * The values to enter in astro.com's birth data form for a decided UTC and
  * place, in the form's own terms, and links to the form and to signing in.
  *
- * @param {{ utc: string, lat: number, lng: number }} sky
+ * @param {{ utc: string | null, lat: number, lng: number }} sky
  * @param {{ local?: string | null, town?: string | null, name?: { first: string, last: string } | null }} [chart]
  *   the local time, town and name the chart gives, filled in with the rest. A
  *   sky with no local time, such as Stellarium's, goes in as Universal Time.
+ *   One with no UTC, pasted with no offset, has a local time for astro.com's
+ *   automatic time zone.
  */
 export function viewForAstroCom({ utc, lat, lng }, { local = null, town = null, name = null } = {}) {
   const sky = { utc, lat, lng };
@@ -442,7 +444,7 @@ const UNFILLABLE = {
  * start a loop. A browser not seen signed out may be signed in, so it is never
  * held up by a sign-in prompt.
  *
- * @param {{ utc: string, lat: number, lng: number, local: string | null, town: string | null,
+ * @param {{ utc: string | null, lat: number, lng: number, local: string | null, town: string | null,
  *   name: { first: string, last: string } | null }} sky  from heldForTab
  * @param {{ kind: "form" } & ReturnType<typeof import("./core/astrocom.js").readFormPage> | { kind: "other" }} page
  */
@@ -524,9 +526,9 @@ function astroComValues({ utc, lat, lng, local = null, town = null, name = null 
     rows: [
       ["Birthday", `${Number(day)} ${MONTH_NAMES[Number(month) - 1]} ${year}`],
       ["Hour, min", time.slice(11, 16)],
-      ...(szon === "au"
-        ? [["Time zone", "automatic time zone, the form's default"], ["Offset", offsetText(localOffset(utc, local))]]
-        : [["Time zone", "00:00 GMT / UT, under show / hide extended settings"]]),
+      ...(szon === "h0w"
+        ? [["Time zone", "00:00 GMT / UT, under show / hide extended settings"]]
+        : [["Time zone", "automatic time zone, the form's default"], ...(utc === null ? [] : [["Offset", offsetText(localOffset(utc, local))]])]),
       ["Place", placeText(lat, lng)],
       ...(town === null ? [] : [["Town", town]]),
       ...(name === null || name.first === "" ? [] : [["First name", name.first]]),
@@ -540,9 +542,16 @@ function astroComValues({ utc, lat, lng, local = null, town = null, name = null 
 // astro.com's to decide: the zone it should pick, who checks it, and how to
 // enter the chart in Universal Time instead. Every way of filling in the form
 // checks it on the page (watchZone); a form filled in by hand is checked by
-// the person. Nothing for Universal Time.
+// the person. Nothing for Universal Time. A chart with no UTC has no zone to
+// check it against: the person checks the zone astro.com picks.
 function zoneNotes({ utc, local = null }, { filled = true } = {}) {
   if (formTime({ utc, local }).szon === "h0w") return [];
+  if (utc === null) {
+    return [
+      "The date and time are the chart's local time, and astro.com's automatic time zone looks up the zone for the town you choose. " +
+        "AstroChart Bridge has no UTC offset to check it against, so check the time zone astro.com shows for the town and date.",
+    ];
+  }
   const offset = localOffset(utc, local);
   const [year, month, day] = utc.slice(0, 10).split("-");
   const zone = `${zoneWords(offset)} (${offsetText(offset)})`;

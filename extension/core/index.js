@@ -14,6 +14,7 @@ import * as timepassages from "./timepassages.js";
 import * as winstar from "./winstar.js";
 import { resolvePrinted, resolveReadings } from "./printed-chart.js";
 import { SIDEREAL_TOLERANCE_SECONDS, siderealGap } from "./sidereal.js";
+import { separateLabels } from "./text.js";
 
 const refused = (reason) => ({ kind: "refused", reason });
 
@@ -206,17 +207,28 @@ const SCREENSHOT_READERS = [
   ...PROGRAM_READERS,
 ];
 
+// Astro-Seek's chart data copied from its page. "Date of Birth" alone turns up
+// in ordinary labelled text too, so it counts as Astro-Seek's only with the
+// Universal Time and sidereal time lines it prints. A copy can run its rows
+// together on one line, so they are separated first.
+const ASTRO_SEEK_TEXT = /^Universal Time\b[^]*^Local Sidereal Time\b/m;
+const ASTRO_SEEK_TEXT_READER = {
+  shows: (text) => ASTRO_SEEK_TEXT.test(separateLabels(text)),
+  analyze: (text) => analyzeAstroSeekScreenshot(separateLabels(text)),
+};
+
 /**
- * analyzeScreenshot for text pasted from a desktop astrology program, with
- * only the programs' readers: Astro-Seek's labels and astro.com's
- * "Univ.Time" turn up in ordinary labelled text too. Null when no program's
+ * analyzeScreenshot for text pasted from a desktop astrology program or
+ * copied from an Astro-Seek chart page, with only those readers: astro.com's
+ * "Univ.Time" turns up in ordinary labelled text too. Null when no such
  * layout is in the text, so the paste page reads it as labelled text alone.
  *
  * @param {string} text
- * @returns {ReturnType<typeof resolvePrinted> | { kind: "refused", reason: string } | null}
+ * @returns {ReturnType<typeof resolvePrinted> | ReturnType<typeof analyzeAstroSeekScreenshot>
+ *   | { kind: "refused", reason: string } | null}
  */
 export function analyzeProgramText(text) {
-  const shown = PROGRAM_READERS.filter((reader) => reader.shows(text));
+  const shown = [ASTRO_SEEK_TEXT_READER, ...PROGRAM_READERS].filter((reader) => reader.shows(text));
   if (shown.length === 0) return null;
   if (shown.length > 1) return refused("ambiguous-screenshot");
   return shown[0].analyze(text);

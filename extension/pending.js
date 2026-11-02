@@ -3,7 +3,8 @@
 // opened it has closed. Each takes the storage area to use: the browser passes
 // chrome.storage.session, which the browser empties when it quits, and tests
 // pass a stand-in. Only the decided UTC, place and the chart's local time,
-// town and name are kept, never anything of astro.com's.
+// town and name are kept, never anything of astro.com's. A chart pasted with
+// no offset has no UTC, only its local time.
 
 export const HOLD_MINUTES = 30;
 
@@ -18,8 +19,9 @@ const keyFor = (tabId) => `${PREFIX}${tabId}`;
  *
  * @param {chrome.storage.StorageArea} storage
  * @param {number} tabId
- * @param {{ utc: string, lat: number, lng: number, local?: string | null, town?: string | null,
- *   name?: { first: string, last: string } | null }} values  local, town and name are null when the chart has none
+ * @param {{ utc: string | null, lat: number, lng: number, local?: string | null, town?: string | null,
+ *   name?: { first: string, last: string } | null }} values  local, town and name are null when the chart has
+ *   none; utc is null only with a local time
  * @param {number} [now]  milliseconds since the epoch
  */
 export async function holdForTab(storage, tabId, { utc, lat, lng, local = null, town = null, name = null }, now = Date.now()) {
@@ -37,7 +39,7 @@ export async function holdForTab(storage, tabId, { utc, lat, lng, local = null, 
  * @param {chrome.storage.StorageArea} storage
  * @param {number} tabId
  * @param {number} [now]
- * @returns {Promise<{ utc: string, lat: number, lng: number, local: string | null, town: string | null,
+ * @returns {Promise<{ utc: string | null, lat: number, lng: number, local: string | null, town: string | null,
  *   name: { first: string, last: string } | null } | null>}
  */
 export async function heldForTab(storage, tabId, now = Date.now()) {
@@ -64,13 +66,16 @@ export async function releaseTab(storage, tabId) {
 function liveValues(entry, now) {
   const age = now - entry?.heldAt;
   if (!(age >= 0 && age < HOLD_MINUTES * 60_000)) return null;
-  const { utc, lat, lng, local, town, name } = entry.values ?? {};
-  if (typeof utc !== "string" || !Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  const { utc, lat, lng, local: kept, town, name } = entry.values ?? {};
+  const local = typeof kept === "string" && LOCAL.test(kept) ? kept : null;
+  // Values with neither a UTC nor a local time have no time to fill in.
+  if (!(typeof utc === "string" || (utc === null && local !== null))) return null;
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
   return {
     utc,
     lat,
     lng,
-    local: typeof local === "string" && LOCAL.test(local) ? local : null,
+    local,
     town: typeof town === "string" ? town : null,
     name: nameOrNull(name),
   };
