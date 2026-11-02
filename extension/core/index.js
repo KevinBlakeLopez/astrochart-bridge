@@ -49,7 +49,8 @@ const SITES = new Map([
         if (chart.kind === "refused") return chart;
         // astro.com states the offset, daylight saving included, and prints no
         // zone label, so there is nothing to check it against.
-        const { local, offsetMinutes, lat, lng } = chart;
+        // Its name and town are for Astro-Seek's Name and Birth city.
+        const { local, offsetMinutes, lat, lng, name, town } = chart;
         return {
           kind: "natal",
           site: "astro-com",
@@ -60,6 +61,8 @@ const SITES = new Map([
           utc: utcFromOffset(local, offsetMinutes),
           utcSource: "declared",
           offsetMinutes,
+          name,
+          town,
         };
       },
     },
@@ -108,7 +111,8 @@ export function extractorFor(url) {
  * @param {{ url: string, input: object }} page  input is what extractorFor(url) returned in the tab
  * @returns {{ kind: "refused", reason: string }
  *   | { kind: "natal", site: "astro-seek" | "astro-com", local: string, zoneLabel: string | null, lat: number, lng: number }
- *     & (ReturnType<typeof resolveUtc> | { utc: string, utcSource: "declared", offsetMinutes: number })}
+ *     & (ReturnType<typeof resolveUtc> | { utc: string, utcSource: "declared", offsetMinutes: number,
+ *       name: { first: string, last: string } | null, town: string | null })}
  */
 export function analyzePage({ url, input }) {
   const page = classifyUrl(url);

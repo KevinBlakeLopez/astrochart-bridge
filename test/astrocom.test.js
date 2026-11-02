@@ -11,10 +11,13 @@ const TEST_RESULT = {
   field9: "gad",
   lat: 40.716667,
   lng: -74,
+  name: { first: "Test", last: "" },
+  town: "New York",
 };
 
 // The Test record with some fields replaced, by position counting from 1:
-// 4-6 date, 7 time, 8 zone, 9 field 9, 13 longitude, 14 latitude.
+// 1 last name, 2 first name, 4-6 date, 7 time, 8 zone, 9 field 9, 11 town,
+// 13 longitude, 14 latitude.
 const variant = (changes) => {
   const fields = TEST.split(",");
   for (const [position, value] of Object.entries(changes)) fields[position - 1] = value;
@@ -62,6 +65,23 @@ test("standard time is field 9 gas, beside an offset that has no daylight saving
     zone: { kind: "offset", offsetMinutes: -300 },
     field9: "gas",
   });
+});
+
+test("fields 1 and 2 are the last and first names, and field 11 the town", () => {
+  assert.deepEqual(parseNd(variant({ 1: "Example", 2: "Ada", 11: "Ulm" })), {
+    ...TEST_RESULT,
+    name: { first: "Ada", last: "Example" },
+    town: "Ulm",
+  });
+  assert.deepEqual(parseNd(variant({ 1: "Example", 2: "" })).name, { first: "", last: "Example" });
+});
+
+test("an empty or blank name or town is left out, and the chart still reads", () => {
+  assert.deepEqual(parseNd(variant({ 2: " ", 11: "" })), { ...TEST_RESULT, name: null, town: null });
+});
+
+test("a name or town with a % is left out, as an account's records haven't been seen percent-encoded", () => {
+  assert.deepEqual(parseNd(variant({ 11: "New%20York" })), { ...TEST_RESULT, town: null });
 });
 
 test("0°0' west is 0, not -0", () => {
@@ -241,7 +261,14 @@ const linkWithNd = (changes) => linkWith(pgidFor(CHART_URL.replace(`&nd=${TEST}`
 const chartFrom = (links) => readChart({ url: PAGE_URL, links });
 
 test("reads the captured chart as a local time, offset and place", () => {
-  assert.deepEqual(chartFrom([LINK]), { local: "2024-04-17T08:00:00", offsetMinutes: -240, lat: 40.716667, lng: -74 });
+  assert.deepEqual(chartFrom([LINK]), {
+    local: "2024-04-17T08:00:00",
+    offsetMinutes: -240,
+    lat: 40.716667,
+    lng: -74,
+    name: { first: "Test", last: "" },
+    town: "New York",
+  });
 });
 
 test("a drawing link refusal comes back unchanged", () => {
@@ -276,6 +303,31 @@ test("reads a standard-time chart with its offset as written", () => {
     offsetMinutes: -300,
     lat: 40.716667,
     lng: -74,
+    name: { first: "Test", last: "" },
+    town: "New York",
+  });
+});
+
+// The Test chart's drawing link, with its name and town replaced, for the
+// decoding a pgid's bytes go through: base64, the chart URL, its query.
+const linkNamed = (changes, toBytes = (url) => url) =>
+  linkWith(pgidFor(toBytes(CHART_URL.replace(`&nd=${TEST}`, `&nd=${variant(changes)}`))));
+const utf8 = (text) => String.fromCharCode(...new TextEncoder().encode(text));
+
+test("a name and town in UTF-8 inside the drawing link are read whole", () => {
+  const chart = chartFrom([linkNamed({ 1: "Müller", 2: "Zoë", 11: "Zürich" }, utf8)]);
+  assert.deepEqual([chart.name, chart.town], [{ first: "Zoë", last: "Müller" }, "Zürich"]);
+});
+
+test("a name or town in bytes that aren't UTF-8, as Latin-1 would give, is left out, and the chart still opens", () => {
+  const chart = chartFrom([linkNamed({ 2: "Zo\xeb", 11: "Z\xfcrich" })]);
+  assert.deepEqual(chart, {
+    local: "2024-04-17T08:00:00",
+    offsetMinutes: -240,
+    lat: 40.716667,
+    lng: -74,
+    name: null,
+    town: null,
   });
 });
 

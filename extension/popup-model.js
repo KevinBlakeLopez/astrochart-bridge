@@ -151,10 +151,14 @@ export function viewFor(result, { timeZone, town = null } = {}) {
     sky: sky(result.utc),
     buttons: chartButtons([OPEN_SKY_BUTTON]),
   };
-  // An astro.com chart can also open in Astro-Seek. An Astro-Seek page already
-  // shows its chart there, and leads to the values to enter in astro.com instead.
+  // An astro.com chart can also open in Astro-Seek, and be saved there with the
+  // name and town its page's record gives. An Astro-Seek page already shows
+  // its chart there, and leads to the values to enter in astro.com instead.
   if (result.site === "astro-com") {
-    return withAstroSeekSave({ ...ready, notes: [...ready.notes, ...ASTRO_SEEK_NOTES], buttons: chartButtons(ASTRO_SEEK_BUTTONS) });
+    return withAstroSeekSave(
+      { ...ready, notes: [...ready.notes, ...ASTRO_SEEK_NOTES], buttons: chartButtons(ASTRO_SEEK_BUTTONS) },
+      { town: result.town ?? null, name: result.name ?? null },
+    );
   }
   return result.site === "astro-seek" ? { ...ready, next: astroComStep(ready.sky, { town, local }) } : ready;
 }
@@ -193,11 +197,12 @@ export const ASTRO_SEEK_SAVE_LABEL = "Save in Astro-Seek…";
 
 // Shown wherever Save in Astro-Seek… is offered, in place of Open chart in
 // Astro-Seek's note on what it sends. One note for both keeps the popup's
-// astro.com screen under the 600px a popup is shown at: its chart, like
-// every popup screen's, has no name or town, so the note takes one line, as
-// Open chart in Astro-Seek's did. The browser's own prompt says that saving
-// asks for access, and the box under Birth city that Gender and Add person
-// are the person's.
+// astro.com screen under the 600px a popup is shown at. For a chart without a
+// name or town it takes one line, as Open chart in Astro-Seek's did; an
+// astro.com chart's record usually has both, and its two lines bring that
+// screen to 598px at 440px wide, measured 2026-11-02 with main's spacing. The
+// browser's own prompt says that saving asks for access, and the box under
+// Birth city that Gender and Add person are the person's.
 export const ASTRO_SEEK_SAVE_NOTE = "Opening or saving sends this date, time and place to astro-seek.com.";
 export const ASTRO_SEEK_SAVE_NAMED_NOTE =
   "Opening or saving sends this date, time and place to astro-seek.com; saving also sends the chart's name and town, if it has them.";

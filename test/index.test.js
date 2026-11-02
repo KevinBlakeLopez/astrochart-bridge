@@ -69,6 +69,8 @@ test("an astro.com chart opens at the offset astro.com states", () => {
     utc: "2024-04-17T12:00:00Z",
     utcSource: "declared",
     offsetMinutes: -240,
+    name: { first: "Test", last: "" },
+    town: "New York",
   });
 });
 

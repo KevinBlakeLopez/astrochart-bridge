@@ -504,6 +504,7 @@ If AstroChart Bridge already has access to www.astro-seek.com, remove it first, 
 - [ ] Choose Gender `Event`, press **Add person**, and open the saved person in **My private astro DB**: it shows `New York Test`, 17 April 2024, 12:00 in UT/GMT, `New York` in the USA, and 40°43'N, 74°0'W, and its chart has the same Ascendant as the chart **Open chart in Astro-Seek** opens for this file. Delete the person.
 - [ ] From the screenshot page (test 13), **Save in Astro-Seek…** opens the form with Name and Birth city empty, and a grey box under Birth city saying the chart names no town. Type `New York`, choose `New York, USA, New York` from the list yourself, and check the coordinates and time zone are still the chart's, or that the grey note says they're back. Don't press **Add person**.
 - [ ] The popup offers **Save in Astro-Seek…** on an astro.com chart page and after **Import from Stellarium Desktop** (test 17) too, and works as from the screenshot page, except that it closes as the form's tab comes to the front. On the astro.com chart page, the whole screen, down to **Read a different chart**, shows without scrolling.
+- [ ] On an astro.com account chart, if you have one, **Save in Astro-Seek…** opens the form with Name the chart's name and Birth city chosen from its town, as from the AAF file. If the chart's name or town has a letter such as ü or é, note whether it comes through: AstroChart Bridge leaves out one it can't read, and Name or Birth city is then empty, as from the screenshot page. Don't press **Add person**.
 
 ### B: signed out
 
