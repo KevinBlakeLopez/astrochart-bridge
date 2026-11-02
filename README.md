@@ -32,7 +32,7 @@ It opens natal charts, plus horary charts from a screenshot. Transit, synastry, 
 
 There is no server, account or tracking. Charts are read in the browser, and nothing leaves your computer until you click a button that opens a site, which then gets only the chart's moment and place. astro.com's form also gets the chart's town and name, both shown on the screen before it opens, where the name can be changed or cleared. A shared chart travels inside its link or file, which never carries a name.
 
-The extension asks for `activeTab`, `scripting` and `storage`. It asks for two more only when a feature needs them, and the browser asks you first: `127.0.0.1`, to talk to Stellarium Desktop, and `www.astro.com`, to fill in astro.com's form as it opens.
+The extension asks for `activeTab`, `scripting` and `storage`. It asks for three more only when a feature needs them, and the browser asks you first: `127.0.0.1`, to talk to Stellarium Desktop, `www.astro.com`, to fill in astro.com's form as it opens, and `www.astro-seek.com`, to choose the town in Astro-Seek's form when saving a chart there.
 
 [docs/privacy.md](docs/privacy.md) has the details. It's the privacy policy the store listings link to.
 

@@ -1,5 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import { ASTRO_SEEK_ACCESS, chooseFormCity, openAndSave } from "../extension/astro-seek-open.js";
 import {
   astroSeekSaveUrl,
@@ -78,8 +79,10 @@ async function openThenLoad(browser, { url = SAVE_URL, values = VALUES, timeoutM
 const browserWith = (scripting = fakeScripting()) => ({ tabs: fakeTabs(), scripting });
 const funcs = (scripting) => scripting.calls.map(({ func }) => func);
 
-test("AstroChart Bridge would ask only for www.astro-seek.com", () => {
+test("AstroChart Bridge asks only for www.astro-seek.com, which the manifest lists as optional", async () => {
+  const manifest = JSON.parse(await readFile(new URL("../extension/manifest.json", import.meta.url), "utf8"));
   assert.deepEqual(ASTRO_SEEK_ACCESS, { origins: ["https://www.astro-seek.com/*"] });
+  assert.ok(manifest.optional_host_permissions.includes("https://www.astro-seek.com/*"));
 });
 
 test("the save link opens behind the popup, with the chart's name", async () => {

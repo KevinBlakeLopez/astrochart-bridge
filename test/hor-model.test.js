@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { chartFromHor, parseHor } from "../extension/core/morinus-hor.js";
 import { viewForHorChart, viewForHorFile } from "../extension/hor-model.js";
-import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, viewFor, viewForAstroCom } from "../extension/popup-model.js";
+import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, ASTRO_SEEK_SAVE_NOTE, viewFor, viewForAstroCom } from "../extension/popup-model.js";
 
 const LA = { timeZone: "America/Los_Angeles" };
 const file = (key, protocol = 2) => new Uint8Array(readFileSync(new URL(`../fixtures/morinus/${key}.p${protocol}.hor`, import.meta.url)));
@@ -31,8 +31,11 @@ test("a Morinus chart opens like an AAF chart, with its name, birthplace and the
     ["Place", "40°43'N, 74°0'W"],
   ]);
   assert.deepEqual(view.sky, { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 });
-  assert.deepEqual(view.buttons, ASTRO_SEEK_BUTTONS);
-  assert.deepEqual(view.notes, [...plain.notes, ZONE_NOTE, ...ASTRO_SEEK_NOTES]);
+  assert.deepEqual(view.buttons, [
+    ...ASTRO_SEEK_BUTTONS,
+    { label: "Save in Astro-Seek…", saves: { town: "New York", name: "Test" }, secondary: true },
+  ]);
+  assert.deepEqual(view.notes, [...plain.notes, ZONE_NOTE, ...ASTRO_SEEK_NOTES, ASTRO_SEEK_SAVE_NOTE]);
   assert.deepEqual(view.warnings, []);
 });
 

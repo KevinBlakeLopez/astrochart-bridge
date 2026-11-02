@@ -101,7 +101,7 @@ async function recognize(file) {
 function showChart(result) {
   const view = viewForScreenshot(result);
   const onButton = async (button, sky, screen) => {
-    if (button.does !== "share") return openLink(button);
+    if (button.does !== "share") return openLink(button, sky);
     const shared = chartToShare(result, sky, "screenshot");
     if (shared.kind === "refused") {
       render(app, viewForShareRefusal(shared.reason), screen.onButton, screen.view);
@@ -113,5 +113,5 @@ function showChart(result) {
   renderChart(app, view, onButton).catch(() => render(app, view, onButton));
 }
 
-// Links, and the astro.com buttons, as on the paste page.
-const openLink = (button) => openPageLink(app, button);
+// Links, the astro.com buttons and Save in Astro-Seek…, as on the paste page.
+const openLink = (button, sky) => openPageLink(app, button, sky);

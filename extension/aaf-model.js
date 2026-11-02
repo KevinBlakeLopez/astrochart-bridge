@@ -2,7 +2,7 @@
 // written in core/aaf.js; this file turns its results into views that
 // view.js draws, reusing the popup's own screens for a chart.
 import { chartFromRecord, exportRecord, parseAaf, writeAaf } from "./core/aaf.js";
-import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, astroComStep, viewFor } from "./popup-model.js";
+import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, astroComStep, viewFor, withAstroSeekSave } from "./popup-model.js";
 
 // Why chartFromRecord refused a record. Each keeps its code on screen, like
 // the screenshot page's refusals, so a bug report says which check failed.
@@ -89,14 +89,17 @@ export function viewForAafChart(result, options) {
   const view = viewFor(chart, options);
   const rows = view.rows.flatMap((row) => (row[0] === "Place" && chart.place ? [["Birthplace", chart.place], row] : [row]));
   return withAafExport(
-    {
-      ...view,
-      rows: chart.name ? [["Name", chart.name], ...rows] : rows,
-      warnings: warnings.map((code) => WARNINGS[code]?.(chart) ?? code),
-      notes: [...view.notes, ...ASTRO_SEEK_NOTES],
-      buttons: [...ASTRO_SEEK_BUTTONS],
-      ...(view.sky ? { next: astroComStep(view.sky, { local: chart.local, name: aafName(chart.aaf), town: chart.aaf.place }) } : {}),
-    },
+    withAstroSeekSave(
+      {
+        ...view,
+        rows: chart.name ? [["Name", chart.name], ...rows] : rows,
+        warnings: warnings.map((code) => WARNINGS[code]?.(chart) ?? code),
+        notes: [...view.notes, ...ASTRO_SEEK_NOTES],
+        buttons: [...ASTRO_SEEK_BUTTONS],
+        ...(view.sky ? { next: astroComStep(view.sky, { local: chart.local, name: aafName(chart.aaf), town: chart.aaf.place }) } : {}),
+      },
+      { town: chart.aaf.place, name: aafName(chart.aaf) },
+    ),
     result,
   );
 }

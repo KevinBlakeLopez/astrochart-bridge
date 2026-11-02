@@ -486,6 +486,28 @@ Note which buttons each browser shows: the page offers each only where the brows
 - [ ] Choose any `.aaf` file from test 15 again. It still opens as AAF.
 - [ ] If Morinus is installed: save a chart in it, open the `.hor` here, and check the UTC against the one Morinus shows.
 
+## Test 24: saving a chart in Astro-Seek
+
+**Save in Astro-Seek…** opens the Add person form of the Astro-Seek account the browser is signed in to, filled in by its address with the chart's date and time in UT/GMT, its coordinates and its name. With access to www.astro-seek.com, asked for the first time it's clicked, it also types the chart's town into Birth city and chooses the match nearest the chart's coordinates, and sets the coordinates and time zone back should Astro-Seek change them. It never presses Add person. Run part A in a browser profile signed in to an Astro-Seek account, and part B in one that isn't. Use only the invented charts below, and delete each person you save.
+
+If AstroChart Bridge already has access to www.astro-seek.com, remove it first, as in test 17 step 2.
+
+### A: signed in (needs an Astro-Seek account)
+
+- [ ] On the import page (test 15), choose `fixtures/aaf/astrolog-8.00-new-york.aaf`. Under **Take the chart elsewhere**, **Save in Astro-Seek…** comes right after **Open chart in Astro-Seek**, and the last grey note starts "Save in Astro-Seek… opens the Add person form of your Astro-Seek account".
+- [ ] **Save in Astro-Seek…** makes the browser ask whether AstroChart Bridge may read and change www.astro-seek.com. Click **Deny**: the page says "AstroChart Bridge can't choose the town in Astro-Seek's form without access to www.astro-seek.com.", with a grey note about checking the city, coordinates and UT/GMT, and **Open Astro-Seek's form**. That button opens Astro-Seek's Add person form in a new tab with Name `New York Test`, `17` `April` `2024`, `12` h `00` min `00` sec, Birth city empty, Latitude `40`° `43`' North, Longitude `74`° `0`' West, Timezone `Manually: UT/GMT` and DST `Manually: Not-Observed`. Close the tab.
+- [ ] **Save in Astro-Seek…** again, and this time allow it. The page says "Opening Astro-Seek's Add person form…" while a tab opens behind it, then "AstroChart Bridge filled in Astro-Seek's form in its tab. Check Gender there, then press Add person.", and the form's tab comes to the front.
+- [ ] The form is as above, with Birth city `New York, USA, New York`. Under it, a grey box says "AstroChart Bridge: chose "New York, USA, New York (40n43, 74w0)" from Astro-Seek's list, less than 1 km from the chart's coordinates. Check Gender, which Astro-Seek starts at Male, then press Add person." with **Choose another**. The Console is empty.
+- [ ] Note whether the latitude, longitude, Timezone and DST stayed as above when the city was chosen. If a grey note under DST says "Astro-Seek changed the latitude, longitude or time zone, so the chart's are back…", note that too: the values should be the ones above again.
+- [ ] **Choose another** lists Astro-Seek's matches for `New York` again.
+- [ ] Choose Gender `Event`, press **Add person**, and open the saved person in **My private astro DB**: it shows `New York Test`, 17 April 2024, 12:00 in UT/GMT, `New York` in the USA, and 40°43'N, 74°0'W, and its chart has the same Ascendant as the chart **Open chart in Astro-Seek** opens for this file. Delete the person.
+- [ ] From the screenshot page (test 13), **Save in Astro-Seek…** opens the form with Name and Birth city empty, and a grey box under Birth city saying the chart names no town. Type `New York`, choose `New York, USA, New York` from the list yourself, and check the coordinates and time zone are still the chart's, or that the grey note says they're back. Don't press **Add person**.
+- [ ] The popup offers **Save in Astro-Seek…** on an astro.com chart page and after **Import from Stellarium Desktop** (test 17) too, and works as from the screenshot page, except that it closes as the form's tab comes to the front.
+
+### B: signed out
+
+- [ ] In a profile signed out of Astro-Seek, **Save in Astro-Seek…** from the AAF file above. Note what the Astro-Seek tab shows. The page says either "Astro-Seek shows you signed out, and saves a chart only in an account…" or "Astro-Seek didn't show its Add person form. If it asks you to sign in…", with **Go to the Astro-Seek tab**, and nothing is typed into the form.
+
 ## Not covered by hand yet
 
 - **Enter offset**: no real Astro-Seek page has been seen without a Universal Time line, so this screen can't be reached in a browser yet. `test/popup-model.test.js` covers what it shows and its preview.

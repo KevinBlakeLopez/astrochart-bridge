@@ -17,7 +17,7 @@ import {
 import { TOWN_LIMIT_KM } from "./core/towns.js";
 import { tabLoaded } from "./tabs.js";
 
-// The manifest's optional host permission, to be asked for when the save button is clicked.
+// The manifest's optional host permission, asked for when Save in Astro-Seek… is clicked.
 export const ASTRO_SEEK_ACCESS = { origins: ["https://www.astro-seek.com/*"] };
 
 // Astro-Seek's pages wait for their advertising before they count as loaded,

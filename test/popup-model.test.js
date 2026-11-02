@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { analyzePage } from "../extension/core/index.js";
-import { ASTRO_SEEK_NOTES, offersOtherWays, viewFor, viewForAstroCom, offsetPreview } from "../extension/popup-model.js";
+import { ASTRO_SEEK_NOTES, ASTRO_SEEK_SAVE_NOTE, offersOtherWays, viewFor, viewForAstroCom, offsetPreview } from "../extension/popup-model.js";
 
 const fixture = (name) =>
   JSON.parse(readFileSync(new URL(`../fixtures/astroseek/${name}.json`, import.meta.url), "utf8"));
@@ -68,12 +68,14 @@ test("ready: an astro.com chart shows its stated offset and no zone label, and c
       `Stellarium Web's clock will show 05:00 on 17 Apr, your computer's time. That's 08:00 on 17 Apr at the birthplace. ${RUNNING}`,
       PRIVACY_NOTE,
       ...ASTRO_SEEK_NOTES,
+      ASTRO_SEEK_SAVE_NOTE,
     ],
     sky: { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 },
     // view.js opens stellariumUrl or astroSeekUrl of this sky, so Astro-Seek gets 12:00 UT.
     buttons: [
       { label: "Open Stellarium Web", opens: "stellarium" },
       { label: "Open chart in Astro-Seek", opens: "astro-seek" },
+      { label: "Save in Astro-Seek…", saves: { town: null, name: null }, secondary: true },
       SHARE,
     ],
   });
