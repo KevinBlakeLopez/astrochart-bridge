@@ -9,6 +9,7 @@ import {
   ASTRO_SEEK_SAVE_NAMED_NOTE,
   ASTRO_SEEK_SAVE_NOTE,
   actionGroups,
+  viewFor,
   viewForAstroSeekSave,
   withAstroSeekSave,
 } from "../extension/popup-model.js";
@@ -68,6 +69,26 @@ test("it goes under Take the chart elsewhere, with Open chart in Astro-Seek", ()
     ["See the sky", "Open Stellarium Web"],
     ["Take the chart elsewhere", "Open chart in Astro-Seek", "Save in Astro-Seek…", "Share…"],
   ]);
+});
+
+test("an astro.com chart is saved with the name and town its record gives", () => {
+  const result = {
+    kind: "natal",
+    site: "astro-com",
+    local: "2024-04-17T08:00:00",
+    zoneLabel: null,
+    ...NY,
+    utcSource: "declared",
+    offsetMinutes: -240,
+    name: { first: "Test", last: "" },
+    town: "New York",
+  };
+  const view = viewFor(result, { timeZone: "America/Los_Angeles" });
+  assert.deepEqual(view.buttons.find(({ saves }) => saves).saves, { town: "New York", name: "Test" });
+  assert.equal(view.notes.at(-1), ASTRO_SEEK_SAVE_NAMED_NOTE);
+  const unnamed = viewFor({ ...result, name: null, town: null }, { timeZone: "America/Los_Angeles" });
+  assert.deepEqual(unnamed.buttons.find(({ saves }) => saves).saves, { town: null, name: null });
+  assert.equal(unnamed.notes.at(-1), ASTRO_SEEK_SAVE_NOTE);
 });
 
 test("the shared chart page, which is also a website, doesn't offer it", () => {

@@ -66,7 +66,8 @@ function only(params, key) {
  * drawing link, limited to what AstroChart Bridge can open today.
  *
  * @param {{ url: string, links: string[] }} page  as for readPgid
- * @returns {{ local: string, offsetMinutes: number, lat: number, lng: number }
+ * @returns {{ local: string, offsetMinutes: number, lat: number, lng: number,
+ *     name: { first: string, last: string } | null, town: string | null }
  *   | { kind: "refused", reason: "unsupported" | "no-drawing-link" | "ambiguous-page" | "unreadable-link"
  *       | "page-url-mismatch" | "unreadable-record" | "calendar-unsupported" | "local-mean-time" | "unseen-field-9" }}
  */
@@ -86,8 +87,8 @@ export function readChart({ url, links }) {
   // mean another calendar, which would shift the sky.
   if (!OFFSET_FIELD_9.has(chart.field9)) return refused("unseen-field-9");
 
-  const { local, lat, lng } = chart;
-  return { local, offsetMinutes: chart.zone.offsetMinutes, lat, lng };
+  const { local, lat, lng, name, town } = chart;
+  return { local, offsetMinutes: chart.zone.offsetMinutes, lat, lng, name, town };
 }
 
 // An account chart's page draws the birth data into the chart image, but its
@@ -174,9 +175,12 @@ function agrees(page, chart) {
 
 // astro.com keeps a chart's birth data in an nd= record: comma-separated
 // fields such as ",Test,e,17,4,2024,8:00,h4w,gad,0,New York,NY (US),74w00,40n43,f,45,-24500,61".
-// Only the date, time, zone, field 9 and coordinates are read; names, place
-// and the unexplained atlas numbers are skipped. Every form accepted here has
-// been seen in a captured record, and anything else is refused, not guessed.
+// The date, time, zone, field 9 and coordinates are read, and every form
+// accepted for them has been seen in a captured record: anything else is
+// refused, not guessed. The names and place are read too, for Astro-Seek's
+// Name and Birth city, but a chart opens without them, so one that can't be
+// read cleanly is left out instead (nameField). The unexplained atlas
+// numbers are skipped.
 
 // Every record seen has 18 fields. A comma inside a name or place would shift
 // every field after it, so any other count is refused.
@@ -210,12 +214,14 @@ const ANGLE = /^(\d{1,3})([nsew])(\d{1,2}|\d{4})$/;
  *   field9: "gad" | "gas" | "gal",
  *   lat: number,
  *   lng: number,
+ *   name: { first: string, last: string } | null,
+ *   town: string | null,
  * } | null}
  */
 export function parseNd(record) {
   const fields = record.split(",");
   if (fields.length !== FIELD_COUNT) return null;
-  const [, , , day, month, year, time, zoneCode, field9, , , , lngCode, latCode] = fields;
+  const [lastText, firstText, , day, month, year, time, zoneCode, field9, , townText, , lngCode, latCode] = fields;
 
   const date = parseDate(day, month, year);
   const clock = parseTime(time);
@@ -224,13 +230,38 @@ export function parseNd(record) {
   const lng = parseAngle(lngCode, "e", "w", 180);
   if (!date || !clock || !zone || !FIELD_9.has(field9) || lat === null || lng === null) return null;
 
+  // Fields 1 and 2 are the last and first names, as on the Databank's records;
+  // an account chart with one name, such as "Test", has only field 2.
+  const [first, last] = [nameField(firstText), nameField(lastText)];
   return {
     local: `${isoDate(date)}T${pad(clock.hour)}:${pad(clock.minute)}:${pad(clock.second)}`,
     zone,
     field9,
     lat,
     lng,
+    name: first === null && last === null ? null : { first: first ?? "", last: last ?? "" },
+    town: nameField(townText),
   };
+}
+
+// A name or place from an nd= record, or null when it's empty or can't be read
+// cleanly. Every one seen is plain ASCII. Inside a pgid, the record comes one
+// character per byte (unwrapPgid), so a name in UTF-8 is decoded from its
+// bytes; whether astro.com writes UTF-8 or Latin-1 hasn't been seen, and bytes
+// that aren't UTF-8 are left out rather than guessed at. So is a "%", as the
+// Databank's records are percent-encoded and an account's haven't been seen
+// to be.
+function nameField(text) {
+  if (text.includes("%")) return null;
+  const bytes = Uint8Array.from(text, (char) => char.charCodeAt(0));
+  if (bytes.some((byte, i) => byte !== text.charCodeAt(i))) return null;
+  let decoded;
+  try {
+    decoded = new TextDecoder("utf-8", { fatal: true }).decode(bytes).trim();
+  } catch {
+    return null;
+  }
+  return decoded === "" ? null : decoded;
 }
 
 function parseDate(day, month, year) {

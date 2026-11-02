@@ -68,6 +68,14 @@ Stallone,Sylvester,m,6,7,1946,19:20,h4w,gad,0,New%20York,NY%20(US),74w0,40n43,u,
 
 Place names contain no commas in any sample, but a reader should split the record on commas before percent-decoding.
 
+### Names and place, as AstroChart Bridge reads them
+
+The reader takes fields 1, 2 and 11 as an account chart's last name, first name and town, for Astro-Seek's Name and Birth city. Unlike the date, time, zone and coordinates, a chart opens without them, so any of the three it can't read cleanly is left out rather than refusing the chart: empty or blank, containing a `%`, or not valid UTF-8. Not yet seen:
+
+- **An account chart with both names.** "Test" has only field 2. That field 1 holds the last name rests on the Databank records above.
+- **A non-ASCII name or place.** Inside a `pgid`, the record arrives one character per byte, since `atob` decodes the base64. The reader decodes those bytes as UTF-8. If astro.com writes Latin-1 instead, a name like "Zürich" isn't valid UTF-8 and is left out, and the person types the town.
+- **A percent-encoded account record.** Only the Databank's `wgid` records are percent-encoded. A `%` in an account record's name or place is left out rather than decoded.
+
 ### Zone codes
 
 - **`h4w`:** whole hours west of Universal Time, with daylight saving already applied. **Verified** on "Test": 8:00 local at UTC−04:00 gives 12:00, the Univ.Time printed in its image. The Databank pages for Trump and Stallone print it as `EDT h4w (is daylight saving time)`.
@@ -189,5 +197,6 @@ AstroChart Bridge chooses the chart's town among the matches by the chart's coor
 - Do subscribers see it?
 - How are half-hour zones written in `nd=`? The form writes them like `h3w30`; no `nd=` record with one has been seen.
 - What do fields 9, 10, 15 to 18, `WG` and `secc` mean?
+- Does an account chart with a first and last name write them as fields 2 and 1, as the Databank does? In what encoding does astro.com write a non-ASCII name or place, UTF-8 or Latin-1? An invented chart such as Zoë Example, born in Zürich, would answer both.
 - Does a chart saved with a skipped or repeated local time keep the zone the form showed? The form assumes the clock before a skip, picks daylight time for a repeated hour, and warns about both (above).
 - What fields does the edit page (`ade.cgi`) show?
