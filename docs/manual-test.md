@@ -177,11 +177,14 @@ Open this Stellarium Web link (New York, 17 April 2024, 12:00 UTC) and pause its
 https://stellarium-web.org/?date=2024-04-17T12%3A00%3A00Z&lat=40.716667&lng=-74
 ```
 
-- [ ] The popup shows Stellarium time matching Stellarium's own clock (05:00 on 17 Apr 2024 on a Mac set to Pacific time), UTC `2024-04-17 12:00` and Place `40°43'N, 74°0'W`, two grey notes, the second "Opening or saving sends this date, time and place to astro-seek.com.", and **Open chart in Astro-Seek** with **Save in Astro-Seek…** under it.
+- [ ] The popup shows Stellarium time matching Stellarium's own clock (05:00 on 17 Apr 2024 on a Mac set to Pacific time), UTC `2024-04-17 12:00` and Place `40°43'N, 74°0'W`, two grey notes, the second "Opening or saving sends this date, time and place to astro-seek.com; saving also sends the chart's name and town, if it has them.", and **Open chart in Astro-Seek** with **Save in Astro-Seek…** under it.
+- [ ] **Enter in astro.com…** shows a note that AstroChart Bridge fills in the town New York, the name Stellarium Web gives this place in its location button.
 - [ ] **Open chart in Astro-Seek** opens an Astro-Seek birth chart whose header shows `17 Apr 2024 - 12:00  (Manually: GMT+00:00)`, Universal Time `17 Apr 2024 - 12:00` and `40°43'N, 74°0'W`.
 - [ ] Click the AstroChart Bridge icon on that Astro-Seek chart. The popup has an orange warning that it can't check the zone label "Manually: GMT+00:00", and the whole screen, down to **Read a different chart**, shows without scrolling.
 - [ ] On that Astro-Seek chart, the popup shows UTC `2024-04-17 12:00` and the same place, so the round trip comes back to the same sky.
 - [ ] Back on the Stellarium tab, change the time (for example the hour arrow in the time panel) and reopen the popup. It shows the new time, not the time in the address bar.
+- [ ] On the Stellarium tab, open the location button, search for `Munich` and choose it, then reopen the popup. It shows Munich's coordinates, and **Enter in astro.com…** fills in the town Munich.
+- [ ] Open `https://stellarium-web.org/?date=2024-04-17T12%3A00%3A00Z&lat=30&lng=-40`, in the open Atlantic, where Stellarium Web's location button shows coordinates instead of a name. **Enter in astro.com…** asks you to choose the town nearest this place, and the second grey note is "Opening or saving sends this date, time and place to astro-seek.com."
 
 ## Test 13: a screenshot
 
