@@ -112,7 +112,7 @@ A link over 2,048 characters, or a file or JSON text over 16,384 bytes or charac
 | Scan a QR code off a monitor | — | — | — | — | ⬜ 21 | ⬜ 21 | ⬜ 21 | ⬜ 21 |
 | Share link…, Share file… | — (no `navigator.share`; stubbed calls ✅) | ⬜ 22 B | ⬜ 22 B, expected absent on desktop | ⬜ 22 B | ⬜ 22 B | ⬜ 22 B | ⬜ 22 B | ⬜ 22 B |
 | Share… in the extension | — | ⬜ 20 | ⬜ 20 | ⬜ not covered yet | — | ⬜ not covered yet (test 18 runs the extension on iPad) | — | — |
-| Open a chart file from the popup | — | ⬜ 22 A | ⬜ 22 A | ⬜ not covered yet | — | ⬜ not covered yet | — | — |
+| Open an AstroChart Bridge file from the popup | — | ⬜ 22 A | ⬜ 22 A | ⬜ not covered yet | — | ⬜ not covered yet | — | — |
 
 The share buttons appear only where the browser says it can share that thing, so a browser without a share sheet, or one that refuses JSON files, shows Copy link and Download file instead. No cell is ✅ for a physical device: none has been used yet.
 
@@ -149,7 +149,7 @@ The popup's, screenshot page's and paste page's own scripts, the extension's Sha
 ## Remaining limitations
 
 - No physical phone, tablet, camera, share sheet or AirDrop has been used. Manual tests 19 B, 21 and 22 cover them.
-- The extension's Share… flow and the popup's Open a chart file haven't run in a browser: the browser pane can't load the extension. Manual tests 20 and 22 A cover them in Chrome and Firefox; no manual test covers them in Safari yet.
+- The extension's Share… flow and the popup's Open an AstroChart Bridge file haven't run in a browser: the browser pane can't load the extension. Manual tests 20 and 22 A cover them in Chrome and Firefox; no manual test covers them in Safari yet.
 - Until the page is deployed, links copied in the extension open a 404.
 - Whether a browser's History list keeps a link's `#v1=…` address is unknown.
 - The page can be framed by another site (see Security and privacy).

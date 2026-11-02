@@ -54,6 +54,25 @@ export function offersOtherWays(result) {
   return !NOT_A_BIRTH_CHART.has(result.reason);
 }
 
+// The other ways in, in labelled groups as a chart screen's actions are. Each
+// button opens one of the extension's pages in a tab, or names what it does.
+// The buttons keep their verbs, so each says what it does without its label.
+export const OTHER_WAYS = [
+  {
+    label: "Read a chart you have",
+    buttons: [
+      { label: "Read a screenshot", page: "screenshot.html" },
+      { label: "Paste chart text", page: "paste.html" },
+      { label: "Open an AAF or Morinus file", page: "import.html" },
+      { label: "Open an AstroChart Bridge file", page: "chart.html" },
+    ],
+  },
+  {
+    label: "Or use the sky in Stellarium Desktop",
+    buttons: [{ label: "Import from Stellarium Desktop", does: "import-from-desktop" }],
+  },
+];
+
 const WARNINGS = {
   "zone-label-unknown": ({ zoneLabel }) =>
     zoneLabel === null

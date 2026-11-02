@@ -13,6 +13,7 @@ import { checkDesktop, renderChart } from "./desktop-page.js";
 import { heldForTab, holdForTab, releaseTab } from "./pending.js";
 import {
   ASTRO_COM_BUSY,
+  OTHER_WAYS,
   chartToShare,
   offersOtherWays,
   viewFor,
@@ -23,7 +24,7 @@ import {
   viewForSky,
 } from "./popup-model.js";
 import { HOST_PERMISSION, readSky } from "./stellarium-desktop.js";
-import { desktopHintLine, render } from "./view.js";
+import { desktopHintLine, groupLabel, render } from "./view.js";
 
 const app = document.getElementById("app");
 
@@ -174,24 +175,28 @@ async function showTab(tab) {
 }
 
 // A page AstroChart Bridge doesn't read can still lead to a chart: a screenshot,
-// pasted text, an AAF or Morinus file, a .astrochart.json file, or Stellarium Desktop.
+// pasted text, an AAF or Morinus file, a .astrochart.json file, or Stellarium
+// Desktop, in popup-model.js's OTHER_WAYS groups.
 function show(view, { offerScreenshot = false, onButton = openLink } = {}) {
   render(app, view, onButton);
-  if (offerScreenshot) {
-    const fromDesktop = document.createElement("button");
-    fromDesktop.className = "secondary";
-    fromDesktop.textContent = "Import from Stellarium Desktop";
-    fromDesktop.addEventListener("click", importFromDesktop);
-    app.append(
-      pageButton("Read a screenshot instead", "screenshot.html"),
-      pageButton("Paste chart text instead", "paste.html"),
-      pageButton("Open an AAF or Morinus file", "import.html"),
-      pageButton("Open a chart file", "chart.html"),
-      fromDesktop,
-      desktopHintLine(),
-    );
-  }
+  if (offerScreenshot) app.append(...otherWays());
   checkDesktop(app.querySelector(".desktop-hint")).catch(() => {});
+}
+
+// Each OTHER_WAYS group under its label. Import from Stellarium Desktop has
+// the line about Stellarium under it, as Send to Stellarium Desktop does.
+function otherWays() {
+  return OTHER_WAYS.flatMap(({ label, buttons }) => [
+    groupLabel(label),
+    ...buttons.flatMap(({ label, page, does }) => {
+      if (page) return [pageButton(label, page)];
+      const button = document.createElement("button");
+      button.className = "secondary";
+      button.textContent = label;
+      if (does === "import-from-desktop") button.addEventListener("click", importFromDesktop);
+      return [button, desktopHintLine()];
+    }),
+  ]);
 }
 
 // A chart screen, with Send to Stellarium Desktop from desktop-page.js. The

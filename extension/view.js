@@ -121,8 +121,8 @@ function heading(text) {
   return element;
 }
 
-// The label over one of actionGroups' groups.
-function groupLabel(text) {
+// The label over one of actionGroups' groups, or of the popup's other ways in.
+export function groupLabel(text) {
   const element = document.createElement("h2");
   element.className = "group";
   element.textContent = text;

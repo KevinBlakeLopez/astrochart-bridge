@@ -57,7 +57,7 @@ Until you've allowed the connection, the popup doesn't check and shows no line: 
 
 ## Importing from Stellarium
 
-On a page that isn't a chart, the popup offers **Import from Stellarium Desktop**. It reads the moment and place Stellarium is showing and offers **Open chart in Astro-Seek**, **Open Stellarium Web** and **Enter in astro.com…**.
+On a page that isn't a chart, the popup offers **Import from Stellarium Desktop**. It reads the moment and place Stellarium is showing and offers **Open chart in Astro-Seek** and **Enter in astro.com…**, then **Open Stellarium Web**.
 
 - Pause Stellarium's clock first. A running clock gives the moment AstroChart Bridge read it, and Stellarium doesn't move its clock while its window isn't being drawn, so that moment can lag behind.
 - The time is read to the second, in UTC. Stellarium's place name and time zone aren't used: every destination takes UTC and coordinates.

@@ -6,7 +6,7 @@ The text is read on your computer. Nothing is sent anywhere until you click **Op
 
 ## How to
 
-1. Click the AstroChart Bridge icon on any page that isn't a chart, then **Paste chart text instead**. An AstroChart Bridge tab opens.
+1. Click the AstroChart Bridge icon on any page that isn't a chart, then **Paste chart text**. An AstroChart Bridge tab opens.
 2. Click the big box and paste with **⌘V** (Mac) or **Ctrl+V**. The form appears at once.
 
    Or click **Paste from clipboard**. Your browser may ask whether AstroChart Bridge can read the clipboard, or refuse; if it does, paste into the box instead. AstroChart Bridge never reads the clipboard without that click.

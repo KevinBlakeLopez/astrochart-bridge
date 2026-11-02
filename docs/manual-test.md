@@ -132,7 +132,7 @@ https://horoscopes.astro-seek.com/calculate-asteroids/?narozeni_den=17&narozeni_
 
 Go to `https://example.com`.
 
-- [ ] The popup shows "Open an Astro-Seek or astro.com birth chart to use AstroChart Bridge." and five buttons, **Read a screenshot instead**, **Paste chart text instead**, **Open an AAF or Morinus file**, **Open a chart file** and **Import from Stellarium Desktop**, and the Console has no errors. Until AstroChart Bridge has been allowed to connect to `127.0.0.1` (test 17), nothing connects there and no grey line follows the last button.
+- [ ] The popup shows "Open an Astro-Seek or astro.com birth chart to use AstroChart Bridge." and five buttons in two groups: under "Read a chart you have", **Read a screenshot**, **Paste chart text**, **Open an AAF or Morinus file** and **Open an AstroChart Bridge file**; under "Or use the sky in Stellarium Desktop", **Import from Stellarium Desktop**. The Console has no errors. Until AstroChart Bridge has been allowed to connect to `127.0.0.1` (test 17), nothing connects there and no grey line follows the last button.
 - [ ] Go to `https://www.astro.com/astro-databank/Stallone,_Sylvester`. The popup shows "Astro-Databank charts aren't supported yet…" and the same five buttons. A transit or compatibility page (tests 5 and 6) still shows none.
 - [ ] AstroChart Bridge's toolbar button shows its icon, a gold star above a blue arch, and AstroChart Bridge's card on the browser's extensions page shows it too.
 
@@ -186,7 +186,7 @@ https://stellarium-web.org/?date=2024-04-17T12%3A00%3A00Z&lat=40.716667&lng=-74
 The screenshot page reads the image on this computer with the Tesseract.js files in `extension/vendor/tesseract/`. These steps check what only the installed extension can show: its script policy allows the WebAssembly, and nothing is fetched from the web.
 
 1. Open the test 1 URL. Press **Cmd+Ctrl+Shift+4** and drag over everything from **Date of Birth** down into the chart. This copies the screenshot instead of saving a file.
-2. Open a tab on another website, click the AstroChart Bridge icon, then **Read a screenshot instead**. An AstroChart Bridge tab opens and the popup closes.
+2. Open a tab on another website, click the AstroChart Bridge icon, then **Read a screenshot**. An AstroChart Bridge tab opens and the popup closes.
 3. In that tab, open DevTools (**Cmd+Option+I**) on the **Network** tab, then reload the page.
 4. Press **Cmd+V**.
 
@@ -261,7 +261,7 @@ Open the test 1 URL and open the popup.
 
 ### Opening
 
-- [ ] On the test 8 popup (another website), below **Paste chart text instead**, is **Open an AAF or Morinus file**. It opens the import page in a new tab and closes the popup.
+- [ ] On the test 8 popup (another website), below **Paste chart text**, is **Open an AAF or Morinus file**. It opens the import page in a new tab and closes the popup.
 - [ ] Choose `fixtures/aaf/astrolog-8.00-new-york.aaf`. The page says "1 chart in this file." and shows Name `New York Test`, Local time `17 Apr 2024, 08:00`, Offset `UTC-04:00`, UTC `2024-04-17 12:00`, Birthplace `New York, NY (US)` and Place `40°43'N, 74°0'W`. The Console is empty.
 - [ ] **Open Stellarium Web** opens Stellarium Web with `date=2024-04-17T12%3A00%3A00Z&lat=40.716667&lng=-74` in the address. **Open chart in Astro-Seek** opens the same chart at 12:00 UT, as in test 12.
 - [ ] **Enter in astro.com…** shows the test 14 screen with First name `New York Test` and Last name empty, since Astrolog leaves the last name unknown. **Open astro.com's form** asks for access as in test 14, opens the form in a tab behind the page, and says something needs your choice first, as the screenshot page does in test 14. On that tab, the popup's rows include First name `New York Test`, and **Fill in anyway** fills in the form's first name.
@@ -282,7 +282,7 @@ Open the test 1 URL and open the popup.
 
 The paste page reads text with no help from the web. These steps check what only the installed extension can show: the page loads under the extension's script policy, the clipboard button behaves in each browser, and nothing is fetched. `test/paste-model.test.js`, `test/paste-programs.test.js` and `test/text.test.js` cover what the form shows for each kind of text. The sample uses test 1's invented New York data.
 
-1. Go to `https://example.com`, click the AstroChart Bridge icon, then **Paste chart text instead**. An AstroChart Bridge tab opens and the popup closes.
+1. Go to `https://example.com`, click the AstroChart Bridge icon, then **Paste chart text**. An AstroChart Bridge tab opens and the popup closes.
 2. In that tab, open DevTools (**Cmd+Option+I**) on the **Network** tab, then reload the page.
 3. Copy this text, click the big box and press **Cmd+V**:
 
@@ -354,7 +354,7 @@ Needs Stellarium 25.1 or later with its Remote Control server on: the setup step
 - [ ] Open the popup on test 3 again. Within a second, a grey line under **Send to Stellarium Desktop** says "Stellarium Desktop is open and ready." Stellarium's time and place don't change.
 - [ ] In Stellarium, untick **Server enabled** in Remote Control's settings. Open the popup on test 2 (Sydney): the grey line says "Stellarium Desktop isn't reachable right now. The button shows how to set it up." Click **Send to Stellarium Desktop**. Without asking again, the popup says "Stellarium Desktop isn't reachable", with six numbered steps, a grey note about other devices on the network, **Try again** and **Cancel**. **Cancel** shows the Sydney chart again.
 - [ ] Tick **Server enabled** again and click **Try again** on that screen. Stellarium shows 21:00 UTC on 14 January 2024 at 33°52'S, 151°12'E.
-- [ ] Go to `https://example.com` and click the AstroChart Bridge icon. **Import from Stellarium Desktop** is the last button, with "Stellarium Desktop is open and ready." under it. It shows "From Stellarium Desktop" with UTC `2024-01-14 21:00` and Place `33°52'S, 151°12'E`, then **Open chart in Astro-Seek**, **Open Stellarium Web** and **Enter in astro.com…**.
+- [ ] Go to `https://example.com` and click the AstroChart Bridge icon. **Import from Stellarium Desktop** is the last button, with "Stellarium Desktop is open and ready." under it. It shows "From Stellarium Desktop" with UTC `2024-01-14 21:00` and Place `33°52'S, 151°12'E`, then **Open chart in Astro-Seek** and **Enter in astro.com…** under "Take the chart elsewhere", and **Open Stellarium Web** under "See the sky".
 - [ ] **Open Stellarium Web** opens a Stellarium Web tab whose address contains `date=2024-01-14T21%3A00%3A00Z&lat=-33.86667&lng=151.2`.
 - [ ] In Stellarium's Remote Control settings, tick **Access requires authentication**, type any password, click **Save settings**, then untick and tick **Server enabled**. **Import from Stellarium Desktop** says "Stellarium asks for a password", and the browser doesn't show its own password box. Untick it again the same way.
 - [ ] The Console stays empty throughout.
@@ -408,14 +408,14 @@ http://127.0.0.1:8778/chart.html#v1=eyJmb3JtYXQiOiJjaGFydC1icmlkZ2UiLCJ2ZXJzaW9u
 
 ### A: desktop
 
-- [ ] The page shows Local time `17 Apr 2024, 08:00 (EDT, DST)`, Offset `UTC-04:00`, UTC `2024-04-17 12:00`, Place `40°43'N, 74°0'W` and From `Astro-Seek page`, four grey notes, **Open Stellarium Web**, **Open chart in Astro-Seek**, **Copy link**, **Show QR code**, **Download file** and **Open a chart file**. In a browser with a share sheet (test 22), **Share link…** and possibly **Share file…** are there too. There is no **Enter in astro.com…** or **Share…**.
+- [ ] The page shows Local time `17 Apr 2024, 08:00 (EDT, DST)`, Offset `UTC-04:00`, UTC `2024-04-17 12:00`, Place `40°43'N, 74°0'W` and From `Astro-Seek page`, four grey notes, **Open Stellarium Web**, **Open chart in Astro-Seek**, **Copy link**, **Show QR code**, **Download file** and **Open an AstroChart Bridge file**. In a browser with a share sheet (test 22), **Share link…** and possibly **Share file…** are there too. There is no **Enter in astro.com…** or **Share…**.
 - [ ] The address bar shows `chart.html` with nothing after it, and **Back** doesn't bring the `#v1=…` part back.
 - [ ] Nothing opens by itself. **Open Stellarium Web** opens the same Stellarium address as test 1; **Open chart in Astro-Seek** opens a chart for 17 April 2024 12:00 UT at 40°43'N, 74°0'W.
 - [ ] **Copy link** says "Link copied.", and pasting gives exactly the link above. If the browser refuses, the link appears selected in a field below the message instead.
 - [ ] **Download file** saves `chart-2024-04-17.astrochart.json`. Opened in a text editor, it shows the chart's fields indented, with `"utcOffsetSeconds": -14400`.
 - [ ] Open the browser's History list. Note whether it shows the address with `#v1=…`: the page removes it from the tab's address and its Back entry, but whether a browser's History list keeps the original address hasn't been checked in any browser.
 - [ ] Delete the last ten characters of the link and open it: the page says the link is incomplete or damaged, shows `Code: malformed`, and has no buttons.
-- [ ] Open `http://127.0.0.1:8778/chart.html` with nothing after it: the page asks for an AstroChart Bridge link or chart file, and its only button is a blue **Open a chart file**.
+- [ ] Open `http://127.0.0.1:8778/chart.html` with nothing after it: the page asks for an AstroChart Bridge link or chart file, and its only button is a blue **Open an AstroChart Bridge file**.
 - [ ] The Console stays empty throughout.
 
 ### B: phones and tablets (needs the devices)
@@ -456,10 +456,10 @@ Use the file **Download file** saved in test 19, `chart-2024-04-17.astrochart.js
 
 ### A: opening a file
 
-- [ ] On the test 19 page, **Open a chart file** and choose the file: the page shows the test 19 rows, "Opened chart-2024-04-17.astrochart.json." under the buttons, and the address has nothing after `chart.html`.
+- [ ] On the test 19 page, **Open an AstroChart Bridge file** and choose the file: the page shows the test 19 rows, "Opened chart-2024-04-17.astrochart.json." under the buttons, and the address has nothing after `chart.html`.
 - [ ] Drag the file from Finder onto the page: the same. The browser doesn't leave the page to show the file.
-- [ ] Choose any other file, such as a photo: the page says it isn't an AstroChart Bridge chart, with its code, and **Open a chart file** is still there.
-- [ ] In the popup on a page AstroChart Bridge doesn't read (test 8), **Open a chart file** opens the extension's page in a tab, where choosing the file shows the chart. Chrome and Firefox.
+- [ ] Choose any other file, such as a photo: the page says it isn't an AstroChart Bridge chart, with its code, and **Open an AstroChart Bridge file** is still there.
+- [ ] In the popup on a page AstroChart Bridge doesn't read (test 8), **Open an AstroChart Bridge file** opens the extension's page in a tab, where choosing the file shows the chart. Chrome and Firefox.
 - [ ] On an iPhone and an iPad, send the file to the device (AirDrop or Files), open the test 19 page there (test 19 B), and choose the file from Files. On Android, from Downloads. Each shows the chart.
 
 ### B: the share sheet
