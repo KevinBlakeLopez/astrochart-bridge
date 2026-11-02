@@ -34,10 +34,12 @@ test("a screenshot opens the sky or the Astro-Seek chart, or shares it", () => {
   ]);
 });
 
-// The button's link is astroSeekUrl of the view's sky (view.js maps "astro-seek" to it).
+// Each button's link is astroSeekUrl of its view's sky (view.js maps "astro-seek" to it).
 test("the screenshot's Astro-Seek chart is the one a Stellarium tab at that sky opens", () => {
   const { sky } = viewForScreenshot(NY, LA);
-  assert.equal(astroSeekUrl(sky), viewForSky(sky, LA).url);
+  const tab = viewForSky(sky, LA);
+  assert.deepEqual(tab.sky, sky);
+  assert.ok(tab.buttons.some(({ opens }) => opens === "astro-seek"));
   const sent = Object.fromEntries(new URL(astroSeekUrl(sky)).searchParams);
   assert.deepEqual(
     [sent.narozeni_den, sent.narozeni_mesic, sent.narozeni_rok, sent.narozeni_hodina, sent.narozeni_minuta],

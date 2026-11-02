@@ -57,7 +57,7 @@ test("with Stellarium Desktop the default, it leads See the sky, and the line ab
 
 test("a Stellarium Web tab's main button opens Astro-Seek, so Take the chart elsewhere comes first", () => {
   assert.deepEqual(groupsOf(withDesktopSend(withAafExport(viewForSky(NY, LA), NY))), [
-    [ELSEWHERE, "url", "download", "next"],
+    [ELSEWHERE, "Open chart in Astro-Seek", "Save in Astro-Seek…", "download", "next"],
     [SKY, "desktop"],
   ]);
 });
