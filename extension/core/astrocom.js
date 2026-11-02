@@ -69,9 +69,11 @@ export function readChart({ url, links }) {
   // Checked before field 9, which reads "gal" beside every local-mean-time
   // zone seen, so these charts get the reason that explains them.
   if (chart.zone.kind === "local-mean-time") return refused("local-mean-time");
-  // Field 9 is unexplained. Only "gad" has been seen beside an offset zone;
-  // "gal" there could mean another calendar, which would shift the sky.
-  if (chart.field9 !== "gad") return refused("unseen-field-9");
+  // Field 9 is unexplained. Only "gad" (daylight saving) and "gas" (standard
+  // time) have been seen beside an offset zone, and the offset already
+  // includes daylight saving, so both are read the same. "gal" there could
+  // mean another calendar, which would shift the sky.
+  if (!OFFSET_FIELD_9.has(chart.field9)) return refused("unseen-field-9");
 
   const { local, lat, lng } = chart;
   return { local, offsetMinutes: chart.zone.offsetMinutes, lat, lng };
@@ -169,10 +171,11 @@ function agrees(page, chart) {
 // every field after it, so any other count is refused.
 const FIELD_COUNT = 18;
 
-// Only ever seen as "gad", beside every h zone, or "gal", beside every
-// local-mean-time zone. Its meaning is unknown, so it is passed on for the
-// caller to judge rather than read.
-const FIELD_9 = new Set(["gad", "gal"]);
+// Only ever seen as "gad" or "gas", beside h zones in daylight saving and
+// standard time, or "gal", beside every local-mean-time zone. Its meaning is
+// unknown, so it is passed on for the caller to judge rather than read.
+const FIELD_9 = new Set(["gad", "gas", "gal"]);
+const OFFSET_FIELD_9 = new Set(["gad", "gas"]);
 
 // "8:00", "7:30:03"
 const TIME = /^(\d{1,2}):(\d{2})(?::(\d{2}))?$/;
@@ -193,7 +196,7 @@ const ANGLE = /^(\d{1,3})([nsew])(\d{1,2}|\d{4})$/;
  * @returns {{
  *   local: string,
  *   zone: { kind: "offset", offsetMinutes: number } | { kind: "local-mean-time", meridian: number },
- *   field9: "gad" | "gal",
+ *   field9: "gad" | "gas" | "gal",
  *   lat: number,
  *   lng: number,
  * } | null}

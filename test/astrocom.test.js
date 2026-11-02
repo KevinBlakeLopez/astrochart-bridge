@@ -55,6 +55,15 @@ test("a local-mean-time zone is returned with its meridian", () => {
   assert.deepEqual(parseNd(variant({ 8: "m0w10", 9: "gal" })).zone, { kind: "local-mean-time", meridian: -0.166667 });
 });
 
+test("standard time is field 9 gas, beside an offset that has no daylight saving", () => {
+  assert.deepEqual(parseNd(variant({ 4: "10", 5: "1", 8: "h5w", 9: "gas" })), {
+    ...TEST_RESULT,
+    local: "2024-01-10T08:00:00",
+    zone: { kind: "offset", offsetMinutes: -300 },
+    field9: "gas",
+  });
+});
+
 test("0°0' west is 0, not -0", () => {
   assert.ok(Object.is(parseNd(variant({ 13: "0w0" })).lng, 0));
   assert.ok(Object.is(parseNd(variant({ 8: "h0w" })).zone.offsetMinutes, 0));
@@ -80,7 +89,7 @@ test("zone codes not seen before are refused", () => {
 });
 
 test("field 9 values not seen before are refused", () => {
-  for (const value of ["gas", "jul", ""]) {
+  for (const value of ["gaw", "jul", ""]) {
     assert.equal(parseNd(variant({ 9: value })), null, JSON.stringify(value));
   }
 });
@@ -240,6 +249,17 @@ test("a date before the Gregorian calendar began is refused, two-digit years too
   // 29 February in a year 1 to 99 is checked as that year, not as 1900 to 1999.
   assert.equal(parseNd(`,Test,e,29,2,4,8:00,h4w,gad,0,New York,NY (US),74w00,40n43,f,45,-24500,61`).local, "0004-02-29T08:00:00");
   assert.equal(parseNd(`,Test,e,29,2,1,8:00,h4w,gad,0,New York,NY (US),74w00,40n43,f,45,-24500,61`), null);
+});
+
+// An invented New York chart in January, when the city keeps standard time:
+// 08:00 at UTC-05:00, as astro.com wrote a captured standard-time record.
+test("reads a standard-time chart with its offset as written", () => {
+  assert.deepEqual(chartFrom([linkWithNd({ 4: "10", 5: "1", 8: "h5w", 9: "gas" })]), {
+    local: "2024-01-10T08:00:00",
+    offsetMinutes: -300,
+    lat: 40.716667,
+    lng: -74,
+  });
 });
 
 test("an offset zone beside field 9 gal is refused", () => {
