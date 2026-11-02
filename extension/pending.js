@@ -2,8 +2,8 @@
 // so the popup on that tab can fill in astro.com's form after the popup that
 // opened it has closed. Each takes the storage area to use: the browser passes
 // chrome.storage.session, which the browser empties when it quits, and tests
-// pass a stand-in. Only the decided UTC, place and the chart's town and name
-// are kept, never anything of astro.com's.
+// pass a stand-in. Only the decided UTC, place and the chart's local time,
+// town and name are kept, never anything of astro.com's.
 
 export const HOLD_MINUTES = 30;
 
@@ -18,16 +18,16 @@ const keyFor = (tabId) => `${PREFIX}${tabId}`;
  *
  * @param {chrome.storage.StorageArea} storage
  * @param {number} tabId
- * @param {{ utc: string, lat: number, lng: number, town?: string | null, name?: { first: string, last: string } | null }} values
- *   town and name are null when the chart has none
+ * @param {{ utc: string, lat: number, lng: number, local?: string | null, town?: string | null,
+ *   name?: { first: string, last: string } | null }} values  local, town and name are null when the chart has none
  * @param {number} [now]  milliseconds since the epoch
  */
-export async function holdForTab(storage, tabId, { utc, lat, lng, town = null, name = null }, now = Date.now()) {
+export async function holdForTab(storage, tabId, { utc, lat, lng, local = null, town = null, name = null }, now = Date.now()) {
   const stale = Object.entries(await storage.get(null))
     .filter(([key, entry]) => key.startsWith(PREFIX) && liveValues(entry, now) === null)
     .map(([key]) => key);
   if (stale.length > 0) await storage.remove(stale);
-  await storage.set({ [keyFor(tabId)]: { values: { utc, lat, lng, town, name: nameOrNull(name) }, heldAt: now } });
+  await storage.set({ [keyFor(tabId)]: { values: { utc, lat, lng, local, town, name: nameOrNull(name) }, heldAt: now } });
 }
 
 /**
@@ -37,7 +37,7 @@ export async function holdForTab(storage, tabId, { utc, lat, lng, town = null, n
  * @param {chrome.storage.StorageArea} storage
  * @param {number} tabId
  * @param {number} [now]
- * @returns {Promise<{ utc: string, lat: number, lng: number, town: string | null,
+ * @returns {Promise<{ utc: string, lat: number, lng: number, local: string | null, town: string | null,
  *   name: { first: string, last: string } | null } | null>}
  */
 export async function heldForTab(storage, tabId, now = Date.now()) {
@@ -64,10 +64,20 @@ export async function releaseTab(storage, tabId) {
 function liveValues(entry, now) {
   const age = now - entry?.heldAt;
   if (!(age >= 0 && age < HOLD_MINUTES * 60_000)) return null;
-  const { utc, lat, lng, town, name } = entry.values ?? {};
+  const { utc, lat, lng, local, town, name } = entry.values ?? {};
   if (typeof utc !== "string" || !Number.isFinite(lat) || !Number.isFinite(lng)) return null;
-  return { utc, lat, lng, town: typeof town === "string" ? town : null, name: nameOrNull(name) };
+  return {
+    utc,
+    lat,
+    lng,
+    local: typeof local === "string" && LOCAL.test(local) ? local : null,
+    town: typeof town === "string" ? town : null,
+    name: nameOrNull(name),
+  };
 }
+
+// "2024-04-17T08:00:00", the form a chart's local time takes.
+const LOCAL = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/;
 
 // A name's two parts, or null when it isn't two strings or both are empty, so
 // a form is never filled in with a blank name. Anything else kept with it is dropped.

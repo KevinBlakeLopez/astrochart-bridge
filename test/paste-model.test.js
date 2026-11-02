@@ -163,7 +163,7 @@ test("a confirmed entry can be entered in astro.com, with the text's name as its
   const { name } = formOf(LABELLED);
   assert.deepEqual(name, { first: "", last: "Example Person" });
   const view = viewForEntry(entry, { name, ...LA });
-  assert.deepEqual(view.next, { label: "Enter in astro.com…", view: viewForAstroCom(view.sky, { name }) });
+  assert.deepEqual(view.next, { label: "Enter in astro.com…", view: viewForAstroCom(view.sky, { local: "1985-06-15T10:30:00", name }) });
   assert.equal(view.next.view.buttons[0].holds.name, name);
 });
 

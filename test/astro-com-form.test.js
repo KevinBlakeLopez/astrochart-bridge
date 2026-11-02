@@ -2,17 +2,21 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   fillForm,
+  formTime,
   formValues,
   isAstroComPage,
   isBirthDataForm,
   readFormPage,
+  watchZone,
+  zoneCheck,
+  zoneWords,
 } from "../extension/core/astrocom.js";
 import { HOLD_MINUTES, heldForTab, holdForTab, releaseTab } from "../extension/pending.js";
 import { viewForAstroComTab } from "../extension/popup-model.js";
 
-// What the astro.com screens keep for a tab: the sky, and a town and name or null.
-const NY_SKY = { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74, town: null, name: null };
-const SYDNEY_SKY = { utc: "2024-01-14T21:00:00Z", lat: -33.866667, lng: 151.2, town: "Sydney", name: null };
+// What the astro.com screens keep for a tab: the sky, and a local time, town and name or null.
+const NY_SKY = { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74, local: null, town: null, name: null };
+const SYDNEY_SKY = { utc: "2024-01-14T21:00:00Z", lat: -33.866667, lng: 151.2, local: null, town: "Sydney", name: null };
 const NAMED_SKY = { ...NY_SKY, name: { first: "Example", last: "Person" } };
 const FORM_URL = "https://www.astro.com/cgi/ade.cgi";
 const SIGN_IN_URL = "https://www.astro.com/cgi/awd.cgi?lang=e";
@@ -60,6 +64,23 @@ test("the form's values are the UTC date and time, in the option values ade.cgi 
   });
 });
 
+test("a chart's local time goes in with astro.com's automatic time zone, au", () => {
+  const local = "2024-04-17T08:00:00";
+  assert.deepEqual(formTime({ utc: NY_SKY.utc, local }), { time: local, szon: "au" });
+  assert.deepEqual(formValues({ ...NY_SKY, local }), { sday: "17", imon: "4", syar: "2024", ihou: "8", smin: "00", szon: "au" });
+  // The local date is the one filled in, where it differs from the UTC date.
+  const late = formValues({ ...NY_SKY, utc: "2024-04-18T02:30:00Z", local: "2024-04-17T22:30:00" });
+  assert.deepEqual([late.sday, late.ihou, late.smin], ["17", "22", "30"]);
+});
+
+test("a sky with no local time, or a local time that is UT, goes in as UT with h0w", () => {
+  assert.deepEqual(formTime({ utc: NY_SKY.utc }), { time: "2024-04-17T12:00:00", szon: "h0w" });
+  assert.deepEqual(formTime({ utc: NY_SKY.utc, local: null }), { time: "2024-04-17T12:00:00", szon: "h0w" });
+  // A chart entered in UT, as AstroChart Bridge opens Astro-Seek's: with au,
+  // astro.com would read 12:00 as the chosen town's local time.
+  assert.deepEqual(formTime({ utc: NY_SKY.utc, local: "2024-04-17T12:00:00" }), { time: "2024-04-17T12:00:00", szon: "h0w" });
+});
+
 test("a town goes in the birth town field, scit", () => {
   assert.equal(formValues(SYDNEY_SKY).scit, "Sydney");
   assert.equal("scit" in formValues(NY_SKY), false);
@@ -89,6 +110,17 @@ test("only the decided UTC, place and town are kept, with the time they were kep
   const storage = fakeStorage();
   await holdForTab(storage, 7, { ...SYDNEY_SKY, extra: "not kept" }, T0);
   assert.deepEqual(Object.values(storage.items), [{ values: SYDNEY_SKY, heldAt: T0 }]);
+});
+
+test("a chart's local time is kept, and anything but a local time comes back as none", async () => {
+  const storage = fakeStorage();
+  const local = "2024-04-17T08:00:00";
+  await holdForTab(storage, 7, { ...NY_SKY, local }, T0);
+  assert.deepEqual(await heldForTab(storage, 7, T0), { ...NY_SKY, local });
+  for (const bad of ["2024-04-17 08:00", "2024-04-17T08:00:00Z", 8, {}]) {
+    await holdForTab(storage, 7, { ...NY_SKY, local: bad }, T0);
+    assert.equal((await heldForTab(storage, 7, T0)).local, null, JSON.stringify(bad));
+  }
 });
 
 test("a name is kept as its two parts, and anything else with it is dropped", async () => {
@@ -158,10 +190,11 @@ test("keeping values for one tab clears expired values of others, and leaves oth
 // --- Reading and filling astro.com's form, in a stand-in page ---------------
 
 // The browser sends the tab only the function's source, so it is rebuilt from
-// its source here, as in test/index.test.js.
+// its source here, as in test/index.test.js. A page that watches for changes
+// brings its own MutationObserver.
 function runInPage(func, document, ...args) {
-  const rebuilt = new Function("document", "args", `return (${func})(...args);`);
-  return rebuilt(document, args);
+  const rebuilt = new Function("document", "MutationObserver", "args", `return (${func})(...args);`);
+  return rebuilt(document, document.MutationObserver, args);
 }
 
 const range = (from, to) => Array.from({ length: to - from + 1 }, (_, i) => String(from + i));
@@ -249,6 +282,15 @@ test("filling a blank form sets the date, time and time zone, opens the extended
   assert.equal(page.field("scit").focused, true);
   // The page's own scripts hear about each change, as if typed.
   assert.ok(page.field("szon").events.includes("change"));
+});
+
+test("a local time is filled in with the automatic time zone the form starts with", () => {
+  const page = formPage();
+  assert.deepEqual(runInPage(fillForm, page, formValues({ ...NY_SKY, local: "2024-04-17T08:00:00" })), { filled: true });
+  assert.deepEqual(
+    ["sday", "imon", "syar", "ihou", "smin", "szon"].map((name) => page.field(name).value),
+    ["17", "4", "2024", "8", "00", "au"],
+  );
 });
 
 test("a town is filled in too, and the cursor is left in it to pick astro.com's match", () => {
@@ -414,7 +456,193 @@ test("a kept town is shown on the astro.com tab and named in what gets filled in
   );
 });
 
+test("a kept local time is shown on the astro.com tab, which leaves the automatic time zone as it is and says what to check", () => {
+  const view = viewForAstroComTab({ ...SYDNEY_SKY, local: "2024-01-15T08:00:00" }, { kind: "form", auth: "unknown", form: "blank" });
+  assert.deepEqual(view.rows.slice(1, 4), [["Hour, min", "08:00"], ["Time zone", "automatic time zone, the form's default"], ["Offset", "UTC+11:00"]]);
+  assert.equal(view.notes[0].startsWith("AstroChart Bridge fills in the birthday, hour, minute and the town Sydney."), true);
+  assert.match(view.notes[1], /It should be 11 h east \(UTC\+11:00\): AstroChart Bridge checks it on the page/);
+});
+
+test("a form filled in by hand says what time zone to check for, and what to enter instead", () => {
+  const sky = { ...SYDNEY_SKY, local: "2024-01-15T08:00:00" };
+  for (const form of ["typed", "unrecognised"]) {
+    const view = viewForAstroComTab(sky, { kind: "form", auth: "unknown", form });
+    assert.match(
+      view.notes[0],
+      /Check that it's 11 h east \(UTC\+11:00\)\. If it isn't, choose 00:00 GMT \/ UT under show \/ hide extended settings and enter 14 January 2024, 21:00 instead\.$/,
+      form,
+    );
+  }
+  // In Universal Time there is nothing to check.
+  assert.deepEqual(viewForAstroComTab(SYDNEY_SKY, { kind: "form", auth: "unknown", form: "typed" }).notes, []);
+});
+
 test("seconds dropped from the form are named on the astro.com tab too", () => {
   const view = viewForAstroComTab({ ...NY_SKY, utc: "2024-04-17T12:00:30Z" }, { kind: "form", auth: "unknown", form: "blank" });
   assert.deepEqual(view.warnings, ["astro.com takes whole minutes, so the 30 seconds are left out."]);
+});
+
+// --- Checking astro.com's automatic time zone --------------------------------
+
+const NY_LOCAL = { ...NY_SKY, local: "2024-04-17T08:00:00" };
+
+test("an offset is named in the words of astro.com's time zone line", () => {
+  assert.equal(zoneWords(-240), "4 h west");
+  assert.equal(zoneWords(-210), "3 h 30 min west");
+  assert.equal(zoneWords(345), "5 h 45 min east");
+  assert.equal(zoneWords(0), "GMT/UT");
+  // A local-mean-time offset, to the nearest minute.
+  assert.equal(zoneWords(-295.97), "4 h 56 min west");
+});
+
+test("the check holds the chart's offset, what was filled in, and the Universal Time to enter instead", () => {
+  assert.deepEqual(zoneCheck(NY_LOCAL), {
+    offsetMinutes: -240,
+    zone: "4 h west",
+    filled: { sday: "17", imon: "4", syar: "2024", ihou: "8", smin: "00", szon: "au" },
+    ut: { sday: "17", imon: "4", syar: "2024", ihou: "12", smin: "00", szon: "h0w" },
+    utText: "2024-04-17 12:00",
+  });
+  // A form filled in as Universal Time has nothing to check.
+  assert.equal(zoneCheck(NY_SKY), null);
+  assert.equal(zoneCheck({ ...NY_SKY, local: "2024-04-17T12:00:00" }), null);
+});
+
+// A filled-in form with ade.cgi's time zone line, #zz, which the page fills
+// in once a town is chosen. pickTown sets its text the way the page does.
+function zonePage(values = NY_LOCAL) {
+  const page = formPage();
+  runInPage(fillForm, page, formValues(values));
+  let observer = null;
+  const element = (tag) => {
+    const node = {
+      tag, id: "", style: {}, children: [], textContent: "", isConnected: false, listeners: {},
+      append: (...nodes) => node.children.push(...nodes),
+      remove: () => ((node.isConnected = false), (node.removed = true)),
+      addEventListener: (type, listener) => (node.listeners[type] = listener),
+    };
+    return node;
+  };
+  const zone = { textContent: "", dataset: {} };
+  page.field("szon").after = (node) => ((node.isConnected = true), (page.note = node));
+  page.createElement = element;
+  const getElementById = page.getElementById;
+  page.getElementById = (id) => (id === "zz" ? zone : getElementById(id));
+  page.MutationObserver = class {
+    constructor(callback) {
+      this.callback = callback;
+    }
+    observe(target) {
+      if (target === zone) observer = this;
+    }
+    disconnect() {
+      if (observer === this) observer = null;
+    }
+  };
+  page.pickTown = (html) => {
+    // textContent of astro.com's HTML: tags dropped, &nbsp; kept as U+00A0, and no space for <br>.
+    zone.textContent = html.replace(/<[^>]+>/g, "").replaceAll("&nbsp;", " ");
+    observer?.callback([]);
+  };
+  page.watching = () => observer !== null;
+  page.message = () => (page.note?.isConnected ? page.note.children[0].textContent : null);
+  page.button = () => page.note.children[1];
+  return page;
+}
+
+// #zz as adejs.cgi gave it on 2026-11-01, for New York on 17 April 2024 at 08:00 and others.
+const ZZ = {
+  nyDaylight: "<strong>time zone:</strong><br/>4 h west,&nbsp; Daylight Saving T.",
+  nyStandard: "<strong>time zone:</strong><br/>5 h west,&nbsp; Standard Time",
+  alabama: "<strong>time zone:</strong><br/>5 h west,&nbsp; Daylight Saving T.",
+  lmt: "<strong>time zone:</strong><br/>Local Mean Time",
+  london: "<strong>time zone:</strong><br/>GMT/UT,&nbsp; Standard Time",
+  newfoundland: "<strong>time zone:</strong><br/>3 h 30 min west,&nbsp; Standard Time",
+  repeated:
+    "<strong>time zone:</strong><br/>4 h west,&nbsp; Daylight Saving T.<br><span style=\"color:#CC0000;\"><blink>ATTENTION:</blink>  Same hour occurs twice, could be daylight time or standard time.</span>",
+};
+
+test("nothing shows until a town is chosen, nor when astro.com's zone is the chart's", () => {
+  const page = zonePage();
+  assert.deepEqual(runInPage(watchZone, page, zoneCheck(NY_LOCAL)), { watching: true });
+  assert.equal(page.message(), null);
+  page.pickTown(ZZ.nyDaylight);
+  assert.equal(page.message(), null);
+  // astro.com's warning about a repeated hour doesn't matter when its choice is the chart's.
+  page.pickTown(ZZ.repeated);
+  assert.equal(page.message(), null);
+  assert.equal(page.watching(), true);
+});
+
+test("a town whose zone differs gets a note under the line, which goes when a right town is chosen", () => {
+  const page = zonePage();
+  runInPage(watchZone, page, zoneCheck(NY_LOCAL));
+  // London, AL comes first when "London" is typed.
+  page.pickTown(ZZ.alabama);
+  assert.equal(
+    page.message(),
+    "AstroChart Bridge: this chart is 4 h west of Universal Time, but astro.com's automatic time zone for this town is 5 h west. Check that the town is right. If it is, enter the chart in Universal Time instead.",
+  );
+  assert.equal(page.button().textContent, "Enter in Universal Time");
+  page.pickTown(ZZ.nyDaylight);
+  assert.equal(page.message(), null);
+});
+
+test("half-hour and GMT/UT zones are read too", () => {
+  const stJohns = { utc: "2024-01-15T11:30:00Z", lat: 47.57, lng: -52.72, local: "2024-01-15T08:00:00" };
+  const page = zonePage(stJohns);
+  runInPage(watchZone, page, zoneCheck(stJohns));
+  page.pickTown(ZZ.newfoundland);
+  assert.equal(page.message(), null);
+  page.pickTown(ZZ.london);
+  assert.match(page.message(), /this chart is 3 h 30 min west of Universal Time, but astro\.com's automatic time zone for this town is GMT\/UT\./);
+});
+
+test("a zone with no offset, such as local mean time, can't be checked and says so", () => {
+  const page = zonePage();
+  runInPage(watchZone, page, zoneCheck(NY_LOCAL));
+  page.pickTown(ZZ.lmt);
+  assert.equal(
+    page.message(),
+    "AstroChart Bridge: astro.com's time zone here is \"Local Mean Time\", which can't be checked against this chart's 4 h west. Check that the town is right. If it is, you can enter the chart in Universal Time instead.",
+  );
+});
+
+test("the button enters the chart's Universal Time with 00:00 GMT / UT, and the watching stops", () => {
+  const page = zonePage();
+  runInPage(watchZone, page, zoneCheck(NY_LOCAL));
+  page.pickTown(ZZ.alabama);
+  page.button().listeners.click();
+  assert.deepEqual(
+    ["sday", "imon", "syar", "ihou", "smin", "szon"].map((name) => page.field(name).value),
+    ["17", "4", "2024", "12", "00", "h0w"],
+  );
+  assert.ok(page.field("ihou").events.includes("change"));
+  assert.match(page.message(), /^AstroChart Bridge entered 2024-04-17 12:00 with the 00:00 GMT \/ UT time zone\. That is the chart's own Universal Time/);
+  assert.equal(page.button().removed, true);
+  assert.equal(page.watching(), false);
+});
+
+test("once the person changes the date, time or time zone, the check is theirs: the note goes and the watching stops", () => {
+  for (const [name, value] of [["ihou", "9"], ["sday", "18"], ["szon", "h4w"]]) {
+    const page = zonePage();
+    runInPage(watchZone, page, zoneCheck(NY_LOCAL));
+    page.pickTown(ZZ.alabama);
+    page.field(name).value = value;
+    page.pickTown(ZZ.nyStandard);
+    assert.equal(page.message(), null, name);
+    assert.equal(page.watching(), false, name);
+  }
+});
+
+test("a page without the time zone line, or already watched, isn't watched again", () => {
+  const page = zonePage();
+  const getElementById = page.getElementById;
+  page.getElementById = (id) => (id === "zz" ? null : getElementById(id));
+  assert.deepEqual(runInPage(watchZone, page, zoneCheck(NY_LOCAL)), { watching: false });
+
+  // Watched with no note showing, as before a town is chosen.
+  const watched = zonePage();
+  runInPage(watchZone, watched, zoneCheck(NY_LOCAL));
+  assert.deepEqual(runInPage(watchZone, watched, zoneCheck(NY_LOCAL)), { watching: false });
 });

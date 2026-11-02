@@ -184,7 +184,7 @@ test("a file that isn't UTF-8 is read as Windows-1252, with a warning", () => {
 test("a chart can be entered in astro.com with its name split as the file splits it", () => {
   const { view } = viewForAafText(NY_TEXT, LA).items[0];
   const name = { first: "New York", last: "Test" };
-  assert.deepEqual(view.next, { label: "Enter in astro.com…", view: viewForAstroCom(view.sky, { name }) });
+  assert.deepEqual(view.next, { label: "Enter in astro.com…", view: viewForAstroCom(view.sky, { local: "2024-04-17T08:00:00", name }) });
   // Astrolog leaves the last name unknown and puts the whole name first.
   const astrologView = viewForAafText(astrolog, LA).items[0].view;
   assert.deepEqual(astrologView.next.view.buttons[0].holds.name, { first: "New York Test", last: "" });

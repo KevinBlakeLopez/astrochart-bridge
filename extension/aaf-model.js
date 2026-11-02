@@ -94,7 +94,7 @@ export function viewForAafChart(result, options) {
       warnings: warnings.map((code) => WARNINGS[code]?.(chart) ?? code),
       notes: [...view.notes, ...ASTRO_SEEK_NOTES],
       buttons: [...ASTRO_SEEK_BUTTONS],
-      ...(view.sky ? { next: astroComStep(view.sky, { name: aafName(chart.aaf) }) } : {}),
+      ...(view.sky ? { next: astroComStep(view.sky, { local: chart.local, name: aafName(chart.aaf) }) } : {}),
     },
     result,
   );

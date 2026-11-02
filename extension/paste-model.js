@@ -287,13 +287,14 @@ export function entryFor({ date, time, lat, lng, offset }) {
  *   timeZone is passed on to viewFor; name is formFor's
  */
 export function viewForEntry(entry, { warnings = [], timeZone, name = null } = {}) {
-  const view = viewFor(analyzeEntry(entry), { timeZone });
+  const result = analyzeEntry(entry);
+  const view = viewFor(result, { timeZone });
   return {
     ...view,
     warnings: [...view.warnings, ...warnings],
     notes: [OFFSET_NOTE, ...view.notes, ...ASTRO_SEEK_NOTES],
     buttons: [...ASTRO_SEEK_BUTTONS, SHARE_BUTTON].map((button) => ({ ...button })),
-    next: astroComStep(view.sky, { name }),
+    next: astroComStep(view.sky, { local: result.local, name }),
   };
 }
 

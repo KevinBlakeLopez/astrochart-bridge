@@ -134,6 +134,31 @@ Other links on the same page carry no birth data. `ade.cgi?ract=xx…` (edit bir
 
 The image's `Sid. Time: 20:48:26` is the local sidereal time at the birthplace. Computed from Universal Time 12:00 on 17 April 2024 and longitude 74°0'W with the usual approximate formula for Greenwich mean sidereal time, it comes to 20:48:26.3. Because it depends only on Universal Time and longitude, it could confirm both. It is in the image, though, so Chart Bridge can't read it today. One sample.
 
+## Birth data form: the time zone
+
+Seen signed out on 2026-11-01, on `/cgi/ade.cgi` with test dates only. Nothing was submitted.
+
+- **The time zone select, `szon`,** starts on `au`, "automatic time zone", which astro.com recommends. Its other values are zone codes in the same form as `nd=` field 8: `h0w` is " 00:00 GMT / UT", and a half-hour zone is written like `h3w30` ("w03:30 Newfoundl.T"). Choosing any of them makes the page warn "Attention! manual time zone settings are not recommended. Most likely a false chart will be the result."
+- **Choosing a town** from the list the page shows as you type fills a hidden field, `spli`, with astro.com's atlas record for it: `New York,NY (US),74w00,40n43,f,45,-24500,61`, the same as `nd=` fields 11 to 18. The list comes from `adejs.cgi?func=place_query`, one match per line, the text shown and that record separated by `|`.
+- **The zone astro.com picks** then appears in `#zz`, inside the extended settings, floated right of the select. The page gets it from `adejs.cgi?func=get_su_mo_asc_map`, sending the date, time, `szon` and `spli`; its JSON's `zz_content_html` is the line. What it said for New York unless noted:
+
+  | Date and time | `#zz` after "time zone:" |
+  |---|---|
+  | 17 April 2024, 08:00 | `4 h west, Daylight Saving T.` |
+  | 15 January 2024, 08:00 | `5 h west, Standard Time` |
+  | 10 January 1944, 08:00 | `4 h west, War Time` |
+  | 15 January 1850, 08:00 | `Local Mean Time`, with no offset |
+  | 14 March 2021, 02:30 (skipped) | `5 h west, Standard Time` and "ATTENTION: Clock time was skipped over by shifting time meridian to the east. Unchanged clock assumed." |
+  | 7 November 2021, 01:30 (repeated) | `4 h west, Daylight Saving T.` and "ATTENTION: Same hour occurs twice, could be daylight time or standard time." |
+  | St. John's, 15 January 2024 | `3 h 30 min west, Standard Time` |
+  | Kolkata / Kathmandu, 15 January 2024 | `5 h 30 min east` / `5 h 45 min east, Standard Time` |
+  | London, England, 15 January / 17 April 2024 | `GMT/UT, Standard Time` / `1 h east, Daylight Saving T.` |
+
+  The comma is followed by a no-break space, and `<br>`s separate "time zone:", the zone and any warning, so in `textContent` they run together. With no hour chosen, the request returns nothing.
+- **Typing "London" lists London (Conecuh County), Alabama first,** whose zone on 17 April 2024 is `5 h west`. A town picked in a hurry can give a zone hours away from the chart's, with no warning from astro.com.
+
+AstroChart Bridge fills in a chart's local time with `au` and reads `#zz` to check astro.com's zone against the chart's offset (`watchZone` in `extension/core/astrocom.js`). A chart with no local time, such as a Stellarium sky, or whose local time is Universal Time, is filled in with `h0w`.
+
 ## Other observations
 
 - The first visit to astro.com showed "Checking your browser..." and cleared by itself after a few seconds. Chart Bridge reads pages the user already has open, so this doesn't affect it.
@@ -150,7 +175,7 @@ The image's `Sid. Time: 20:48:26` is the local sidereal time at the birthplace. 
 
 - Does the `btyp=w2gw` account chart page have a `pgid` link?
 - Do subscribers see it?
-- How are half-hour zones written?
+- How are half-hour zones written in `nd=`? The form writes them like `h3w30`; no `nd=` record with one has been seen.
 - What do fields 9, 10, 15 to 18, `WG` and `secc` mean?
-- How does astro.com handle a skipped or repeated local time, such as 02:30 on 14 March 2021 in New York?
+- Does a chart saved with a skipped or repeated local time keep the zone the form showed? The form assumes the clock before a skip, picks daylight time for a repeated hour, and warns about both (above).
 - What fields does the edit page (`ade.cgi`) show?

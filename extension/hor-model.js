@@ -115,7 +115,7 @@ export function viewForHorChart(result, options) {
       warnings: warnings.map((code) => WARNINGS[code] ?? code),
       notes: [...view.notes, ...(morinus.timeBasis === "zone" ? [ZONE_NOTE] : []), ...ASTRO_SEEK_NOTES],
       buttons: [...ASTRO_SEEK_BUTTONS],
-      ...(view.sky ? { next: astroComStep(view.sky, { name: nameFromText(chart.name) }) } : {}),
+      ...(view.sky ? { next: astroComStep(view.sky, { local: chart.local, name: nameFromText(chart.name) }) } : {}),
     },
     result,
   );

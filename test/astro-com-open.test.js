@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { ASTRO_COM_ACCESS, openAndFill, tabLoaded } from "../extension/astro-com-open.js";
-import { fillForm, formValues, readFormPage } from "../extension/core/astrocom.js";
+import { fillForm, formValues, readFormPage, watchZone, zoneCheck } from "../extension/core/astrocom.js";
 import { heldForTab } from "../extension/pending.js";
 import {
   ASTRO_COM_BUSY,
@@ -12,7 +12,7 @@ import {
 } from "../extension/popup-model.js";
 
 const FORM_URL = "https://www.astro.com/cgi/ade.cgi";
-const VALUES = { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74, town: "New York", name: null };
+const VALUES = { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74, local: null, town: "New York", name: null };
 
 // A stand-in for chrome.storage.session, as in test/astro-com-form.test.js.
 function fakeStorage() {
@@ -71,7 +71,7 @@ function fakeTabs() {
 }
 
 // A stand-in for chrome.scripting that answers for readFormPage and fillForm.
-function fakeScripting({ page = { auth: "unknown", form: "blank" }, fill = { filled: true } } = {}) {
+function fakeScripting({ page = { auth: "unknown", form: "blank" }, fill = { filled: true }, watch = { watching: true } } = {}) {
   const calls = [];
   return {
     calls,
@@ -79,14 +79,18 @@ function fakeScripting({ page = { auth: "unknown", form: "blank" }, fill = { fil
       calls.push({ tabId: target.tabId, func: func.name, args });
       if (func === readFormPage) return [{ result: page }];
       if (func === fillForm) return [{ result: fill }];
+      if (func === watchZone) {
+        if (watch instanceof Error) throw watch;
+        return [{ result: watch }];
+      }
       throw new Error(`unexpected ${func.name}`);
     },
   };
 }
 
 // Starts openAndFill and loads the tab it opens, the way a page finishes loading after create.
-async function openThenLoad(browser, { url = FORM_URL, timeoutMs = 1000, loadAt } = {}) {
-  const pending = openAndFill(browser, { url: FORM_URL, values: VALUES, timeoutMs });
+async function openThenLoad(browser, { url = FORM_URL, timeoutMs = 1000, loadAt, values = VALUES } = {}) {
+  const pending = openAndFill(browser, { url: FORM_URL, values, timeoutMs });
   await new Promise((resolve) => setTimeout(resolve, 5));
   const [tab] = browser.tabs.created;
   if (loadAt !== null && tab) browser.tabs.load(40, loadAt ?? url);
@@ -114,6 +118,23 @@ test("a signed-in or unknown browser's blank form is filled in with no stop, and
   ]);
   assert.equal(await heldForTab(browser.storage, 40), null);
   assert.equal(browser.tabs.listeners(), 0);
+});
+
+test("a form filled in with a local time has the tab check astro.com's automatic time zone", async () => {
+  const values = { ...VALUES, local: "2024-04-17T08:00:00" };
+  const browser = browserWith();
+  assert.deepEqual(await openThenLoad(browser, { values }), { outcome: "filled", tabId: 40 });
+  assert.deepEqual(browser.scripting.calls.slice(1), [
+    { tabId: 40, func: "fillForm", args: [formValues(values)] },
+    { tabId: 40, func: "watchZone", args: [zoneCheck(values)] },
+  ]);
+});
+
+test("a check that can't start leaves the form filled in, as if there were none", async () => {
+  const browser = browserWith(fakeScripting({ watch: new Error("Frame was removed") }));
+  const result = await openThenLoad(browser, { values: { ...VALUES, local: "2024-04-17T08:00:00" } });
+  assert.deepEqual(result, { outcome: "filled", tabId: 40 });
+  assert.equal(await heldForTab(browser.storage, 40), null);
 });
 
 test("a signed-out browser is stopped before anything is filled in, with the values kept for the tab", async () => {
