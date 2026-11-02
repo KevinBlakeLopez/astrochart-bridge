@@ -45,11 +45,15 @@ export function render(container, view, onButton, back = null) {
           return element;
         });
     // Sends the decided sky to Stellarium Desktop, for onButton to do: first,
-    // in the main style, when it is the user's default.
+    // in the main style, when it is the user's default, and otherwise right
+    // after Open Stellarium Web, or last on a screen without it.
     if (view.desktop) {
       const send = () => onButton({ does: "send-to-desktop" }, sky);
       if (view.desktop.primary) buttons.unshift(linkButton(view.desktop.label, send));
-      else buttons.push(secondaryButton(view.desktop.label, send));
+      else {
+        const web = view.url ? -1 : (view.buttons ?? OPEN_SKY).findIndex(({ opens }) => opens === "stellarium");
+        buttons.splice(web === -1 ? buttons.length : web + 1, 0, secondaryButton(view.desktop.label, send));
+      }
     }
     const setSky = (next) => {
       sky = next;
