@@ -1,5 +1,5 @@
 import { formTime, localOffset, zoneWords } from "./core/astrocom.js";
-import { astroSeekSaveUrl, astroSeekUrl } from "./core/astroseek.js";
+import { astroSeekSaveUrl } from "./core/astroseek.js";
 import { parseOffset, utcFromOffset } from "./core/civiltime.js";
 import { toPortable } from "./core/portable.js";
 import { HOLD_MINUTES } from "./pending.js";
@@ -325,7 +325,7 @@ export const GROUP_LABELS = { sky: "See the sky", elsewhere: "Take the chart els
  *   "url" (the view's own link), "desktop", "default-choice", "download" or "next"
  */
 export function actionGroups(view) {
-  const actions = view.url ? [{ kind: "url" }] : (view.buttons ?? [OPEN_SKY_BUTTON]).map((button) => ({ kind: "button", button }));
+  const actions = (view.buttons ?? [OPEN_SKY_BUTTON]).map((button) => ({ kind: "button", button }));
   if (view.desktop) {
     const send = { kind: "desktop" };
     const web = actions.findIndex(({ button }) => button?.opens === "stellarium");
@@ -398,15 +398,16 @@ export function viewForShareRefusal(reason) {
 }
 
 /**
- * What the popup shows on a Stellarium Web tab: the sky it is showing, and a
- * button that opens the same moment and place as an Astro-Seek chart.
+ * What the popup shows on a Stellarium Web tab: the sky it is showing, and
+ * buttons that open the same moment and place as an Astro-Seek chart or save
+ * it there. The tab is already Stellarium Web, so there's no button for it.
  *
  * @param {{ utc: string, lat: number, lng: number }} sky  from skyFromEngine
  * @param {{ timeZone?: string, town?: string | null }} [options]  as for viewFor
  */
 export function viewForSky(sky, { timeZone, town = null } = {}) {
   const clock = clockParts(sky.utc, timeZone);
-  return {
+  return withAstroSeekSave({
     state: "to-astro-seek",
     rows: [
       [
@@ -417,10 +418,10 @@ export function viewForSky(sky, { timeZone, town = null } = {}) {
       ["Place", placeText(sky.lat, sky.lng)],
     ],
     notes: [...ASTRO_SEEK_NOTES],
-    button: "Open chart in Astro-Seek",
-    url: astroSeekUrl(sky),
+    sky,
+    buttons: [{ label: "Open chart in Astro-Seek", opens: "astro-seek" }],
     next: astroComStep(sky, { town }),
-  };
+  });
 }
 
 // astro.com's pages, as seen signed out on 2026-11-01. Its birth data form

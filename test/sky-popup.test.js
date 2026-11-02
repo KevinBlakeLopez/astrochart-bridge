@@ -1,8 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { astroSeekUrl } from "../extension/core/astroseek.js";
 import { isStellariumWeb } from "../extension/core/stellarium.js";
-import { viewFor, viewForAstroCom, viewForSky } from "../extension/popup-model.js";
+import { ASTRO_SEEK_SAVE_NOTE, viewFor, viewForAstroCom, viewForSky } from "../extension/popup-model.js";
 
 test("only stellarium-web.org tabs count as Stellarium Web", () => {
   assert.equal(isStellariumWeb("https://stellarium-web.org/?date=2024-04-17T12%3A00%3A00Z&lat=40.716667&lng=-74"), true);
@@ -21,7 +20,7 @@ test("only stellarium-web.org tabs count as Stellarium Web", () => {
   }
 });
 
-test("a Stellarium sky becomes a screen that opens the Astro-Seek chart", () => {
+test("a Stellarium sky becomes a screen that opens the Astro-Seek chart, or saves it there", () => {
   const sky = { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 };
   assert.deepEqual(viewForSky(sky, { timeZone: "America/Los_Angeles" }), {
     state: "to-astro-seek",
@@ -32,10 +31,14 @@ test("a Stellarium sky becomes a screen that opens the Astro-Seek chart", () => 
     ],
     notes: [
       "Astro-Seek will draw this chart in UT/GMT at these coordinates, rounded to the minute, with no city.",
-      "Opening the chart sends this date, time and place to astro-seek.com.",
+      ASTRO_SEEK_SAVE_NOTE,
     ],
-    button: "Open chart in Astro-Seek",
-    url: astroSeekUrl(sky),
+    // view.js opens astroSeekUrl of this sky, so Astro-Seek gets 12:00 UT.
+    sky,
+    buttons: [
+      { label: "Open chart in Astro-Seek", opens: "astro-seek" },
+      { label: "Save in Astro-Seek…", saves: { town: null, name: null }, secondary: true },
+    ],
     // test/astro-com-handoff.test.js covers the astro.com screen itself.
     next: { label: "Enter in astro.com…", view: viewForAstroCom(sky) },
   });

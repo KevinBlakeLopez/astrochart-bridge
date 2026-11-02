@@ -25,10 +25,10 @@ export function render(container, view, onButton, back = null) {
   if (view.code) parts.push(paragraph(`Code: ${view.code}`, "code"));
 
   if (view.state !== "refused") {
-    // The sky the buttons open: set from the start on a ready screen, and only
-    // once a reading is picked or a valid offset is typed on the others. A view
-    // with its own url (the Astro-Seek chart from a Stellarium tab) opens that.
-    // A button with does names an action instead of a link, for onButton to take.
+    // The sky the buttons open: set from the start on a ready screen or a
+    // Stellarium tab's, and only once a reading is picked or a valid offset is
+    // typed on the others. A button with does names an action instead of a
+    // link, for onButton to take.
     let sky = view.sky ?? null;
     // What the Name boxes hold: a button that keeps values for a tab keeps
     // this name in place of the one the view gave it.
@@ -39,12 +39,11 @@ export function render(container, view, onButton, back = null) {
     const waits = (button) => (buttons.push(button), button);
     const setSky = (next) => {
       sky = next;
-      for (const button of buttons) button.disabled = !view.url && sky === null;
+      for (const button of buttons) button.disabled = sky === null;
     };
 
     // What each action from actionGroups draws.
     const draw = {
-      url: () => [waits(linkButton(view.button, () => onButton({ url: view.url }, sky)))],
       button: ({ button: { label, opens, secondary, ...button } }) => {
         const element = linkButton(label, () => onButton(withTyped({ ...button, url: button.url ?? LINKS[opens]?.(sky) }), sky));
         if (secondary) element.className = "secondary";
