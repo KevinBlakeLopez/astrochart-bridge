@@ -17,7 +17,11 @@ import {
   viewForImport,
 } from "./chart-model.js";
 import { RECEIVER_URL } from "./share-config.js";
+import { localizePage, text } from "./messages/index.js";
 import { paragraph, render } from "./view.js";
+
+// The browser's language, chosen before anything is drawn.
+localizePage(document, navigator.languages);
 
 const app = document.getElementById("app");
 const status = document.getElementById("status");
@@ -108,7 +112,7 @@ async function openFile(file) {
   const result = bytes === null ? { kind: "refused", reason: "too-large" } : readChartFile(bytes, file.name);
   if (id !== latest) return;
   show(result, "file", bytes && { name: file.name, bytes });
-  if (result.kind === "portable") status.textContent = `Opened ${file.name}.`;
+  if (result.kind === "portable") status.textContent = text().pages.chart.opened(file.name);
 }
 
 // file is the one result was read from, which a Morinus or AAF file's
@@ -151,7 +155,7 @@ function importButton(label, { name, bytes }) {
       kept = false;
     }
     if (kept) location.assign("import.html");
-    else status.textContent = "AstroChart Bridge couldn't pass the file on. Click Open an AAF or Morinus file in the popup and choose it there.";
+    else status.textContent = text().pages.chart.couldntPass;
   });
   return button;
 }
@@ -160,8 +164,8 @@ function importButton(label, { name, bytes }) {
 // of the real file, since browsers differ in the kinds of file they share.
 function fileForSharing(chart) {
   if (typeof navigator.share !== "function" || typeof navigator.canShare !== "function") return null;
-  const { name, text } = fileFor(chart);
-  const file = new File([text], name, { type: "application/json" });
+  const { name, text: contents } = fileFor(chart);
+  const file = new File([contents], name, { type: "application/json" });
   try {
     return navigator.canShare({ files: [file] }) ? file : null;
   } catch {
@@ -196,7 +200,7 @@ async function onButton(button) {
     return;
   }
   if (does === "share-file") {
-    share({ title: "AstroChart Bridge chart", files: [shareableFile] });
+    share({ title: text().chart.shareTitle, files: [shareableFile] });
     return;
   }
   if (url) window.open(url, "_blank", "noopener,noreferrer");
@@ -224,9 +228,9 @@ async function copyLink() {
   const link = linkFor(base, passedOn());
   try {
     await navigator.clipboard.writeText(link);
-    status.textContent = "Link copied.";
+    status.textContent = text().pages.chart.linkCopied;
   } catch {
-    status.textContent = "This browser didn't let AstroChart Bridge copy the link. Copy it from here instead:";
+    status.textContent = text().pages.chart.copyRefused;
     linkField.value = link;
     linkField.hidden = false;
     linkField.select();
@@ -238,8 +242,8 @@ async function copyLink() {
 // in case a browser starts saving only after the click has returned.
 function download() {
   if (chart === null) return;
-  const { name, text } = fileFor(passedOn());
-  const url = URL.createObjectURL(new Blob([text], { type: "application/json" }));
+  const { name, text: contents } = fileFor(passedOn());
+  const url = URL.createObjectURL(new Blob([contents], { type: "application/json" }));
   const link = document.createElement("a");
   link.href = url;
   link.download = name;
@@ -275,7 +279,7 @@ function showQr({ scroll = true } = {}) {
 
     const hide = document.createElement("button");
     hide.className = "secondary";
-    hide.textContent = "Hide QR code";
+    hide.textContent = text().pages.chart.hideQr;
     hide.addEventListener("click", hideQr);
     qrArea.replaceChildren(svg, paragraph(view.note, "note"), hide);
   }
@@ -294,6 +298,6 @@ function hideQr() {
 function share(data) {
   navigator.share(data).catch((error) => {
     if (error?.name === "AbortError") return;
-    status.textContent = "AstroChart Bridge couldn't open the share sheet. Use Copy link or Download file instead.";
+    status.textContent = text().pages.chart.shareSheetFailed;
   });
 }

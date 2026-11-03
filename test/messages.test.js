@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { analyzePage } from "../extension/core/index.js";
 import en from "../extension/messages/en.js";
 import es from "../extension/messages/es.js";
-import { setLanguage } from "../extension/messages/index.js";
+import { localizePage, messageAt, setLanguage } from "../extension/messages/index.js";
 import sl from "../extension/messages/sl.js";
 import { actionGroups, viewFor, viewForAstroCom } from "../extension/popup-model.js";
 import { viewForScreenshot } from "../extension/screenshot-model.js";
@@ -55,6 +55,48 @@ test("the Spanish catalog has every English message, of the same kind", () => {
 
 test("the Slovenian catalog has every English message, of the same kind", () => {
   assert.deepEqual(shape(sl), shape(en));
+});
+
+// Each page's elements with data-text or data-label: the attribute, the
+// message's path, and what the HTML itself says there, its text or its aria-label.
+const PAGES = ["popup", "screenshot", "paste", "import", "chart"];
+function marked(page) {
+  const html = readFileSync(new URL(`../extension/${page}.html`, import.meta.url), "utf8");
+  const marks = [
+    ...[...html.matchAll(/<\w+[^>]*\bdata-text="([^"]+)"[^>]*>([^<]*)</g)].map(([, path, said]) => ({ path, said })),
+    ...[...html.matchAll(/<\w+[^>]*\baria-label="([^"]+)"[^>]*\bdata-label="([^"]+)"/g)].map(([, said, path]) => ({ path, said })),
+  ];
+  // Every attribute was found, not only those these patterns fit.
+  assert.equal(marks.length, html.match(/\bdata-(?:text|label)="/g)?.length ?? 0, `${page}'s marks`);
+  return marks;
+}
+
+test("every page's data-text and data-label names a message in each catalog, and English says what the HTML does", () => {
+  for (const page of PAGES) {
+    const marks = marked(page);
+    assert.ok(marks.length > 0, page);
+    for (const { path, said } of marks) {
+      inLanguage("en", () => assert.equal(messageAt(path), said, `${page}: ${path}`));
+      inLanguage("es", () => assert.equal(typeof messageAt(path), "string", `${page}: ${path} in Spanish`));
+    }
+  }
+});
+
+test("localizePage sets the page's lang and fills in its text and labels, leaving what has no message", () => {
+  const element = (dataset) => ({ dataset, textContent: "English", label: null, setAttribute: function (name, value) { this.label = value; } });
+  const heading = element({ text: "pages.paste.heading" });
+  const missing = element({ text: "pages.paste.nothing" });
+  const box = element({ label: "pages.paste.textLabel" });
+  const document = { documentElement: {}, querySelectorAll: (selector) => (selector === "[data-text]" ? [heading, missing] : [box]) };
+  try {
+    localizePage(document, ["es-ES", "en"]);
+    assert.equal(document.documentElement.lang, "es");
+    assert.equal(heading.textContent, "Pegar el texto de una carta");
+    assert.equal(box.label, "Texto de la carta");
+    assert.equal(missing.textContent, "English");
+  } finally {
+    setLanguage(["en"]);
+  }
 });
 
 test("the popup's refusals are in the chosen language", () => {

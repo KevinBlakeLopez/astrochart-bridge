@@ -10,7 +10,11 @@ import { linkFor } from "./chart-model.js";
 import { renderChart } from "./desktop-page.js";
 import { chartToShare, viewForShareRefusal } from "./popup-model.js";
 import { viewForScreenshot } from "./screenshot-model.js";
+import { localizePage, text } from "./messages/index.js";
 import { paragraph, render } from "./view.js";
+
+// The browser's language, chosen before anything is drawn.
+localizePage(document, navigator.languages);
 
 // Every file Tesseract.js loads comes from the extension, never a CDN.
 const VENDOR = new URL("vendor/tesseract/", import.meta.url).href;
@@ -67,16 +71,16 @@ async function readImage(file) {
   if (!file) return;
   const id = ++latest;
   readDetails.hidden = true;
-  app.replaceChildren(paragraph("Reading the screenshot…", "note"));
+  app.replaceChildren(paragraph(text().pages.screenshot.reading, "note"));
   try {
-    const text = await recognize(file);
+    const recognized = await recognize(file);
     if (id !== latest) return;
-    readText.textContent = text;
+    readText.textContent = recognized;
     readDetails.hidden = false;
-    showChart(analyzeScreenshot(text));
+    showChart(analyzeScreenshot(recognized));
   } catch (error) {
     if (id !== latest) return;
-    const view = { state: "refused", message: "AstroChart Bridge couldn't read this image.", code: String(error?.message ?? error) };
+    const view = { state: "refused", message: text().pages.screenshot.unreadable, code: String(error?.message ?? error) };
     render(app, view, openLink);
   }
 }

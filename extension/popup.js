@@ -30,11 +30,11 @@ import {
   withOtherWays,
 } from "./popup-model.js";
 import { HOST_PERMISSION, readSky } from "./stellarium-desktop.js";
-import { setLanguage, text } from "./messages/index.js";
+import { localizePage, text } from "./messages/index.js";
 import { desktopHintLine, render, wayGroups } from "./view.js";
 
 // The browser's language, chosen before anything is drawn.
-document.documentElement.lang = setLanguage(navigator.languages);
+localizePage(document, navigator.languages);
 
 const app = document.getElementById("app");
 

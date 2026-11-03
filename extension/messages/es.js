@@ -33,6 +33,67 @@ const LOCAL_ZONE =
   "La fecha y la hora son las locales de la carta, y la opción automatic time zone de astro.com busca la zona de la ciudad que elijas. ";
 
 export default {
+  pages: {
+    popup: {
+      title: "AstroChart Bridge",
+      reading: "Leyendo la página…",
+    },
+    screenshot: {
+      title: "AstroChart Bridge: leer una captura de pantalla",
+      heading: "Leer la captura de pantalla de una carta",
+      intro:
+        "Pega (⌘V) o suelta en cualquier parte de esta página una captura de pantalla de una página de carta natal de Astro-Seek, un dibujo de carta de astro.com, una rueda de Solar Fire, los Chart Details de Astro Gold, una carta de Morinus, una rueda de Valens, una carta de Planetdance, los datos de nacimiento de Jagannatha Hora, una rueda de Kepler o Sirius, una rueda de Janus o Win*Star, una carta de TimePassages o una rueda de Astrolog, o elige un archivo. De Astro-Seek necesita todo desde Date of Birth hasta Latitude, Longitude; de astro.com, la cabecera del dibujo desde la fecha hasta Sid. Time; de Solar Fire o Astro Gold, los datos de la carta desde la fecha hasta las coordenadas; de Morinus, su barra de estado o el centro de su carta cuadrada; de Valens, el centro de su rueda; de Planetdance, las líneas de arriba a la izquierda de la rueda, hasta St:; de Jagannatha Hora, los datos de nacimiento desde Date hasta Sidereal Time; de Kepler o Sirius, el bloque de datos desde el nombre hasta Time Zone; de Janus, el centro de la rueda desde la fecha hasta las coordenadas; de Win*Star, la parte superior derecha de la rueda desde la fecha hasta la latitud; de TimePassages, toda la carta, con sus esquinas; de Astrolog, la parte superior de la barra lateral desde la fecha hasta Julian Day. Vale la página entera.",
+      choose: "Elegir una captura de pantalla",
+      privacy: "La captura de pantalla se lee en este equipo y no se envía a ningún sitio.",
+      whatWasRead: "Lo que leyó AstroChart Bridge",
+      reading: "Leyendo la captura de pantalla…",
+      unreadable: "AstroChart Bridge no pudo leer esta imagen.",
+    },
+    paste: {
+      title: "AstroChart Bridge: pegar el texto de una carta",
+      heading: "Pegar el texto de una carta",
+      intro:
+        'Pega datos de nacimiento copiados de un programa de astrología, un informe o una nota, en líneas con etiquetas en inglés, como "Date of Birth: 15 June 1985" o "latitude=47.6062".',
+      textLabel: "Texto de la carta",
+      read: "Leer el texto",
+      fromClipboard: "Pegar del portapapeles",
+      privacy: "El texto se lee en este equipo y no se envía ni se guarda en ningún sitio.",
+      clipboardRefused: "Tu navegador no dejó que AstroChart Bridge leyera el portapapeles. Haz clic en el cuadro de arriba y pega con ⌘V o Ctrl+V.",
+      continue: "Continuar",
+      continueToAstroCom: "Continuar en astro.com",
+      alsoInText: "También en el texto:",
+      back: "Volver al formulario",
+    },
+    import: {
+      title: "AstroChart Bridge: abrir un archivo AAF o de Morinus",
+      heading: "Abrir un archivo AAF o de Morinus",
+      intro:
+        "Elige o suelta en cualquier parte de esta página un archivo AAF (.aaf) o una carta de Morinus (.hor), o pega abajo el texto de un archivo AAF. Astrolog y otros programas de astrología guardan las cartas en AAF.",
+      choose: "Elegir un archivo AAF o de Morinus",
+      textLabel: "Texto AAF",
+      read: "Leer el texto pegado",
+      privacy: "El archivo se lee en este equipo y no se envía a ningún sitio.",
+    },
+    chart: {
+      title: "AstroChart Bridge: abrir una carta",
+      readingLink: "Leyendo el enlace…",
+      linkLabel: "Enlace a esta carta",
+      openFile: "Abrir un archivo de AstroChart Bridge",
+      fileLabel: "Archivo de carta",
+      privacy:
+        "El enlace de una carta contiene la propia carta, y su archivo también. Cualquiera que tenga uno de los dos puede leerla, así que compártelos solo con personas que deban ver estos datos de nacimiento. Esta página los lee en este dispositivo, no guarda nada y no envía nada hasta que abras el cielo o la carta.",
+      opened: (name) => `Se abrió ${name}.`,
+      couldntPass:
+        "AstroChart Bridge no pudo pasar el archivo. Haz clic en Abrir un archivo AAF o de Morinus en la ventana emergente de la extensión y elígelo allí.",
+      linkCopied: "Enlace copiado.",
+      copyRefused: "Este navegador no dejó que AstroChart Bridge copiara el enlace. Cópialo desde aquí:",
+      hideQr: "Ocultar código QR",
+      shareSheetFailed: "AstroChart Bridge no pudo abrir el menú para compartir. Usa Copiar enlace o Descargar archivo.",
+    },
+    astroComFilled: "AstroChart Bridge completó el formulario de astro.com en su pestaña.",
+    astroSeekFilled: "AstroChart Bridge completó el formulario de Astro-Seek en su pestaña. Comprueba allí Gender y después haz clic en Add person.",
+  },
+
   view: {
     code: (code) => `Código: ${code}`,
     cancel: "Cancelar",

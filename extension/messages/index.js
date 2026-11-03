@@ -29,3 +29,32 @@ export function setLanguage(languages) {
  * module loads, or the screen keeps the language chosen before it.
  */
 export const text = () => current;
+
+/**
+ * The message at a dotted path in the chosen catalog, such as "pages.paste.heading",
+ * or undefined where there is none.
+ *
+ * @param {string} path
+ */
+export const messageAt = (path) => path.split(".").reduce((group, key) => (group && Object.hasOwn(group, key) ? group[key] : undefined), current);
+
+/**
+ * Chooses the language for a page and fills in its own text, before it draws
+ * anything: the page's lang, each element's data-text as its text and each
+ * data-label as its aria-label, both paths for messageAt. An element whose
+ * message isn't a string keeps what the HTML says.
+ *
+ * @param {Document} document
+ * @param {readonly string[]} languages  navigator.languages
+ */
+export function localizePage(document, languages) {
+  document.documentElement.lang = setLanguage(languages);
+  for (const element of document.querySelectorAll("[data-text]")) {
+    const message = messageAt(element.dataset.text);
+    if (typeof message === "string") element.textContent = message;
+  }
+  for (const element of document.querySelectorAll("[data-label]")) {
+    const message = messageAt(element.dataset.label);
+    if (typeof message === "string") element.setAttribute("aria-label", message);
+  }
+}
