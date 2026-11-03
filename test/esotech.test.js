@@ -218,7 +218,19 @@ test("Astro Gold's Chart Details panel reads as Astro Gold", () => {
     warnings: ["offset-unchecked"],
     name: { first: "Angelina Jolie", last: "" },
     town: "Los Angeles, California",
+    // From the type line, "Female - Equal".
+    gender: "female",
   });
+});
+
+test("the type line's first word is the chart's gender, where it gives one", () => {
+  const gender = (lines) => read(ocr(lines)).gender;
+  assert.equal(gender(JOLIE.map((line) => (line === "Female - Equal" ? "Male - Equal" : line))), "male");
+  assert.equal(gender(STREISAND.map((line) => (line.startsWith("Natal") ? "Event Chart" : line))), "event");
+  assert.equal(gender(STREISAND.map((line) => (line.startsWith("Natal") ? "Horary Chart" : line))), "horary");
+  // A natal chart, or a type line that isn't one this reader knows, gives none.
+  assert.equal(gender(STREISAND), undefined);
+  assert.equal(gender(NEW_YORK), undefined);
 });
 
 test("Astro Gold's wheel is refused for the coordinates it doesn't print", () => {

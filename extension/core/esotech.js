@@ -106,11 +106,17 @@ export function read(text) {
   // is one this reader knows; the place is the line under the time, unless
   // the coordinates come straight after it.
   const place = lines[at + 1] ?? null;
-  return withLabels(chart, {
+  const labelled = withLabels(chart, {
     name: site === "solar-fire-or-astro-gold" ? null : (lines[at - 3] ?? null),
     place: place !== null && !COORDS_LINE.test(place) ? place : null,
   });
+  // The type line's first word gives the chart's gender, where it gives one:
+  // Astro Gold's "Female - Equal", Solar Fire's "Event Chart".
+  const gender = site === "solar-fire-or-astro-gold" ? null : (TYPE_GENDERS[(lines[at - 2] ?? "").split(" ")[0]] ?? null);
+  return gender === null || labelled.kind === "refused" ? labelled : { ...labelled, gender };
 }
+
+const TYPE_GENDERS = { Female: "female", Male: "male", Event: "event", Horary: "horary" };
 
 function siteOf(typeLine) {
   if (SOLAR_FIRE_TYPE.test(typeLine)) return "solar-fire";

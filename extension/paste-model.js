@@ -6,6 +6,7 @@ import {
   ASTRO_SEEK_NOTES,
   SHARE_BUTTON,
   astroComStep,
+  genderRows,
   nameFromText,
   viewFor,
   viewForAstroCom,
@@ -184,6 +185,8 @@ export function formFor(result, program = null) {
     name: chartName,
     // Null when the text gives two places.
     town,
+    // A program's, from where it prints the chart's type.
+    gender: read?.gender ?? null,
   };
 }
 
@@ -344,10 +347,10 @@ export function localEntryFor({ date, time, lat, lng }, offsetText) {
  * with no UTC, so astro.com's automatic time zone decides the moment.
  *
  * @param {NonNullable<ReturnType<typeof localEntryFor>>} chart
- * @param {{ name?: { first: string, last: string } | null, town?: string | null }} [options]  formFor's
+ * @param {{ name?: { first: string, last: string } | null, town?: string | null, gender?: string | null }} [options]  formFor's
  */
-export function viewForLocalEntry({ local, lat, lng }, { name = null, town = null } = {}) {
-  const view = viewForAstroCom({ utc: null, lat, lng }, { local, name, town });
+export function viewForLocalEntry({ local, lat, lng }, { name = null, town = null, gender = null } = {}) {
+  const view = viewForAstroCom({ utc: null, lat, lng }, { local, name, town, gender });
   return { ...view, notes: [LOCAL_ONLY_NOTE, ...view.notes] };
 }
 
@@ -358,21 +361,23 @@ export function viewForLocalEntry({ local, lat, lng }, { name = null, town = nul
  * the step to enter it in astro.com with the text's name and place.
  *
  * @param {ReturnType<typeof entryFor>} entry
- * @param {{ warnings?: string[], timeZone?: string, name?: { first: string, last: string } | null, town?: string | null }} [options]
- *   timeZone is passed on to viewFor; name and town are formFor's
+ * @param {{ warnings?: string[], timeZone?: string, name?: { first: string, last: string } | null, town?: string | null,
+ *   gender?: string | null }} [options]
+ *   timeZone is passed on to viewFor; name, town and gender are formFor's
  */
-export function viewForEntry(entry, { warnings = [], timeZone, name = null, town = null } = {}) {
+export function viewForEntry(entry, { warnings = [], timeZone, name = null, town = null, gender = null } = {}) {
   const result = analyzeEntry(entry);
   const view = viewFor(result, { timeZone });
   return withAstroSeekSave(
     {
       ...view,
+      ...(view.rows ? { rows: [...genderRows(gender), ...view.rows] } : {}),
       warnings: [...view.warnings, ...warnings],
       notes: [OFFSET_NOTE, ...view.notes, ...ASTRO_SEEK_NOTES],
       buttons: [...ASTRO_SEEK_BUTTONS, SHARE_BUTTON].map((button) => ({ ...button })),
-      next: astroComStep(view.sky, { local: result.local, name, town }),
+      next: astroComStep(view.sky, { local: result.local, name, town, gender }),
     },
-    { town, name },
+    { town, name, gender },
   );
 }
 

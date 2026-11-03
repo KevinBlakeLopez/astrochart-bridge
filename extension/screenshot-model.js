@@ -1,4 +1,4 @@
-import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, SHARE_BUTTON, astroComStep, viewFor, withAstroSeekSave } from "./popup-model.js";
+import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, SHARE_BUTTON, astroComStep, genderRows, viewFor, withAstroSeekSave } from "./popup-model.js";
 
 // Each refusal analyzeScreenshot can return. They keep their code on screen,
 // like the popup's unreadable pages, so a bug report says which check failed.
@@ -87,18 +87,18 @@ export function viewForScreenshot(result, options) {
   // viewFor leads only an Astro-Seek chart on to astro.com, since the popup
   // is on an astro.com chart's own page. A screenshot can be any chart, so
   // every chart with a decided sky can be entered there, at its own local time.
-  // A program's name and place, where its reader found them, go on to both
-  // forms, and show as rows to compare with the screenshot like the others.
-  const { name = null, town = null } = result;
-  const next = view.next || !view.sky ? {} : { next: astroComStep(view.sky, { local: result.local, name, town }) };
-  const rows = view.rows && (name || town) ? { rows: labelRows(view.rows, { name, town }) } : {};
-  return withAstroSeekSave({ ...view, ...rows, ...warnings, ...message, ...next, notes: [COMPARE_NOTE, ...notes], buttons }, { name, town });
+  // A program's name, place and gender, where its reader found them, go on to
+  // both forms, and show as rows to compare with the screenshot like the others.
+  const { name = null, town = null, gender = null } = result;
+  const next = view.next || !view.sky ? {} : { next: astroComStep(view.sky, { local: result.local, name, town, gender }) };
+  const rows = view.rows && (name || town || gender) ? { rows: labelRows(view.rows, { name, town, gender }) } : {};
+  return withAstroSeekSave({ ...view, ...rows, ...warnings, ...message, ...next, notes: [COMPARE_NOTE, ...notes], buttons }, { name, town, gender });
 }
 
-// The screen's rows with Name first and Town after Place, as printed.
-function labelRows(rows, { name, town }) {
+// The screen's rows with Name and Gender first and Town after Place, as printed.
+function labelRows(rows, { name, town, gender }) {
   const at = rows.findIndex(([label]) => label === "Place") + 1 || rows.length;
   const nameRow = name ? [["Name", [name.first, name.last].filter(Boolean).join(" ")]] : [];
   const townRow = town ? [["Town", town]] : [];
-  return [...nameRow, ...rows.slice(0, at), ...townRow, ...rows.slice(at)];
+  return [...nameRow, ...genderRows(gender), ...rows.slice(0, at), ...townRow, ...rows.slice(at)];
 }

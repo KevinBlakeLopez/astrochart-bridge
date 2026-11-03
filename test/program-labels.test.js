@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { analyzeScreenshot } from "../extension/core/index.js";
-import { formForText } from "../extension/paste-model.js";
+import { entryFor, formForText, viewForEntry } from "../extension/paste-model.js";
 import { viewForAstroCom } from "../extension/popup-model.js";
 import { viewForScreenshot } from "../extension/screenshot-model.js";
 
@@ -74,4 +74,39 @@ test("pasted program text gives its name and town to the paste page, not its coo
   const solarFire = formForText(ocr(SOLAR_FIRE));
   assert.deepEqual([solarFire.name, solarFire.town], [{ first: "Barbra Streisand", last: "" }, "Brooklyn, New York"]);
   assert.deepEqual(solarFire.rows, [["Name", "Barbra Streisand"], ["Town", "Brooklyn, New York"]]);
+});
+
+// An astro.com chart image's header with OCR's reading of the wheel after
+// its lines, as in test/screenshot.test.js, and Astro Gold's Chart Details.
+const ASTRO_COM_IMAGE = [
+  "Will Sick One Die? William Lilly questio \\L/_",
+  "We., 26 July 1645 Time: 7:30:03 a.m. LMT MC,g",
+  "London, ENG (UK) Univ.Time: 7:30:43 WWW.8Str0. Com",
+  "0w10, 51n30 Sid. Time: 347-11 hm am",
+  "Event Chart",
+];
+const ASTRO_GOLD = ["1 - Chart", "Angelina Jolie", "Female - Equal", "4 Jun 1975, Wed", "9:09 AM PDT +7:00", "Los Angeles, California", "34°N03'08\" 118°W14'34\""];
+
+test("an astro.com chart image's name, place and Event Chart go to both forms", () => {
+  const view = viewForScreenshot(analyzeScreenshot(ocr(ASTRO_COM_IMAGE)), LA);
+  assert.deepEqual(view.rows.slice(0, 2), [["Name", "Will Sick One Die? William Lilly questio"], ["Gender", "Event"]]);
+  assert.deepEqual(view.rows.at(-1), ["Town", "London, ENG (UK)"]);
+  const held = view.next.view.buttons[0].holds;
+  assert.deepEqual([held.name, held.town, held.gender], [{ first: "Will Sick One Die? William Lilly questio", last: "" }, "London, ENG (UK)", "event"]);
+  assert.equal(view.buttons.find(({ saves }) => saves).saves.gender, "event");
+});
+
+test("Astro Gold's gender goes from a screenshot, or its pasted text, to both forms", () => {
+  const view = viewForScreenshot(analyzeScreenshot(ocr(ASTRO_GOLD)), LA);
+  assert.deepEqual(view.rows[1], ["Gender", "Female"]);
+  assert.equal(view.next.view.buttons[0].holds.gender, "female");
+  assert.equal(view.buttons.find(({ saves }) => saves).saves.gender, "female");
+
+  const form = formForText(ocr(ASTRO_GOLD));
+  assert.equal(form.gender, "female");
+  const entry = entryFor({ date: "1975-06-04", time: "09:09:00", lat: 34.052222, lng: -118.242778, offset: -420 });
+  const ready = viewForEntry(entry, { timeZone: "America/Los_Angeles", name: form.name, town: form.town, gender: form.gender });
+  assert.deepEqual(ready.rows[0], ["Gender", "Female"]);
+  assert.equal(ready.next.view.buttons[0].holds.gender, "female");
+  assert.equal(ready.buttons.find(({ saves }) => saves).saves.gender, "female");
 });
