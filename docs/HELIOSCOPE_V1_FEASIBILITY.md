@@ -6,7 +6,7 @@ Findings are marked by how they were established. **Verified** means observed: d
 
 ## 1. Executive conclusion
 
-**Decision, 1 November 2026:** route A (§4). AstroChart Bridge is licensed under AGPL-3.0-or-later, and gate 1 passes once that licence is on `main`. The rest of this document records the spike as it stood before the decision, except for gate 4, which ran after it (§8).
+**Decision, 1 November 2026:** route A (§4). AstroChart Bridge is licensed under AGPL-3.0-or-later, and gate 1 passes once that licence is on `main`. The rest of this document records the spike as it stood before the decision, except for gate 4 and the Chrome run of gate 2, which came after it (§8).
 
 - **The function exists and can be reached.** `swe_vis_limit_mag()` is compiled into the published `@kuntay/swisseph` 0.2.2 binary and exported (Verified). The package doesn't wrap it, but its documented `raw` escape hatch hands over the Emscripten module, so a small local wrapper can call it. No rebuild is needed.
 - **Licensing stops it here.** AstroChart Bridge has no licence. `@kuntay/swisseph` is AGPL-3.0-or-later, and Swiss Ephemeris is AGPL or a paid Professional License. Shipping the library in the extension, or on the receiving page, means distributing AstroChart Bridge under the AGPL. That is the owner's decision, so the spike stopped before adding the dependency (gate 1).
@@ -16,7 +16,7 @@ Findings are marked by how they were established. **Verified** means observed: d
 | Gate | Result | Basis |
 |---|---|---|
 | 1. Licensing | **Decided: route A**, AGPL-3.0-or-later. Before that, a material concern that needed the owner's decision | §4 |
-| 2. Browser compatibility | Not run, because gate 1 stopped incorporation. Nothing found that blocks it | §5 (Read, plus binary decoding) |
+| 2. Browser compatibility | **Passed in Chrome**, after the decision. In an extension page under AstroChart Bridge's script policy, gate 4's 3,757 calls give results bit-identical to Node's. Firefox and Safari aren't run yet | §8 (Verified in Chrome), §5 (Read, plus binary decoding) |
 | 3. Visibility function | Passed | §3 (Verified in the binary and the glue) |
 | 4. Numerical validation | **Passed in Node**, after the decision. In 3,757 calls, the published WebAssembly matches native Swiss Ephemeris built from the same C sources | §8 (Verified) |
 | 5. Integration | Passed at design level | §6, §7 |
@@ -81,21 +81,21 @@ The owner chooses between four routes. None was started.
 
 ## 5. Browser compatibility assessment
 
-This wasn't run: no prototype was built, because gate 1 stopped incorporation (§4). Reading the package and decoding its binary shows the following. The speed and isolation rows also give what gate 4 measured in Node, after the decision.
+Before the decision this wasn't run: no prototype was built, because gate 1 stopped incorporation (§4). Reading the package and decoding its binary shows the following. Some rows also give what was measured after the decision, by gate 4 in Node and gate 2 in Chrome (§8).
 
 | Concern | Finding |
 |---|---|
-| WebAssembly under Manifest V3 | Compiling WebAssembly needs `'wasm-unsafe-eval'`, which extension pages already have for Tesseract. No security setting would change |
+| WebAssembly under Manifest V3 | Compiling WebAssembly needs `'wasm-unsafe-eval'`, which extension pages already have for Tesseract. No security setting would change. **Verified in Chrome 155** at gate 2: the binary compiled and ran under this policy, and no violation was reported |
 | Remote code | The glue loads the binary from `new URL("swisseph.wasm", import.meta.url)`, a file packaged next to it. Nothing comes from a CDN |
 | `eval`, `new Function` | None in the glue |
 | Threads, `SharedArrayBuffer` | None, so no cross-origin isolation is needed |
 | Loading without a bundler | `dist/` imports only relative paths. Node's `fs` and `path` are imported dynamically inside the function that reads files from disk (`dist/ephemeris/sources.js:93-94`), so a browser never loads them |
-| Initialization | `fetch` and `WebAssembly.instantiateStreaming`. If streaming fails, for example on a wrong MIME type, the glue logs to the console and instantiates from an `ArrayBuffer` instead. Which path each browser takes is unknown; if those messages appear, they would fail manual test 13's empty-console check |
+| Initialization | `fetch` and `WebAssembly.instantiateStreaming`. If streaming fails, for example on a wrong MIME type, the glue logs to the console and instantiates from an `ArrayBuffer` instead. Which path each browser takes is unknown; if those messages appear, they would fail manual test 13's empty-console check. **Verified in Chrome 155** at gate 2: the binary was served as `application/wasm` and nothing was logged, so the glue didn't fall back |
 | Ephemeris data | None needed with the Moshier ephemeris, which is compiled in and covers 3000 BCE to 3000 CE. Swiss Ephemeris files would have to be copied into the module's in-memory file system |
 | Memory | **Verified** from the binary: 16.3 MiB of linear memory at start, growing to at most 2 GiB, not shared |
 | Size | In 0.2.2, `swisseph.wasm` is 562,903 bytes and `swisseph.mjs` 76,449 bytes. The vendored Tesseract files come to about 7 MB |
 | Service worker | There isn't one, and none is needed. Helioscope should run in an extension page in a tab, like the screenshot page, because the popup closes when it loses focus |
-| Speed | **Verified natively:** under 0.03 ms a call. The search in §6 makes about 600 calls a chart. **Verified in Node 24** at gate 4: the WebAssembly takes about 23 µs a call, and about 1.3 ms to create an instance |
+| Speed | **Verified natively:** under 0.03 ms a call. The search in §6 makes about 600 calls a chart. **Verified in Node 24** at gate 4: the WebAssembly takes about 23 µs a call, and about 1.3 ms to create an instance. **Verified in Chrome 155** at gate 2: about 22 µs a call and 2.0 ms an instance |
 | Isolation | **Read:** each `createSwissEph()` call makes a new WebAssembly instance (`tools/build-wasm.mjs:114-118`). **Verified in Node** at gate 4: a new instance starts with empty caches (§8) |
 
 Manual test 13 checks that each supported browser runs Tesseract's WebAssembly under this policy. This spike didn't run it.
@@ -223,8 +223,9 @@ So "View in Stellarium" needs no new transport, just two optional fields for Ste
   - the C library's default atmosphere and observer (all inputs 0): pressure and temperature from the elevation, 40 % humidity, aerosol from humidity, age 36, Snellen ratio 1, naked eye
   - the Moon included
 - **The WebAssembly, in Node**, after the licence decision: the published 0.2.2 package against that native reference, for gate 4 (below).
+- **The WebAssembly, in Chrome 155**, on 2 November 2026: the same calls in a browser extension page, for gate 2 (below).
 
-What didn't run: the WebAssembly in a browser extension page (gate 2, §1), and any Helioscope code, since none exists.
+What didn't run: the WebAssembly in Firefox and Safari (gate 2, §1), and any Helioscope code, since none exists.
 
 ### `swe_vis_limit_mag` behaviour, verified natively
 
@@ -301,6 +302,17 @@ The reference values in §8 and §10 come from the default `-O2` build. A test t
 
 The comparison script and the native harness aren't committed.
 
+### Gate 2: the WebAssembly in a browser
+
+**Verified** in Chrome 155 on macOS on 2 November 2026, after the licence decision. A throwaway extension loaded the published 0.2.2 package into an extension page with AstroChart Bridge's script policy, `script-src 'self' 'wasm-unsafe-eval'; object-src 'self'`. Through gate 4's wrapper, it ran the reference call and then gate 4's 3,757 calls, in the same 22 sessions, each in a new instance. It hashed every number and string the calls returned, as gate 4 did in Node: the return codes, the results, the atmosphere, observer and object name as Swiss Ephemeris rewrote them, and the error strings. To pass, the reference call had to equal Node's exactly and native's within 10⁻⁹, the digest had to equal Node's, and the page had to log no console errors or warnings and report no policy violations.
+
+- **Loading:** Chrome served the binary from the extension's files as `application/wasm`, 562,903 bytes. Nothing was logged, so the glue didn't fall back from streaming compilation (§5). Loading the module and creating the first instance took 47 ms.
+- **The reference call:** `ret` 0, limiting magnitude 3.011648059376931, Venus −4.528168498295062 and altitude 30.449427707878996, Node's values to the bit. Against the native `-O2` values in §10, the limiting magnitude differs by 8.9×10⁻¹⁶ and the altitude by 5.3×10⁻¹⁴°.
+- **The corpus:** the digest equals Node's, `e80cc9dc473fc1bbbdc362bb2e3fe08c4722c60e204534b434d1217077ad7b25`. Chrome's results are therefore bit-identical to Node's, and gate 4's comparisons with native hold for Chrome unchanged.
+- **Speed:** about 22 µs a call and 2.0 ms to create an instance, against 23 µs and 1.3 ms in Node.
+
+Firefox and Safari are still to run, with the same extension. Like gate 4's script, it isn't committed.
+
 ### Test plan for V1, to be written before the code
 
 - **Engine boundary:** the reference cases above as fixtures. The WebAssembly must match the native values within a tolerance measured at gate 4, not assumed.
@@ -324,7 +336,7 @@ The comparison script and the native harness aren't committed.
 ## 9. Remaining risks
 
 - **Licensing** (§4) blocks everything else.
-- **Runtime in browsers** isn't verified. Unknown: streaming instantiation and the `.wasm` MIME type in each browser, console messages, and Safari 26 on the Mac and the iPad.
+- **Runtime in browsers** is verified in Chrome only (§8). Unknown in Firefox, and in Safari 26 on the Mac and the iPad: streaming instantiation and the `.wasm` MIME type, console messages, and whether the results match Node's.
 - **Model validity:** in the cases tried, the margin moved by 0.5 to 2.4 magnitudes with assumptions nobody records for a birth, and it has a discontinuity of 1.1 magnitudes. A "detectable" with a small margin is weak evidence.
 - **Hidden state:** the extinction memo (item 5) and the global observer (item 3). Any sweep over atmospheres needs a fresh instance for each scenario, or calls at different instants.
 - **Magnitudes:** Swiss Ephemeris uses Mallama and Hilton's 2018 formulas. **Read:** Mercury's is applied at every phase angle without a range check (`swecl.c:3923-3926`), and only Venus gets a warning, beyond 179°. Near superior conjunction, the object's magnitude is extrapolated.
@@ -340,5 +352,5 @@ The comparison script and the native harness aren't committed.
 ## 10. Recommended next step
 
 1. **Choose the licensing route** (§4). Done: route A, on 1 November 2026.
-2. **Build an isolated prototype for gates 2 and 4**, outside the production extension. A scratch extension page loads the vendored package and calls `swe_vis_limit_mag` through `raw.cwrap` for Venus from New York at 2025-01-10 22:35:00 UTC, with the C defaults and Moshier. It compares the result with the native one: `ret` 0, limiting magnitude 3.01164805937693, Venus −4.528168498295062, altitude 30.449427707878943. Run it in Chrome, Firefox and Safari, and run the same comparison in Node from `test/`. Gate 4 is done: it ran in Node on 1 November 2026, from a script outside the repository (§8). The browser runs are still to do.
+2. **Build an isolated prototype for gates 2 and 4**, outside the production extension. A scratch extension page loads the vendored package and calls `swe_vis_limit_mag` through `raw.cwrap` for Venus from New York at 2025-01-10 22:35:00 UTC, with the C defaults and Moshier. It compares the result with the native one: `ret` 0, limiting magnitude 3.01164805937693, Venus −4.528168498295062, altitude 30.449427707878943. Run it in Chrome, Firefox and Safari, and run the same comparison in Node from `test/`. Gate 4 is done: it ran in Node on 1 November 2026, from a script outside the repository (§8). Of the browser runs, Chrome's passed on 2 November 2026 (§8), and Firefox and Safari are still to do.
 3. **Then the proof of concept** the brief describes: Venus, New York, the evening window of 10 January 2025, and one visibility calculation returning the structured result of §6, with the tests written first.
