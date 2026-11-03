@@ -24,11 +24,11 @@ It packs a commit rather than the working tree, so a store gets what was committ
 
 ## Listing text
 
-The same text serves both stores.
+The same text serves both stores. English is the default listing. Both stores also take a listing per language, so the Spanish and Slovenian ones below go with the interface's two other languages.
 
 **Name:** AstroChart Bridge
 
-**Summary:** the manifest's `description`. The Chrome Web Store takes it from the manifest, where `test/manifest.test.js` keeps it within the store's 132 characters. AMO asks for it in a field of its own:
+**Summary:** the `extDescription` message in `extension/_locales/<language>/messages.json`, which the manifest's `description` names. The Chrome Web Store takes it from there for each language, and `test/manifest.test.js` keeps every language within the store's 132 characters. AMO asks for it in a field of its own:
 
 > Open a natal chart's sky in Stellarium, or the chart in Astro-Seek or astro.com, from a chart page, screenshot, pasted text or file.
 
@@ -43,15 +43,75 @@ The same text serves both stores.
 > • text pasted from an astrology program, a chart report, a PDF or your own notes, which you check on a form before anything opens
 > • an AAF file, or a Morinus chart file (.hor)
 >
-> It sends a chart to Stellarium Web or Stellarium Desktop, to Astro-Seek, or to astro.com's birth data form, which it fills in but never submits. It can also save the chart as an AAF file, or share it as a link, a QR code or a file that opens on another device without the extension.
+> It sends a chart to Stellarium Web or Stellarium Desktop, to Astro-Seek, or to astro.com's birth data form, which it fills in but never submits. With Save in Astro-Seek… it opens Astro-Seek's Add person form with the chart's date, time, place and name filled in and its town chosen, ready to save in your Astro-Seek account. It never presses Add person itself. It can also save the chart as an AAF file, or share it as a link, a QR code or a file that opens on another device without the extension.
 >
 > It works out the chart's Universal Time from what the source prints, and refuses a chart rather than guess a time, an offset or a calendar. It opens natal charts, plus horary charts from a screenshot. Transit, synastry, compatibility, return, profection and direction charts are refused, as are dates before the Gregorian calendar began on 15 October 1582.
 >
 > Privacy: there's no server, account or tracking. Charts are read in your browser, and nothing leaves it until you click a button that opens a site. A shared chart carries its name and town only when you tick them. Details: https://github.com/KevinBlakeLopez/astrochart-bridge/blob/main/docs/privacy.md
 >
+> Its interface is in English, Spanish and Slovenian, following your browser's language.
+>
 > AstroChart Bridge is free software under the GNU Affero General Public License, version 3 or later. Source: https://github.com/KevinBlakeLopez/astrochart-bridge
 >
 > AstroChart Bridge isn't affiliated with Astrodienst (astro.com), Astro-Seek, Stellarium, or the makers of the programs it reads.
+
+### Spanish and Slovenian
+
+Add these in each store's listing for that language: Chrome picks the language from a list on the Store listing page, and AMO from **Translations** on the add-on's edit page. The name stays AstroChart Bridge. Each summary is that language's `extDescription`, which Chrome fills in on its own. Have a native speaker read both descriptions before they go live: they were written alongside the interface's translations, and the interface's own wording for its buttons and screens is used here.
+
+**Spanish summary:**
+
+> Abre el cielo de una carta natal en Stellarium, o la carta en Astro-Seek o astro.com, desde una página, captura, texto o archivo.
+
+**Spanish description:**
+
+> AstroChart Bridge toma los datos de nacimiento de una carta astral y abre el mismo momento y lugar en otro sitio: el cielo en Stellarium Web o Stellarium Desktop, la carta en Astro-Seek o el formulario de datos de nacimiento de astro.com.
+>
+> Lee una carta desde:
+> • una página de carta de Astro-Seek (carta natal, carta de asteroides o carta tradicional), o una página de carta de astro.com, incluida una carta guardada en una cuenta de astro.com
+> • Stellarium Web, y Stellarium Desktop mediante su complemento Remote Control
+> • una captura de pantalla de una carta de Astro-Seek, astro.com, Solar Fire, Astro Gold, Morinus, Valens, Planetdance, Jagannatha Hora, Kepler, Sirius, Janus, Win*Star, TimePassages o Astrolog, leída en tu equipo
+> • texto pegado de un programa de astrología, un informe, un PDF o tus propias notas, que revisas en un formulario antes de que se abra nada
+> • un archivo AAF o una carta de Morinus (.hor)
+>
+> Envía una carta a Stellarium Web o Stellarium Desktop, a Astro-Seek o al formulario de datos de nacimiento de astro.com, que rellena pero nunca envía. Con Guardar en Astro-Seek… abre el formulario Add person de Astro-Seek con la fecha, la hora, el lugar y el nombre de la carta ya puestos y su ciudad elegida, listo para guardarla en tu cuenta de Astro-Seek. Nunca pulsa Add person por sí mismo. También puede guardar la carta como archivo AAF, o compartirla como enlace, código QR o archivo que se abre en otro dispositivo sin la extensión.
+>
+> Calcula el tiempo universal de la carta a partir de lo que muestra la fuente, y rechaza una carta antes que adivinar una hora, un desfase horario o un calendario. Abre cartas natales, y cartas horarias desde una captura de pantalla. Rechaza las cartas de tránsitos, sinastría, compatibilidad, revoluciones, profecciones y direcciones, y las fechas anteriores al 15 de octubre de 1582, cuando empezó el calendario gregoriano.
+>
+> Privacidad: no hay servidor, cuenta ni seguimiento. Las cartas se leen en tu navegador, y nada sale de él hasta que haces clic en un botón que abre un sitio. Una carta compartida lleva su nombre y su ciudad solo si los marcas. Detalles (en inglés): https://github.com/KevinBlakeLopez/astrochart-bridge/blob/main/docs/privacy.md
+>
+> La interfaz está en español, inglés y esloveno, según el idioma del navegador.
+>
+> AstroChart Bridge es software libre bajo la Licencia Pública General Affero de GNU, versión 3 o posterior. Código fuente: https://github.com/KevinBlakeLopez/astrochart-bridge
+>
+> AstroChart Bridge no está afiliado a Astrodienst (astro.com), Astro-Seek, Stellarium ni a los creadores de los programas que lee.
+
+**Slovenian summary:**
+
+> Nebo rojstnega horoskopa odpre v Stellariumu, horoskop pa na Astro-Seeku ali astro.com. Bere strani, posnetke, besedilo in datoteke.
+
+**Slovenian description:**
+
+> AstroChart Bridge vzame rojstne podatke iz astrološkega horoskopa in isti trenutek in kraj odpre drugje: nebo v Stellarium Web ali Stellarium Desktop, horoskop na Astro-Seeku ali obrazec za rojstne podatke na astro.com.
+>
+> Horoskop prebere:
+> • s strani s horoskopom na Astro-Seeku (rojstni horoskop, horoskop asteroidov ali tradicionalni horoskop) ali na astro.com, tudi horoskop, shranjen v računu na astro.com
+> • iz Stellarium Web ter iz Stellarium Desktop prek vtičnika Remote Control
+> • s posnetka zaslona horoskopa iz Astro-Seeka, astro.com ali programov Solar Fire, Astro Gold, Morinus, Valens, Planetdance, Jagannatha Hora, Kepler, Sirius, Janus, Win*Star, TimePassages in Astrolog, ki ga prebere na vašem računalniku
+> • iz besedila, prilepljenega iz astrološkega programa, poročila, PDF-ja ali vaših zapiskov, ki ga preverite v obrazcu, preden se karkoli odpre
+> • iz datoteke AAF ali horoskopa Morinus (.hor)
+>
+> Horoskop pošlje v Stellarium Web ali Stellarium Desktop, na Astro-Seek ali v obrazec za rojstne podatke na astro.com, ki ga izpolni, nikoli pa ne odda. Z ukazom Shrani na Astro-Seeku … odpre obrazec Add person na Astro-Seeku z že vpisanimi datumom, časom, krajem in imenom horoskopa ter izbranim mestom, tako da ga lahko shranite v svoj račun na Astro-Seeku. Gumba Add person nikoli ne pritisne sam. Horoskop lahko shrani tudi kot datoteko AAF ali ga deli kot povezavo, kodo QR ali datoteko, ki se odpre na drugi napravi brez razširitve.
+>
+> Univerzalni čas horoskopa izračuna iz tega, kar izpiše vir, in horoskop raje zavrne, kot da bi ugibal čas, časovni zamik ali koledar. Odpira rojstne horoskope, s posnetka zaslona pa tudi horarne. Zavrne horoskope tranzitov, sinastrije, združljivosti, revolucij, profekcij in direkcij ter datume pred 15. oktobrom 1582, ko se je začel gregorijanski koledar.
+>
+> Zasebnost: ni strežnika, računa ali sledenja. Horoskopi se preberejo v vašem brskalniku in nič ga ne zapusti, dokler ne kliknete gumba, ki odpre spletno mesto. Deljeni horoskop vsebuje ime in mesto samo, če ju označite. Podrobnosti (v angleščini): https://github.com/KevinBlakeLopez/astrochart-bridge/blob/main/docs/privacy.md
+>
+> Vmesnik je v slovenščini, angleščini in španščini, glede na jezik brskalnika.
+>
+> AstroChart Bridge je prosto programje pod licenco GNU Affero General Public License, različica 3 ali novejša. Izvorna koda: https://github.com/KevinBlakeLopez/astrochart-bridge
+>
+> AstroChart Bridge ni povezan z Astrodienstom (astro.com), Astro-Seekom, Stellariumom ali avtorji programov, ki jih bere.
 
 **Links:**
 
