@@ -27,6 +27,8 @@ const LABELS = new Map(
     born: ["born", "date of birth", "birth date", "birthdate", "dob", "date and time of birth", "birth date and time"],
     time: ["time of birth", "birth time"],
     place: ["place", "place of birth", "birth place", "birthplace", "location", "city"],
+    country: ["country", "country of birth", "birth country"],
+    gender: ["gender", "sex"],
     coordinates: ["coordinates", "coords", "latitude longitude"],
     latitude: ["latitude", "lat"],
     longitude: ["longitude", "long", "lng", "lon"],
@@ -41,7 +43,7 @@ const LABELS = new Map(
 // Labels that aren't read but end the value before them, when a copy runs a
 // page's rows together on one line, as one of Astro-Seek's did:
 // "…00:00  (PST)Universal Time (UT/GMT):1 January 1970 - 08:00  Local Sidereal Time (LST):22:35:14House system:…".
-const SKIPPED_LABELS = ["universal time", "local sidereal time", "sidereal time", "country"];
+const SKIPPED_LABELS = ["universal time", "local sidereal time", "sidereal time"];
 
 // Any label, read or skipped, that ends in a colon or equals sign, with a
 // bracketed note before it as in "Universal Time (UT/GMT):". Longer labels
@@ -106,6 +108,9 @@ const orUnreadable = (value) => (value === null ? UNREADABLE : { value });
 const READERS = {
   name: (text) => [["name", { value: text }]],
   place: (text) => [["place", { value: text }]],
+  // As written; it helps choose the town among astro.com's and Astro-Seek's matches.
+  country: (text) => [["country", { value: text }]],
+  gender: (text) => [["gender", orUnreadable(GENDERS[text.toLowerCase()] ?? null)]],
   ayanamsa: (text) => [["ayanamsa", { value: text }]],
   born: readBorn,
   time: readTimeAndOffset,
@@ -121,6 +126,10 @@ const READERS = {
   houses: (text) => [["houses", orUnreadable(houseSystem(text))]],
   zodiac: (text) => [["zodiac", orUnreadable(ZODIAC.exec(text)?.[1].toLowerCase() ?? null)]],
 };
+
+// A Gender or Sex line's value, as astro.com's and Astro-Seek's forms take
+// it. Anything else is unreadable, not guessed.
+const GENDERS = { female: "female", f: "female", woman: "female", male: "male", m: "male", man: "male", event: "event" };
 
 // Two different birth dates or names mean the text holds more than one chart.
 // Any other field read twice with different values is a conflict to resolve.

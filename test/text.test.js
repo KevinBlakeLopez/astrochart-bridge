@@ -301,6 +301,8 @@ test("labels run together on one line are read as lines of their own, at that li
     lat: { line: 1, text: "47°36'N, 122°19'W", value: 47.6 },
     lng: { line: 1, text: "47°36'N, 122°19'W", value: -122.316667 },
     place: { line: 1, text: "Seattle", value: "Seattle" },
+    // Astro-Seek's Country row, now read: its US and WA help choose the town.
+    country: { line: 2, text: "United States United States (US), WA", value: "United States United States (US), WA" },
   });
 });
 

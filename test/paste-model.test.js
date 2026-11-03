@@ -180,6 +180,34 @@ test("a confirmed entry can be entered in astro.com, with the text's name as its
   assert.equal(view.next.view.buttons[0].holds.name, name);
 });
 
+test("a Gender or Sex line is read as female, male or event, and anything else isn't guessed", () => {
+  const gender = (line) => readText(`Date of Birth: June 15, 1985\n${line}`).fields.gender;
+  for (const [line, value] of [
+    ["Gender: Female", "female"],
+    ["Sex: F", "female"],
+    ["Gender: woman", "female"],
+    ["Sex: M", "male"],
+    ["Gender: Male", "male"],
+    ["Gender: Event", "event"],
+  ]) {
+    assert.equal(gender(line).value, value, line);
+  }
+  assert.equal(gender("Gender: unknown").problem, "unreadable");
+});
+
+test("a Country line and a Gender line go to both forms, the country after the town", () => {
+  const entry = { date: "1985-06-15", time: "10:30:00", lat: 39.1, lng: -94.583333, offsetMinutes: -300 };
+  const form = formOf("Name: Example Person\nDate of Birth: June 15, 1985\nTime of Birth: 10:30 AM\nPlace: Kansas City\nCountry: USA\nGender: F");
+  assert.equal(form.town, "Kansas City, USA");
+  assert.equal(form.gender, "female");
+  assert.deepEqual(form.rows.slice(0, 4), [["Name", "Example Person"], ["Place", "Kansas City"], ["Country", "USA"], ["Gender", "F"]]);
+  const view = viewForEntry(entry, { name: form.name, town: form.town, gender: form.gender, ...LA });
+  assert.deepEqual(view.next.view, viewForAstroCom(view.sky, { local: "1985-06-15T10:30:00", name: form.name, town: "Kansas City, USA", gender: "female" }));
+  assert.equal(view.buttons.find(({ saves }) => saves).saves.gender, "female");
+  // A country with no place names no town.
+  assert.equal(formOf("Date of Birth: June 15, 1985\nCountry: USA").town, null);
+});
+
 test("the text's place goes in astro.com's town field", () => {
   const entry = { date: "1985-06-15", time: "10:30:00", lat: 47.6062, lng: -122.3321, offsetMinutes: -420 };
   const { town } = formOf(LABELLED);

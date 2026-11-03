@@ -138,7 +138,7 @@ function fieldElement(field, onValue) {
 // back to this screen.
 function showReady(formElementToKeep, entry, form) {
   const screen = document.createElement("div");
-  const view = viewForEntry(entry, { warnings: form.warnings, name: form.name, town: form.town });
+  const view = viewForEntry(entry, { warnings: form.warnings, name: form.name, town: form.town, gender: form.gender });
   const onButton = async (button, sky, drawn) => {
     // Links, Save in Astro-Seek…, and the astro.com buttons of the step after
     // this screen, as on the screenshot page.
@@ -159,7 +159,7 @@ function showReady(formElementToKeep, entry, form) {
 // buttons work as on the ready screen's astro.com step.
 function showLocal(formElementToKeep, local, form) {
   const screen = document.createElement("div");
-  render(screen, viewForLocalEntry(local, { name: form.name, town: form.town }), (button) => openPageLink(screen, button));
+  render(screen, viewForLocalEntry(local, { name: form.name, town: form.town, gender: form.gender }), (button) => openPageLink(screen, button));
   app.replaceChildren(screen, backButton(formElementToKeep));
 }
 
