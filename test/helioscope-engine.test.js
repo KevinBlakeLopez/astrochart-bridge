@@ -11,9 +11,9 @@ const NATIVE = JSON.parse(readFileSync(new URL("helioscope-venus-new-york.json",
 // Gate 4 (docs/HELIOSCOPE_V1_FEASIBILITY.md §8) ran 3,757 calls through this
 // WebAssembly and through the native -O2 build NATIVE comes from. They
 // differed by at most 8.6e-9 magnitudes, 1.8e-7° (the Sun's azimuth), and
-// 1.1e-13 hPa in the pressure Swiss Ephemeris fills in. The 96 rise and set
-// times of the nine reference cases were bit-identical, so times are compared
-// exactly.
+// 1.1e-13 hPa in the pressure Swiss Ephemeris fills in. Measured the same way
+// for the proof of concept, swe_rise_trans gave bit-identical times in 96
+// calls around the nine reference cases, so times are compared exactly.
 const MAGNITUDES = 1e-8;
 const DEGREES = 2e-7;
 const FILLED_IN = 1e-12;

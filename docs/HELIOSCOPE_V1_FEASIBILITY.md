@@ -6,7 +6,7 @@ Findings are marked by how they were established. **Verified** means observed: d
 
 ## 1. Executive conclusion
 
-**Decision, 1 November 2026:** route A (§4). AstroChart Bridge is licensed under AGPL-3.0-or-later, and gate 1 passes once that licence is on `main`. The rest of this document records the spike as it stood before the decision, except for gate 4 and the Chrome run of gate 2, which came after it (§8).
+**Decision, 1 November 2026:** route A (§4). AstroChart Bridge is licensed under AGPL-3.0-or-later, and gate 1 passes once that licence is on `main`. The rest of this document records the spike as it stood before the decision, except for gate 4 and the Chrome run of gate 2, which came after it (§8), and the proof of concept that followed them (§10).
 
 - **The function exists and can be reached.** `swe_vis_limit_mag()` is compiled into the published `@kuntay/swisseph` 0.2.2 binary and exported (Verified). The package doesn't wrap it, but its documented `raw` escape hatch hands over the Emscripten module, so a small local wrapper can call it. No rebuild is needed.
 - **Licensing stops it here.** AstroChart Bridge has no licence. `@kuntay/swisseph` is AGPL-3.0-or-later, and Swiss Ephemeris is AGPL or a paid Professional License. Shipping the library in the extension, or on the receiving page, means distributing AstroChart Bridge under the AGPL. That is the owner's decision, so the spike stopped before adding the dependency (gate 1).
@@ -140,7 +140,11 @@ For the chart's UTC and place:
 
 The windows come from the Sun at the observer's coordinates, so time zones, local date boundaries and daylight saving don't decide them. The chart's offset is used only to show local times.
 
+**Read** in `swecl.c`: sunrise and sunset are the Sun's upper limb at the horizon, refracted for the pressure and temperature `swe_rise_trans` is given, and twilight is the Sun's centre, unrefracted. `swe_azalt` fills in a pressure of 0 from the elevation but takes a temperature of 0 as 0 °C, so the spike's windows, and the proof of concept's, refract sunset at 0 °C.
+
 **Verified gap:** at Tromsø (69.65° N), the Sun doesn't set on 7 December 2024 (polar night) or on 21 June 2025 (midnight sun), so neither window exists. V1 needs a rule for that, such as "indeterminate: no twilight window", or windows defined by the Sun's altitude alone. That's a decision for the owner.
+
+The gap reaches well south of the polar circle. **Verified** natively on 2 November 2026: on 21 June 2025 the Sun sets at Paris (48.86° N) and London (51.51° N) but never reaches −18°, so `swe_rise_trans` finds no end of astronomical twilight, while at Seattle (47.61° N) it finds one. At the June solstice the Sun's lowest point stays above −18° from about 48.6° N, so charts from there have no window either. Until the owner decides, the proof of concept gives them no window and an indeterminate prediction (§10).
 
 ### Classification
 
@@ -166,14 +170,14 @@ That leaves two options for the owner. One is to show the raw margin with its as
 
 - Swiss Ephemeris 2.10.03, and the Moshier ephemeris, always requested explicitly (`SEFLG_MOSEPH`).
 - The `helflag` bits.
-- The atmosphere and observer **as Swiss Ephemeris completed them**, since it fills in defaults in place (§8, item 2).
+- The atmosphere and observer **as Swiss Ephemeris completed them**, since it fills in defaults in place (§8, item 2). **Read** in `swehel.c`: it fills in a temperature or humidity of 0 only when the pressure is 0 too. With a pressure given, a temperature of 0 is 0 °C.
 - The observer's elevation: 0 m unless the user gives one, since charts don't carry it.
 - Whether the Moon was included.
 - The window rule and the sampling step.
 
 The defaults should be Helioscope's own, and explicit. swisseph-wasm's `heliacal()` defaults (15 °C and a 40 km meteorological range, `packages/core/src/derived/heliacal.ts:80-87`) differ from the C library's. At the Venus instant in §8, the 40 km range alone gives 2.55 instead of 3.01.
 
-### Shape of the code (proposed, not written)
+### Shape of the code
 
 - `extension/core/helioscope.js` would hold the windows, sampling, classification and traditional condition, with no browser APIs and nothing about any site. It would take the engine as an argument, the way `core/stellarium-desktop.js` plans the requests that `extension/stellarium-desktop.js` sends.
 - `extension/helioscope-engine.js` would be the only file that loads the WebAssembly. It would wrap `swe_vis_limit_mag` and `swe_rise_trans`, validate input, and refuse results that aren't finite.
@@ -184,6 +188,8 @@ The defaults should be Helioscope's own, and explicit. swisseph-wasm's `heliacal
   - the windows, with their best samples
   - the classification and the assumptions
   - the raw values: `ret`, `dret`, `serr`, and the completed `datm` and `dobs`
+
+The proof of concept (§10) is written to this shape. Its engine also wraps `swe_calc_ut` and `swe_pheno_ut`, for the longitudes and the elongation.
 
 ## 7. Stellarium integration findings
 
@@ -224,8 +230,9 @@ So "View in Stellarium" needs no new transport, just two optional fields for Ste
   - the Moon included
 - **The WebAssembly, in Node**, after the licence decision: the published 0.2.2 package against that native reference, for gate 4 (below).
 - **The WebAssembly, in Chrome 155**, on 2 November 2026: the same calls in a browser extension page, for gate 2 (below).
+- **Helioscope's proof of concept, in Node**, on 2 November 2026: its engine and core against native values for Venus from New York (§10).
 
-What didn't run: the WebAssembly in Firefox and Safari, which the owner chose to skip (gate 2, §1), and any Helioscope code, since none exists.
+What didn't run: the WebAssembly in Firefox and Safari, which the owner chose to skip (gate 2, §1), and Helioscope's code in any browser, since no page uses it yet.
 
 ### `swe_vis_limit_mag` behaviour, verified natively
 
@@ -298,9 +305,15 @@ Agreement between the WebAssembly and this native build would show that the port
 - **Behaviour:** items 2, 4, 5, 7, 8, 9 and 10, and the Sun in item 11, came out the same in the WebAssembly.
 - **Repeatability and speed:** the WebAssembly's results were bit-identical from one run to the next. It took about 23 µs a call, and about 1.3 ms to create an instance.
 
-The reference values in §8 and §10 come from the default `-O2` build. A test that compares the WebAssembly with them therefore needs a tolerance above that build's differences.
+The reference values in §8 and §10 come from the default `-O2` build. A test that compares the WebAssembly with them therefore needs a tolerance above that build's differences. The proof of concept's tests allow 10⁻⁸ magnitudes and 2×10⁻⁷°.
 
-The comparison script and the native harness aren't committed.
+Gate 4 compared `swe_vis_limit_mag` only, but the windows come from `swe_rise_trans`, and a window that started even one representable instant later, about 40 µs, would move every sample in it. **Verified** on 2 November 2026, the same way as gate 4:
+
+- **Rise and set:** in 96 `swe_rise_trans` calls around the nine reference cases, which include every search the window rule makes, the WebAssembly found the same events as both native builds, at bit-identical times. The proof of concept's tests compare times exactly.
+- **Longitudes and elongation:** at the Venus chart instant, `swe_calc_ut` and `swe_pheno_ut` were within 3.1×10⁻¹²° of the `-O2` build, and identical to the other.
+- **End to end:** over the 50 evening samples, with each side sampling from its own sunset, margins were within 3.6×10⁻¹⁰ magnitudes of the `-O2` build.
+
+Gate 4's comparison script isn't committed. The native harness is, as `tools/helioscope-native.c`, with `tools/make-helioscope-reference.mjs`, which writes the proof of concept's reference values from it.
 
 ### Gate 2: the WebAssembly in a browser
 
@@ -333,6 +346,8 @@ Firefox and Safari weren't run: on 2 November 2026 the owner chose to skip them,
   - A result that isn't finite.
   - Two atmospheres at one instant, which must not return the cached value (item 5).
 
+The proof of concept (§10) has the Venus case at the engine boundary, Moshier always, a date outside the Moshier range, invalid coordinates, a chart with no location or no decided UTC, a result that isn't finite, and two atmospheres at one instant. It also refuses charts before 15 October 1582 itself. Still to write: the other eight reference cases, the time tests, and the engine failing to load.
+
 ## 9. Remaining risks
 
 - **Licensing** (§4) blocks everything else.
@@ -340,8 +355,9 @@ Firefox and Safari weren't run: on 2 November 2026 the owner chose to skip them,
 - **Model validity:** in the cases tried, the margin moved by 0.5 to 2.4 magnitudes with assumptions nobody records for a birth, and it has a discontinuity of 1.1 magnitudes. A "detectable" with a small margin is weak evidence.
 - **Hidden state:** the extinction memo (item 5) and the global observer (item 3). Any sweep over atmospheres needs a fresh instance for each scenario, or calls at different instants.
 - **Magnitudes:** Swiss Ephemeris uses Mallama and Hilton's 2018 formulas. **Read:** Mercury's is applied at every phase angle without a range check (`swecl.c:3923-3926`), and only Venus gets a warning, beyond 179°. Near superior conjunction, the object's magnitude is extrapolated.
-- **High latitudes:** the window rule needs a decision (§6), and `swe_heliacal_ut()` is documented only for 60° S to 60° N.
+- **High latitudes:** the window rule needs a decision (§6), and from about 48.6° N it applies every June, not only beyond the polar circle. `swe_heliacal_ut()` is documented only for 60° S to 60° N.
 - **Elevation** isn't in the chart model, so V1 assumes 0 m unless the user gives one.
+- **Packaging:** the store zips and the Safari project take all of `extension/`. Once `extension/vendor/swisseph/` is on `main`, the next builds carry Swiss Ephemeris whether or not a page uses it, with the App Store risk of §4.
 - **Upstream:**
   - swisseph-wasm has one maintainer.
   - Its CI builds with the unpinned `emscripten/emsdk:latest` image (`tools/build-wasm.mjs:32`), so binaries can differ by build date.
@@ -353,4 +369,8 @@ Firefox and Safari weren't run: on 2 November 2026 the owner chose to skip them,
 
 1. **Choose the licensing route** (§4). Done: route A, on 1 November 2026.
 2. **Build an isolated prototype for gates 2 and 4**, outside the production extension. A scratch extension page loads the vendored package and calls `swe_vis_limit_mag` through `raw.cwrap` for Venus from New York at 2025-01-10 22:35:00 UTC, with the C defaults and Moshier. It compares the result with the native one: `ret` 0, limiting magnitude 3.01164805937693, Venus −4.528168498295062, altitude 30.449427707878943. Run it in Chrome, Firefox and Safari, and run the same comparison in Node from `test/`. Gate 4 is done: it ran in Node on 1 November 2026, from a script outside the repository (§8). Of the browser runs, Chrome's passed on 2 November 2026 (§8), and the owner chose the same day to skip Firefox and Safari.
-3. **Then the proof of concept** the brief describes: Venus, New York, the evening window of 10 January 2025, and one visibility calculation returning the structured result of §6, with the tests written first.
+3. **Then the proof of concept** the brief describes: Venus, New York, the evening window of 10 January 2025, and one visibility calculation returning the structured result of §6, with the tests written first. Done on 2 November 2026, in Node:
+   - `extension/helioscope-engine.js` is the only file that loads the WebAssembly, vendored unchanged with its licence in `extension/vendor/swisseph/`. It wraps `swe_rise_trans`, `swe_calc_ut`, `swe_pheno_ut` and `swe_vis_limit_mag`. It writes every input afresh, refuses impossible input and results that aren't finite, and keeps one atmosphere for each WebAssembly instance because of item 5.
+   - `extension/core/helioscope.js` finds the windows, samples them every 2 minutes and classifies the result, with no browser APIs. It takes the engine as an argument.
+   - For Venus from New York, the evening window is predicted detectable, with a best margin of +9.01 at 23:14:32 UTC. Results round times to the nearest second; the link in §7 cut the seconds off, so it says 23:14:31.
+   - No page uses it yet. The high-latitude window rule and a "marginal" class are still the owner's to decide: until then, a chart with no window is indeterminate, and there's no marginal class.
