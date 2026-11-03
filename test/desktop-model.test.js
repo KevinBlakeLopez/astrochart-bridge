@@ -215,7 +215,7 @@ test("import: the sky Stellarium shows, opening in Astro-Seek or Stellarium Web,
   ]);
   assert.deepEqual(view.buttons, [
     { label: "Open chart in Astro-Seek", opens: "astro-seek" },
-    { label: "Save in Astro-Seek…", saves: { town: null, name: null }, secondary: true },
+    { label: "Save in Astro-Seek…", saves: { town: null, name: null, gender: null }, secondary: true },
     { label: "Open Stellarium Web", opens: "stellarium", secondary: true },
   ]);
   assert.equal(view.sky, NY);

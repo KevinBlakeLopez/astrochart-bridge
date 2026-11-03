@@ -3,7 +3,7 @@
 // draws, reusing the popup's screen for a chart and the AAF import's buttons.
 import { chartFromHor, parseHor } from "./core/morinus-hor.js";
 import { withAafExport } from "./aaf-model.js";
-import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, astroComStep, nameFromText, offsetText, viewFor, withAstroSeekSave } from "./popup-model.js";
+import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, astroComStep, genderRows, nameFromText, offsetText, viewFor, withAstroSeekSave } from "./popup-model.js";
 
 // Why chartFromHor refused a chart. Each keeps its code on screen, like the
 // AAF import's refusals, so a bug report says which check failed.
@@ -104,8 +104,10 @@ export function viewForHorChart(result, options) {
     if (row[0] === "Place" && chart.place) return [["Birthplace", chart.place], row];
     return [row];
   });
+  const gender = horGender(morinus);
   const first = [
     ...(chart.name ? [["Name", chart.name]] : []),
+    ...genderRows(gender),
     ...(morinus.chartType === "horary" ? [["Chart type", "Horary"]] : []),
   ];
   const withExport = withAafExport(
@@ -116,14 +118,23 @@ export function viewForHorChart(result, options) {
         warnings: warnings.map((code) => WARNINGS[code] ?? code),
         notes: [...view.notes, ...(morinus.timeBasis === "zone" ? [ZONE_NOTE] : []), ...ASTRO_SEEK_NOTES],
         buttons: [...ASTRO_SEEK_BUTTONS],
-        ...(view.sky ? { next: astroComStep(view.sky, { local: chart.local, name: nameFromText(chart.name), town: chart.place }) } : {}),
+        ...(view.sky ? { next: astroComStep(view.sky, { local: chart.local, name: nameFromText(chart.name), town: chart.place, gender }) } : {}),
       },
-      { town: chart.place, name: nameFromText(chart.name) },
+      { town: chart.place, name: nameFromText(chart.name), gender },
     ),
     result,
   );
   // A Greenwich time is written as it is, so the AAF import's reason for UT doesn't apply.
   return withExport.download?.note ? { ...withExport, download: { ...withExport.download, note: UT_DOWNLOAD_NOTE } } : withExport;
+}
+
+// A Morinus chart's gender for astro.com's and Astro-Seek's forms. Morinus
+// has one male box, ticked in all 57 files in fixtures/morinus, horary and
+// solar return charts too. So only a horary chart, or a radix chart not
+// ticked male, says anything: a ticked box may just never have been changed.
+function horGender({ chartType, male }) {
+  if (chartType === "horary") return "horary";
+  return male ? null : "female";
 }
 
 // "UTC-05:00 zone, with daylight saving" or "Greenwich time".

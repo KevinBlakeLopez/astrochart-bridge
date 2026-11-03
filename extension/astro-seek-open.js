@@ -1,11 +1,14 @@
 // Opens Astro-Seek's Add person form for a chart, filled in by its address
-// (astroSeekSaveUrl), and chooses its Birth city, once the user has granted
-// access to www.astro-seek.com. The tab opens behind the popup. The person
-// always has the last word: Gender, and Add person itself, are theirs. Each
-// function takes the browser APIs it uses, so tests can pass stand-ins.
+// (astroSeekSaveUrl), and chooses its Birth city, and its Gender when the
+// chart gives one, once the user has granted access to www.astro-seek.com.
+// The tab opens behind the popup. The person always has the last word: Add
+// person itself is theirs. Each function takes the browser APIs it uses, so
+// tests can pass stand-ins.
 import {
+  ASTRO_SEEK_GENDERS,
   astroSeekSaveUrl,
   chooseCity,
+  chooseGender,
   guardChartPlace,
   isSavePage,
   readCityList,
@@ -32,20 +35,22 @@ const CITY_LIST_POLL_MS = 250;
 /**
  * Opens the Add person form for a chart in a background tab and, once it has
  * loaded signed in, or with no way to tell, keeps the chart's coordinates
- * and UT/GMT in it (guardChartPlace) and chooses the chart's town as its
- * Birth city, or asks (chooseFormCity). A chart with no town has its box ask
- * the person to type one. Signed out, or on a page that isn't the form as
- * expected, nothing is filled in and the tab is left for the person.
+ * and UT/GMT in it (guardChartPlace), sets its Gender to the chart's when it
+ * has one (chooseGender), and chooses the chart's town as its Birth city, or
+ * asks (chooseFormCity). A chart with no town has its box ask the person to
+ * type one. Signed out, or on a page that isn't the form as expected, nothing
+ * is filled in and the tab is left for the person.
  *
  * @param {{ tabs: typeof chrome.tabs, scripting: typeof chrome.scripting }} browser
- * @param {{ values: { utc: string, lat: number, lng: number, town?: string | null, name?: string | null },
+ * @param {{ values: { utc: string, lat: number, lng: number, town?: string | null, name?: string | null,
+ *   gender?: "female" | "male" | "event" | "horary" | null },
  *   timeoutMs?: number, cityWait?: { timeoutMs?: number, pollMs?: number } }} request
  * @returns {Promise<{ outcome: "filled", tabId: number }
  *   | { outcome: "signed-out", tabId: number }
  *   | { outcome: "not-filled", tabId: number, page: "not-loaded" | "elsewhere" | "city-typed" | "unrecognised" }>}
  */
 export async function openAndSave({ tabs, scripting }, { values, timeoutMs = LOAD_TIMEOUT_MS, cityWait = {} }) {
-  const { utc, lat, lng, town = null, name = null } = values;
+  const { utc, lat, lng, town = null, name = null, gender = null } = values;
   const { id: tabId } = await tabs.create({ url: astroSeekSaveUrl({ utc, lat, lng }, { name }), active: false });
   const notFilled = (page) => ({ outcome: "not-filled", tabId, page });
 
@@ -62,8 +67,13 @@ export async function openAndSave({ tabs, scripting }, { values, timeoutMs = LOA
 
     const [{ result: guard }] = await scripting.executeScript({ target: { tabId }, func: guardChartPlace, args: [savePlace({ lat, lng })] });
     if (!guard?.guarding) return notFilled("unrecognised");
+    const option = ASTRO_SEEK_GENDERS[gender] ?? null;
+    const [{ result: set }] = option ? await scripting.executeScript({ target: { tabId }, func: chooseGender, args: [option.value] }) : [{}];
+    const genderLabel = set?.set ? option.label : null;
     const choice = town === null ? { kind: "no-town" } : await chooseFormCity(scripting, tabId, { town, lat, lng }, cityWait);
-    if (choice !== null) await scripting.executeScript({ target: { tabId }, func: showCityChoice, args: [choice, town, TOWN_LIMIT_KM] });
+    if (choice !== null) {
+      await scripting.executeScript({ target: { tabId }, func: showCityChoice, args: [choice, town, TOWN_LIMIT_KM, genderLabel] });
+    }
   } catch {
     // The tab navigated away, or the browser refused the script.
     return notFilled("unrecognised");

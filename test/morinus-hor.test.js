@@ -101,6 +101,7 @@ test("gives a zone chart in the shape analyzePage returns", () => {
     place: "New York",
     morinus: {
       chartType: "radix",
+      male: true,
       timeBasis: "zone",
       zoneOffsetMinutes: -240,
       daylightSaving: false,

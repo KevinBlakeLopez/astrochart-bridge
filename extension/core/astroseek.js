@@ -612,21 +612,55 @@ export function readCityList(town) {
   return { state: "listed", labels: [...menu.querySelectorAll("li.ui-menu-item")].map((item) => item.textContent.trim()) };
 }
 
+// The Add person form's Gender options, c_pohlavi, by the chart's gender, as
+// seen signed in on 2026-11-01: Male 1, where the form starts, Female 2,
+// Nonbinary 3, Event 4, Davison rel. chart 5 and Horary question 6. label is
+// the option's own text, for the box under Birth city.
+export const ASTRO_SEEK_GENDERS = {
+  male: { value: "1", label: "Male" },
+  female: { value: "2", label: "Female" },
+  event: { value: "4", label: "Event" },
+  horary: { value: "6", label: "Horary question" },
+};
+
+/**
+ * Sets the Add person form's Gender to the chart's (ASTRO_SEEK_GENDERS'
+ * value), while it is still at Male, where Astro-Seek starts it. Any other
+ * Gender is the person's, and is left as it is, as is a value the form has no
+ * option for. Never submits.
+ *
+ * @param {string} value
+ * @returns {{ set: boolean }}
+ */
+export function chooseGender(value) {
+  const gender = document.getElementById("form_jina_osoba")?.elements.namedItem("c_pohlavi") ?? null;
+  if (!gender || gender.value !== "1") return { set: false };
+  gender.value = value;
+  // A select ignores a value none of its options has.
+  if (gender.value !== value) {
+    gender.value = "1";
+    return { set: false };
+  }
+  gender.dispatchEvent(new Event("change", { bubbles: true }));
+  return { set: true };
+}
+
 /**
  * Acts on the city to choose for a chart, in a box under Birth city: chooses
  * chooseCity's pick in Astro-Seek's list as a person would, or asks, or says
  * there's no near match, no list, or no town to type. Once a match is chosen,
  * the box says which and how far it is from the chart's coordinates, with a
- * button that lists the matches again, and reminds the person of Gender,
- * which Astro-Seek starts at Male. The box goes once the person types in
- * Birth city. Never submits.
+ * button that lists the matches again, and reminds the person of Gender:
+ * the chart's, when chooseGender set it, or else that Astro-Seek starts it
+ * at Male. The box goes once the person types in Birth city. Never submits.
  *
  * @param {ReturnType<typeof chooseCity> | { kind: "no-list" } | { kind: "no-town" }} choice
  * @param {string | null} town  null only with "no-town"
  * @param {number} limitKm  TOWN_LIMIT_KM, for the box's words
+ * @param {string | null} [gender]  the Gender option chooseGender set, by its label
  * @returns {{ shown: boolean }}
  */
-export function showCityChoice(choice, town, limitKm) {
+export function showCityChoice(choice, town, limitKm, gender = null) {
   const city = document.getElementById("form_jina_osoba")?.elements.namedItem("narozeni_city") ?? null;
   if (!city || (town !== null && city.value !== town)) return { shown: false };
   document.getElementById("astrochart-bridge-city")?.remove();
@@ -649,7 +683,10 @@ export function showCityChoice(choice, town, limitKm) {
     element.addEventListener("click", onClick);
     buttons.append(element);
   };
-  const gender = "Check Gender, which Astro-Seek starts at Male, then press Add person.";
+  const genderNote =
+    gender === null
+      ? "Check Gender, which Astro-Seek starts at Male, then press Add person."
+      : `Gender is ${gender}, from the chart. Check it, then press Add person.`;
   // Types the town again, as typeCity did, so Astro-Seek lists its matches.
   const listAgain = () => {
     note.remove();
@@ -668,7 +705,7 @@ export function showCityChoice(choice, town, limitKm) {
     // jQuery UI 1.12 puts each match's text in a .ui-menu-item-wrapper, which
     // astro.com's list takes the click on; older versions have none.
     (item.querySelector(".ui-menu-item-wrapper") ?? item).click();
-    say(`chose "${text}" from Astro-Seek's list, ${away} from the chart's coordinates. ${gender}`, { warn: false });
+    say(`chose "${text}" from Astro-Seek's list, ${away} from the chart's coordinates. ${genderNote}`, { warn: false });
     button("Choose another", listAgain);
   };
 
@@ -688,7 +725,7 @@ export function showCityChoice(choice, town, limitKm) {
     button("List the matches again", listAgain);
   }
   if (choice.kind === "no-town") {
-    say(`the chart names no town, and Astro-Seek saves a chart only with a Birth city chosen from its list. Type the town and choose it; the chart's coordinates and UT/GMT stay as they are. ${gender}`, { warn: true });
+    say(`the chart names no town, and Astro-Seek saves a chart only with a Birth city chosen from its list. Type the town and choose it; the chart's coordinates and UT/GMT stay as they are. ${genderNote}`, { warn: true });
   }
   if (choice.kind !== "pick") city.blur();
   // Typing in Birth city makes the box's choice stale; the input events above

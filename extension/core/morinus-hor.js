@@ -128,7 +128,7 @@ const TIME_BASES = ["zone", "greenwich", "local-mean", "local-apparent"];
  *       utc: string, utcSource: "declared", offsetMinutes: number,
  *       warnings?: ("text-encoding-guessed" | "daylight-saving-on-ut" | "longitude-seconds-ignored-by-morinus")[],
  *       name: string | null, place: string | null,
- *       morinus: { chartType: "radix" | "horary", timeBasis: "zone" | "greenwich", zoneOffsetMinutes: number,
+ *       morinus: { chartType: "radix" | "horary", male: boolean, timeBasis: "zone" | "greenwich", zoneOffsetMinutes: number,
  *         daylightSaving: boolean, altitudeMeters: number, coordinates: object, hasNotes: boolean, protocol: number } }}
  */
 export function chartFromHor(record) {
@@ -178,6 +178,7 @@ export function chartFromHor(record) {
     place: v.place || null,
     morinus: {
       chartType,
+      male: v.male,
       timeBasis,
       zoneOffsetMinutes,
       daylightSaving: v.daylightsaving,

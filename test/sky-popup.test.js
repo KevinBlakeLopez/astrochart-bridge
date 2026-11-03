@@ -37,7 +37,7 @@ test("a Stellarium sky becomes a screen that opens the Astro-Seek chart, or save
     sky,
     buttons: [
       { label: "Open chart in Astro-Seek", opens: "astro-seek" },
-      { label: "Save in Astro-Seek…", saves: { town: null, name: null }, secondary: true },
+      { label: "Save in Astro-Seek…", saves: { town: null, name: null, gender: null }, secondary: true },
     ],
     // test/astro-com-handoff.test.js covers the astro.com screen itself.
     next: { label: "Enter in astro.com…", view: viewForAstroCom(sky) },

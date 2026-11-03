@@ -52,7 +52,7 @@ test("ready: New York, seen from Los Angeles", () => {
 
 test("ready: an Astro-Seek chart placed by coordinates can be saved in Astro-Seek, with no note", () => {
   const view = viewFor(analyze("manual-ut-2024-04-17-0000"), LOS_ANGELES);
-  assert.deepEqual(view.buttons, [OPEN_SKY, { label: "Save in Astro-Seek…", saves: { town: null, name: null }, secondary: true }, SHARE]);
+  assert.deepEqual(view.buttons, [OPEN_SKY, { label: "Save in Astro-Seek…", saves: { town: null, name: null, gender: null }, secondary: true }, SHARE]);
   // The chart is already on astro-seek.com, so no note says what saving sends there.
   assert.deepEqual(view.notes, [view.notes[0], PRIVACY_NOTE]);
   assert.equal(view.next.label, "Enter in astro.com…");
@@ -87,7 +87,7 @@ test("ready: an astro.com chart shows its stated offset and no zone label, and c
     buttons: [
       { label: "Open Stellarium Web", opens: "stellarium" },
       { label: "Open chart in Astro-Seek", opens: "astro-seek" },
-      { label: "Save in Astro-Seek…", saves: { town: null, name: null }, secondary: true },
+      { label: "Save in Astro-Seek…", saves: { town: null, name: null, gender: null }, secondary: true },
       SHARE,
     ],
   });

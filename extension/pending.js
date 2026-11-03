@@ -28,16 +28,17 @@ function tabStore(prefix, minutes) {
      * @param {chrome.storage.StorageArea} storage
      * @param {number} tabId
      * @param {{ utc: string | null, lat: number, lng: number, local?: string | null, town?: string | null,
-     *   name?: { first: string, last: string } | null }} values  local, town and name are null when the chart has
-     *   none; utc is null only with a local time
+     *   name?: { first: string, last: string } | null, gender?: "female" | "male" | "event" | "horary" | null }} values
+     *   local, town, name and gender are null when the chart has none; utc is null only with a local time
      * @param {number} [now]  milliseconds since the epoch
      */
-    async hold(storage, tabId, { utc, lat, lng, local = null, town = null, name = null }, now = Date.now()) {
+    async hold(storage, tabId, { utc, lat, lng, local = null, town = null, name = null, gender = null }, now = Date.now()) {
       const stale = Object.entries(await storage.get(null))
         .filter(([key, entry]) => key.startsWith(prefix) && liveValues(entry, now, minutes) === null)
         .map(([key]) => key);
       if (stale.length > 0) await storage.remove(stale);
-      await storage.set({ [keyFor(tabId)]: { values: { utc, lat, lng, local, town, name: nameOrNull(name) }, heldAt: now } });
+      const values = { utc, lat, lng, local, town, name: nameOrNull(name), gender: GENDERS.includes(gender) ? gender : null };
+      await storage.set({ [keyFor(tabId)]: { values, heldAt: now } });
     },
 
     /**
@@ -48,7 +49,7 @@ function tabStore(prefix, minutes) {
      * @param {number} tabId
      * @param {number} [now]
      * @returns {Promise<{ utc: string | null, lat: number, lng: number, local: string | null, town: string | null,
-     *   name: { first: string, last: string } | null } | null>}
+     *   name: { first: string, last: string } | null, gender: "female" | "male" | "event" | "horary" | null } | null>}
      */
     async held(storage, tabId, now = Date.now()) {
       const key = keyFor(tabId);
@@ -84,7 +85,7 @@ export const astroSeekTabs = tabStore("astro-seek-tab:", Infinity);
 function liveValues(entry, now, minutes) {
   const age = now - entry?.heldAt;
   if (!(age >= 0 && age < minutes * 60_000)) return null;
-  const { utc, lat, lng, local: kept, town, name } = entry.values ?? {};
+  const { utc, lat, lng, local: kept, town, name, gender } = entry.values ?? {};
   const local = typeof kept === "string" && LOCAL.test(kept) ? kept : null;
   // Values with neither a UTC nor a local time have no time to fill in.
   if (!(typeof utc === "string" || (utc === null && local !== null))) return null;
@@ -96,8 +97,12 @@ function liveValues(entry, now, minutes) {
     local,
     town: typeof town === "string" ? town : null,
     name: nameOrNull(name),
+    gender: GENDERS.includes(gender) ? gender : null,
   };
 }
+
+// The genders a chart can give, as aaf-model.js and hor-model.js read them.
+const GENDERS = ["female", "male", "event", "horary"];
 
 // "2024-04-17T08:00:00", the form a chart's local time takes.
 const LOCAL = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/;
