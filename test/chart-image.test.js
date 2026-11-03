@@ -134,7 +134,16 @@ const LILLY_OCR = [
   "Event Chart",
   "Method: Web Style / Placidus",
 ];
-const LILLY_HEADER = { ...LILLY, lat: 51.5, lng: -0.166667 };
+// With the name above the date, less OCR's reading of the wheel after it, the
+// place before Univ.Time, and Event Chart's gender.
+const LILLY_HEADER = {
+  ...LILLY,
+  lat: 51.5,
+  lng: -0.166667,
+  name: "Will Sick One Die? William Lilly questio",
+  place: "London, ENG (UK)",
+  gender: "event",
+};
 const ocr = (lines) => lines.join("\n");
 // LILLY_OCR with the line that starts with `start` replaced.
 const withLine = (start, line) => ocr(LILLY_OCR.map((current) => (current.startsWith(start) ? line : current)));
@@ -161,7 +170,14 @@ test("OCR's other readings of the header still read", () => {
     "",
     "Ow10, 51n30 Sd. Time: 34711",
   ]);
-  assert.deepEqual(readHeader(cropped), LILLY_HEADER);
+  // Cropped above Event Chart, so it gives no gender; the blank line above the date isn't the name.
+  assert.deepEqual(readHeader(cropped), { ...LILLY_HEADER, gender: null });
+});
+
+test("a header with nothing above its date, and no type line, has no name or gender", () => {
+  const { name, place, gender } = readHeader(ocr(NY_OCR.slice(1)));
+  assert.deepEqual({ name, place, gender }, { name: null, place: "New York, NY (US)", gender: null });
+  assert.equal(readHeader(ocr([...NY_OCR, "Horary Chart"])).gender, "horary");
 });
 
 // The Test chart's header, as for NY above.
@@ -173,7 +189,7 @@ const NY_OCR = [
 ];
 
 test("a header whose Univ.Time prints no seconds reads without them", () => {
-  assert.deepEqual(readHeader(ocr(NY_OCR)), { ...NY, lat: 40.716667 });
+  assert.deepEqual(readHeader(ocr(NY_OCR)), { ...NY, lat: 40.716667, name: "Test", place: "New York, NY (US)", gender: null });
 });
 
 test("p.m. and a three-letter month read", () => {

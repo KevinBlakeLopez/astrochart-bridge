@@ -192,9 +192,7 @@ const ASTRO_COM_LABELS = /Univ\W*Time/;
 const printedBy = (reader) => (text) => {
   const chart = reader.read(text);
   const resolved = Array.isArray(chart) ? resolveReadings(chart) : chart.kind === "refused" ? chart : resolvePrinted(chart);
-  if (resolved.kind !== "natal") return resolved;
-  const { name = null, place = null } = Array.isArray(chart) ? chart[0] : chart;
-  return { ...resolved, ...(name === null ? {} : { name: nameFromText(name) }), ...(place === null ? {} : { town: place }) };
+  return resolved.kind === "natal" ? withPrinted(resolved, Array.isArray(chart) ? chart[0] : chart) : resolved;
 };
 
 const PROGRAM_READERS = [
@@ -274,7 +272,19 @@ function analyzeChartImage(text) {
   // AstroChart Bridge could check. The screenshot page adds its own Astro-Seek button.
   const { local, lat, lng } = header;
   const { utc, utcSource, offsetMinutes } = resolved;
-  return { kind: "natal", site: "astro-com", local, zoneLabel: null, lat, lng, utc, utcSource, offsetMinutes };
+  return withPrinted({ kind: "natal", site: "astro-com", local, zoneLabel: null, lat, lng, utc, utcSource, offsetMinutes }, header);
+}
+
+// A result with the chart's name, place and gender as its screenshot or text
+// printed them, where it did, for astro.com's and Astro-Seek's forms: the name
+// in astro.com's name fields' shape, and the place as the town.
+function withPrinted(result, { name = null, place = null, gender = null }) {
+  return {
+    ...result,
+    ...(name === null ? {} : { name: nameFromText(name) }),
+    ...(place === null ? {} : { town: place }),
+    ...(gender === null ? {} : { gender }),
+  };
 }
 
 function analyzeAstroSeekScreenshot(text) {

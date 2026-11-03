@@ -6,6 +6,7 @@ import {
   ASTRO_SEEK_NOTES,
   SHARE_BUTTON,
   astroComStep,
+  genderRows,
   nameFromText,
   viewFor,
   viewForAstroCom,
@@ -184,6 +185,7 @@ export function formFor(result, program = null) {
       ...INFO_FIELDS.filter(([field]) => fields[field]).map(([field, label]) => [label, asWritten(fields[field])]),
       ...(read?.name && !fields.name ? [["Name", read.name.first]] : []),
       ...(read?.town ? [["Town", read.town]] : []),
+      ...(read?.gender && !fields.gender ? genderRows(read.gender) : []),
     ],
     warnings,
     notes,
@@ -191,8 +193,10 @@ export function formFor(result, program = null) {
     name: chartName,
     // Null when the text gives two places.
     town,
-    // "female", "male" or "event", or null when the text gives none it can read.
-    gender: fields.gender?.value ?? null,
+    // "female", "male" or "event", or null when the text gives none it can
+    // read: a program's, from where it prints the chart's type, before a
+    // Gender line's, as for the name and town.
+    gender: read?.gender ?? fields.gender?.value ?? null,
   };
 }
 
@@ -376,6 +380,7 @@ export function viewForEntry(entry, { warnings = [], timeZone, name = null, town
   return withAstroSeekSave(
     {
       ...view,
+      ...(view.rows ? { rows: [...genderRows(gender), ...view.rows] } : {}),
       warnings: [...view.warnings, ...warnings],
       notes: [OFFSET_NOTE, ...view.notes, ...ASTRO_SEEK_NOTES],
       buttons: [...ASTRO_SEEK_BUTTONS, SHARE_BUTTON].map((button) => ({ ...button })),

@@ -94,7 +94,8 @@ const MONTHS = [
  * not in a form seen in a header is refused, not guessed.
  *
  * @param {string} text  OCR output, one line of the image per line
- * @returns {{ local: string, weekday: number, utMinutes: number, utSecond?: number, siderealSeconds: number, lat: number, lng: number }
+ * @returns {{ local: string, weekday: number, utMinutes: number, utSecond?: number, siderealSeconds: number, lat: number, lng: number,
+ *     name: string | null, place: string | null, gender: "event" | "horary" | null }
  *   | { kind: "refused", reason: "ambiguous-screenshot" | "unreadable-screenshot" | "calendar-unsupported" }}
  */
 export function readHeader(text) {
@@ -123,6 +124,13 @@ export function readHeader(text) {
   // in its AAF files. The weekday would refuse it, but as a misread date.
   if (isoDate(date) < GREGORIAN_START) return refused("calendar-unsupported");
 
+  // The chart's name is the line above the date, past any blank line OCR
+  // leaves, and its place is before Univ.Time on its line. An event or
+  // horary chart says so on a line of its own.
+  const dateAt = lines.findIndex((line) => DATE_LINE.test(line));
+  const nameLine = lines.slice(0, dateAt).filter(Boolean).at(-1);
+  const place = found.ut.input.slice(0, found.ut.index).trim();
+  const type = lines.map((line) => TYPE_LINE.exec(line)?.[1]).find(Boolean);
   return {
     local: `${isoDate(date)}T${pad(local.hour)}:${pad(local.minute)}:${pad(local.second ?? 0)}`,
     weekday: WEEKDAYS.indexOf(weekdayCode),
@@ -131,7 +139,25 @@ export function readHeader(text) {
     siderealSeconds: sidereal.hour * 3600 + sidereal.minute * 60 + sidereal.second,
     lat,
     lng,
+    name: nameOf(nameLine),
+    place: place === "" ? null : place,
+    gender: { Event: "event", Horary: "horary" }[type] ?? null,
   };
+}
+
+// "Event Chart" or "Horary Chart"; a natal chart's says nothing of its person.
+const TYPE_LINE = /^(Natal|Event|Horary) Chart\b/;
+
+// A name line, as OCR follows it with its reading of the wheel beside it:
+// "Will Sick One Die? William Lilly questio \L/_". Its words up to the first
+// with a character no name has, or null.
+const NAME_WORD = /^[\p{L}\p{N}.,'’?!&()-]+$/u;
+
+function nameOf(line) {
+  const words = (line ?? "").split(" ");
+  const end = words.findIndex((word) => !NAME_WORD.test(word));
+  const name = words.slice(0, end === -1 ? undefined : end).join(" ");
+  return name === "" ? null : name;
 }
 
 // The groups of CLOCK as a 24-hour time, or null. second is undefined when

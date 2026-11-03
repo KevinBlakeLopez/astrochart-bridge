@@ -167,6 +167,10 @@ test("an astro.com chart image opens as an astro.com chart, in UT as printed", (
     lng: -0.166667,
     utc: "1645-07-26T07:30:43Z",
     utcSource: "printed",
+    // For astro.com's and Astro-Seek's forms.
+    name: { first: "Will Sick One Die? William Lilly questio", last: "" },
+    town: "London, ENG (UK)",
+    gender: "event",
   });
   assert.equal(Math.round(offsetMinutes * 60), -40);
 });
