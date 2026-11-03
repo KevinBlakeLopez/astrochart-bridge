@@ -632,6 +632,58 @@ export default {
       `${day}. ${MONTHS[month - 1]} ${year}${bc ? " pr. n. št." : ""}${julian ? " (julijanski)" : ""}`,
   },
 
+  // After "oddaljeno", as in "oddaljeno 3 km od koordinat horoskopa".
+  towns: {
+    away: (km) => (km < 1 ? "manj kot 1 km" : `${Math.round(km)} km`),
+  },
+
+  // Plain strings with {name} slots, as en.js says, and the sentences after
+  // "AstroChart Bridge:" start in lower case here too. astro.com's and
+  // Astro-Seek's own controls keep their English names: Gender, Male, Add
+  // person, Birth city, automatic time zone, 00:00 GMT / UT, "4 h west". A
+  // match is "zadetek"; "more than one is within 50 km" becomes "več jih je
+  // oddaljenih manj kot 50 km", and "isn't within" "je oddaljen več kot".
+  pageNotes: {
+    astroCom: {
+      useUt: "Vnesi v univerzalnem času",
+      zoneUnreadable:
+        "časovni pas na astro.com je tukaj »{line}«, ki ga ni mogoče primerjati z zamikom tega horoskopa, {zone}. Preverite, ali je mesto pravo. Če je, lahko horoskop namesto tega vnesete v univerzalnem času.",
+      zoneAtUt:
+        "ta horoskop je v univerzalnem času, automatic time zone na astro.com pa je za to mesto {words}. Preverite, ali je mesto pravo. Če je, horoskop namesto tega vnesite v univerzalnem času.",
+      zoneOff:
+        "ta horoskop je {zone} od univerzalnega časa, automatic time zone na astro.com pa je za to mesto {words}. Preverite, ali je mesto pravo. Če je, horoskop namesto tega vnesite v univerzalnem času.",
+      enteredUt:
+        "AstroChart Bridge je vnesel {ut} s časovnim pasom 00:00 GMT / UT. To je univerzalni čas samega horoskopa, zato je trenutek pravi, ne glede na to, kaj pravi opozorilo astro.com o ročnih časovnih pasovih.",
+      gone: "seznam na astro.com nima več »{text}«. Mesto izberite s seznama.",
+      listAgain: "Znova prikaži zadetke",
+      chose: "s seznama na astro.com je izbral »{text}«, oddaljeno {away} od koordinat horoskopa.",
+      chooseAnother: "Izberi drugo mesto",
+      ask: "več zadetkov na astro.com za »{town}« je od koordinat horoskopa oddaljenih manj kot {km} km. Katero je mesto horoskopa?",
+      noneOfOne:
+        "edini zadetek na astro.com za »{town}« je od koordinat horoskopa oddaljen več kot {km} km. Mesto izberite s seznama na astro.com ali vpišite bližje.",
+      noneOfMany:
+        "noben od {listed} zadetkov na astro.com za »{town}« ni od koordinat horoskopa oddaljen manj kot {km} km. Mesto izberite s seznama na astro.com ali vpišite bližje.",
+    },
+    astroSeek: {
+      genderStarts: "Preverite Gender, ki ga Astro-Seek nastavi na Male, nato pritisnite Add person.",
+      genderSet: "Gender je nastavljen na {gender}, kot v horoskopu. Preverite ga, nato pritisnite Add person.",
+      gone: "seznam na Astro-Seeku nima več »{text}«. Mesto izberite s seznama.",
+      listAgain: "Znova prikaži zadetke",
+      chose: "s seznama na Astro-Seeku je izbral »{text}«, oddaljeno {away} od koordinat horoskopa. {genderNote}",
+      chooseAnother: "Izberi drugo mesto",
+      ask: "več zadetkov na Astro-Seeku za »{town}« je od koordinat horoskopa oddaljenih manj kot {km} km. Katero je mesto horoskopa?",
+      noneOfOne:
+        "edini zadetek na Astro-Seeku za »{town}« je od koordinat horoskopa oddaljen več kot {km} km. Mesto izberite s seznama na Astro-Seeku ali vpišite bližje.",
+      noneOfMany:
+        "noben od {listed} zadetkov na Astro-Seeku za »{town}« ni od koordinat horoskopa oddaljen manj kot {km} km. Mesto izberite s seznama na Astro-Seeku ali vpišite bližje.",
+      noList: "Astro-Seek zadetkov za »{town}« ni pravočasno prikazal. Mesto izberite s seznama.",
+      noTown:
+        "horoskop ne navaja mesta, Astro-Seek pa horoskop shrani samo z mestom Birth city, izbranim s seznama. Vpišite mesto in ga izberite; koordinate in UT/GMT horoskopa ostanejo, kot so. {genderNote}",
+      placeBack:
+        "AstroChart Bridge: Astro-Seek je spremenil zemljepisno širino, dolžino ali časovni pas, zato so vrnjeni podatki horoskopa: {place}, UT/GMT brez poletnega časa. Če to želite, jih tukaj spremenite sami.",
+    },
+  },
+
   chart: {
     copyLink: "Kopiraj povezavo",
     showQr: "Prikaži kodo QR",

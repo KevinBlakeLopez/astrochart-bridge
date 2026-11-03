@@ -112,9 +112,11 @@ test("the notes on astro.com's and Astro-Seek's pages travel as plain data, with
   // What executeScript passes to a page: data only, so no functions.
   assert.deepEqual(JSON.parse(JSON.stringify(es.pageNotes)), es.pageNotes);
   assert.deepEqual(JSON.parse(JSON.stringify(en.pageNotes)), en.pageNotes);
+  assert.deepEqual(JSON.parse(JSON.stringify(sl.pageNotes)), sl.pageNotes);
   for (const [site, notes] of Object.entries(en.pageNotes)) {
     for (const [key, template] of Object.entries(notes)) {
       assert.deepEqual(slots(es.pageNotes[site][key]), slots(template), `${site}.${key}`);
+      assert.deepEqual(slots(sl.pageNotes[site][key]), slots(template), `${site}.${key} in Slovenian`);
     }
   }
 });
