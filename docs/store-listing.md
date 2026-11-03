@@ -197,11 +197,22 @@ Leave **Location** unticked: a birthplace's coordinates aren't the user's locati
 
 ## Screenshots
 
-Use invented birth data: the charts in `fixtures/astroseek/`, whose `url` fields open them on Astro-Seek, as in [manual-test.md](manual-test.md). Take each one at 1280 × 800, in a browser window with nothing personal in its tabs or bookmarks bar.
+The Chrome Web Store takes up to five, at 1280 × 800. Every one uses invented birth data.
 
-1. The popup on an Astro-Seek birth chart page, on the ready screen with the chart's clock time and its buttons.
-2. The sky that chart opens in Stellarium Web.
-3. The screenshot page after reading a chart screenshot from a desktop program.
-4. The paste page's form, with the values to check before anything opens.
-5. astro.com's birth data form, filled in, with the name AstroChart Bridge offers to change or clear.
-6. A shared chart's link as a QR code.
+Four were taken on 2 November 2026 from the store zip of `1d4f178`, loaded into Playwright's Chromium. They're kept in `build/store-screenshots/`, which isn't committed:
+
+1. `1-chart.png`: the chart screen for `fixtures/aaf/astrolog-8.00-new-york.aaf`, opened on the import page, with its See the sky and Take the chart elsewhere buttons.
+2. `2-stellarium-web.png`: the night sky Stellarium Web opens for an invented chart, Example Person, 15 June 1985 at 23:30 in Seattle. Stellarium Web's cookie notice was hidden for the picture, not answered.
+3. `3-paste.png`: the paste page's form for that chart, with the values to check before anything opens.
+4. `4-share.png`: the share page for that chart, with the name and town ticks, the share buttons and its QR code.
+
+Retake them when the screens they show change, before the next upload.
+
+**Still to take by hand: the popup on a chart page.** It's the fifth shot, and the most useful one. The toolbar popup is part of the browser's own window, so a screenshot of a page can't include it, and Astro-Seek's bot check stops automated browsers. In Chrome, with the extension loaded:
+
+1. Open an invented chart: the `url` of a chart in `fixtures/astroseek/`, as in [manual-test.md](manual-test.md).
+2. Size the window to 1280 × 800, with nothing personal in its tabs or bookmarks bar.
+3. Click the toolbar button, and wait for the ready screen with the chart's clock time and its buttons.
+4. Press ⌘⇧4, then Space, and click the window. Check the picture is 1280 × 800 without its shadow (hold ⌥ as you click to leave the shadow out), and crop or resize it if not.
+
+astro.com's filled-in form and the screenshot page weren't taken: the first needs access to www.astro.com granted in the browser, and the second a chart picture to read. With five slots, they aren't needed.
