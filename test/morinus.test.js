@@ -25,6 +25,8 @@ test("a ZN status bar reads its clock, with no offset", () => {
     lat: 51.5,
     lng: -0.166667,
     zoneLabel: null,
+    // Before the type on the status bar's line.
+    name: "Prince Charles",
   });
 });
 
@@ -39,6 +41,7 @@ test("a ZN chart asks for its offset", () => {
     utc: null,
     utcSource: "needs-offset",
     reason: "no-printed-offset",
+    name: { first: "Prince Charles", last: "" },
   });
 });
 
@@ -58,8 +61,23 @@ test("the status bar's fields read on lines of their own too", () => {
 });
 
 test("the square chart reads like the status bar, and both together agree", () => {
-  assert.deepEqual(read(ocr(SQUARE)), read(STATUS_BAR));
-  assert.deepEqual(read(ocr([...SQUARE, STATUS_BAR])), read(STATUS_BAR));
+  // The square chart also prints the place, between the time and the coordinates.
+  assert.deepEqual(read(ocr(SQUARE)), { ...read(STATUS_BAR), place: "London" });
+  assert.deepEqual(read(ocr([...SQUARE, STATUS_BAR])), { ...read(STATUS_BAR), place: "London" });
+});
+
+test("a chart's name and place are read only where Morinus and Valens print them", () => {
+  const labels = (text) => {
+    const { name, place } = read(text);
+    return { name, place };
+  };
+  assert.deepEqual(labels(ocr(VALENS)), { name: "Prince Charles", place: "Buckingham Palace" });
+  // With no place line, the coordinates follow the time.
+  assert.deepEqual(labels(ocr(SQUARE.filter((line) => line !== "London"))), { name: "Prince Charles", place: undefined });
+  // With no type line after it, the line after the coordinates isn't taken for a name.
+  assert.deepEqual(labels(ocr(SQUARE.slice(0, 5))), { name: undefined, place: "London" });
+  // A status bar with no type before its date has no name before it either.
+  assert.deepEqual(labels("1948.november.14. 21:14:39ZN | Long.: 00°10'W Lat.: 51°30'N"), { name: undefined, place: undefined });
 });
 
 test("a status bar and square chart that differ are refused", () => {
@@ -78,6 +96,9 @@ test("a UT time is its own UTC, and the zone needs no check", () => {
     utc: "1948-11-14T21:14:39Z",
     utcSource: "declared",
     offsetMinutes: 0,
+    // After the coordinates, and between the time and the coordinates.
+    name: { first: "Prince Charles", last: "" },
+    town: "Buckingham Palace",
   });
   assert.equal(analyzeScreenshot(swap(SQUARE, "21:14", "21:14:39 UT")).utc, "1948-11-14T21:14:39Z");
 });

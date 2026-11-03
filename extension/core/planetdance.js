@@ -1,3 +1,4 @@
+import { withLabels } from "./names.js";
 import { angle, linesOf, localIso, weekdayNumber } from "./printed-chart.js";
 
 const refused = (reason) => ({ kind: "refused", reason });
@@ -32,7 +33,7 @@ const WHEEL_TIME = new RegExp(String.raw`^${DATE} ${CLOCK} (?:(?<zoneLabel>[A-Z]
 const PLACE_LINE = new RegExp(String.raw`(?:^|, )${COORDS}(?:, [\w/+-]+)?$`);
 const WHEEL_SIDEREAL = /\bSt: ?(?<hour>\d{1,2}):(?<minute>\d{2}):(?<sec>\d{2})\b/;
 
-const DATA_LOCAL = new RegExp(String.raw`(?<![\d/])${DATE} ${CLOCK} .+, ${COORDS}(?:, [\w/+-]+)?$`);
+const DATA_LOCAL = new RegExp(String.raw`(?<![\d/])${DATE} ${CLOCK} (?<place>.+), ${COORDS}(?:, [\w/+-]+)?$`);
 const DATA_UT = new RegExp(String.raw`\bUT: ?${DATE} ${CLOCK}`);
 const DATA_SIDEREAL = /\bSidereal Time:? +(?<hour>\d{1,2})°(?<minute>\d{2})'(?<sec>\d{2})"/;
 const DATA_WEEKDAY = /\b(?<weekday>Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday)$/;
@@ -86,7 +87,23 @@ function wheel(lines) {
     if (Math.abs(offsetMinutes - lmt) > 1) return refused("zone-offset-mismatch");
     offsetMinutes = lmt;
   }
-  return readings(time, sidereal, (local) => ({ site: "planetdance", local, ...place, zoneLabel, offsetMinutes }));
+  // The wheel's first line names the chart, as "Startup" does, unless it is
+  // a line this reader knows; the place is before the coordinates.
+  const name = lines[at[0] - 1] ?? null;
+  return withLabels(readings(time, sidereal, (local) => ({ site: "planetdance", local, ...place, zoneLabel, offsetMinutes })), {
+    name: name !== null && !known(name) ? name : null,
+    place: placeName(lines[at[0] + 1]),
+  });
+}
+
+// A line this reader reads for its values, which names neither the chart nor its place.
+const known = (line) => [WHEEL_TIME, PLACE_LINE, WHEEL_SIDEREAL, DATA_UT, DATA_SIDEREAL, VEDIC_TIME].some((pattern) => pattern.test(line));
+
+// The place's name on a place line: what comes before its coordinates, as
+// "Helsinki, Finland" before ", 24e56, 60n10".
+function placeName(line) {
+  const match = PLACE_LINE.exec(line ?? "");
+  return match ? line.slice(0, match.index) : null;
 }
 
 function dataScreen(lines) {
@@ -102,7 +119,7 @@ function dataScreen(lines) {
   const weekdayName = lines.map((line) => DATA_WEEKDAY.exec(line)?.groups.weekday).find(Boolean);
 
   // Both dates are written the same way, so they are read the same way round.
-  return readings(local, sidereal, (localIsoText, dayFirst) => {
+  const read = readings(local, sidereal, (localIsoText, dayFirst) => {
     const utIso = isoFrom(ut, dayFirst);
     return utIso && {
       site: "planetdance",
@@ -113,6 +130,9 @@ function dataScreen(lines) {
       ...(weekdayName === undefined ? {} : { weekday: weekdayNumber(weekdayName) }),
     };
   });
+  // One line holds them all: the name before the date, and the place between
+  // the time and the coordinates.
+  return withLabels(read, { name: locals[0].input.slice(0, locals[0].index), place: local.place });
 }
 
 function vedicScreen(lines) {
@@ -123,8 +143,15 @@ function vedicScreen(lines) {
   if (!place) return refused("unreadable-screenshot");
   // No zone and no sidereal time, so the date is read day first, as every
   // sample prints it, and the user enters the offset.
-  return readings(VEDIC_TIME.exec(lines[at[0]]).groups, null, (local) => ({ site: "planetdance", local, ...place, zoneLabel: null }));
+  // The line above the date names the chart after its style: "Classical
+  // North Indian Chart for:  Startup".
+  return withLabels(
+    readings(VEDIC_TIME.exec(lines[at[0]]).groups, null, (local) => ({ site: "planetdance", local, ...place, zoneLabel: null })),
+    { name: VEDIC_NAME.exec(lines[at[0] - 1] ?? "")?.groups.name ?? null, place: placeName(lines[at[0] + 1]) },
+  );
 }
+
+const VEDIC_NAME = /\bChart for: +(?<name>.+)$/;
 
 // The records for a date read day first and, when a sidereal time can tell
 // them apart, month first too. make gets each local time and whether it was

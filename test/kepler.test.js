@@ -33,7 +33,23 @@ test("a local-mean-time chart takes its offset from the longitude, not its 0 hou
     utcSource: "declared",
     offsetMinutes: 84,
     warnings: ["offset-unchecked"],
+    // Above the date, less the zodiac and house system beside it, and before the coordinates.
+    name: { first: "Frederic Chopin", last: "" },
+    town: "Warsaw, Poland",
   });
+});
+
+test("the Bach style's name and place are lines of their own", () => {
+  const labels = (lines) => {
+    const { name, place } = read(ocr(lines));
+    return { name, place };
+  };
+  assert.deepEqual(labels(BACH), { name: "Johann Sebastian Bach", place: "Eisenach, Germany" });
+  // A block that starts at its date has no name; the zodiac line alone isn't one.
+  assert.deepEqual(labels(BACH.slice(1)), { name: undefined, place: "Eisenach, Germany" });
+  assert.deepEqual(labels(["Tropical Placidus", ...CHOPIN.slice(1)]).name, undefined);
+  // With the place line gone, the line above the coordinates is the time type, which this reader knows.
+  assert.deepEqual(labels(BACH.filter((line) => line !== "Eisenach, Germany")).place, undefined);
 });
 
 test("the table's G.M.T. and sidereal time check the chart", () => {
