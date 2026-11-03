@@ -1,4 +1,4 @@
-import { TOWN_LIMIT_KM, chooseListedTown } from "./towns.js";
+import { TOWN_LIMIT_KM, chooseListedTown, searchTown } from "./towns.js";
 
 const ORIGIN = "https://www.astro.com";
 const CHART_PATH = "/cgi/chart.cgi";
@@ -221,7 +221,7 @@ const ANGLE = /^(\d{1,3})([nsew])(\d{1,2}|\d{4})$/;
 export function parseNd(record) {
   const fields = record.split(",");
   if (fields.length !== FIELD_COUNT) return null;
-  const [lastText, firstText, , day, month, year, time, zoneCode, field9, , townText, , lngCode, latCode] = fields;
+  const [lastText, firstText, , day, month, year, time, zoneCode, field9, , townText, regionText, lngCode, latCode] = fields;
 
   const date = parseDate(day, month, year);
   const clock = parseTime(time);
@@ -240,9 +240,13 @@ export function parseNd(record) {
     lat,
     lng,
     name: first === null && last === null ? null : { first: first ?? "", last: last ?? "" },
-    town: nameField(townText),
+    // Field 11 is the state and country, "NY (US)", which help choose among a
+    // town search's matches; only the town is typed (searchTown).
+    town: townWithRegion(nameField(townText), nameField(regionText)),
   };
 }
+
+const townWithRegion = (town, region) => (town === null ? null : [town, region].filter(Boolean).join(", "));
 
 // A name or place from an nd= record, or null when it's empty or can't be read
 // cleanly. Every one seen is plain ASCII. Inside a pgid, the record comes one
@@ -429,7 +433,9 @@ export function zoneCheck({ utc, local = null }) {
  * The values for ade.cgi's fields for a decided UTC, the chart's local time,
  * and its town and name, by field name. The time and zone are formTime's. The
  * seconds are left out: the form takes whole minutes. The town, when there is
- * one, goes in the birth town field, scit, and the name, when there is one,
+ * one, goes in the birth town field, scit, without the state and country
+ * after it (searchTown), which choosing among the matches uses instead; and
+ * the name, when there is one,
  * in the first and last name fields, sfnm and snam. A gender, when the chart
  * gives one, is ssx's: astro.com's form offers female, male and event/other,
  * and a horary chart is an event.
@@ -449,7 +455,7 @@ export function formValues({ utc, local = null, town = null, name = null, gender
     ihou: String(Number(time.slice(11, 13))),
     smin: time.slice(14, 16),
     szon,
-    ...(town === null ? {} : { scit: town }),
+    ...(town === null ? {} : { scit: searchTown(town) }),
     ...(name === null ? {} : { sfnm: name.first, snam: name.last }),
     ...(GENDERS[gender] ? { ssx: GENDERS[gender] } : {}),
   };
@@ -655,14 +661,22 @@ export function chooseTown(items, chart) {
   return chooseListedTown(items.map((text) => ({ text, place: listedPlace(text) })), chart);
 }
 
-// A match's name, before its first comma, and its coordinates, its last two
-// parts; or null when they aren't in nd='s form.
+// A match's name, before its first comma, its coordinates, its last two
+// parts, and the pieces between them, such as "NY", "US" and "New York" in
+// "New York, NY (US) = New York, 40n43, 74w00"; or null when the coordinates
+// aren't in nd='s form.
 function listedPlace(text) {
   const parts = text.split(", ");
   if (parts.length < 3) return null;
   const lat = parseAngle(parts.at(-2), "n", "s", 90);
   const lng = parseAngle(parts.at(-1), "e", "w", 180);
-  return lat === null || lng === null ? null : { name: parts[0], lat, lng };
+  const pieces = parts
+    .slice(1, -2)
+    .join(",")
+    .split(/[,=()]/)
+    .map((piece) => piece.trim())
+    .filter(Boolean);
+  return lat === null || lng === null ? null : { name: parts[0], lat, lng, pieces };
 }
 
 // readTownList and showTownChoice run in the form's tab, like fillForm.

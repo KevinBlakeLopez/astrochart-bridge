@@ -17,7 +17,7 @@ import {
   showCityChoice,
   typeCity,
 } from "./core/astroseek.js";
-import { TOWN_LIMIT_KM } from "./core/towns.js";
+import { TOWN_LIMIT_KM, searchTown } from "./core/towns.js";
 import { tabLoaded } from "./tabs.js";
 
 // The manifest's optional host permission, asked for when Save in Astro-Seek… is clicked.
@@ -72,7 +72,8 @@ export async function openAndSave({ tabs, scripting }, { values, timeoutMs = LOA
     const genderLabel = set?.set ? option.label : null;
     const choice = town === null ? { kind: "no-town" } : await chooseFormCity(scripting, tabId, { town, lat, lng }, cityWait);
     if (choice !== null) {
-      await scripting.executeScript({ target: { tabId }, func: showCityChoice, args: [choice, town, TOWN_LIMIT_KM, genderLabel] });
+      const typed = town === null ? null : searchTown(town);
+      await scripting.executeScript({ target: { tabId }, func: showCityChoice, args: [choice, typed, TOWN_LIMIT_KM, genderLabel] });
     }
   } catch {
     // The tab navigated away, or the browser refused the script.
@@ -94,11 +95,13 @@ export async function openAndSave({ tabs, scripting }, { values, timeoutMs = LOA
  * @returns {Promise<ReturnType<typeof chooseCity> | { kind: "no-list" } | null>}
  */
 export async function chooseFormCity(scripting, tabId, chart, { timeoutMs = CITY_LIST_TIMEOUT_MS, pollMs = CITY_LIST_POLL_MS } = {}) {
-  const [{ result: typed }] = await scripting.executeScript({ target: { tabId }, func: typeCity, args: [chart.town] });
+  // The town alone goes in Birth city; the state and country after it help choose.
+  const town = searchTown(chart.town);
+  const [{ result: typed }] = await scripting.executeScript({ target: { tabId }, func: typeCity, args: [town] });
   if (!typed?.typed) return null;
   const deadline = Date.now() + timeoutMs;
   for (;;) {
-    const [{ result: list }] = await scripting.executeScript({ target: { tabId }, func: readCityList, args: [chart.town] });
+    const [{ result: list }] = await scripting.executeScript({ target: { tabId }, func: readCityList, args: [town] });
     if (list?.state === "listed") return chooseCity(list.labels, chart);
     if (list?.state !== "waiting") return null;
     if (Date.now() >= deadline) return { kind: "no-list" };

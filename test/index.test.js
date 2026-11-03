@@ -70,7 +70,7 @@ test("an astro.com chart opens at the offset astro.com states", () => {
     utcSource: "declared",
     offsetMinutes: -240,
     name: { first: "Test", last: "" },
-    town: "New York",
+    town: "New York, NY (US)",
   });
 });
 

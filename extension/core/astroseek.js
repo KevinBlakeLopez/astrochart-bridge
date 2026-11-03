@@ -51,8 +51,11 @@ export function classifyUrl(url) {
 export function townFromUrl(url) {
   const params = chartParams(url);
   const town = params?.get("narozeni_mesto_hidden")?.trim() ?? "";
+  const state = params?.get("narozeni_podstat_kratky_hidden")?.trim() ?? "";
   const country = params?.get("narozeni_stat_hidden")?.trim() ?? "";
-  return town !== "" && country !== "" ? town : null;
+  // The state and country codes after it help choose among a town search's
+  // matches; only the town is typed (searchTown).
+  return town !== "" && country !== "" ? [town, state, country].filter(Boolean).join(", ") : null;
 }
 
 /**
@@ -459,20 +462,22 @@ export function chooseCity(labels, chart) {
 }
 
 // "New York, USA, New York (40n43, 74w0)": the name before the first comma,
-// then the latitude and longitude in brackets at the end, in degrees and
-// whole minutes.
-const CITY_LABEL = /^([^,]+),.* \((\d{1,2})([ns])(\d{1,2}), (\d{1,3})([ew])(\d{1,2})\)$/;
+// its country and state, then the latitude and longitude in brackets at the
+// end, in degrees and whole minutes.
+const CITY_LABEL = /^([^,]+),(.*) \((\d{1,2})([ns])(\d{1,2}), (\d{1,3})([ew])(\d{1,2})\)$/;
 
-// A label's name and coordinates, or null when it isn't in CITY_LABEL's form
-// or its numbers are out of range.
+// A label's name, coordinates and the pieces between them, as "USA" and
+// "New York"; or null when it isn't in CITY_LABEL's form or its numbers are
+// out of range.
 function cityPlace(label) {
   const match = CITY_LABEL.exec(label);
   if (!match) return null;
-  const [, name, latDeg, latSide, latMin, lngDeg, lngSide, lngMin] = match;
+  const [, name, between, latDeg, latSide, latMin, lngDeg, lngSide, lngMin] = match;
   if (Number(latMin) > 59 || Number(lngMin) > 59) return null;
   const lat = degrees(Number(latDeg), Number(latMin), latSide === "s");
   const lng = degrees(Number(lngDeg), Number(lngMin), lngSide === "w");
-  return Math.abs(lat) > 90 || Math.abs(lng) > 180 ? null : { name: name.trim(), lat, lng };
+  const pieces = between.split(",").map((piece) => piece.trim()).filter(Boolean);
+  return Math.abs(lat) > 90 || Math.abs(lng) > 180 ? null : { name: name.trim(), lat, lng, pieces };
 }
 
 /**

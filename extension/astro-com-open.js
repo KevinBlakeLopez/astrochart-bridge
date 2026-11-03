@@ -15,6 +15,7 @@ import {
   watchZone,
   zoneCheck,
 } from "./core/astrocom.js";
+import { searchTown } from "./core/towns.js";
 import { holdForTab, releaseTab } from "./pending.js";
 import { tabLoaded } from "./tabs.js";
 
@@ -104,13 +105,15 @@ export async function watchFilledZone(scripting, tabId, values) {
 export async function chooseFilledTown(scripting, tabId, values, { timeoutMs = TOWN_LIST_TIMEOUT_MS, pollMs = TOWN_LIST_POLL_MS } = {}) {
   const { town = null, lat, lng } = values;
   if (town === null) return;
+  // fillForm typed the town alone (formValues); the state and country after it help choose.
+  const typed = searchTown(town);
   const deadline = Date.now() + timeoutMs;
   try {
     for (;;) {
-      const [{ result: list }] = await scripting.executeScript({ target: { tabId }, func: readTownList, args: [town] });
+      const [{ result: list }] = await scripting.executeScript({ target: { tabId }, func: readTownList, args: [typed] });
       if (list?.state === "listed") {
         const choice = chooseTown(list.items, { town, lat, lng });
-        await scripting.executeScript({ target: { tabId }, func: showTownChoice, args: [choice, town, TOWN_LIMIT_KM] });
+        await scripting.executeScript({ target: { tabId }, func: showTownChoice, args: [choice, typed, TOWN_LIMIT_KM] });
         return;
       }
       if (list?.state !== "waiting" || Date.now() >= deadline) return;

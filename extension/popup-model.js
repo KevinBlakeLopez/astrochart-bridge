@@ -2,6 +2,7 @@ import { formTime, localOffset, zoneWords } from "./core/astrocom.js";
 import { astroSeekSaveUrl } from "./core/astroseek.js";
 import { parseOffset, utcFromOffset } from "./core/civiltime.js";
 import { nameFromText } from "./core/names.js";
+import { searchTown } from "./core/towns.js";
 import { toPortable } from "./core/portable.js";
 import { HOLD_MINUTES } from "./pending.js";
 
@@ -481,7 +482,7 @@ const ASTRO_COM_BUTTONS = [
 const townNote = (town) =>
   town === null
     ? "astro.com asks for a country and town, not coordinates. Choose the town nearest this place and check the coordinates astro.com shows."
-    : `astro.com asks for a country and town, not coordinates. AstroChart Bridge fills in the town ${town}; choose the match nearest this place and check the coordinates astro.com shows.`;
+    : `astro.com asks for a country and town, not coordinates. AstroChart Bridge fills in the town ${searchTown(town)}; choose the match nearest this place and check the coordinates astro.com shows.`;
 
 // The sign-in advice is a note, not a step before the form: a signed-in browser
 // goes straight on.

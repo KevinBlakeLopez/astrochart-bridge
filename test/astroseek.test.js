@@ -67,10 +67,10 @@ test("a string that is not a URL is unsupported", () => {
   assert.deepEqual(classifyUrl("not a url"), unsupported);
 });
 
-test("a chart's town is the city in its address, for astro.com's town field", () => {
-  assert.equal(townFromUrl(fixtureUrl("ny-2024-04-17")), "New York");
-  assert.equal(townFromUrl(fixtureUrl("sydney-2024-01-15")), "Sydney");
-  assert.equal(townFromUrl(fixtureUrl("traditional-ny-2024-04-17")), "New York");
+test("a chart's town is the city in its address, with its state and country codes, for the town searches", () => {
+  assert.equal(townFromUrl(fixtureUrl("ny-2024-04-17")), "New York, NY, US");
+  assert.equal(townFromUrl(fixtureUrl("sydney-2024-01-15")), "Sydney, NSW, AU");
+  assert.equal(townFromUrl(fixtureUrl("traditional-ny-2024-04-17")), "New York, NY, US");
 });
 
 test("a chart placed by coordinates, or another site's page, names no town", () => {

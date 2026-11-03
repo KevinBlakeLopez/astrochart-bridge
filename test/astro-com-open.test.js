@@ -162,6 +162,14 @@ test("a form filled in with a local time has the tab check astro.com's automatic
   ]);
 });
 
+test("a town with its state and country types the town alone, and chooses with the rest", async () => {
+  const scripting = fakeScripting();
+  await chooseFilledTown(scripting, 40, { ...VALUES, town: "New York, NY (US)" }, { pollMs: 1 });
+  assert.deepEqual(scripting.calls[0].args, ["New York"]);
+  assert.equal(scripting.calls[1].args[1], "New York");
+  assert.equal(scripting.calls[1].args[0].kind, "pick");
+});
+
 test("the tab chooses the town among astro.com's matches once its list shows them", async () => {
   const scripting = fakeScripting({ lists: [{ state: "waiting" }, { state: "waiting" }, LISTED] });
   await chooseFilledTown(scripting, 40, VALUES, { pollMs: 1 });
