@@ -101,7 +101,7 @@ export function render(container, view, onButton, back = null) {
     // The other ways to a chart, closed until opened, from withOtherWays. They
     // don't open this screen's sky, so they don't wait for it.
     if (view.more) parts.push(moreBox(view.more, (button) => onButton(button, sky)));
-    if (back) parts.push(secondaryButton("Cancel", () => render(container, back, onButton)));
+    if (back) parts.push(secondaryButton(text().view.cancel, () => render(container, back, onButton)));
   }
 
   container.replaceChildren(...parts);
@@ -140,10 +140,10 @@ export function groupLabel(text) {
 }
 
 /**
- * popup-model.js's OTHER_WAYS groups, each under its label. A click passes
+ * popup-model.js's otherWays() groups, each under its label. A click passes
  * the button, with the page it opens or what it does, to onChoose.
  *
- * @param {typeof import("./popup-model.js").OTHER_WAYS} groups
+ * @param {ReturnType<typeof import("./popup-model.js").otherWays>} groups
  * @param {(button: { label: string, page?: string, does?: string }) => void} onChoose
  * @returns {HTMLElement[]}
  */
@@ -254,14 +254,14 @@ function nameFields(boxes, typed) {
 function offsetField(view, setSky) {
   const input = document.createElement("input");
   input.type = "text";
-  input.placeholder = "e.g. -04:00";
+  input.placeholder = text().view.offsetPlaceholder;
   input.autocomplete = "off";
   input.spellcheck = false;
-  input.setAttribute("aria-label", "UTC offset");
+  input.setAttribute("aria-label", text().view.offsetLabel);
   const preview = paragraph("", "preview");
   input.addEventListener("input", () => {
     const result = offsetPreview(view, input.value);
-    preview.textContent = result ? `UTC: ${result.utcText}` : "";
+    preview.textContent = result ? text().view.offsetPreview(result.utcText) : "";
     setSky(result ? result.sky : null);
   });
   return [input, preview];

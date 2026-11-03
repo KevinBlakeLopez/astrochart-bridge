@@ -2,12 +2,12 @@ import { analyzeEntry, analyzeProgramText } from "./core/index.js";
 import { toPortable } from "./core/portable.js";
 import { MAX_TEXT_LENGTH, readField, readText } from "./core/text.js";
 import {
-  ASTRO_SEEK_BUTTONS,
-  ASTRO_SEEK_NOTES,
-  SHARE_BUTTON,
   astroComStep,
+  astroSeekButtons,
+  astroSeekNotes,
   genderRows,
   nameFromText,
+  shareButton,
   viewFor,
   viewForAstroCom,
   withAstroSeekSave,
@@ -383,8 +383,8 @@ export function viewForEntry(entry, { warnings = [], timeZone, name = null, town
       ...view,
       ...(view.rows ? { rows: [...genderRows(gender), ...view.rows] } : {}),
       warnings: [...view.warnings, ...warnings],
-      notes: [OFFSET_NOTE, ...view.notes, ...ASTRO_SEEK_NOTES],
-      buttons: [...ASTRO_SEEK_BUTTONS, SHARE_BUTTON].map((button) => ({ ...button })),
+      notes: [OFFSET_NOTE, ...view.notes, ...astroSeekNotes()],
+      buttons: [...astroSeekButtons(), shareButton()].map((button) => ({ ...button })),
       next: astroComStep(view.sky, { local: result.local, name, town, gender }),
     },
     { town, name, gender },

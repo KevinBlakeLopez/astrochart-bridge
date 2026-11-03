@@ -2,7 +2,7 @@
 // written in core/aaf.js; this file turns its results into views that
 // view.js draws, reusing the popup's own screens for a chart.
 import { chartFromRecord, exportRecord, parseAaf, writeAaf } from "./core/aaf.js";
-import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, astroComStep, genderRows, viewFor, withAstroSeekSave } from "./popup-model.js";
+import { astroComStep, astroSeekButtons, astroSeekNotes, genderRows, viewFor, withAstroSeekSave } from "./popup-model.js";
 
 // Why chartFromRecord refused a record. Each keeps its code on screen, like
 // the screenshot page's refusals, so a bug report says which check failed.
@@ -98,8 +98,8 @@ export function viewForAafChart(result, options) {
         ...view,
         rows: [...(chart.name ? [["Name", chart.name]] : []), ...genderRows(gender), ...rows],
         warnings: warnings.map((code) => WARNINGS[code]?.(chart) ?? code),
-        notes: [...view.notes, ...ASTRO_SEEK_NOTES],
-        buttons: [...ASTRO_SEEK_BUTTONS],
+        notes: [...view.notes, ...astroSeekNotes()],
+        buttons: [...astroSeekButtons()],
         ...(view.sky ? { next: astroComStep(view.sky, { local: chart.local, name: aafName(chart.aaf), town, gender }) } : {}),
       },
       { town, name: aafName(chart.aaf), gender },

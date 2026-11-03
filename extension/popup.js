@@ -13,12 +13,12 @@ import { BUSY, viewForDesktopImport } from "./desktop-model.js";
 import { checkDesktop, renderChart } from "./desktop-page.js";
 import { astroSeekTabs, heldForTab, holdForTab, releaseTab } from "./pending.js";
 import {
-  ASTRO_COM_BUSY,
-  ASTRO_SEEK_SAVE_BUSY,
-  OTHER_WAYS,
+  astroComBusy,
+  astroSeekSaveBusy,
   chartToShare,
   nameFromText,
   offersOtherWays,
+  otherWays,
   viewFor,
   viewForAstroComManual,
   viewForAstroComNotFilled,
@@ -29,7 +29,7 @@ import {
   withOtherWays,
 } from "./popup-model.js";
 import { HOST_PERMISSION, readSky } from "./stellarium-desktop.js";
-import { setLanguage } from "./messages/index.js";
+import { setLanguage, text } from "./messages/index.js";
 import { desktopHintLine, render, wayGroups } from "./view.js";
 
 // The browser's language, chosen before anything is drawn.
@@ -45,7 +45,7 @@ const held = chrome.storage.session;
 let sharing = null;
 
 main().catch((error) => {
-  const view = { state: "refused", message: "AstroChart Bridge couldn't read this tab.", code: String(error?.message ?? error) };
+  const view = { state: "refused", message: text().popup.tabUnreadable, code: String(error?.message ?? error) };
   show(view, { offerScreenshot: true });
 });
 
@@ -164,7 +164,7 @@ async function openForm(url, values) {
     show(viewForAstroComManual(values));
     return;
   }
-  show(ASTRO_COM_BUSY);
+  show(astroComBusy());
   const result = await openAndFill({ tabs: chrome.tabs, scripting: chrome.scripting, storage: held }, { url, values });
   const tab = { id: result.tabId };
   if (result.outcome === "choose") {
@@ -194,7 +194,7 @@ async function saveInAstroSeek(sky, saves) {
     show(viewForAstroSeekSave({ outcome: "declined" }, sky, saves));
     return;
   }
-  show(ASTRO_SEEK_SAVE_BUSY);
+  show(astroSeekSaveBusy());
   const result = await openAndSave({ tabs: chrome.tabs, scripting: chrome.scripting }, { values: { ...sky, ...saves } });
   const tab = { id: result.tabId };
   if (result.outcome === "filled") {
@@ -206,21 +206,21 @@ async function saveInAstroSeek(sky, saves) {
 
 // A page AstroChart Bridge doesn't read can still lead to a chart: a screenshot,
 // pasted text, an AAF or Morinus file, a .astrochart.json file, or Stellarium
-// Desktop, in popup-model.js's OTHER_WAYS groups.
+// Desktop, in popup-model.js's otherWays() groups.
 function show(view, { offerScreenshot = false, onButton = openLink } = {}) {
   render(app, view, onButton);
-  if (offerScreenshot) app.append(...otherWays());
+  if (offerScreenshot) app.append(...otherWayParts());
   checkDesktop(app.querySelector(".desktop-hint")).catch(() => {});
 }
 
-// Each OTHER_WAYS group under its label. Import from Stellarium Desktop is
+// Each otherWays() group under its label. Import from Stellarium Desktop is
 // the last button, so the line about Stellarium goes right under it, as under
 // Send to Stellarium Desktop.
-function otherWays() {
-  return [...wayGroups(OTHER_WAYS, otherWay), desktopHintLine()];
+function otherWayParts() {
+  return [...wayGroups(otherWays(), otherWay), desktopHintLine()];
 }
 
-// An OTHER_WAYS button: one of the extension's pages in a tab, or Import from
+// An otherWays() button: one of the extension's pages in a tab, or Import from
 // Stellarium Desktop, called straight from the click as it needs.
 function otherWay({ page }) {
   return page ? openPage(page) : importFromDesktop();
@@ -230,7 +230,7 @@ function otherWay({ page }) {
 // Read a different chart from withOtherWays. The sent screen's Done closes the popup.
 function showChart(base) {
   renderChart(app, withOtherWays(base), chartButtons, { onDone: () => window.close() }).catch((error) => {
-    show({ state: "refused", message: "AstroChart Bridge couldn't show this chart.", code: String(error?.message ?? error) });
+    show({ state: "refused", message: text().popup.chartUnshowable, code: String(error?.message ?? error) });
   });
 }
 

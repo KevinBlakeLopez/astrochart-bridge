@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { withAafExport } from "../extension/aaf-model.js";
 import { analyzePage } from "../extension/core/index.js";
 import { viewForDesktopImport, viewForDesktopSend, withDesktopSend } from "../extension/desktop-model.js";
-import { GROUP_LABELS, actionGroups, viewFor, viewForSky } from "../extension/popup-model.js";
+import { actionGroups, groupLabels, viewFor, viewForSky } from "../extension/popup-model.js";
 
 const fixture = (name) =>
   JSON.parse(readFileSync(new URL(`../fixtures/astroseek/${name}.json`, import.meta.url), "utf8"));
@@ -15,7 +15,7 @@ const analyze = (name) => {
 
 const LA = { timeZone: "America/Los_Angeles" };
 const NY = { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 };
-const { sky: SKY, elsewhere: ELSEWHERE } = GROUP_LABELS;
+const { sky: SKY, elsewhere: ELSEWHERE } = groupLabels();
 
 // Each group as its label, then its actions: a button by its label, anything else by its kind.
 const groupsOf = (view) => actionGroups(view).map(({ label, actions }) => [label, ...actions.map(({ kind, button }) => button?.label ?? kind)]);

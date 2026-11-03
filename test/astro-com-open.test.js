@@ -15,7 +15,7 @@ import {
 } from "../extension/core/astrocom.js";
 import { heldForTab } from "../extension/pending.js";
 import {
-  ASTRO_COM_BUSY,
+  astroComBusy,
   viewForAstroCom,
   viewForAstroComManual,
   viewForAstroComNotFilled,
@@ -295,7 +295,7 @@ test("the form button fills the form in as it opens; signing in and creating an 
 });
 
 test("while the form loads, the popup says so and offers nothing to click", () => {
-  assert.deepEqual(ASTRO_COM_BUSY, { state: "astro-com-busy", message: "Opening astro.com's form to fill it in…", notes: [], buttons: [] });
+  assert.deepEqual(astroComBusy(), { state: "astro-com-busy", message: "Opening astro.com's form to fill it in…", notes: [], buttons: [] });
 });
 
 test("declining the access gives the two-click way, with the toolbar icon named at that moment", () => {

@@ -4,7 +4,7 @@
 // Astro-Seek, be entered in astro.com, and be passed on. Every decision is made here, so chart.js only
 // reads the link or file and renders.
 import { fromFragment, parse, serialize, skyFor, toFragment } from "./core/portable.js";
-import { ASTRO_SEEK_NOTES, ASTRO_SEEK_BUTTONS, astroComStep, astroComStepByHand, viewFor } from "./popup-model.js";
+import { astroComStep, astroComStepByHand, astroSeekButtons, astroSeekNotes, viewFor } from "./popup-model.js";
 import { qrFor } from "./qr.js";
 
 const COPY_LINK = { label: "Copy link", does: "copy", secondary: true };
@@ -173,7 +173,7 @@ export function viewForImport(
   const origin = [nameFor(SITE_NAMES, source.site), nameFor(VIA_NAMES, source.via)].filter(Boolean).join(" ");
   const shareLink = canCopy && canShare;
   const buttons = [
-    ...ASTRO_SEEK_BUTTONS,
+    ...astroSeekButtons(),
     ...(shareLink ? [SHARE_LINK] : []),
     ...(canCopy ? [COPY_LINK, SHOW_QR] : []),
     DOWNLOAD_FILE,
@@ -187,7 +187,7 @@ export function viewForImport(
     ...view,
     rows: origin === "" ? view.rows : [...view.rows, ["From", origin]],
     warnings: Object.hasOwn(VIA_WARNINGS, source.via) ? [VIA_WARNINGS[source.via]] : [],
-    notes: [...view.notes, ...ASTRO_SEEK_NOTES, ...(shareLink || canShareFiles ? [SHARE_NOTE] : [])],
+    notes: [...view.notes, ...astroSeekNotes(), ...(shareLink || canShareFiles ? [SHARE_NOTE] : [])],
     buttons: buttons.map((button) => ({ ...button })),
     next: step(view.sky, { local: chart.local }),
   };

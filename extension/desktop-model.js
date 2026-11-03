@@ -2,7 +2,7 @@
 // there, and a screen for each result of stellarium-desktop.js's sendSky and
 // readSky. Nothing connects until a button is clicked, so a screen that can't
 // reach Stellarium explains how to set it up instead.
-import { ASTRO_SEEK_NOTES, PRIVACY_NOTE, astroComStep, placeText, utcText, withAstroSeekSave } from "./popup-model.js";
+import { astroComStep, astroSeekNotes, placeText, privacyNote, utcText, withAstroSeekSave } from "./popup-model.js";
 
 // Every screen with a sky to open: a chart page's, once its UTC can be
 // decided, and a Stellarium Web tab's. view.js keeps the button off until the
@@ -197,8 +197,8 @@ export function viewForDesktopImport(result) {
     ],
     notes: [
       "If Stellarium's clock is running, pause it and import again, so the chart is the moment you chose.",
-      ...ASTRO_SEEK_NOTES,
-      PRIVACY_NOTE,
+      ...astroSeekNotes(),
+      privacyNote(),
     ],
     sky,
     buttons: [

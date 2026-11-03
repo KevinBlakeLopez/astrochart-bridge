@@ -3,7 +3,7 @@
 // draws, reusing the popup's screen for a chart and the AAF import's buttons.
 import { chartFromHor, parseHor } from "./core/morinus-hor.js";
 import { withAafExport } from "./aaf-model.js";
-import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, astroComStep, genderRows, nameFromText, offsetText, viewFor, withAstroSeekSave } from "./popup-model.js";
+import { astroComStep, astroSeekButtons, astroSeekNotes, genderRows, nameFromText, offsetText, viewFor, withAstroSeekSave } from "./popup-model.js";
 
 // Why chartFromHor refused a chart. Each keeps its code on screen, like the
 // AAF import's refusals, so a bug report says which check failed.
@@ -116,8 +116,8 @@ export function viewForHorChart(result, options) {
         ...view,
         rows: [...first, ...rows],
         warnings: warnings.map((code) => WARNINGS[code] ?? code),
-        notes: [...view.notes, ...(morinus.timeBasis === "zone" ? [ZONE_NOTE] : []), ...ASTRO_SEEK_NOTES],
-        buttons: [...ASTRO_SEEK_BUTTONS],
+        notes: [...view.notes, ...(morinus.timeBasis === "zone" ? [ZONE_NOTE] : []), ...astroSeekNotes()],
+        buttons: [...astroSeekButtons()],
         ...(view.sky ? { next: astroComStep(view.sky, { local: chart.local, name: nameFromText(chart.name), town: chart.place, gender }) } : {}),
       },
       { town: chart.place, name: nameFromText(chart.name), gender },

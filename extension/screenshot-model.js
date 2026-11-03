@@ -1,4 +1,5 @@
-import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, SHARE_BUTTON, astroComStep, genderRows, viewFor, withAstroSeekSave } from "./popup-model.js";
+import { text } from "./messages/index.js";
+import { astroComStep, astroSeekButtons, astroSeekNotes, genderRows, shareButton, viewFor, withAstroSeekSave } from "./popup-model.js";
 
 // Each refusal analyzeScreenshot can return. They keep their code on screen,
 // like the popup's unreadable pages, so a bug report says which check failed.
@@ -82,8 +83,8 @@ export function viewForScreenshot(result, options) {
       ? { message: `${PROGRAMS[result.site]} doesn't print the UTC offset. Enter the offset at the birth place, including daylight saving, as ±HH:MM.` }
       : {};
   // viewFor already gives an astro.com chart Astro-Seek's notes and buttons.
-  const notes = result.site === "astro-com" ? view.notes : [...view.notes, ...ASTRO_SEEK_NOTES];
-  const buttons = [...ASTRO_SEEK_BUTTONS, SHARE_BUTTON].map((button) => ({ ...button }));
+  const notes = result.site === "astro-com" ? view.notes : [...view.notes, ...astroSeekNotes()];
+  const buttons = [...astroSeekButtons(), shareButton()].map((button) => ({ ...button }));
   // viewFor leads only an Astro-Seek chart on to astro.com, since the popup
   // is on an astro.com chart's own page, with the town its address names. A
   // screenshot can be any chart, so every chart with a decided sky can be
@@ -99,7 +100,7 @@ export function viewForScreenshot(result, options) {
 
 // The screen's rows with Name and Gender first and Town after Place, as printed.
 function labelRows(rows, { name, town, gender }) {
-  const at = rows.findIndex(([label]) => label === "Place") + 1 || rows.length;
+  const at = rows.findIndex(([label]) => label === text().popup.rows.place) + 1 || rows.length;
   const nameRow = name ? [["Name", [name.first, name.last].filter(Boolean).join(" ")]] : [];
   const townRow = town ? [["Town", town]] : [];
   return [...nameRow, ...genderRows(gender), ...rows.slice(0, at), ...townRow, ...rows.slice(at)];
