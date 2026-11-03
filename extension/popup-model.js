@@ -93,15 +93,16 @@ const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "
  * screen is made here, so popup.js only renders it.
  *
  * @param {ReturnType<typeof import("./core/index.js").analyzePage>} result
- * @param {{ timeZone?: string, town?: string | null,
+ * @param {{ timeZone?: string, town?: string | null, name?: { first: string, last: string } | null,
  *   kept?: { town: string | null, name: { first: string, last: string } | null } | null }} [options]
  *   timeZone is the computer's time zone; when left out, Intl uses the one
  *   this code runs in, which the popup shares with the Stellarium tab. Tests
- *   pass it so they give the same result anywhere. town is the one the chart's
- *   page names, for astro.com's form. kept is the town and name Open chart in
- *   Astro-Seek kept for an Astro-Seek tab whose page still shows its chart.
+ *   pass it so they give the same result anywhere. town and name are the ones
+ *   the chart's page names, for astro.com's form. kept is the town and name
+ *   Open chart in Astro-Seek kept for an Astro-Seek tab whose page still shows
+ *   its chart, used where the page names none.
  */
-export function viewFor(result, { timeZone, town = null, kept = null } = {}) {
+export function viewFor(result, { timeZone, town = null, name = null, kept = null } = {}) {
   if (result.kind === "refused") {
     return Object.hasOwn(REFUSALS, result.reason)
       ? { state: "refused", message: REFUSALS[result.reason] }
@@ -168,10 +169,11 @@ export function viewFor(result, { timeZone, town = null, kept = null } = {}) {
   // to be typed. Save in Astro-Seek… chooses it instead, first under Take the
   // chart elsewhere. A chart with a town saves well from Astro-Seek's own
   // link, in its own time zone. No note: the chart is already on astro-seek.com.
-  // The town and name kept for the tab, if any, go to Astro-Seek's form and
-  // astro.com's alike.
-  const buttons = town === null ? chartButtons([OPEN_SKY_BUTTON, astroSeekSaveButton(kept ?? {})]) : ready.buttons;
-  return { ...ready, buttons, next: astroComStep(ready.sky, { town: town ?? kept?.town ?? null, name: kept?.name ?? null, local }) };
+  // The page's own town and name, or else those kept for the tab, go to
+  // Astro-Seek's form and astro.com's alike.
+  const chart = { town: town ?? kept?.town ?? null, name: name ?? kept?.name ?? null };
+  const buttons = town === null ? chartButtons([OPEN_SKY_BUTTON, astroSeekSaveButton(chart)]) : ready.buttons;
+  return { ...ready, buttons, next: astroComStep(ready.sky, { ...chart, local }) };
 }
 
 /**
@@ -427,7 +429,9 @@ export function viewForShareRefusal(reason) {
  * it there. The tab is already Stellarium Web, so there's no button for it.
  *
  * @param {{ utc: string, lat: number, lng: number }} sky  from skyFromEngine
- * @param {{ timeZone?: string, town?: string | null }} [options]  as for viewFor
+ * @param {{ timeZone?: string, town?: string | null }} [options]  timeZone as for
+ *   viewFor; town, the name Stellarium Web gives the place (townFromPlace),
+ *   for astro.com's and Astro-Seek's forms
  */
 export function viewForSky(sky, { timeZone, town = null } = {}) {
   const clock = clockParts(sky.utc, timeZone);
@@ -445,7 +449,7 @@ export function viewForSky(sky, { timeZone, town = null } = {}) {
     sky,
     buttons: [{ label: "Open chart in Astro-Seek", opens: "astro-seek" }],
     next: astroComStep(sky, { town }),
-  });
+  }, { town });
 }
 
 // astro.com's pages, as seen signed out on 2026-11-01. Its birth data form

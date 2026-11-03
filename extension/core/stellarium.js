@@ -62,3 +62,59 @@ export function skyFromEngine({ utcMjd, latitudeRad, longitudeRad }) {
 
 // Rounded to 6 decimals like readChart's coordinates. "+ 0" turns -0 into 0.
 const degrees = (radians) => Math.round(((radians * 180) / Math.PI) * 1e6) / 1e6 + 0;
+
+/**
+ * Runs inside the Stellarium Web page itself (world "MAIN"), where its engine
+ * lives: the time and place it shows, and the name its store gives that
+ * place. Firefox runs scripts there from version 128, the manifest's
+ * strict_min_version. The browser copies this function into the page, so it
+ * can't use anything else from this file. The path to the engine was read
+ * from frontend 1.16.0. The store's currentLocation was read on
+ * stellarium-web.org on 2026-11-02; only its name, country and coordinates
+ * are copied. The store also keeps autoDetectedLocation, the visitor's own
+ * whereabouts, which is never read.
+ *
+ * @returns {{ utcMjd: number, latitudeRad: number, longitudeRad: number,
+ *   place: { name: string | null, country: string | null, lat: number | null, lng: number | null } | null } | null}
+ */
+export function readEngine() {
+  const globals = document.querySelector("#app")?.__vue_app__?.config?.globalProperties;
+  const core = globals?.$stel?.core;
+  const engine = core && { utcMjd: core.utc, latitudeRad: core.latitude, longitudeRad: core.longitude };
+  if (!engine || !Object.values(engine).every(Number.isFinite)) return null;
+  const shown = globals.$store?.state?.currentLocation;
+  const text = (value) => (typeof value === "string" ? value : null);
+  const number = (value) => (Number.isFinite(value) ? value : null);
+  const place = shown && { name: text(shown.short_name), country: text(shown.country), lat: number(shown.lat), lng: number(shown.lng) };
+  return { ...engine, place: place ?? null };
+}
+
+// What Stellarium Web names a place with nothing near it, such as open sea:
+// "Lat 30.000° Lon -40.000°", with the country "Unknown".
+const UNNAMED = /^Lat -?\d+(\.\d+)?° Lon -?\d+(\.\d+)?°$/;
+
+// How far the store's place may be from the engine's, in degrees, and still
+// be the same place: the two keep the same coordinates, but rounded apart.
+const SAME_PLACE_DEGREES = 0.001;
+
+/**
+ * The town to give astro.com's and Astro-Seek's forms for a Stellarium Web
+ * sky, from the place name readEngine read, or null. Stellarium Web names
+ * the coordinates it is opened at itself: a town, such as "Munich", but
+ * sometimes a district ("Shinjuku"), a county ("Park County") or a village
+ * ("Village of Pelham Manor"). Each form's own list then chooses the match
+ * nearest the coordinates, or asks, so a name that isn't a town only means
+ * the person chooses. A name for other coordinates, as when the place has
+ * just changed, isn't this sky's, so it isn't used.
+ *
+ * @param {ReturnType<typeof readEngine>["place"]} place
+ * @param {{ lat: number, lng: number }} sky  from skyFromEngine
+ * @returns {string | null}
+ */
+export function townFromPlace(place, { lat, lng }) {
+  const name = place?.name?.trim() ?? "";
+  if (name === "" || UNNAMED.test(name) || place.country === "Unknown") return null;
+  if (place.lat === null || place.lng === null) return null;
+  if (Math.abs(place.lat - lat) > SAME_PLACE_DEGREES || Math.abs(place.lng - lng) > SAME_PLACE_DEGREES) return null;
+  return name;
+}

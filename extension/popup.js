@@ -6,9 +6,9 @@ import { linkFor } from "./chart-model.js";
 import { ASTRO_COM_ACCESS, chooseFilledTown, openAndFill, watchFilledZone } from "./astro-com-open.js";
 import { ASTRO_SEEK_ACCESS, openAndSave } from "./astro-seek-open.js";
 import { fillForm, formValues, isAstroComPage, isBirthDataForm, readFormPage } from "./core/astrocom.js";
-import { sameAstroSeekChart, townFromUrl } from "./core/astroseek.js";
+import { nameFromUrl, sameAstroSeekChart, townFromUrl } from "./core/astroseek.js";
 import { analyzePage, classifyUrl, extractorFor } from "./core/index.js";
-import { isStellariumWeb, skyFromEngine } from "./core/stellarium.js";
+import { isStellariumWeb, readEngine, skyFromEngine, townFromPlace } from "./core/stellarium.js";
 import { BUSY, viewForDesktopImport } from "./desktop-model.js";
 import { checkDesktop, renderChart } from "./desktop-page.js";
 import { astroSeekTabs, heldForTab, holdForTab, releaseTab } from "./pending.js";
@@ -17,6 +17,7 @@ import {
   ASTRO_SEEK_SAVE_BUSY,
   OTHER_WAYS,
   chartToShare,
+  nameFromText,
   offersOtherWays,
   viewFor,
   viewForAstroComManual,
@@ -60,8 +61,10 @@ async function main() {
       show(viewFor({ kind: "refused", reason: "stellarium-unreadable" }));
       return;
     }
+    // Stellarium Web names the place it shows, which astro.com's and
+    // Astro-Seek's forms can take as the town.
     const sky = skyFromEngine(engine);
-    showChart(withAafExport(viewForSky(sky), sky));
+    showChart(withAafExport(viewForSky(sky, { town: townFromPlace(engine.place, sky) }), sky));
     return;
   }
 
@@ -98,23 +101,17 @@ async function main() {
   // Share… needs the result the screen was drawn from: its local time, and
   // how its UTC was decided.
   sharing = result;
-  // An Astro-Seek chart's address names its town, which astro.com's form can
-  // take. A tab Open chart in Astro-Seek opened has the chart's town and name
-  // kept for it, used while the page still shows that chart.
+  // An Astro-Seek chart's address names its town, and a saved person's chart
+  // its name, which astro.com's form can take. A tab Open chart in Astro-Seek
+  // opened has the chart's town and name kept for it, used while the page
+  // still shows that chart.
   const kept = await astroSeekTabs.held(held, tab.id);
-  const options = { town: townFromUrl(url), kept: kept && sameAstroSeekChart(kept, result) ? kept : null };
+  const options = {
+    town: townFromUrl(url),
+    name: nameFromText(nameFromUrl(url)),
+    kept: kept && sameAstroSeekChart(kept, result) ? kept : null,
+  };
   showChart(withAafExport(viewFor(result, options), result));
-}
-
-// Runs inside the Stellarium Web page itself (world "MAIN"), where its engine
-// lives. Firefox runs scripts there from version 128, the manifest's
-// strict_min_version. The browser copies this function into the page, so it
-// can't use anything else from this file. The path to the engine was read from
-// frontend 1.16.0.
-function readEngine() {
-  const core = document.querySelector("#app")?.__vue_app__?.config?.globalProperties?.$stel?.core;
-  const engine = core && { utcMjd: core.utc, latitudeRad: core.latitude, longitudeRad: core.longitude };
-  return engine && Object.values(engine).every(Number.isFinite) ? engine : null;
 }
 
 // The popup was opened on this tab, so activeTab lets it read and fill in the

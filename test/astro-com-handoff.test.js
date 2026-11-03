@@ -2,7 +2,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { analyzePage } from "../extension/core/index.js";
-import { NAME_LENGTH, nameWarning, viewFor, viewForAstroCom, viewForSky, withName } from "../extension/popup-model.js";
+import { nameFromUrl, townFromUrl } from "../extension/core/astroseek.js";
+import { NAME_LENGTH, nameFromText, nameWarning, viewFor, viewForAstroCom, viewForSky, withName } from "../extension/popup-model.js";
 import { viewForScreenshot } from "../extension/screenshot-model.js";
 
 const fixture = (name) =>
@@ -173,6 +174,19 @@ test("an Astro-Seek chart's town, from its address, reaches the astro.com screen
   });
   // A Stellarium sky has no local time.
   assert.deepEqual(viewForSky(NY_SKY, { ...LA, town: "New York" }).next.view, viewForAstroCom(NY_SKY, { town: "New York" }));
+});
+
+test("a saved person's Astro-Seek chart has its name in the astro.com screen's boxes, as First name", () => {
+  // The popup reads both from the chart's address, as popup.js does.
+  const url = fixture("ny-2024-04-17").url.replace("#", "&nick=New%20York%20Test#");
+  const view = viewFor(analyze("ny-2024-04-17"), { ...LA, town: townFromUrl(url), name: nameFromText(nameFromUrl(url)) });
+  const name = { first: "New York Test", last: "" };
+  assert.deepEqual(view.next, {
+    label: "Enter in astro.com…",
+    view: viewForAstroCom(NY_SKY, { local: "2024-04-17T08:00:00", town: "New York", name }),
+  });
+  assert.deepEqual(view.next.view.nameBoxes.map(({ text }) => text), ["New York Test", ""]);
+  assert.deepEqual(view.next.view.buttons[0].holds.name, name);
 });
 
 test("an Astro-Seek chart with a decided UTC leads to the astro.com screen", () => {
