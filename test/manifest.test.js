@@ -69,7 +69,7 @@ test("the Firefox data collection declaration is the one the privacy page descri
 
 // The name and description come from _locales, one folder per language the
 // interface has (extension/messages/), English by default.
-const LANGUAGES = ["en", "es"];
+const LANGUAGES = ["en", "es", "sl"];
 const localized = Object.fromEntries(
   await Promise.all(
     LANGUAGES.map(async (code) => [code, JSON.parse(await readFile(new URL(`_locales/${code}/messages.json`, extension), "utf8"))]),

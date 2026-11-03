@@ -78,6 +78,7 @@ test("every page's data-text and data-label names a message in each catalog, and
     for (const { path, said } of marks) {
       inLanguage("en", () => assert.equal(messageAt(path), said, `${page}: ${path}`));
       inLanguage("es", () => assert.equal(typeof messageAt(path), "string", `${page}: ${path} in Spanish`));
+      inLanguage("sl", () => assert.equal(typeof messageAt(path), "string", `${page}: ${path} in Slovenian`));
     }
   }
 });
@@ -94,6 +95,11 @@ test("localizePage sets the page's lang and fills in its text and labels, leavin
     assert.equal(heading.textContent, "Pegar el texto de una carta");
     assert.equal(box.label, "Texto de la carta");
     assert.equal(missing.textContent, "English");
+
+    localizePage(document, ["sl-SI", "en"]);
+    assert.equal(document.documentElement.lang, "sl");
+    assert.equal(heading.textContent, "Prilepi besedilo horoskopa");
+    assert.equal(box.label, "Besedilo horoskopa");
   } finally {
     setLanguage(["en"]);
   }

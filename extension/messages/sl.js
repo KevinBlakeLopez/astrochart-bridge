@@ -45,6 +45,69 @@ const LOCAL_ZONE =
   "Datum in čas sta v lokalnem času horoskopa, možnost automatic time zone na astro.com pa poišče časovni pas mesta, ki ga izberete. ";
 
 export default {
+  // A page's heading is the button that opens it, where English's are the same.
+  pages: {
+    popup: {
+      title: "AstroChart Bridge",
+      reading: "Branje strani …",
+    },
+    screenshot: {
+      title: "AstroChart Bridge: branje posnetka zaslona",
+      heading: "Preberi posnetek zaslona s horoskopom",
+      intro:
+        "Kamor koli na to stran prilepite (⌘V) ali spustite posnetek zaslona strani z rojstnim horoskopom na Astro-Seeku, risbe horoskopa z astro.com, kolesa iz Solar Fire, plošče Chart Details iz Astro Gold, horoskopa iz Morinusa, kolesa iz Valensa, horoskopa iz Planetdance, rojstnih podatkov iz Jagannatha Hora, kolesa iz Keplerja ali Siriusa, kolesa iz Janusa ali Win*Star, horoskopa iz TimePassages ali kolesa iz Astrologa, ali pa izberite datoteko. Z Astro-Seeka potrebuje vse od Date of Birth do Latitude, Longitude; z astro.com glavo risbe od datuma do Sid. Time; iz Solar Fire ali Astro Gold podatke horoskopa od datuma do koordinat; iz Morinusa njegovo vrstico stanja ali sredino njegovega kvadratnega horoskopa; iz Valensa sredino njegovega kolesa; iz Planetdance vrstice levo zgoraj ob kolesu, do St:; iz Jagannatha Hora rojstne podatke od Date do Sidereal Time; iz Keplerja ali Siriusa blok podatkov od imena do Time Zone; iz Janusa sredino kolesa od datuma do koordinat; iz Win*Star desni zgornji del kolesa od datuma do zemljepisne širine; iz TimePassages ves horoskop z vogali; iz Astrologa zgornji del stranske vrstice od datuma do Julian Day. Zajamete lahko tudi vso stran.",
+      choose: "Izberi posnetek zaslona",
+      privacy: "Posnetek zaslona se prebere na tem računalniku in se nikamor ne pošlje.",
+      whatWasRead: "Kaj je AstroChart Bridge prebral",
+      reading: "Branje posnetka zaslona …",
+      unreadable: "AstroChart Bridge te slike ne more prebrati.",
+    },
+    paste: {
+      title: "AstroChart Bridge: lepljenje besedila horoskopa",
+      heading: "Prilepi besedilo horoskopa",
+      intro:
+        "Prilepite rojstne podatke, kopirane iz astrološkega programa, poročila ali zapiska, v vrsticah z angleškimi oznakami, kot sta »Date of Birth: 15 June 1985« in »latitude=47.6062«.",
+      textLabel: "Besedilo horoskopa",
+      read: "Preberi besedilo",
+      fromClipboard: "Prilepi iz odložišča",
+      privacy: "Besedilo se prebere na tem računalniku in se nikamor ne pošlje ali shrani.",
+      clipboardRefused:
+        "Brskalnik ni dovolil, da AstroChart Bridge prebere odložišče. Kliknite polje zgoraj in namesto tega prilepite s ⌘V ali Ctrl+V.",
+      continue: "Nadaljuj",
+      continueToAstroCom: "Nadaljuj na astro.com",
+      alsoInText: "V besedilu je tudi:",
+      back: "Nazaj na obrazec",
+    },
+    import: {
+      title: "AstroChart Bridge: odpiranje datoteke AAF ali Morinus",
+      heading: "Odpri datoteko AAF ali Morinus",
+      intro:
+        "Izberite datoteko AAF (.aaf) ali horoskop Morinus (.hor) ali ju spustite kamor koli na to stran, lahko pa spodaj prilepite besedilo datoteke AAF. Astrolog in drugi astrološki programi shranjujejo horoskope v AAF.",
+      choose: "Izberi datoteko AAF ali Morinus",
+      textLabel: "Besedilo AAF",
+      read: "Preberi prilepljeno besedilo",
+      privacy: "Datoteka se prebere na tem računalniku in se nikamor ne pošlje.",
+    },
+    chart: {
+      title: "AstroChart Bridge: odpiranje horoskopa",
+      readingLink: "Branje povezave …",
+      linkLabel: "Povezava do tega horoskopa",
+      openFile: "Odpri datoteko AstroChart Bridge",
+      fileLabel: "Datoteka s horoskopom",
+      privacy:
+        "Povezava do horoskopa vsebuje horoskop sam, prav tako njegova datoteka. Kdor ima eno ali drugo, ga lahko prebere, zato ju delite samo z ljudmi, ki smejo videti te rojstne podatke. Ta stran ju prebere na tej napravi, ničesar ne shrani in ničesar ne pošlje, dokler ne odprete neba ali horoskopa.",
+      // "Odprto: chart.astrochart.json.", so the file's name needn't agree with a verb.
+      opened: (name) => `Odprto: ${name}.`,
+      couldntPass: "AstroChart Bridge datoteke ni mogel predati naprej. V pojavnem oknu kliknite Odpri datoteko AAF ali Morinus in jo izberite tam.",
+      linkCopied: "Povezava je kopirana.",
+      copyRefused: "Ta brskalnik ni dovolil, da AstroChart Bridge kopira povezavo. Kopirajte jo od tukaj:",
+      hideQr: "Skrij kodo QR",
+      shareSheetFailed: "AstroChart Bridge ni mogel odpreti menija za deljenje. Uporabite Kopiraj povezavo ali Prenesi datoteko.",
+    },
+    astroComFilled: "AstroChart Bridge je izpolnil obrazec astro.com v njegovem zavihku.",
+    astroSeekFilled: "AstroChart Bridge je izpolnil obrazec Astro-Seeka v njegovem zavihku. Tam preverite Gender, nato pritisnite Add person.",
+  },
+
   view: {
     code: (code) => `Koda: ${code}`,
     cancel: "Prekliči",
