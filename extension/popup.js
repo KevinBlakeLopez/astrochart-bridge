@@ -29,7 +29,11 @@ import {
   withOtherWays,
 } from "./popup-model.js";
 import { HOST_PERMISSION, readSky } from "./stellarium-desktop.js";
+import { setLanguage } from "./messages/index.js";
 import { desktopHintLine, render, wayGroups } from "./view.js";
+
+// The browser's language, chosen before anything is drawn.
+document.documentElement.lang = setLanguage(navigator.languages);
 
 const app = document.getElementById("app");
 

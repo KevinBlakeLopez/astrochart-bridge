@@ -3,6 +3,7 @@
 // from a page or a screenshot is only ever inserted with textContent.
 import { astroSeekUrl } from "./core/astroseek.js";
 import { stellariumUrl } from "./core/stellarium.js";
+import { text } from "./messages/index.js";
 import { NAME_LENGTH, actionGroups, nameWarning, offsetPreview, withName } from "./popup-model.js";
 
 // What a button can open for the decided sky, by the name a view gives it.
@@ -22,7 +23,7 @@ export function render(container, view, onButton, back = null) {
   for (const warning of view.warnings ?? []) parts.push(paragraph(warning, "warning"));
   if (view.message) parts.push(paragraph(view.message));
   if (view.steps) parts.push(stepList(view.steps));
-  if (view.code) parts.push(paragraph(`Code: ${view.code}`, "code"));
+  if (view.code) parts.push(paragraph(text().view.code(view.code), "code"));
 
   if (view.state !== "refused") {
     // The sky the buttons open: set from the start on a ready screen or a

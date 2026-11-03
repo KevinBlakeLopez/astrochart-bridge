@@ -4,6 +4,7 @@ import { parseOffset, utcFromOffset } from "./core/civiltime.js";
 import { nameFromText } from "./core/names.js";
 import { searchTown } from "./core/towns.js";
 import { toPortable } from "./core/portable.js";
+import { text } from "./messages/index.js";
 import { HOLD_MINUTES } from "./pending.js";
 
 const CLOCK_NOTE = "Stellarium Web's clock shows your computer's time zone and keeps running.";
@@ -18,28 +19,6 @@ export const PRIVACY_NOTE =
 const NOTES = [CLOCK_NOTE, PRIVACY_NOTE];
 
 const RUNNING = "The clock starts running at once; its pause button stops it.";
-
-// A refusal's code says which site it came from (transit and synastry only
-// from Astro-Seek; databank and the four after it only from astro.com), so
-// each message can name its site without being told it.
-const REFUSALS = {
-  transit: "This is a transit chart. AstroChart Bridge opens natal charts only.",
-  synastry: "This is a synastry or compatibility chart. AstroChart Bridge opens natal charts only.",
-  unsupported: "Open an Astro-Seek or astro.com birth chart to use AstroChart Bridge.",
-  databank: "Astro-Databank charts aren't supported yet. AstroChart Bridge opens charts saved in your astro.com account.",
-  "unsupported-chart": "AstroChart Bridge can't read this kind of astro.com chart yet.",
-  "no-drawing-link":
-    "This astro.com page has no \"Drawing (for subscribers)\" link, which is where AstroChart Bridge reads the birth data.",
-  "local-mean-time": "This chart uses local mean time, which AstroChart Bridge can't open yet.",
-  "calendar-unsupported":
-    "This astro.com chart is dated before the Gregorian calendar began on 15 October 1582. AstroChart Bridge reads Gregorian dates only.",
-  "page-url-mismatch": "The page doesn't match its address. Reload the chart and try again.",
-  "stellarium-unreadable": "AstroChart Bridge couldn't read the sky from this Stellarium Web tab.",
-};
-
-// Every other refusal means the chart page couldn't be read. They share one
-// message and show their code, so a bug report says which check failed.
-const UNREADABLE = "AstroChart Bridge couldn't read this chart page.";
 
 // A transit or compatibility chart isn't a birth chart, so a screenshot or
 // copy of it wouldn't help.
@@ -107,9 +86,12 @@ const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "
  */
 export function viewFor(result, { timeZone, town = null, name = null, kept = null } = {}) {
   if (result.kind === "refused") {
-    return Object.hasOwn(REFUSALS, result.reason)
-      ? { state: "refused", message: REFUSALS[result.reason] }
-      : { state: "refused", message: UNREADABLE, code: result.reason };
+    // Every refusal without a message of its own means the chart page couldn't
+    // be read. They share one and show their code, so a bug report says which check failed.
+    const { refusals, unreadable } = text().popup;
+    return Object.hasOwn(refusals, result.reason)
+      ? { state: "refused", message: refusals[result.reason] }
+      : { state: "refused", message: unreadable, code: result.reason };
   }
 
   const { local, zoneLabel, lat, lng } = result;
