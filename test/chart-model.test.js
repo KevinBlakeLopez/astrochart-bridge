@@ -16,7 +16,7 @@ import {
   takeFileForImport,
   viewForImport,
 } from "../extension/chart-model.js";
-import { ASTRO_SEEK_NOTES, viewForAstroCom, viewForAstroComByHand } from "../extension/popup-model.js";
+import { astroSeekNotes, viewForAstroCom, viewForAstroComByHand } from "../extension/popup-model.js";
 
 const PRIVACY_NOTE =
   "Opening the sky sends this date, time and place to stellarium-web.org, and its page passes the link on to Google's advertising tags.";
@@ -76,7 +76,7 @@ test("New York from an Astro-Seek page, seen from Los Angeles", () => {
     notes: [
       `Stellarium Web's clock will show 05:00 on 17 Apr, your computer's time. That's 08:00 on 17 Apr at the birthplace. ${RUNNING}`,
       PRIVACY_NOTE,
-      ...ASTRO_SEEK_NOTES,
+      ...astroSeekNotes(),
     ],
     sky: { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 },
     buttons: BUTTONS,

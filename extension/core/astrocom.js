@@ -560,9 +560,12 @@ export function fillForm(values) {
  * submits.
  *
  * @param {NonNullable<ReturnType<typeof zoneCheck>>} check
+ * @param {Record<string, string>} words  the catalog's pageNotes.astroCom, whose
+ *   {name}s fill is given; the page gets only this function's source
  * @returns {{ watching: boolean }}
  */
-export function watchZone(check) {
+export function watchZone(check, words) {
+  const fill = (template, values) => template.replace(/\{(\w+)\}/g, (slot, name) => (Object.hasOwn(values, name) ? values[name] : slot));
   const fields = document.forms.namedItem("start")?.elements;
   const field = (name) => fields?.namedItem(name) ?? null;
   const zone = document.getElementById("zz");
@@ -578,7 +581,7 @@ export function watchZone(check) {
   const message = document.createElement("p");
   const button = document.createElement("button");
   button.type = "button";
-  button.textContent = "Enter in Universal Time";
+  button.textContent = words.useUt;
   note.append(message, button);
 
   const observer = new MutationObserver(() => update());
@@ -605,15 +608,14 @@ export function watchZone(check) {
     const line = text.replace(/^time zone: ?/, "").split("ATTENTION")[0].trim();
     const read = /^(?:GMT\/UT|(\d{1,2}) h(?: (\d{1,2}) min)? (west|east)),/.exec(line);
     if (!read) {
-      show(`astro.com's time zone here is "${line}", which can't be checked against this chart's ${check.zone}. Check that the town is right. If it is, you can enter the chart in Universal Time instead.`);
+      show(fill(words.zoneUnreadable, { line, zone: check.zone }));
       return;
     }
     const size = Number(read[1] ?? 0) * 60 + Number(read[2] ?? 0);
     const minutes = read[3] === "west" ? 0 - size : size;
     if (minutes === check.offsetMinutes) return note.remove();
-    const words = line.split(",")[0];
-    const chart = check.offsetMinutes === 0 ? "at Universal Time" : `${check.zone} of Universal Time`;
-    show(`this chart is ${chart}, but astro.com's automatic time zone for this town is ${words}. Check that the town is right. If it is, enter the chart in Universal Time instead.`);
+    const picked = line.split(",")[0];
+    show(fill(check.offsetMinutes === 0 ? words.zoneAtUt : words.zoneOff, { zone: check.zone, words: picked }));
   }
 
   button.addEventListener("click", () => {
@@ -624,7 +626,7 @@ export function watchZone(check) {
       element.dispatchEvent(new Event("input", { bubbles: true }));
       element.dispatchEvent(new Event("change", { bubbles: true }));
     }
-    message.textContent = `AstroChart Bridge entered ${check.utText} with the 00:00 GMT / UT time zone. That is the chart's own Universal Time, so the moment is the chart's, whatever astro.com's warning about manual time zones says.`;
+    message.textContent = fill(words.enteredUt, { ut: check.utText });
     button.remove();
   });
 
@@ -655,10 +657,11 @@ export { TOWN_LIMIT_KM };
  *
  * @param {string[]} items  the matches' text, in astro.com's order
  * @param {{ town: string, lat: number, lng: number }} chart
+ * @param {Parameters<typeof chooseListedTown>[2]} [words]  as for chooseListedTown
  * @returns {ReturnType<typeof chooseListedTown>}
  */
-export function chooseTown(items, chart) {
-  return chooseListedTown(items.map((text) => ({ text, place: listedPlace(text) })), chart);
+export function chooseTown(items, chart, words) {
+  return chooseListedTown(items.map((text) => ({ text, place: listedPlace(text) })), chart, words);
 }
 
 // A match's name, before its first comma, its coordinates, its last two
@@ -709,9 +712,11 @@ export function readTownList(town) {
  * @param {ReturnType<typeof chooseTown>} choice
  * @param {string} town
  * @param {number} limitKm  TOWN_LIMIT_KM, for the box's words
+ * @param {Record<string, string>} words  the catalog's pageNotes.astroCom, as for watchZone
  * @returns {{ shown: boolean }}
  */
-export function showTownChoice(choice, town, limitKm) {
+export function showTownChoice(choice, town, limitKm, words) {
+  const fill = (template, values) => template.replace(/\{(\w+)\}/g, (slot, name) => (Object.hasOwn(values, name) ? values[name] : slot));
   const scit = document.forms.namedItem("start")?.elements.namedItem("scit") ?? null;
   if (!scit || scit.value !== town) return { shown: false };
   document.getElementById("astrochart-bridge-town")?.remove();
@@ -745,25 +750,23 @@ export function showTownChoice(choice, town, limitKm) {
     const items = [...document.querySelectorAll("ul.ui-autocomplete .ui-menu-item-wrapper")];
     const item = items.find((element) => element.textContent === text);
     if (!item) {
-      say(`astro.com's list no longer has "${text}". Choose the town from its list.`, { warn: true });
-      button("List the matches again", listAgain);
+      say(fill(words.gone, { text }), { warn: true });
+      button(words.listAgain, listAgain);
       return;
     }
     item.click();
-    say(`chose "${text}" from astro.com's list, ${away} from the chart's coordinates.`, { warn: false });
-    button("Choose another", listAgain);
+    say(fill(words.chose, { text, away }), { warn: false });
+    button(words.chooseAnother, listAgain);
   };
 
   if (choice.kind === "pick") choose(choice.match);
   if (choice.kind === "ask") {
-    say(`more than one of astro.com's matches for "${town}" is within ${limitKm} km of the chart's coordinates. Which is the chart's town?`, { warn: true });
+    say(fill(words.ask, { town, km: limitKm }), { warn: true });
     for (const match of choice.matches) button(`${match.text} (${match.away})`, () => choose(match));
   }
   if (choice.kind === "none") {
-    const which = choice.listed === 1 ? "astro.com's one match" : `none of astro.com's ${choice.listed} matches`;
-    const is = choice.listed === 1 ? "isn't" : "is";
-    say(`${which} for "${town}" ${is} within ${limitKm} km of the chart's coordinates. Choose the town from astro.com's list, or type a nearer one.`, { warn: true });
-    button("List the matches again", listAgain);
+    say(fill(choice.listed === 1 ? words.noneOfOne : words.noneOfMany, { town, km: limitKm, listed: choice.listed }), { warn: true });
+    button(words.listAgain, listAgain);
   }
   // astro.com's open list covers the box, as seen on 2026-11-01, and closes
   // once the town field loses focus. Its matches stay in the page to choose.

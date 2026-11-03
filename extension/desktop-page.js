@@ -3,7 +3,7 @@
 // gets Send to Stellarium Desktop, placed by the user's default, and the
 // button sends its sky and shows how that went, as desktop-model.js words it.
 // Every other button is the page's own.
-import { desktopHint, BUSY, viewForDesktopSend, withDesktopSend } from "./desktop-model.js";
+import { busy, desktopHint, viewForDesktopSend, withDesktopSend } from "./desktop-model.js";
 import { desktopPreferred, setDesktopPreferred } from "./preference.js";
 import { HOST_PERMISSION, probe, sendSky } from "./stellarium-desktop.js";
 import { render } from "./view.js";
@@ -51,7 +51,7 @@ export async function renderChart(container, base, onButton, { onDone = null, ch
       showResult(viewForDesktopSend({ state: "no-permission" }, sky));
       return;
     }
-    showResult(BUSY.send);
+    showResult(busy().send);
     showResult(viewForDesktopSend(await sendSky(sky), sky, { preferred }));
   }
 

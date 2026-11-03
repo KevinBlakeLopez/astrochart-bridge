@@ -4,96 +4,38 @@
 // Astro-Seek, be entered in astro.com, and be passed on. Every decision is made here, so chart.js only
 // reads the link or file and renders.
 import { fromFragment, keepLabels, parse, serialize, skyFor, toFragment } from "./core/portable.js";
-import { ASTRO_SEEK_NOTES, ASTRO_SEEK_BUTTONS, astroComStep, astroComStepByHand, nameFromText, viewFor } from "./popup-model.js";
+import { astroComStep, astroComStepByHand, astroSeekButtons, astroSeekNotes, nameFromText, viewFor } from "./popup-model.js";
+import { text } from "./messages/index.js";
 import { qrFor } from "./qr.js";
 
-// shares marks the buttons that pass the chart on, which carry its name and
-// town only as the boxes above them say.
-const COPY_LINK = { label: "Copy link", does: "copy", secondary: true, shares: true };
-// The same link as Copy link, so it is offered only with it.
-const SHOW_QR = { label: "Show QR code", does: "qr", secondary: true, shares: true };
-const DOWNLOAD_FILE = { label: "Download file", does: "download", secondary: true, shares: true };
-// The system share sheet, each only where the browser says it can share that
-// thing: browsers differ, and some take links but not files.
-const SHARE_LINK = { label: "Share link…", does: "share-link", secondary: true, shares: true };
-const SHARE_FILE = { label: "Share file…", does: "share-file", secondary: true, shares: true };
-const SHARE_NOTE = "Share link… and Share file… send the chart to the app you choose.";
+// The page's own buttons. shares marks the buttons that pass the chart on,
+// which carry its name and town only as the boxes above them say. Show QR
+// code is the same link as Copy link, so it is offered only with it. The
+// system share sheet's two are each offered only where the browser says it
+// can share that thing: browsers differ, and some take links but not files.
+function pageButtons() {
+  const words = text().chart;
+  const button = (label, does) => ({ label, does, secondary: true, shares: true });
+  return {
+    copyLink: button(words.copyLink, "copy"),
+    showQr: button(words.showQr, "qr"),
+    downloadFile: button(words.downloadFile, "download"),
+    shareLink: button(words.shareLink, "share-link"),
+    shareFile: button(words.shareFile, "share-file"),
+  };
+}
 
 // The chart's labels, each a box that says whether it goes with the chart.
-const LABEL_BOXES = [
-  ["name", "Name"],
-  ["town", "Town"],
-];
-const INCLUDES_LEGEND = "Include in the link, QR code and file";
-const INCLUDES_NOTE = "The name and town go in the link, QR code and file only when ticked, and anyone with them can read them.";
-const REMEMBERS_NOTE = "AstroChart Bridge remembers what you tick, on this computer.";
+const LABEL_FIELDS = ["name", "town"];
 
 const SITE_NAMES = { "astro-seek": "Astro-Seek", "astro-com": "astro.com" };
-
-const SCREENSHOT_WARNING =
-  "This chart was read from a screenshot by OCR on the device that shared it. Compare these rows with the chart before opening it: nothing checked the latitude.";
-
-// How a chart reached the device that shared it, where the code alone doesn't say it in words.
-const VIA_NAMES = { paste: "pasted text" };
-
-const VIA_WARNINGS = {
-  screenshot: SCREENSHOT_WARNING,
-  paste:
-    "This chart was read from pasted text and checked by hand on the device that shared it. Nothing checked its UTC offset against the birthplace and date.",
-};
 
 // source fields are any lower-case codes, so a lookup must not reach
 // Object.prototype: a link with site "constructor" would print its source code.
 const nameFor = (names, code) => (Object.hasOwn(names, code) ? names[code] : code);
 
-const NEWER = "This chart was made by a newer version of AstroChart Bridge, which this page can't read.";
-const NEWER_FILE = "This file was made by a newer version of AstroChart Bridge, which this page can't read.";
-const BEFORE_GREGORIAN = "This chart's date is before 15 October 1582, which AstroChart Bridge can't open yet.";
-
-// Each refusal from fromFragment or readChartFile, worded for where the chart
-// came from. Every one keeps its code on screen, like the popup's unreadable
-// pages, so a bug report says which check failed.
-const REFUSALS = {
-  link: {
-    malformed: "This link is incomplete or damaged. Copy the whole link again.",
-    "too-large": "This link is too long to be an AstroChart Bridge chart.",
-    "not-astrochart": "This link doesn't hold an AstroChart Bridge chart.",
-    "unsupported-version": NEWER,
-    "unknown-field": NEWER,
-    "unsupported-calendar": NEWER,
-    "before-gregorian": BEFORE_GREGORIAN,
-  },
-  file: {
-    malformed: "This file isn't an AstroChart Bridge chart, or it is damaged.",
-    "too-large": "This file is too large to be an AstroChart Bridge chart.",
-    "not-astrochart": "This file isn't an AstroChart Bridge chart.",
-    "unsupported-version": NEWER_FILE,
-    "unknown-field": NEWER_FILE,
-    "unsupported-calendar": NEWER_FILE,
-    "before-gregorian": BEFORE_GREGORIAN,
-  },
-};
-const DAMAGED = {
-  link: "This link's chart isn't valid. Copy the whole link again.",
-  file: "This file's chart isn't valid.",
-};
-
-const EMPTY = {
-  state: "empty",
-  message: "Open an AstroChart Bridge link or chart file to see its chart here.",
-};
-
 // A chart file is under 1 KB; parse's own limit is 16,384 characters.
 export const MAX_FILE_BYTES = 16_384;
-
-// Files the extension's import page opens, said as they are, and where to go:
-// the import page in the extension, the extension itself on the web.
-const OTHER_FILES = {
-  "morinus-file": "This is a Morinus chart file (.hor), not an AstroChart Bridge chart.",
-  "aaf-file": "This is an AAF file, not an AstroChart Bridge chart.",
-};
-const IN_EXTENSION = "It opens on the page for AAF and Morinus files.";
-const ON_THE_WEB = "The AstroChart Bridge extension opens it: click Open an AAF or Morinus file in its popup.";
 
 // The largest file read to tell what it is, and kept for the import page: its
 // own limit for a Morinus file, whose notes can be long.
@@ -163,14 +105,22 @@ export function viewForImport(
     ...options
   } = {},
 ) {
-  if (result === null) return { ...EMPTY, notes: [], buttons: [] };
+  const words = text().chart;
+  if (result === null) return { state: "empty", message: words.empty, notes: [], buttons: [] };
   // importButton is drawn by the page: a view's own buttons wait for a sky.
-  if (result.kind === "refused" && Object.hasOwn(OTHER_FILES, result.reason)) {
-    const message = `${OTHER_FILES[result.reason]} ${canImport ? IN_EXTENSION : ON_THE_WEB}`;
-    return { state: "refused", message, code: result.reason, ...(canImport ? { importButton: "Open it there" } : {}) };
+  if (result.kind === "refused" && Object.hasOwn(words.otherFiles, result.reason)) {
+    const message = `${words.otherFiles[result.reason]} ${canImport ? words.inExtension : words.onTheWeb}`;
+    return { state: "refused", message, code: result.reason, ...(canImport ? { importButton: words.openItThere } : {}) };
   }
+  // Every refusal keeps its code on screen, like the popup's unreadable
+  // pages, so a bug report says which check failed.
   if (result.kind === "refused") {
-    return { state: "refused", message: REFUSALS[from][result.reason] ?? DAMAGED[from], code: result.reason };
+    const refusals = words.refusals[from];
+    return {
+      state: "refused",
+      message: Object.hasOwn(refusals, result.reason) ? refusals[result.reason] : words.damaged[from],
+      code: result.reason,
+    };
   }
 
   const { chart, source, labels = {} } = result.chart;
@@ -193,22 +143,24 @@ export function viewForImport(
   );
 
   // Where the chart was first read, not how it travelled here.
-  const origin = [nameFor(SITE_NAMES, source.site), nameFor(VIA_NAMES, source.via)].filter(Boolean).join(" ");
-  const rows = labelRows(origin === "" ? view.rows : [...view.rows, ["From", origin]], labels);
-  const boxes = LABEL_BOXES.filter(([field]) => Object.hasOwn(labels, field)).map(([field, label]) => ({
+  const origin = words.origin(nameFor(SITE_NAMES, source.site), nameFor(words.viaNames, source.via));
+  const rows = labelRows(origin === "" ? view.rows : [...view.rows, [words.from, origin]], labels);
+  const rowLabels = text().popup.rows;
+  const boxes = LABEL_FIELDS.filter((field) => Object.hasOwn(labels, field)).map((field) => ({
     field,
-    label: `${label}: ${labels[field]}`,
+    label: `${rowLabels[field]}: ${labels[field]}`,
     checked: include[field] === true,
   }));
-  const includes = boxes.length === 0 ? {} : { includes: { legend: INCLUDES_LEGEND, boxes } };
-  const includesNotes = boxes.length === 0 ? [] : [INCLUDES_NOTE, ...(remembers ? [REMEMBERS_NOTE] : [])];
+  const includes = boxes.length === 0 ? {} : { includes: { legend: words.includesLegend, boxes } };
+  const includesNotes = boxes.length === 0 ? [] : [words.includesNote, ...(remembers ? [words.remembersNote] : [])];
   const shareLink = canCopy && canShare;
+  const own = pageButtons();
   const buttons = [
-    ...ASTRO_SEEK_BUTTONS,
-    ...(shareLink ? [SHARE_LINK] : []),
-    ...(canCopy ? [COPY_LINK, SHOW_QR] : []),
-    DOWNLOAD_FILE,
-    ...(canShareFiles ? [SHARE_FILE] : []),
+    ...astroSeekButtons(),
+    ...(shareLink ? [own.shareLink] : []),
+    ...(canCopy ? [own.copyLink, own.showQr] : []),
+    own.downloadFile,
+    ...(canShareFiles ? [own.shareFile] : []),
   ];
   // Enter in astro.com… fills in astro.com's form where the page can, as the
   // extension's copy can; on the web, it leads to the values to type in. The
@@ -220,9 +172,9 @@ export function viewForImport(
   return {
     ...view,
     rows,
-    warnings: Object.hasOwn(VIA_WARNINGS, source.via) ? [VIA_WARNINGS[source.via]] : [],
-    notes: [...view.notes, ...ASTRO_SEEK_NOTES, ...(shareLink || canShareFiles ? [SHARE_NOTE] : []), ...includesNotes],
-    buttons: buttons.map((button) => ({ ...button })),
+    warnings: Object.hasOwn(words.viaWarnings, source.via) ? [words.viaWarnings[source.via]] : [],
+    notes: [...view.notes, ...astroSeekNotes(), ...(shareLink || canShareFiles ? [words.shareNote] : []), ...includesNotes],
+    buttons,
     ...includes,
     next: step(view.sky, named),
   };
@@ -230,9 +182,10 @@ export function viewForImport(
 
 // The rows with Name first and Town after Place, as the screenshot page has them.
 function labelRows(rows, { name, town }) {
-  const at = rows.findIndex(([label]) => label === "Place") + 1 || rows.length;
-  const nameRow = name ? [["Name", name]] : [];
-  const townRow = town ? [["Town", town]] : [];
+  const labels = text().popup.rows;
+  const at = rows.findIndex(([label]) => label === labels.place) + 1 || rows.length;
+  const nameRow = name ? [[labels.name, name]] : [];
+  const townRow = town ? [[labels.town, town]] : [];
   return [...nameRow, ...rows.slice(0, at), ...townRow, ...rows.slice(at)];
 }
 
@@ -292,24 +245,12 @@ export function fileFor(chart) {
  * @param {object} chart  a portable chart
  */
 export function qrViewFor(base, chart) {
+  const words = text().chart;
   const link = linkFor(base, chart);
   const qr = qrFor(link);
-  if (qr.kind === "refused") {
-    // A long name or town can be what makes it too long.
-    const shorten = chart.labels ? "Untick the name or town to shorten it, or use" : "Use";
-    return {
-      state: "qr-refused",
-      message: `This link is too long for a QR code that scans reliably. ${shorten} Copy link or Download file instead.`,
-    };
-  }
-  return {
-    state: "qr",
-    link,
-    size: qr.size,
-    path: qr.path,
-    label: "QR code for the link to this chart",
-    note: "Scan this with a phone or tablet's camera to open the chart there. Anyone who can see the code can read the chart.",
-  };
+  // A long name or town can be what makes it too long.
+  if (qr.kind === "refused") return { state: "qr-refused", message: words.qrTooLong(Boolean(chart.labels)) };
+  return { state: "qr", link, size: qr.size, path: qr.path, label: words.qrLabel, note: words.qrNote };
 }
 
 /**
@@ -321,7 +262,7 @@ export function qrViewFor(base, chart) {
  * @returns {{ title: string, url: string }}
  */
 export function shareDataFor(base, chart) {
-  return { title: "AstroChart Bridge chart", url: linkFor(base, chart) };
+  return { title: text().chart.shareTitle, url: linkFor(base, chart) };
 }
 
 // The file kept between the receiving page and the import page, in the tab's

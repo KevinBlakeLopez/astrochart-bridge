@@ -1,5 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import en from "../extension/messages/en.js";
+import es from "../extension/messages/es.js";
 import {
   ASTRO_SEEK_GENDERS,
   astroSeekSaveUrl,
@@ -188,7 +190,7 @@ const PICK = { kind: "pick", match: { text: NY_CITY, away: "less than 1 km" } };
 
 test("a pick is chosen in Astro-Seek's list, and the box says which, how far, and to check Gender", () => {
   const page = savePage({ city: "New York", list: { labels: [NYC_CITY, NY_CITY] } });
-  assert.deepEqual(runInPage(showCityChoice, page, PICK, "New York", 25), { shown: true });
+  assert.deepEqual(runInPage(showCityChoice, page, PICK, "New York", 25, null, en.pageNotes.astroSeek), { shown: true });
   assert.deepEqual(page.clicked, [{ text: NY_CITY, on: "wrapper" }]);
   const note = page.note("astrochart-bridge-city");
   assert.equal(note.after, "narozeni_city");
@@ -230,23 +232,23 @@ test("a Gender the person changed, a value with no option, or no Gender field, i
 
 test("with the chart's Gender set, the box says so instead of that Astro-Seek starts at Male", () => {
   const page = savePage({ city: "New York", list: { labels: [NY_CITY] } });
-  runInPage(showCityChoice, page, PICK, "New York", 25, "Female");
+  runInPage(showCityChoice, page, PICK, "New York", 25, "Female", en.pageNotes.astroSeek);
   assert.match(message(page.note("astrochart-bridge-city")), /coordinates\. Gender is Female, from the chart\. Check it, then press Add person\.$/);
   const noTown = savePage();
-  runInPage(showCityChoice, noTown, { kind: "no-town" }, null, 25, "Horary question");
+  runInPage(showCityChoice, noTown, { kind: "no-town" }, null, 25, "Horary question", en.pageNotes.astroSeek);
   assert.match(message(noTown.note("astrochart-bridge-city")), /stay as they are\. Gender is Horary question, from the chart\./);
 });
 
 test("a list with no .ui-menu-item-wrapper takes the click on its match itself", () => {
   const page = savePage({ city: "New York", list: { labels: [NY_CITY] }, wrapper: false });
-  runInPage(showCityChoice, page, PICK, "New York", 25);
+  runInPage(showCityChoice, page, PICK, "New York", 25, null, en.pageNotes.astroSeek);
   assert.deepEqual(page.clicked, [{ text: NY_CITY, on: "li" }]);
 });
 
 test("asked, each near match is a button that chooses it", () => {
   const page = savePage({ city: "New York", list: { labels: [NY_CITY, NYC_CITY] } });
   const ask = { kind: "ask", matches: [{ text: NY_CITY, away: "less than 1 km" }, { text: NYC_CITY, away: "less than 1 km" }] };
-  runInPage(showCityChoice, page, ask, "New York", 25);
+  runInPage(showCityChoice, page, ask, "New York", 25, null, en.pageNotes.astroSeek);
   const note = page.note("astrochart-bridge-city");
   assert.match(message(note), /more than one of Astro-Seek's matches for "New York" is within 25 km/);
   assert.deepEqual(buttons(note).map((button) => button.textContent), [`${NY_CITY} (less than 1 km)`, `${NYC_CITY} (less than 1 km)`]);
@@ -262,7 +264,7 @@ test("no near match, or no list in time, lists the matches again on request", ()
     [{ kind: "no-list" }, `Astro-Seek didn't list its matches for "New York" in time`],
   ]) {
     const page = savePage({ city: "New York", list: { labels: [] } });
-    runInPage(showCityChoice, page, choice, "New York", 25);
+    runInPage(showCityChoice, page, choice, "New York", 25, null, en.pageNotes.astroSeek);
     const note = page.note("astrochart-bridge-city");
     assert.ok(message(note).includes(words), message(note));
     const city = page.field("narozeni_city");
@@ -276,28 +278,28 @@ test("no near match, or no list in time, lists the matches again on request", ()
 
 test("a chart with no town asks the person to type one, keeping its coordinates and UT/GMT", () => {
   const page = savePage();
-  assert.deepEqual(runInPage(showCityChoice, page, { kind: "no-town" }, null, 25), { shown: true });
+  assert.deepEqual(runInPage(showCityChoice, page, { kind: "no-town" }, null, 25, null, en.pageNotes.astroSeek), { shown: true });
   assert.match(message(page.note("astrochart-bridge-city")), /the chart names no town.*the chart's coordinates and UT\/GMT stay as they are\. Check Gender/);
 });
 
 test("the box goes when the person types in Birth city, and isn't shown once it holds another town", () => {
   const page = savePage({ city: "New York", list: { labels: [NY_CITY] } });
-  runInPage(showCityChoice, page, PICK, "New York", 25);
+  runInPage(showCityChoice, page, PICK, "New York", 25, null, en.pageNotes.astroSeek);
   page.field("narozeni_city").personTypes("Boston");
   assert.equal(page.note("astrochart-bridge-city"), null);
-  assert.deepEqual(runInPage(showCityChoice, savePage({ city: "Boston" }), PICK, "New York", 25), { shown: false });
+  assert.deepEqual(runInPage(showCityChoice, savePage({ city: "Boston" }), PICK, "New York", 25, null, en.pageNotes.astroSeek), { shown: false });
 });
 
 test("the guard leaves the chart's place alone while nothing changes it", () => {
   const page = savePage();
-  assert.deepEqual(runInPage(guardChartPlace, page, savePlace(NY)), { guarding: true });
+  assert.deepEqual(runInPage(guardChartPlace, page, savePlace(NY), en.pageNotes.astroSeek), { guarding: true });
   page.timers.tick();
   assert.equal(page.note("astrochart-bridge-place"), null);
 });
 
 test("coordinates or a time zone the page changes are set back, quietly, with a note", () => {
   const page = savePage();
-  runInPage(guardChartPlace, page, savePlace(NY));
+  runInPage(guardChartPlace, page, savePlace(NY), en.pageNotes.astroSeek);
   // What choosing a city might do: the city's coordinates and Astro-Seek's automatic zone.
   page.field("narozeni_sirka_minuty").value = "42";
   page.field("narozeni_timezone_form").value = "auto";
@@ -316,9 +318,29 @@ test("coordinates or a time zone the page changes are set back, quietly, with a 
   );
 });
 
+test("in Spanish, the city box and the place note are Spanish, with Astro-Seek's own fields and options as it names them", () => {
+  const page = savePage({ city: "New York", list: { labels: [NYC_CITY, NY_CITY] } });
+  runInPage(showCityChoice, page, { kind: "pick", match: { text: NY_CITY, away: "menos de 1 km" } }, "New York", 25, "Female", es.pageNotes.astroSeek);
+  const note = page.note("astrochart-bridge-city");
+  assert.equal(
+    message(note),
+    `AstroChart Bridge: eligió "${NY_CITY}" de la lista de Astro-Seek, a menos de 1 km de las coordenadas de la carta. Gender es Female, según la carta. Compruébalo y después haz clic en Add person.`,
+  );
+  assert.deepEqual(buttons(note).map((button) => button.textContent), ["Elegir otra"]);
+
+  const guarded = savePage();
+  runInPage(guardChartPlace, guarded, savePlace(NY), es.pageNotes.astroSeek);
+  guarded.field("narozeni_sirka_minuty").value = "42";
+  guarded.timers.tick();
+  assert.equal(
+    guarded.note("astrochart-bridge-place").textContent,
+    "AstroChart Bridge: Astro-Seek cambió la latitud, la longitud o la zona horaria, así que se han vuelto a poner las de la carta: 40°43'N, 74°0'W, UT/GMT sin horario de verano. Cámbialas tú aquí si es lo que quieres.",
+  );
+});
+
 test("a field the person changes is theirs", () => {
   const page = savePage();
-  runInPage(guardChartPlace, page, savePlace(NY));
+  runInPage(guardChartPlace, page, savePlace(NY), en.pageNotes.astroSeek);
   page.field("narozeni_timezone_form").personTypes("-5");
   page.timers.tick();
   assert.equal(page.field("narozeni_timezone_form").value, "-5");
@@ -327,19 +349,19 @@ test("a field the person changes is theirs", () => {
 
 test("the guard starts once, and stops when the form is submitted or after its time", () => {
   const page = savePage();
-  runInPage(guardChartPlace, page, savePlace(NY));
-  assert.deepEqual(runInPage(guardChartPlace, page, savePlace(NY)), { guarding: true });
+  runInPage(guardChartPlace, page, savePlace(NY), en.pageNotes.astroSeek);
+  assert.deepEqual(runInPage(guardChartPlace, page, savePlace(NY), en.pageNotes.astroSeek), { guarding: true });
   assert.equal(page.timers.running(), 1);
   page.form.submit();
   assert.equal(page.timers.running(), 0);
 
   const later = savePage();
-  runInPage(guardChartPlace, later, savePlace(NY));
+  runInPage(guardChartPlace, later, savePlace(NY), en.pageNotes.astroSeek);
   later.timers.runTimeouts();
   assert.equal(later.timers.running(), 0);
 });
 
 test("a form missing a field the guard keeps isn't guarded", () => {
-  assert.deepEqual(runInPage(guardChartPlace, savePage({ missing: ["narozeni_timezone_dst_form"] }), savePlace(NY)), { guarding: false });
-  assert.deepEqual(runInPage(guardChartPlace, savePage({ missing: ["form"] }), savePlace(NY)), { guarding: false });
+  assert.deepEqual(runInPage(guardChartPlace, savePage({ missing: ["narozeni_timezone_dst_form"] }), savePlace(NY), en.pageNotes.astroSeek), { guarding: false });
+  assert.deepEqual(runInPage(guardChartPlace, savePage({ missing: ["form"] }), savePlace(NY), en.pageNotes.astroSeek), { guarding: false });
 });

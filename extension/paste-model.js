@@ -2,57 +2,33 @@ import { analyzeEntry, analyzeProgramText } from "./core/index.js";
 import { toPortable } from "./core/portable.js";
 import { MAX_TEXT_LENGTH, readField, readText } from "./core/text.js";
 import {
-  ASTRO_SEEK_BUTTONS,
-  ASTRO_SEEK_NOTES,
-  SHARE_BUTTON,
   astroComStep,
+  astroSeekButtons,
+  astroSeekNotes,
   genderRows,
   labelsToShare,
   nameFromText,
+  shareButton,
   viewFor,
   viewForAstroCom,
   withAstroSeekSave,
 } from "./popup-model.js";
-import { PROGRAMS } from "./screenshot-model.js";
+// Imported as messages, since the pasted text is text here.
+import { text as messages } from "./messages/index.js";
+import { programNames } from "./screenshot-model.js";
 
-// Each refusal readText can return. They keep their code on screen, like the
+// The page's words are the catalog's (messages/), read as each form or screen is
+// built. Each refusal readText can return keeps its code on screen, like the
 // screenshot page's, so a bug report says which check failed.
-const REFUSALS = {
-  "too-long": `This text is too long. Paste only the part with the birth data, up to ${MAX_TEXT_LENGTH.toLocaleString("en-US")} characters.`,
-  "no-birth-data":
-    'AstroChart Bridge found no birth data in this text. It reads labelled lines such as "Date of Birth: 15 June 1985" or "latitude=47.6062".',
-  "several-records":
-    "This text has more than one birth date or name, so it may hold more than one chart. Paste one chart at a time.",
-};
 
-// The form's fields, in order: the name readText and readField give each one,
-// its label, and what to type.
-export const ENTRY_FIELDS = [
-  { name: "date", label: "Date", example: "1985-06-15 or 15 June 1985" },
-  { name: "time", label: "Local time", example: "10:30 or 10:30 AM" },
-  { name: "lat", label: "Latitude", example: "47.6062 or 47°36'N" },
-  { name: "lng", label: "Longitude", example: "-122.3321 or 122°19'W" },
-  { name: "offset", label: "UTC offset", example: "-07:00, daylight saving included" },
-];
+// The form's fields, in order, by the name readText and readField give each.
+const ENTRY_FIELDS = ["date", "time", "lat", "lng", "offset"];
 
 // The other fields readText finds. They are shown as written, and only the
 // name, place, country and gender go anywhere: into astro.com's form and
 // Astro-Seek's, by the step after the form, the place as the town for their
 // lists to look up and the country to help choose among them.
-const INFO_FIELDS = [
-  ["name", "Name"],
-  ["place", "Place"],
-  ["country", "Country"],
-  ["gender", "Gender"],
-  ["zone", "Time zone"],
-  ["houses", "Houses"],
-  ["zodiac", "Zodiac"],
-  ["ayanamsa", "Ayanamsa"],
-];
-
-const FORM_NOTE = "Check each value against the text. Nothing is sent until you open the sky or the chart.";
-const PLACE_NOTE =
-  "AstroChart Bridge doesn't look places up. Stellarium Web, Astro-Seek's chart and Share use the latitude and longitude; astro.com's form and Save in Astro-Seek… get the town, for their own lists to look up.";
+const INFO_FIELDS = ["name", "place", "country", "gender", "zone", "houses", "zodiac", "ayanamsa"];
 
 // A place written as coordinates, such as Jagannatha Hora's "Place: 122 W 20'
 // 30", 47 N 36' 32"", "40N43" or "47°36'N": a number, perhaps a degree or
@@ -60,52 +36,25 @@ const PLACE_NOTE =
 // "5 North St" would. It names no town for astro.com's or Astro-Seek's town search.
 const COORDINATES = /\d\s*[°'′"]?\s*[NSEW](?![a-z])/i;
 
-// On a form whose text gives no offset. astro.com's form takes the local time
-// and looks the zone up for the town; everything else needs the UTC.
-const NO_OFFSET_NOTE =
-  "With the UTC offset left empty, the chart can open only in astro.com, which looks up the time zone for the town. Stellarium Web, Astro-Seek and Share need the offset.";
+// The notes, in the catalog: noOffsetNote on a form whose text gives no
+// offset, as astro.com's form takes the local time and looks the zone up for
+// the town, and everything else needs the UTC; localOnlyNote atop the
+// astro.com screen for a form left without one; offsetNote first on the screen
+// that opens the sky, as the offset is the one value the form can't check:
+// that needs the zone's history at the birthplace.
 
-// Atop the astro.com screen for a form left without an offset.
-const LOCAL_ONLY_NOTE =
-  "No UTC offset was entered, so this chart can open only in astro.com. Go back to the form and enter one to open it in Stellarium Web or Astro-Seek, or to share it.";
-
-// First on the screen that opens the sky. The offset is the one value the form
-// can't check: that needs the zone's history at the birthplace.
-const OFFSET_NOTE = "Nothing checks that this offset was in use at the birthplace on that date.";
-
-// Why a desktop program's reader turned down text laid out as its program's,
-// after "but". A layout that turned out not to be the program's,
-// "unreadable-screenshot", is most likely ordinary labelled text, so it gets
-// no warning. A code not listed here still gets one, worded generally.
-const PROGRAM_REFUSALS = {
-  "no-coordinates": "it has no coordinates",
-  "ambiguous-screenshot": "it can be read as more than one program's, or more than one chart",
-  "sidereal-mismatch": "its sidereal time doesn't fit its time, offset and longitude",
-  "offset-out-of-range": "its local time is too far from its Universal Time",
-  "weekday-mismatch": "its weekday doesn't fall on its date",
-  "zone-offset-mismatch": "its time zone doesn't match its UTC offset",
-  "calendar-unsupported":
-    "it's dated before the Gregorian calendar began on 15 October 1582, or Old Style or BC, and AstroChart Bridge reads Gregorian dates only",
-  "apparent-time": "it uses local apparent time, which AstroChart Bridge can't open yet",
-  "local-time-ambiguous": "its time is marked LC, which can mean local mean or local apparent time",
-  "chart-type-unsupported": "it's a return, progression or other chart that isn't the birth",
-  "offset-off-quarter-hour": "its sidereal time gives a UTC offset that isn't on a quarter hour",
-  "true-local-time-mismatch": "its true local time doesn't fit its sidereal time and longitude",
-};
-const PROGRAM_REFUSED = "it doesn't pass that program's checks";
+// Why a desktop program's reader turned down text laid out as its program's
+// is the catalog's programRefusals. A layout that turned out not to be the
+// program's, "unreadable-screenshot", is most likely ordinary labelled text,
+// so it gets no warning. A code not listed there still gets one, worded generally.
 
 // The name each reader on the paste page gives as its site: the desktop
 // programs', and Astro-Seek's for text copied from its chart page.
-const SOURCES = { ...PROGRAMS, "astro-seek": "Astro-Seek" };
+const sources = () => ({ ...programNames(), "astro-seek": "Astro-Seek" });
 
 // The programs that write an offset west of Greenwich with a plus sign, as
 // their readers read it.
 const WEST_PLUS = new Set(["solar-fire", "astro-gold", "solar-fire-or-astro-gold", "janus", "winstar"]);
-
-const MONTH_NAMES = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
-];
 
 /**
  * The review form for pasted text, as readText, the desktop programs' readers
@@ -139,25 +88,24 @@ export function formFor(result, program = null) {
   const turnedDown = program?.kind === "refused" && program.reason !== "unreadable-screenshot" ? program.reason : null;
   // A program's text has none of readText's labels, so readText finds nothing in it.
   const noLabels = result.kind === "refused" && result.reason === "no-birth-data" && (read || turnedDown);
-  if (result.kind === "refused" && !noLabels) return { state: "refused", message: REFUSALS[result.reason], code: result.reason };
+  const words = messages().paste;
+  if (result.kind === "refused" && !noLabels) {
+    const message = result.reason === "too-long" ? words.tooLong(MAX_TEXT_LENGTH) : words.refusals[result.reason];
+    return { state: "refused", message, code: result.reason };
+  }
   const fields = noLabels ? {} : result.fields;
   const values = read ? programValues(read) : {};
-  const name = read ? SOURCES[read.site] : null;
+  const name = read ? sources()[read.site] : null;
 
   const warnings = settingWarnings(fields);
   if (turnedDown) {
-    warnings.unshift(
-      `This text is laid out like an astrology program's or site's, but ${Object.hasOwn(PROGRAM_REFUSALS, turnedDown) ? PROGRAM_REFUSALS[turnedDown] : PROGRAM_REFUSED}, so AstroChart Bridge didn't use that program's reading (${turnedDown}). Check each value against the text.`,
-    );
+    const why = Object.hasOwn(words.programRefusals, turnedDown) ? words.programRefusals[turnedDown] : words.programRefused;
+    warnings.unshift(words.turnedDown(why, turnedDown));
   }
-  if (read?.warnings?.includes("offset-unchecked")) {
-    warnings.push(`Nothing in this ${name} text checks its UTC offset. Compare the offset with the text.`);
-  }
-  const notes = [FORM_NOTE];
-  if (read) notes.push(`Read as ${name}'s text: its birth data is laid out the way ${name} prints it.`);
-  if (read && WEST_PLUS.has(read.site)) {
-    notes.push(`${name} writes offsets west of Greenwich with a plus sign, so its +7:00 is UTC-07:00 here.`);
-  }
+  if (read?.warnings?.includes("offset-unchecked")) warnings.push(words.offsetUnchecked(name));
+  const notes = [words.formNote];
+  if (read) notes.push(words.readAs(name));
+  if (read && WEST_PLUS.has(read.site)) notes.push(words.westPlus(name));
   // The program's reader finds a name and town by where its program prints
   // them, so they go before readText's labels; a labelled place that is only
   // coordinates names no town.
@@ -169,24 +117,25 @@ export function formFor(result, program = null) {
   const country = fields.country?.value ?? null;
   const town = read?.town ?? (place === null ? null : [place, country].filter(Boolean).join(", "));
   const chartName = read?.name ?? nameFromText(fields.name?.value);
-  if (town !== null) notes.push(PLACE_NOTE);
+  if (town !== null) notes.push(words.placeNote);
   const boxes = ENTRY_FIELDS.map((field) => ({
-    name: field.name,
-    label: field.label,
-    placeholder: field.example,
-    ...merged(field.name, fields, values[field.name] ?? null, read),
+    name: field,
+    label: words.fields[field].label,
+    placeholder: words.fields[field].example,
+    ...merged(field, fields, values[field] ?? null, read),
   }));
   // An offset box left empty with nothing to pick from.
   const offset = boxes.find((box) => box.name === "offset");
-  if (offset.text === "" && !offset.choices) notes.push(NO_OFFSET_NOTE);
+  if (offset.text === "" && !offset.choices) notes.push(words.noOffsetNote);
 
+  const rowLabels = messages().popup.rows;
   return {
     state: "form",
     fields: boxes,
     rows: [
-      ...INFO_FIELDS.filter(([field]) => fields[field]).map(([field, label]) => [label, asWritten(fields[field])]),
-      ...(read?.name && !fields.name ? [["Name", read.name.first]] : []),
-      ...(read?.town ? [["Town", read.town]] : []),
+      ...INFO_FIELDS.filter((field) => fields[field]).map((field) => [words.info[field], asWritten(fields[field])]),
+      ...(read?.name && !fields.name ? [[rowLabels.name, read.name.first]] : []),
+      ...(read?.town ? [[rowLabels.town, read.town]] : []),
       ...(read?.gender && !fields.gender ? genderRows(read.gender) : []),
     ],
     warnings,
@@ -212,28 +161,26 @@ function programValues({ local, lat, lng, utcSource, offsetMinutes }) {
 function merged(name, fields, value, program) {
   const read = fields[name];
   if (!program) return prefill(name, fields);
-  const programName = SOURCES[program.site];
+  const words = messages().paste;
+  const programName = sources()[program.site];
   if (value === null) {
     // Only the offset can be missing, from a program that doesn't print it.
     if (read) return prefill(name, fields);
-    return {
-      text: "",
-      source: `${programName} doesn't print the UTC offset. Enter the offset at the birthplace on that date, including daylight saving.`,
-    };
+    return { text: "", source: words.programNoOffset(programName) };
   }
-  const fromProgram = { value, label: `${boxText(name, value)} (as ${programName}'s text)` };
-  if (!read) return { text: boxText(name, value), source: `Read as ${programName}'s text.` };
+  const fromProgram = { value, label: words.asProgram(boxText(name, value), programName) };
+  if (!read) return { text: boxText(name, value), source: words.readAsSource(programName) };
   // readText found the line but couldn't read it, as with Jagannatha Hora's
   // "8:00:00 (West of GMT)": the program's reader could.
   if (read.problem === "unreadable") {
-    return { text: boxText(name, value), source: `Line ${read.line}: ${read.text}, read as ${programName}'s text.` };
+    return { text: boxText(name, value), source: words.lineReadAs(read.line, read.text, programName) };
   }
   if (!read.problem) {
     if (meaning(name, read.value) === meaning(name, value)) return prefill(name, fields);
     return {
       text: "",
-      source: `Line ${read.line} reads differently from ${programName}'s layout. Pick the one the text means.`,
-      choices: distinct(name, [{ value: read.value, label: `${boxText(name, read.value)} (line ${read.line})` }, fromProgram]),
+      source: words.readsDifferently(read.line, programName),
+      choices: distinct(name, [{ value: read.value, label: words.onLine(boxText(name, read.value), read.line) }, fromProgram]),
     };
   }
   // An ambiguous date or lines that disagree: the program's reading joins
@@ -270,30 +217,26 @@ function statedOffsets(read) {
 // What a field's box starts with (text), where that came from (source), and
 // readings to pick from (choices) when the text gives more than one.
 function prefill(name, fields) {
+  const words = messages().paste;
   const read = fields[name];
   if (!read) {
     const zone = name === "offset" ? fields.zone : undefined;
-    return {
-      text: "",
-      source: zone?.value
-        ? `The text names the zone "${zone.value}" but gives no offset. Enter the offset at the birthplace on that date.`
-        : "Not in the pasted text.",
-    };
+    return { text: "", source: zone?.value ? words.zoneNoOffset(zone.value) : words.notInText };
   }
   if (read.problem === "conflict") {
     return {
       text: "",
-      source: `The text gives different values on lines ${read.sightings.map((s) => s.line).join(" and ")}.`,
+      source: words.differentLines(read.sightings.map((s) => s.line)),
       choices: read.sightings
         .filter((s) => s.value !== null)
-        .map((s) => ({ label: `${boxText(name, s.value)} (line ${s.line})`, text: boxText(name, s.value) })),
+        .map((s) => ({ label: words.onLine(boxText(name, s.value), s.line), text: boxText(name, s.value) })),
     };
   }
-  const source = `Line ${read.line}: ${read.text}`;
+  const source = words.line(read.line, read.text);
   if (read.problem === "ambiguous") {
     return {
       text: "",
-      source: `${source}. This could be either date.`,
+      source: words.eitherDate(source),
       choices: read.readings.map((date) => ({ label: dateText(date), text: date })),
     };
   }
@@ -306,23 +249,16 @@ function prefill(name, fields) {
  * What the text in one of the form's boxes means, for the line under it: the
  * value when it reads, else why not. Empty boxes say nothing.
  *
- * @param {string} name  one of ENTRY_FIELDS' names
+ * @param {string} name  one of ENTRY_FIELDS
  * @param {string} text
  * @returns {{ value: string | number | null, message: string }}
  */
 export function checkField(name, text) {
   if (text.trim() === "") return { value: null, message: "" };
+  const words = messages().paste;
   const read = readField(name, text);
-  if (read.problem === "ambiguous") {
-    return {
-      value: null,
-      message: `This could be ${read.readings.map(dateText).join(" or ")}. Write the month's name, or the year first.`,
-    };
-  }
-  if (read.value === null) {
-    const { example } = ENTRY_FIELDS.find((field) => field.name === name);
-    return { value: null, message: `AstroChart Bridge can't read this. Try ${example}.` };
-  }
+  if (read.problem === "ambiguous") return { value: null, message: words.couldBe(read.readings.map(dateText)) };
+  if (read.value === null) return { value: null, message: words.cantRead(words.fields[name].example) };
   return { value: read.value, message: meaning(name, read.value) };
 }
 
@@ -363,7 +299,7 @@ export function localEntryFor({ date, time, lat, lng }, offsetText) {
  */
 export function viewForLocalEntry({ local, lat, lng }, { name = null, town = null, gender = null } = {}) {
   const view = viewForAstroCom({ utc: null, lat, lng }, { local, name, town, gender });
-  return { ...view, notes: [LOCAL_ONLY_NOTE, ...view.notes] };
+  return { ...view, notes: [messages().paste.localOnlyNote, ...view.notes] };
 }
 
 /**
@@ -384,8 +320,8 @@ export function viewForEntry(entry, { warnings = [], timeZone, name = null, town
       ...view,
       ...(view.rows ? { rows: [...genderRows(gender), ...view.rows] } : {}),
       warnings: [...view.warnings, ...warnings],
-      notes: [OFFSET_NOTE, ...view.notes, ...ASTRO_SEEK_NOTES],
-      buttons: [...ASTRO_SEEK_BUTTONS, SHARE_BUTTON].map((button) => ({ ...button })),
+      notes: [messages().paste.offsetNote, ...view.notes, ...astroSeekNotes()],
+      buttons: [...astroSeekButtons(), shareButton()],
       next: astroComStep(view.sky, { local: result.local, name, town, gender }),
     },
     { town, name, gender },
@@ -415,18 +351,15 @@ export function chartForEntry(entry, statedOffsets, chart = {}) {
 // Astro-Seek's chart opens with the house system astroSeekUrl names, Placidus,
 // and no ayanamsa. Stellarium Web shows the sky, which has neither.
 function settingWarnings({ houses, zodiac }) {
+  const words = messages().paste;
   const warnings = [];
-  if (houses?.value && houses.value !== "placidus") {
-    warnings.push(`The text uses ${houses.text} houses, but Astro-Seek's chart will open with Placidus houses.`);
-  }
-  if (zodiac?.value === "sidereal") {
-    warnings.push("The text uses the sidereal zodiac. AstroChart Bridge doesn't pass it on, so set it in Astro-Seek's chart.");
-  }
+  if (houses?.value && houses.value !== "placidus") warnings.push(words.houses(houses.text));
+  if (zodiac?.value === "sidereal") warnings.push(words.sidereal);
   return warnings;
 }
 
 // A field as the text wrote it, or each way it did when its lines disagree.
-const asWritten = (read) => read.text ?? read.sightings.map((s) => s.text).join(" or ");
+const asWritten = (read) => read.text ?? messages().paste.or(read.sightings.map((s) => s.text));
 
 // A value as it goes back into its box: in a form readField reads as the same value.
 function boxText(name, value) {
@@ -436,10 +369,12 @@ function boxText(name, value) {
 }
 
 // The line under a box, so a misread is easy to see: a sign that put the place
-// in the wrong hemisphere, or a 12-hour time read the wrong side of noon.
+// in the wrong hemisphere, or a 12-hour time read the wrong side of noon. The
+// compass letters are the ones readField reads, whatever the language, so the
+// line shows the box's own way of writing west: W, where Spanish writes O.
 function meaning(name, value) {
   if (name === "date") return dateText(value);
-  if (name === "time") return `${value.slice(0, 5)}${value.endsWith(":00") ? "" : value.slice(5)} at the birthplace`;
+  if (name === "time") return messages().paste.atBirthplace(`${value.slice(0, 5)}${value.endsWith(":00") ? "" : value.slice(5)}`);
   if (name === "lat") return angleText(value, "N", "S");
   if (name === "lng") return angleText(value, "E", "W");
   return offsetText(value);
@@ -447,8 +382,8 @@ function meaning(name, value) {
 
 // "1985-06-15" → "15 June 1985"
 function dateText(date) {
-  const [year, month, day] = date.split("-");
-  return `${Number(day)} ${MONTH_NAMES[Number(month) - 1]} ${year}`;
+  const [year, month, day] = date.split("-").map(Number);
+  return messages().popup.longDate(day, month, year);
 }
 
 // -420 → "UTC-07:00". A local-mean-time offset runs to the second and shows

@@ -5,6 +5,7 @@
 // form, as in the popup.
 import { ASTRO_COM_ACCESS, openAndFill } from "./astro-com-open.js";
 import { ASTRO_SEEK_ACCESS, openAndSave } from "./astro-seek-open.js";
+import { text } from "./messages/index.js";
 import { astroSeekTabs, holdForTab } from "./pending.js";
 import { viewForAstroComManual, viewForAstroComNotFilled, viewForAstroSeekSave } from "./popup-model.js";
 import { paragraph, render } from "./view.js";
@@ -36,12 +37,12 @@ async function openForm(container, url, values) {
     render(container, viewForAstroComManual(values), (button) => openLink(container, button));
     return;
   }
-  container.replaceChildren(paragraph("Opening astro.com's form to fill it in…", "note"));
+  container.replaceChildren(paragraph(text().popup.astroComBusy, "note"));
   const browser = { tabs: chrome.tabs, scripting: chrome.scripting, storage: chrome.storage.session };
   const { outcome, tabId } = await openAndFill(browser, { url, values });
   const showTab = () => chrome.tabs.update(tabId, { active: true });
   if (outcome === "filled") {
-    container.replaceChildren(paragraph("AstroChart Bridge filled in astro.com's form in its tab.", "note"));
+    container.replaceChildren(paragraph(text().pages.astroComFilled, "note"));
     await showTab();
     return;
   }
@@ -56,11 +57,11 @@ async function saveInAstroSeek(container, sky, saves) {
     render(container, viewForAstroSeekSave({ outcome: "declined" }, sky, saves), (button) => openLink(container, button));
     return;
   }
-  container.replaceChildren(paragraph("Opening Astro-Seek's Add person form…", "note"));
+  container.replaceChildren(paragraph(text().popup.astroSeekSaveBusy, "note"));
   const result = await openAndSave({ tabs: chrome.tabs, scripting: chrome.scripting }, { values: { ...sky, ...saves } });
   const showTab = () => chrome.tabs.update(result.tabId, { active: true });
   if (result.outcome === "filled") {
-    container.replaceChildren(paragraph("AstroChart Bridge filled in Astro-Seek's form in its tab. Check Gender there, then press Add person.", "note"));
+    container.replaceChildren(paragraph(text().pages.astroSeekFilled, "note"));
     await showTab();
     return;
   }

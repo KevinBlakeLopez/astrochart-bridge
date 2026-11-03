@@ -7,13 +7,14 @@ import { linkFor } from "./chart-model.js";
 import { renderChart } from "./desktop-page.js";
 import { chartForEntry, checkField, entryFor, formForText, localEntryFor, viewForEntry, viewForLocalEntry } from "./paste-model.js";
 import { viewForShareRefusal } from "./popup-model.js";
+import { localizePage, text } from "./messages/index.js";
 import { paragraph, render } from "./view.js";
+
+// The browser's language, chosen before anything is drawn.
+localizePage(document, navigator.languages);
 
 const textArea = document.getElementById("text");
 const app = document.getElementById("app");
-
-const CLIPBOARD_REFUSED =
-  "Your browser didn't let AstroChart Bridge read the clipboard. Click the box above and paste with ⌘V or Ctrl+V instead.";
 
 document.getElementById("read").addEventListener("click", read);
 // A paste is read at once; typing waits for the button, so a half-typed line
@@ -24,14 +25,14 @@ textArea.addEventListener("input", (event) => {
 // The clipboard is read only on this click, never when the page opens. A
 // browser that refuses still leaves pasting into the box.
 document.getElementById("from-clipboard").addEventListener("click", async () => {
-  let text;
+  let pasted;
   try {
-    text = await navigator.clipboard.readText();
+    pasted = await navigator.clipboard.readText();
   } catch {
-    app.replaceChildren(paragraph(CLIPBOARD_REFUSED, "warning"));
+    app.replaceChildren(paragraph(text().pages.paste.clipboardRefused, "warning"));
     return;
   }
-  textArea.value = text;
+  textArea.value = pasted;
   read();
 });
 
@@ -60,7 +61,7 @@ function formElement(form) {
   const update = () => {
     const next = chosen();
     submit.disabled = next === null;
-    submit.textContent = next?.local ? "Continue to astro.com" : "Continue";
+    submit.textContent = next?.local ? text().pages.paste.continueToAstroCom : text().pages.paste.continue;
   };
 
   for (const field of form.fields) {
@@ -73,7 +74,7 @@ function formElement(form) {
     );
   }
   for (const warning of form.warnings) element.append(paragraph(warning, "warning"));
-  if (form.rows.length > 0) element.append(paragraph("Also in the text:", "note"), rowList(form.rows));
+  if (form.rows.length > 0) element.append(paragraph(text().pages.paste.alsoInText, "note"), rowList(form.rows));
   for (const note of form.notes) element.append(paragraph(note, "note"));
   element.append(submit);
   update();
@@ -166,7 +167,7 @@ function showLocal(formElementToKeep, local, form) {
 function backButton(formElementToKeep) {
   const back = document.createElement("button");
   back.className = "secondary";
-  back.textContent = "Back to the form";
+  back.textContent = text().pages.paste.back;
   back.addEventListener("click", () => app.replaceChildren(formElementToKeep));
   return back;
 }

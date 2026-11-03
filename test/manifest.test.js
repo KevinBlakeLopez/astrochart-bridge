@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import { inflateSync } from "node:zlib";
 import { SIZES, iconPng } from "../tools/make-icons.mjs";
 
@@ -67,8 +67,33 @@ test("the Firefox data collection declaration is the one the privacy page descri
   });
 });
 
+// The name and description come from _locales, one folder per language the
+// interface has (extension/messages/), English by default.
+const LANGUAGES = ["en", "es"];
+const localized = Object.fromEntries(
+  await Promise.all(
+    LANGUAGES.map(async (code) => [code, JSON.parse(await readFile(new URL(`_locales/${code}/messages.json`, extension), "utf8"))]),
+  ),
+);
+
+test("the name, description and toolbar title come from each language's messages, English by default", async () => {
+  assert.equal(manifest.default_locale, "en");
+  assert.equal(manifest.name, "__MSG_extName__");
+  assert.equal(manifest.description, "__MSG_extDescription__");
+  assert.equal(manifest.action.default_title, "__MSG_extName__");
+  const folders = (await readdir(new URL("_locales/", extension))).sort();
+  assert.deepEqual(folders, [...LANGUAGES].sort());
+  for (const code of LANGUAGES) {
+    assert.deepEqual(Object.keys(localized[code]).sort(), ["extDescription", "extName"], code);
+    assert.equal(localized[code].extName.message, "AstroChart Bridge", code);
+  }
+});
+
 // The Chrome Web Store shows the description as the listing's summary, and
-// allows it 132 characters at most.
+// allows it 132 characters at most, in each language.
 test("the description fits the Chrome Web Store's summary", () => {
-  assert.ok(manifest.description.length <= 132, `${manifest.description.length} characters`);
+  for (const code of LANGUAGES) {
+    const { message } = localized[code].extDescription;
+    assert.ok(message.length <= 132, `${code}: ${message.length} characters`);
+  }
 });

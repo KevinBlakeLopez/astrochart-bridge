@@ -5,6 +5,7 @@ import { withAafExport } from "../extension/aaf-model.js";
 import { astroSeekUrl } from "../extension/core/astroseek.js";
 import { analyzePage } from "../extension/core/index.js";
 import { withDesktopSend } from "../extension/desktop-model.js";
+import { setLanguage } from "../extension/messages/index.js";
 import { viewFor, viewForSky, withOtherWays } from "../extension/popup-model.js";
 import { render } from "../extension/view.js";
 
@@ -156,4 +157,19 @@ test("the AAF file's note shows once the file is saved, not before", (t) => {
   assert.equal(note.hidden, true);
   save.listeners.click();
   assert.equal(note.hidden, false);
+});
+
+test("a refused screen's code line is in the chosen language", () => {
+  const codeLine = () => {
+    const container = { replaceChildren: (...parts) => (container.parts = parts) };
+    render(container, viewFor({ kind: "refused", reason: "ambiguous-page" }), () => {});
+    return container.parts.find(({ className }) => className === "code").textContent;
+  };
+  assert.equal(codeLine(), "Code: ambiguous-page");
+  setLanguage(["es"]);
+  try {
+    assert.equal(codeLine(), "Código: ambiguous-page");
+  } finally {
+    setLanguage(["en"]);
+  }
 });

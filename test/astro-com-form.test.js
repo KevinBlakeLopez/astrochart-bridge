@@ -1,5 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import en from "../extension/messages/en.js";
+import es from "../extension/messages/es.js";
 import {
   fillForm,
   formTime,
@@ -645,7 +647,7 @@ const ZZ = {
 
 test("nothing shows until a town is chosen, nor when astro.com's zone is the chart's", () => {
   const page = zonePage();
-  assert.deepEqual(runInPage(watchZone, page, zoneCheck(NY_LOCAL)), { watching: true });
+  assert.deepEqual(runInPage(watchZone, page, zoneCheck(NY_LOCAL), en.pageNotes.astroCom), { watching: true });
   assert.equal(page.message(), null);
   page.pickTown(ZZ.nyDaylight);
   assert.equal(page.message(), null);
@@ -657,7 +659,7 @@ test("nothing shows until a town is chosen, nor when astro.com's zone is the cha
 
 test("a town whose zone differs gets a note under the line, which goes when a right town is chosen", () => {
   const page = zonePage();
-  runInPage(watchZone, page, zoneCheck(NY_LOCAL));
+  runInPage(watchZone, page, zoneCheck(NY_LOCAL), en.pageNotes.astroCom);
   // London, AL comes first when "London" is typed.
   page.pickTown(ZZ.alabama);
   assert.equal(
@@ -669,10 +671,23 @@ test("a town whose zone differs gets a note under the line, which goes when a ri
   assert.equal(page.message(), null);
 });
 
+test("in Spanish, the note and its button are Spanish, with astro.com's zone words as it writes them", () => {
+  const page = zonePage();
+  runInPage(watchZone, page, zoneCheck(NY_LOCAL), es.pageNotes.astroCom);
+  page.pickTown(ZZ.alabama);
+  assert.equal(
+    page.message(),
+    "AstroChart Bridge: esta carta está a 4 h west del Tiempo Universal, pero la automatic time zone de astro.com para esta ciudad es 5 h west. Comprueba que la ciudad sea la correcta. Si lo es, usa el Tiempo Universal de la carta.",
+  );
+  assert.equal(page.button().textContent, "Usar Tiempo Universal");
+  page.button().listeners.click();
+  assert.match(page.message(), /^AstroChart Bridge escribió 2024-04-17 12:00 con la zona horaria 00:00 GMT \/ UT\. Es el Tiempo Universal de la propia carta/);
+});
+
 test("half-hour and GMT/UT zones are read too", () => {
   const stJohns = { utc: "2024-01-15T11:30:00Z", lat: 47.57, lng: -52.72, local: "2024-01-15T08:00:00" };
   const page = zonePage(stJohns);
-  runInPage(watchZone, page, zoneCheck(stJohns));
+  runInPage(watchZone, page, zoneCheck(stJohns), en.pageNotes.astroCom);
   page.pickTown(ZZ.newfoundland);
   assert.equal(page.message(), null);
   page.pickTown(ZZ.london);
@@ -682,7 +697,7 @@ test("half-hour and GMT/UT zones are read too", () => {
 test("a chart whose local time is UT is fine in London in winter, and gets the note in New York", () => {
   const london = { utc: "2024-01-15T08:00:00Z", lat: 51.5, lng: -0.166667, local: "2024-01-15T08:00:00" };
   const page = zonePage(london);
-  runInPage(watchZone, page, zoneCheck(london));
+  runInPage(watchZone, page, zoneCheck(london), en.pageNotes.astroCom);
   page.pickTown(ZZ.london);
   assert.equal(page.message(), null);
   page.pickTown(ZZ.nyStandard);
@@ -691,7 +706,7 @@ test("a chart whose local time is UT is fine in London in winter, and gets the n
 
 test("a zone with no offset, such as local mean time, can't be checked and says so", () => {
   const page = zonePage();
-  runInPage(watchZone, page, zoneCheck(NY_LOCAL));
+  runInPage(watchZone, page, zoneCheck(NY_LOCAL), en.pageNotes.astroCom);
   page.pickTown(ZZ.lmt);
   assert.equal(
     page.message(),
@@ -701,7 +716,7 @@ test("a zone with no offset, such as local mean time, can't be checked and says 
 
 test("the button enters the chart's Universal Time with 00:00 GMT / UT, and the watching stops", () => {
   const page = zonePage();
-  runInPage(watchZone, page, zoneCheck(NY_LOCAL));
+  runInPage(watchZone, page, zoneCheck(NY_LOCAL), en.pageNotes.astroCom);
   page.pickTown(ZZ.alabama);
   page.button().listeners.click();
   assert.deepEqual(
@@ -717,7 +732,7 @@ test("the button enters the chart's Universal Time with 00:00 GMT / UT, and the 
 test("once the person changes the date, time or time zone, the check is theirs: the note goes and the watching stops", () => {
   for (const [name, value] of [["ihou", "9"], ["sday", "18"], ["szon", "h4w"]]) {
     const page = zonePage();
-    runInPage(watchZone, page, zoneCheck(NY_LOCAL));
+    runInPage(watchZone, page, zoneCheck(NY_LOCAL), en.pageNotes.astroCom);
     page.pickTown(ZZ.alabama);
     page.field(name).value = value;
     page.pickTown(ZZ.nyStandard);
@@ -730,10 +745,10 @@ test("a page without the time zone line, or already watched, isn't watched again
   const page = zonePage();
   const getElementById = page.getElementById;
   page.getElementById = (id) => (id === "zz" ? null : getElementById(id));
-  assert.deepEqual(runInPage(watchZone, page, zoneCheck(NY_LOCAL)), { watching: false });
+  assert.deepEqual(runInPage(watchZone, page, zoneCheck(NY_LOCAL), en.pageNotes.astroCom), { watching: false });
 
   // Watched with no note showing, as before a town is chosen.
   const watched = zonePage();
-  runInPage(watchZone, watched, zoneCheck(NY_LOCAL));
-  assert.deepEqual(runInPage(watchZone, watched, zoneCheck(NY_LOCAL)), { watching: false });
+  runInPage(watchZone, watched, zoneCheck(NY_LOCAL), en.pageNotes.astroCom);
+  assert.deepEqual(runInPage(watchZone, watched, zoneCheck(NY_LOCAL), en.pageNotes.astroCom), { watching: false });
 });

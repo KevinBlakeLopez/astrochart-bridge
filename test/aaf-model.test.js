@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { chartFromRecord, parseAaf } from "../extension/core/aaf.js";
 import { analyzePage } from "../extension/core/index.js";
 import { decodeAafFile, viewForAafChart, viewForAafText, withAafExport } from "../extension/aaf-model.js";
-import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, ASTRO_SEEK_SAVE_NAMED_NOTE, viewFor, viewForAstroCom, viewForSky } from "../extension/popup-model.js";
+import { astroSeekButtons, astroSeekNotes, astroSeekSaveNamedNote, viewFor, viewForAstroCom, viewForSky } from "../extension/popup-model.js";
 
 const LA = { timeZone: "America/Los_Angeles" };
 const astroSeek = (name) =>
@@ -42,11 +42,11 @@ test("a chart from AAF opens like an astro.com chart, with its name and birthpla
   assert.deepEqual(view.sky, { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 });
   // Open chart in Astro-Seek keeps the town and name for its tab, for Save in Astro-Seek… there.
   assert.deepEqual(view.buttons, [
-    ASTRO_SEEK_BUTTONS[0],
-    { ...ASTRO_SEEK_BUTTONS[1], keeps: { town: "New York, NY (US)", name: { first: "New York", last: "Test" }, gender: null } },
+    astroSeekButtons()[0],
+    { ...astroSeekButtons()[1], keeps: { town: "New York, NY (US)", name: { first: "New York", last: "Test" }, gender: null } },
     { label: "Save in Astro-Seek…", saves: { town: "New York, NY (US)", name: "New York Test", gender: null }, secondary: true },
   ]);
-  assert.deepEqual(view.notes, [...plain.notes, ASTRO_SEEK_NOTES[0], ASTRO_SEEK_SAVE_NAMED_NOTE]);
+  assert.deepEqual(view.notes, [...plain.notes, astroSeekNotes()[0], astroSeekSaveNamedNote()]);
   assert.deepEqual(view.warnings, []);
   assert.equal(view.download.filename, "chart-2024-04-17.aaf");
 });

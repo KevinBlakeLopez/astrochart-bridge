@@ -1,61 +1,41 @@
-import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, SHARE_BUTTON, astroComStep, genderRows, viewFor, withAstroSeekSave } from "./popup-model.js";
+import { text } from "./messages/index.js";
+import { astroComStep, astroSeekButtons, astroSeekNotes, genderRows, shareButton, viewFor, withAstroSeekSave } from "./popup-model.js";
 
-// Each refusal analyzeScreenshot can return. They keep their code on screen,
-// like the popup's unreadable pages, so a bug report says which check failed.
-const REFUSALS = {
-  "unreadable-screenshot":
-    "AstroChart Bridge couldn't find the birth data in this screenshot. From Astro-Seek, include everything from Date of Birth to Latitude, Longitude; from astro.com, the chart's header from the date to Sid. Time; from Solar Fire or Astro Gold, the chart details from the date to the coordinates; from Morinus, its status bar or the middle of its square chart; from Valens, the middle of its wheel; from Planetdance, the lines at the top left of the wheel, down to St:; from Jagannatha Hora, the birth data from Date to Sidereal Time; from Kepler or Sirius, the data block from the name to the Time Zone; from Janus, the middle of the wheel from the date to the coordinates; from Win*Star, the upper right of the wheel from the date to the latitude; from TimePassages, the whole chart, with its corners; from Astrolog, the top of the sidebar from the date to the Julian Day. Take it at full size.",
-  "no-coordinates":
-    "This screenshot has no coordinates. Astro Gold's chart wheel doesn't print them: take its Chart Details panel or Edit Chart screen instead. From Solar Fire, include the chart details down to the coordinates.",
-  "ambiguous-screenshot": "This screenshot shows more than one chart. AstroChart Bridge opens natal charts only.",
-  "sidereal-mismatch":
-    "The sidereal time in this screenshot doesn't match its Universal Time and longitude, so one of them was probably misread. Try a larger screenshot.",
-  "offset-out-of-range":
-    "The local time in this screenshot is too far from its Universal Time, so one of them was probably misread. Try a larger screenshot.",
-  "weekday-mismatch":
-    "The weekday in this screenshot doesn't fall on its date, so the date was probably misread. Try a larger screenshot.",
-  "zone-offset-mismatch":
-    "The time zone in this screenshot doesn't match its UTC offset, so one of them was probably misread. Try a larger screenshot.",
-  "calendar-unsupported":
-    "This chart is dated before the Gregorian calendar began on 15 October 1582, or marked Old Style or BC. AstroChart Bridge reads Gregorian dates only.",
-  "apparent-time": "This chart uses local apparent time, which AstroChart Bridge can't open yet.",
-  "offset-off-quarter-hour":
-    "The sidereal time in this screenshot gives a UTC offset that isn't on a quarter hour, so its longitude was probably misread. Try a larger screenshot. A chart in one of the few zones off the quarter hour, such as Amsterdam's before 1940, can't be read from a TimePassages screenshot yet.",
-  "true-local-time-mismatch":
-    "The TLT in this screenshot doesn't match its sidereal time and longitude, so one of them was probably misread. Try a larger screenshot.",
-  "local-time-ambiguous":
-    "This chart's time is marked LC, which Morinus and Valens print for both local mean time and local apparent time. AstroChart Bridge can't tell which, so it can't open it yet.",
-  "chart-type-unsupported": "This is a return, profection or direction chart. AstroChart Bridge opens natal and horary charts only.",
-};
+// Each refusal analyzeScreenshot can return keeps its code on screen, like the
+// popup's unreadable pages, so a bug report says which check failed. The
+// words are the catalog's (messages/), read as each screen is built.
 
-// The name each desktop program's reader gives as its site.
-// Solar Fire and Astro Gold print the same block, so a screenshot without its
-// type line could be either. The paste page names them too.
-export const PROGRAMS = {
-  "solar-fire": "Solar Fire",
-  "astro-gold": "Astro Gold",
-  "solar-fire-or-astro-gold": "Solar Fire or Astro Gold",
-  morinus: "Morinus",
-  valens: "Valens",
-  planetdance: "Planetdance",
-  jhora: "Jagannatha Hora",
-  kepler: "Kepler",
-  sirius: "Sirius",
-  "kepler-or-sirius": "Kepler or Sirius",
-  janus: "Janus",
-  winstar: "Win*Star",
-  timepassages: "TimePassages",
-  astrolog: "Astrolog",
-};
+/**
+ * The name each desktop program's reader gives as its site. Solar Fire and
+ * Astro Gold print the same block, so a screenshot without its type line
+ * could be either. The paste page names them too.
+ *
+ * @returns {Record<string, string>}
+ */
+export function programNames() {
+  const { either } = text().screenshot;
+  return {
+    "solar-fire": "Solar Fire",
+    "astro-gold": "Astro Gold",
+    "solar-fire-or-astro-gold": either("Solar Fire", "Astro Gold"),
+    morinus: "Morinus",
+    valens: "Valens",
+    planetdance: "Planetdance",
+    jhora: "Jagannatha Hora",
+    kepler: "Kepler",
+    sirius: "Sirius",
+    "kepler-or-sirius": either("Kepler", "Sirius"),
+    janus: "Janus",
+    winstar: "Win*Star",
+    timepassages: "TimePassages",
+    astrolog: "Astrolog",
+  };
+}
 
 // Warnings only a screenshot's chart can have, shown in place of their codes.
 const WARNINGS = {
-  "offset-unchecked": ({ site }) =>
-    `Nothing in this ${PROGRAMS[site]} screenshot checks its UTC offset. Compare the Offset row with the screenshot.`,
+  "offset-unchecked": ({ site }) => text().screenshot.offsetUnchecked(programNames()[site]),
 };
-
-// First on every screen that opens the sky: OCR can misread, and the latitude is the one number no check covers.
-const COMPARE_NOTE = "Read from a screenshot. Compare these rows with it before opening the sky: nothing checks the latitude.";
 
 /**
  * What the screenshot page shows for an analyzeScreenshot result: the popup's
@@ -66,8 +46,9 @@ const COMPARE_NOTE = "Read from a screenshot. Compare these rows with it before 
  * @param {{ timeZone?: string }} [options]  passed on to viewFor
  */
 export function viewForScreenshot(result, options) {
-  if (result.kind === "refused" && Object.hasOwn(REFUSALS, result.reason)) {
-    return { state: "refused", message: REFUSALS[result.reason], code: result.reason };
+  const words = text().screenshot;
+  if (result.kind === "refused" && Object.hasOwn(words.refusals, result.reason)) {
+    return { state: "refused", message: words.refusals[result.reason], code: result.reason };
   }
   // viewFor words the warnings it knows; this page words its own, after them.
   const isOwn = (code) => Object.hasOwn(WARNINGS, code);
@@ -75,15 +56,13 @@ export function viewForScreenshot(result, options) {
   const view = viewFor(own.length === 0 ? result : { ...result, warnings: result.warnings.filter((code) => !isOwn(code)) }, options);
   if (view.state === "refused") return view;
   const warnings = own.length === 0 ? {} : { warnings: [...view.warnings, ...own.map((code) => WARNINGS[code](result))] };
-  // viewFor's prompt names Astro-Seek. A program's time is its clock, so the
-  // offset to enter takes in daylight saving.
+  // viewFor's prompt names Astro-Seek, so a program's chart names the program.
+  const programs = programNames();
   const message =
-    view.state === "enter-offset" && Object.hasOwn(PROGRAMS, result.site)
-      ? { message: `${PROGRAMS[result.site]} doesn't print the UTC offset. Enter the offset at the birth place, including daylight saving, as ±HH:MM.` }
-      : {};
+    view.state === "enter-offset" && Object.hasOwn(programs, result.site) ? { message: words.noOffset(programs[result.site]) } : {};
   // viewFor already gives an astro.com chart Astro-Seek's notes and buttons.
-  const notes = result.site === "astro-com" ? view.notes : [...view.notes, ...ASTRO_SEEK_NOTES];
-  const buttons = [...ASTRO_SEEK_BUTTONS, SHARE_BUTTON].map((button) => ({ ...button }));
+  const notes = result.site === "astro-com" ? view.notes : [...view.notes, ...astroSeekNotes()];
+  const buttons = [...astroSeekButtons(), shareButton()];
   // viewFor leads only an Astro-Seek chart on to astro.com, since the popup
   // is on an astro.com chart's own page, with the town its address names. A
   // screenshot can be any chart, so every chart with a decided sky can be
@@ -94,13 +73,18 @@ export function viewForScreenshot(result, options) {
   const { name = null, town = null, gender = null } = result;
   const next = view.sky ? { next: astroComStep(view.sky, { local: result.local, name, town, gender }) } : {};
   const rows = view.rows && (name || town || gender) ? { rows: labelRows(view.rows, { name, town, gender }) } : {};
-  return withAstroSeekSave({ ...view, ...rows, ...warnings, ...message, ...next, notes: [COMPARE_NOTE, ...notes], buttons }, { name, town, gender });
+  // The compare note comes first on every screen that opens the sky.
+  return withAstroSeekSave(
+    { ...view, ...rows, ...warnings, ...message, ...next, notes: [words.compareNote, ...notes], buttons },
+    { name, town, gender },
+  );
 }
 
 // The screen's rows with Name and Gender first and Town after Place, as printed.
 function labelRows(rows, { name, town, gender }) {
-  const at = rows.findIndex(([label]) => label === "Place") + 1 || rows.length;
-  const nameRow = name ? [["Name", [name.first, name.last].filter(Boolean).join(" ")]] : [];
-  const townRow = town ? [["Town", town]] : [];
+  const labels = text().popup.rows;
+  const at = rows.findIndex(([label]) => label === labels.place) + 1 || rows.length;
+  const nameRow = name ? [[labels.name, [name.first, name.last].filter(Boolean).join(" ")]] : [];
+  const townRow = town ? [[labels.town, town]] : [];
   return [...nameRow, ...genderRows(gender), ...rows.slice(0, at), ...townRow, ...rows.slice(at)];
 }

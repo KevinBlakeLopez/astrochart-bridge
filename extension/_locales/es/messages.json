@@ -1,0 +1,8 @@
+{
+  "extName": {
+    "message": "AstroChart Bridge"
+  },
+  "extDescription": {
+    "message": "Abre el cielo de una carta natal en Stellarium, o la carta en Astro-Seek o astro.com, desde una página, captura, texto o archivo."
+  }
+}

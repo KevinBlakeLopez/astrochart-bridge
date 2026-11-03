@@ -4,11 +4,11 @@ import { astroSeekSaveUrl, astroSeekUrl } from "../extension/core/astroseek.js";
 import { fromFragment, toFragment, toPortable } from "../extension/core/portable.js";
 import { viewForImport } from "../extension/chart-model.js";
 import {
-  ASTRO_SEEK_NOTES,
-  ASTRO_SEEK_SAVE_BUSY,
-  ASTRO_SEEK_SAVE_NAMED_NOTE,
-  ASTRO_SEEK_SAVE_NOTE,
   actionGroups,
+  astroSeekNotes,
+  astroSeekSaveBusy,
+  astroSeekSaveNamedNote,
+  astroSeekSaveNote,
   viewFor,
   viewForAstroSeekSave,
   withAstroSeekSave,
@@ -31,15 +31,15 @@ test("Save in Astro-Seek… comes right after Open chart in Astro-Seek, with its
     ["Open Stellarium Web", "Open chart in Astro-Seek", "Save in Astro-Seek…", "Share…"],
   );
   assert.deepEqual(view.buttons[2], { label: "Save in Astro-Seek…", saves: { town: null, name: null, gender: null }, secondary: true });
-  assert.deepEqual(view.notes, ["a note", ASTRO_SEEK_SAVE_NOTE]);
-  assert.equal(ASTRO_SEEK_SAVE_NOTE, "Opening or saving sends this date, time and place to astro-seek.com.");
+  assert.deepEqual(view.notes, ["a note", astroSeekSaveNote()]);
+  assert.equal(astroSeekSaveNote(), "Opening or saving sends this date, time and place to astro-seek.com.");
 });
 
 test("its note takes the place of Open chart in Astro-Seek's, keeping a popup screen short", () => {
-  const view = withAstroSeekSave({ ...SCREEN, notes: ["a note", ...ASTRO_SEEK_NOTES, "a last note"] });
-  assert.deepEqual(view.notes, ["a note", ASTRO_SEEK_NOTES[0], ASTRO_SEEK_SAVE_NOTE, "a last note"]);
+  const view = withAstroSeekSave({ ...SCREEN, notes: ["a note", ...astroSeekNotes(), "a last note"] });
+  assert.deepEqual(view.notes, ["a note", astroSeekNotes()[0], astroSeekSaveNote(), "a last note"]);
   // Open chart in Astro-Seek's note took one line of the popup, and so does this one.
-  assert.ok(ASTRO_SEEK_SAVE_NOTE.length <= ASTRO_SEEK_NOTES[1].length);
+  assert.ok(astroSeekSaveNote().length <= astroSeekNotes()[1].length);
 });
 
 test("the chart's town goes in as it is, and its name in one piece, as Astro-Seek's single Name field takes it", () => {
@@ -52,10 +52,10 @@ test("the chart's town goes in as it is, and its name in one piece, as Astro-See
 
 test("a chart with a name or a town has the note say saving sends them too", () => {
   const note = (chart) => withAstroSeekSave(SCREEN, chart).notes.at(-1);
-  assert.equal(note({ town: "New York" }), ASTRO_SEEK_SAVE_NAMED_NOTE);
-  assert.equal(note({ name: { first: "Example", last: "" } }), ASTRO_SEEK_SAVE_NAMED_NOTE);
-  assert.equal(note({ name: { first: " ", last: "" } }), ASTRO_SEEK_SAVE_NOTE);
-  assert.match(ASTRO_SEEK_SAVE_NAMED_NOTE, /^Opening or saving sends this date, time and place to astro-seek\.com; saving also sends the chart's name and town/);
+  assert.equal(note({ town: "New York" }), astroSeekSaveNamedNote());
+  assert.equal(note({ name: { first: "Example", last: "" } }), astroSeekSaveNamedNote());
+  assert.equal(note({ name: { first: " ", last: "" } }), astroSeekSaveNote());
+  assert.match(astroSeekSaveNamedNote(), /^Opening or saving sends this date, time and place to astro-seek\.com; saving also sends the chart's name and town/);
 });
 
 test("a screen that already has the button and its note isn't given them twice", () => {
@@ -85,10 +85,10 @@ test("an astro.com chart is saved with the name and town its record gives", () =
   };
   const view = viewFor(result, { timeZone: "America/Los_Angeles" });
   assert.deepEqual(view.buttons.find(({ saves }) => saves).saves, { town: "New York", name: "Test", gender: null });
-  assert.equal(view.notes.at(-1), ASTRO_SEEK_SAVE_NAMED_NOTE);
+  assert.equal(view.notes.at(-1), astroSeekSaveNamedNote());
   const unnamed = viewFor({ ...result, name: null, town: null }, { timeZone: "America/Los_Angeles" });
   assert.deepEqual(unnamed.buttons.find(({ saves }) => saves).saves, { town: null, name: null, gender: null });
-  assert.equal(unnamed.notes.at(-1), ASTRO_SEEK_SAVE_NOTE);
+  assert.equal(unnamed.notes.at(-1), astroSeekSaveNote());
 });
 
 test("the shared chart page, which is also a website, doesn't offer it", () => {
@@ -96,11 +96,11 @@ test("the shared chart page, which is also a website, doesn't offer it", () => {
   const view = viewForImport(fromFragment(`#${toFragment(built.chart)}`), { timeZone: "America/Los_Angeles" });
   assert.ok(view.buttons.some(({ opens }) => opens === "astro-seek"));
   assert.equal(view.buttons.some(({ saves }) => saves), false);
-  assert.equal(view.notes.includes(ASTRO_SEEK_SAVE_NOTE), false);
+  assert.equal(view.notes.includes(astroSeekSaveNote()), false);
 });
 
 test("while the form opens, the popup says so and offers nothing to click", () => {
-  assert.deepEqual(ASTRO_SEEK_SAVE_BUSY, { state: "astro-seek-busy", message: "Opening Astro-Seek's Add person form…", notes: [], buttons: [] });
+  assert.deepEqual(astroSeekSaveBusy(), { state: "astro-seek-busy", message: "Opening Astro-Seek's Add person form…", notes: [], buttons: [] });
 });
 
 test("declined, the form opens filled in by its address alone, with what to check", () => {

@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { isStellariumWeb } from "../extension/core/stellarium.js";
-import { ASTRO_SEEK_SAVE_NOTE, viewFor, viewForAstroCom, viewForSky } from "../extension/popup-model.js";
+import { astroSeekSaveNote, viewFor, viewForAstroCom, viewForSky } from "../extension/popup-model.js";
 
 test("only stellarium-web.org tabs count as Stellarium Web", () => {
   assert.equal(isStellariumWeb("https://stellarium-web.org/?date=2024-04-17T12%3A00%3A00Z&lat=40.716667&lng=-74"), true);
@@ -31,7 +31,7 @@ test("a Stellarium sky becomes a screen that opens the Astro-Seek chart, or save
     ],
     notes: [
       "Astro-Seek will draw this chart in UT/GMT at these coordinates, rounded to the minute, with no city.",
-      ASTRO_SEEK_SAVE_NOTE,
+      astroSeekSaveNote(),
     ],
     // view.js opens astroSeekUrl of this sky, so Astro-Seek gets 12:00 UT.
     sky,

@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readEngine, skyFromEngine, townFromPlace } from "../extension/core/stellarium.js";
-import { ASTRO_SEEK_SAVE_NAMED_NOTE, ASTRO_SEEK_SAVE_NOTE, viewForSky } from "../extension/popup-model.js";
+import { astroSeekSaveNamedNote, astroSeekSaveNote, viewForSky } from "../extension/popup-model.js";
 
 const RAD = Math.PI / 180;
 const NY = { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 };
@@ -87,9 +87,9 @@ test("the town goes to Enter in astro.com… and Save in Astro-Seek…", () => {
   assert.equal(view.next.view.buttons[0].holds.town, "New York");
   assert.match(view.next.view.notes.join(" "), /AstroChart Bridge fills in the town New York/);
   assert.deepEqual(view.buttons.find(({ saves }) => saves).saves, { town: "New York", name: null, gender: null });
-  assert.ok(view.notes.includes(ASTRO_SEEK_SAVE_NAMED_NOTE));
+  assert.ok(view.notes.includes(astroSeekSaveNamedNote()));
 
   const unnamed = viewForSky(NY, { timeZone: "America/Los_Angeles" });
   assert.equal(unnamed.next.view.buttons[0].holds.town, null);
-  assert.ok(unnamed.notes.includes(ASTRO_SEEK_SAVE_NOTE));
+  assert.ok(unnamed.notes.includes(astroSeekSaveNote()));
 });
