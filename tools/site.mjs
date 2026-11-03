@@ -25,6 +25,7 @@ export const SITE_FILES = Object.freeze([
   "messages/index.js",
   "messages/en.js",
   "messages/es.js",
+  "messages/sl.js",
   "qr.js",
   "core/portable.js",
   "core/astroseek.js",

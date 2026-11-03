@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import en from "../extension/messages/en.js";
 import es from "../extension/messages/es.js";
+import sl from "../extension/messages/sl.js";
 import { TOWN_LIMIT_KM, chooseTown, readTownList, showTownChoice } from "../extension/core/astrocom.js";
 
 // astro.com's matches as its list showed them on 2026-11-01, abridged.
@@ -230,6 +231,25 @@ test("in Spanish, the box and its buttons are Spanish, the distance too, and ast
     `AstroChart Bridge: ninguna de las 2 coincidencias de astro.com para "London" está a menos de 25 km de las coordenadas de la carta. Elige la ciudad de la lista de astro.com, o escribe una más cercana.`,
   );
   assert.deepEqual(none.buttons().map((button) => button.textContent), ["Volver a mostrar las coincidencias"]);
+});
+
+test("in Slovenian, the box and its buttons are Slovenian, the distance too, and astro.com's matches as they are", () => {
+  const page = townPage();
+  const choice = chooseTown(NEW_YORK_LIST, NEW_YORK, { away: sl.towns.away });
+  runInPage(showTownChoice, page.document, choice, "New York", TOWN_LIMIT_KM, sl.pageNotes.astroCom);
+  assert.equal(
+    page.say(),
+    `AstroChart Bridge: s seznama na astro.com je izbral »${NEW_YORK_LIST[2]}«, oddaljeno manj kot 1 km od koordinat horoskopa.`,
+  );
+  assert.deepEqual(page.buttons().map((button) => button.textContent), ["Izberi drugo mesto"]);
+
+  const none = townPage({ scit: "London", items: LONDON_LIST.slice(0, 2) });
+  runInPage(showTownChoice, none.document, { kind: "none", listed: 2 }, "London", 25, sl.pageNotes.astroCom);
+  assert.equal(
+    none.say(),
+    "AstroChart Bridge: noben od 2 zadetkov na astro.com za »London« ni od koordinat horoskopa oddaljen manj kot 25 km. Mesto izberite s seznama na astro.com ali vpišite bližje.",
+  );
+  assert.deepEqual(none.buttons().map((button) => button.textContent), ["Znova prikaži zadetke"]);
 });
 
 test("the box goes once the person types in the town field, not when the script does", () => {
