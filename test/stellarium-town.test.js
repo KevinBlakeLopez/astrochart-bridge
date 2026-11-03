@@ -86,7 +86,7 @@ test("the town goes to Enter in astro.com… and Save in Astro-Seek…", () => {
   const view = viewForSky(NY, { timeZone: "America/Los_Angeles", town: "New York" });
   assert.equal(view.next.view.buttons[0].holds.town, "New York");
   assert.match(view.next.view.notes.join(" "), /AstroChart Bridge fills in the town New York/);
-  assert.deepEqual(view.buttons.find(({ saves }) => saves).saves, { town: "New York", name: null });
+  assert.deepEqual(view.buttons.find(({ saves }) => saves).saves, { town: "New York", name: null, gender: null });
   assert.ok(view.notes.includes(ASTRO_SEEK_SAVE_NAMED_NOTE));
 
   const unnamed = viewForSky(NY, { timeZone: "America/Los_Angeles" });

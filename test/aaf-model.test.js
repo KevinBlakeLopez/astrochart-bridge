@@ -43,12 +43,29 @@ test("a chart from AAF opens like an astro.com chart, with its name and birthpla
   // Open chart in Astro-Seek keeps the town and name for its tab, for Save in Astro-Seek… there.
   assert.deepEqual(view.buttons, [
     ASTRO_SEEK_BUTTONS[0],
-    { ...ASTRO_SEEK_BUTTONS[1], keeps: { town: "New York", name: { first: "New York", last: "Test" } } },
-    { label: "Save in Astro-Seek…", saves: { town: "New York", name: "New York Test" }, secondary: true },
+    { ...ASTRO_SEEK_BUTTONS[1], keeps: { town: "New York", name: { first: "New York", last: "Test" }, gender: null } },
+    { label: "Save in Astro-Seek…", saves: { town: "New York", name: "New York Test", gender: null }, secondary: true },
   ]);
   assert.deepEqual(view.notes, [...plain.notes, ASTRO_SEEK_NOTES[0], ASTRO_SEEK_SAVE_NAMED_NOTE]);
   assert.deepEqual(view.warnings, []);
   assert.equal(view.download.filename, "chart-2024-04-17.aaf");
+});
+
+test("an AAF chart's sex field gives its gender: a Gender row, and both forms' gender", () => {
+  const female = viewForAafText(NY_TEXT.replace("#A93:Test,New York,*,", "#A93:Test,New York,f,"), LA).items[0].view;
+  assert.deepEqual(female.rows.slice(0, 2), [["Name", "New York Test"], ["Gender", "Female"]]);
+  assert.equal(female.next.view.buttons[0].holds.gender, "female");
+  assert.deepEqual(female.next.view.rows.at(-1), ["Gender", "female"]);
+  assert.equal(female.buttons.find(({ saves }) => saves).saves.gender, "female");
+  assert.equal(female.buttons.find(({ keeps }) => keeps).keeps.gender, "female");
+  const male = viewForAafText(NY_TEXT.replace("#A93:Test,New York,*,", "#A93:Test,New York,m,"), LA).items[0].view;
+  assert.deepEqual(male.rows[1], ["Gender", "Male"]);
+  // Unknown, as Astrolog writes it, or a letter AAF doesn't define, gives no gender.
+  for (const sex of ["*", "x"]) {
+    const view = viewForAafText(NY_TEXT.replace("#A93:Test,New York,*,", `#A93:Test,New York,${sex},`), LA).items[0].view;
+    assert.equal(view.rows.some(([label]) => label === "Gender"), false, sex);
+    assert.equal(view.next.view.buttons[0].holds.gender, null, sex);
+  }
 });
 
 test("an AAF chart's zone name is shown beside its local time", () => {

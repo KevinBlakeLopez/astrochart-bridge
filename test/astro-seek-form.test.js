@@ -1,7 +1,9 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
+  ASTRO_SEEK_GENDERS,
   astroSeekSaveUrl,
+  chooseGender,
   guardChartPlace,
   readCityList,
   savePlace,
@@ -48,6 +50,19 @@ function field(name, value = "") {
   return element;
 }
 
+// The Add person form's Gender, c_pohlavi, as seen signed in on 2026-11-01:
+// Male 1, where it starts, Female 2, Nonbinary 3, Event 4, Davison rel. chart
+// 5 and Horary question 6. A select keeps a value only when an option has it.
+function genderSelect(value) {
+  const element = field("c_pohlavi");
+  let current = value;
+  Object.defineProperty(element, "value", {
+    get: () => current,
+    set: (next) => (current = ["1", "2", "3", "4", "5", "6"].includes(next) ? next : ""),
+  });
+  return element;
+}
+
 // Timers the test advances by hand.
 function fakeTimers() {
   const intervals = new Map();
@@ -66,10 +81,11 @@ function fakeTimers() {
 // The parts of the save page these functions use: the Add person form with
 // the fields they touch, the list jQuery UI would add for Birth city, and the
 // elements AstroChart Bridge adds.
-function savePage({ city = "", place = savePlace(NY).values, missing = [], list = null, wrapper = true } = {}) {
+function savePage({ city = "", place = savePlace(NY).values, missing = [], list = null, wrapper = true, gender = "1" } = {}) {
   const page = { inserted: [], clicked: [], timers: fakeTimers() };
   const names = ["narozeni_city", ...Object.keys(place)].filter((name) => !missing.includes(name));
   const fields = names.map((name) => field(name, name === "narozeni_city" ? city : place[name]));
+  if (!missing.includes("c_pohlavi")) fields.push(genderSelect(gender));
   fields.forEach((element) => element.attach(page));
   const formListeners = [];
   const form = {
@@ -182,6 +198,43 @@ test("a pick is chosen in Astro-Seek's list, and the box says which, how far, an
   );
   assert.deepEqual(buttons(note).map((button) => button.textContent), ["Choose another"]);
   assert.equal(page.field("narozeni_city").focused, false);
+});
+
+test("a chart's gender is Astro-Seek's option of the same name; a horary chart is a Horary question", () => {
+  assert.deepEqual(ASTRO_SEEK_GENDERS, {
+    male: { value: "1", label: "Male" },
+    female: { value: "2", label: "Female" },
+    event: { value: "4", label: "Event" },
+    horary: { value: "6", label: "Horary question" },
+  });
+});
+
+test("Gender is set to the chart's while it's still at Male, and the page hears it", () => {
+  const page = savePage();
+  assert.deepEqual(runInPage(chooseGender, page, ASTRO_SEEK_GENDERS.female.value), { set: true });
+  assert.equal(page.field("c_pohlavi").value, "2");
+  assert.deepEqual(page.field("c_pohlavi").events, ["change"]);
+});
+
+test("a Gender the person changed, a value with no option, or no Gender field, is left as it is", () => {
+  const changed = savePage({ gender: "3" });
+  assert.deepEqual(runInPage(chooseGender, changed, "2"), { set: false });
+  assert.equal(changed.field("c_pohlavi").value, "3");
+  const unknown = savePage();
+  assert.deepEqual(runInPage(chooseGender, unknown, "9"), { set: false });
+  assert.equal(unknown.field("c_pohlavi").value, "1");
+  assert.deepEqual(unknown.field("c_pohlavi").events, []);
+  assert.deepEqual(runInPage(chooseGender, savePage({ missing: ["c_pohlavi"] }), "2"), { set: false });
+  assert.deepEqual(runInPage(chooseGender, savePage({ missing: ["form"] }), "2"), { set: false });
+});
+
+test("with the chart's Gender set, the box says so instead of that Astro-Seek starts at Male", () => {
+  const page = savePage({ city: "New York", list: { labels: [NY_CITY] } });
+  runInPage(showCityChoice, page, PICK, "New York", 25, "Female");
+  assert.match(message(page.note("astrochart-bridge-city")), /coordinates\. Gender is Female, from the chart\. Check it, then press Add person\.$/);
+  const noTown = savePage();
+  runInPage(showCityChoice, noTown, { kind: "no-town" }, null, 25, "Horary question");
+  assert.match(message(noTown.note("astrochart-bridge-city")), /stay as they are\. Gender is Horary question, from the chart\./);
 });
 
 test("a list with no .ui-menu-item-wrapper takes the click on its match itself", () => {

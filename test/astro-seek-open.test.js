@@ -5,6 +5,7 @@ import { ASTRO_SEEK_ACCESS, chooseFormCity, openAndSave } from "../extension/ast
 import {
   astroSeekSaveUrl,
   chooseCity,
+  chooseGender,
   guardChartPlace,
   readCityList,
   readSavePage,
@@ -49,7 +50,7 @@ function fakeTabs() {
 
 // A stand-in for chrome.scripting that answers for the save page's functions:
 // lists answers readCityList in turn, its last answer once the rest are used.
-function fakeScripting({ page = { auth: "signed-in", form: "city-empty" }, guard = { guarding: true }, typed = { typed: true }, lists = [LISTED], fail = null } = {}) {
+function fakeScripting({ page = { auth: "signed-in", form: "city-empty" }, guard = { guarding: true }, typed = { typed: true }, lists = [LISTED], gendered = { set: true }, fail = null } = {}) {
   const calls = [];
   return {
     calls,
@@ -58,6 +59,7 @@ function fakeScripting({ page = { auth: "signed-in", form: "city-empty" }, guard
       if (func.name === fail) throw new Error("Cannot access contents of the page.");
       if (func === readSavePage) return [{ result: page }];
       if (func === guardChartPlace) return [{ result: guard }];
+      if (func === chooseGender) return [{ result: gendered }];
       if (func === typeCity) return [{ result: typed }];
       if (func === readCityList) return [{ result: lists.length > 1 ? lists.shift() : lists[0] }];
       if (func === showCityChoice) return [{ result: { shown: true } }];
@@ -99,7 +101,8 @@ test("signed in, the chart's place is guarded before the town is typed, and the 
   const args = Object.fromEntries(scripting.calls.map(({ func, args }) => [func, args]));
   assert.deepEqual(args.guardChartPlace, [savePlace(VALUES)]);
   assert.deepEqual(args.typeCity, ["New York"]);
-  assert.deepEqual(args.showCityChoice, [chooseCity(LABELS, VALUES), "New York", TOWN_LIMIT_KM]);
+  // A chart with no gender leaves Gender where Astro-Seek starts it, and the box says so.
+  assert.deepEqual(args.showCityChoice, [chooseCity(LABELS, VALUES), "New York", TOWN_LIMIT_KM, null]);
   assert.equal(args.showCityChoice[0].kind, "pick");
 });
 
@@ -113,7 +116,27 @@ test("a chart with no town is guarded, and its box asks for a town", async () =>
   const scripting = fakeScripting();
   assert.equal((await openThenLoad(browserWith(scripting), { values: { ...VALUES, town: null } })).outcome, "filled");
   assert.deepEqual(funcs(scripting), ["readSavePage", "guardChartPlace", "showCityChoice"]);
-  assert.deepEqual(scripting.calls.at(-1).args, [{ kind: "no-town" }, null, TOWN_LIMIT_KM]);
+  assert.deepEqual(scripting.calls.at(-1).args, [{ kind: "no-town" }, null, TOWN_LIMIT_KM, null]);
+});
+
+test("a chart's gender sets Gender before the town is typed, and the box names it", async () => {
+  const scripting = fakeScripting();
+  assert.equal((await openThenLoad(browserWith(scripting), { values: { ...VALUES, gender: "female" } })).outcome, "filled");
+  assert.deepEqual(funcs(scripting), ["readSavePage", "guardChartPlace", "chooseGender", "typeCity", "readCityList", "showCityChoice"]);
+  const args = Object.fromEntries(scripting.calls.map(({ func, args }) => [func, args]));
+  assert.deepEqual(args.chooseGender, ["2"]);
+  assert.equal(args.showCityChoice[3], "Female");
+  // A horary chart is Astro-Seek's Horary question, even with no town.
+  const horary = fakeScripting();
+  await openThenLoad(browserWith(horary), { values: { ...VALUES, town: null, gender: "horary" } });
+  assert.deepEqual(horary.calls.find(({ func }) => func === "chooseGender").args, ["6"]);
+  assert.equal(horary.calls.at(-1).args[3], "Horary question");
+});
+
+test("a Gender the page wouldn't set leaves the box reminding the person that Astro-Seek starts at Male", async () => {
+  const scripting = fakeScripting({ gendered: { set: false } });
+  assert.equal((await openThenLoad(browserWith(scripting), { values: { ...VALUES, gender: "female" } })).outcome, "filled");
+  assert.equal(scripting.calls.at(-1).args[3], null);
 });
 
 test("signed out, nothing is filled in and the tab is left for the person", async () => {

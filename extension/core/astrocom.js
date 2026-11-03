@@ -430,13 +430,16 @@ export function zoneCheck({ utc, local = null }) {
  * and its town and name, by field name. The time and zone are formTime's. The
  * seconds are left out: the form takes whole minutes. The town, when there is
  * one, goes in the birth town field, scit, and the name, when there is one,
- * in the first and last name fields, sfnm and snam.
+ * in the first and last name fields, sfnm and snam. A gender, when the chart
+ * gives one, is ssx's: astro.com's form offers female, male and event/other,
+ * and a horary chart is an event.
  *
- * @param {{ utc: string | null, local?: string | null, town?: string | null, name?: { first: string, last: string } | null }} values
+ * @param {{ utc: string | null, local?: string | null, town?: string | null, name?: { first: string, last: string } | null,
+ *   gender?: "female" | "male" | "event" | "horary" | null }} values
  * @returns {{ sday: string, imon: string, syar: string, ihou: string, smin: string, szon: "au" | "h0w",
- *   scit?: string, sfnm?: string, snam?: string }}
+ *   scit?: string, sfnm?: string, snam?: string, ssx?: "f" | "m" | "e" }}
  */
-export function formValues({ utc, local = null, town = null, name = null }) {
+export function formValues({ utc, local = null, town = null, name = null, gender = null }) {
   const { time, szon } = formTime({ utc, local });
   const [year, month, day] = time.slice(0, 10).split("-");
   return {
@@ -448,8 +451,13 @@ export function formValues({ utc, local = null, town = null, name = null }) {
     szon,
     ...(town === null ? {} : { scit: town }),
     ...(name === null ? {} : { sfnm: name.first, snam: name.last }),
+    ...(GENDERS[gender] ? { ssx: GENDERS[gender] } : {}),
   };
 }
+
+// ade.cgi's gender radio buttons, ssx, by the chart's gender, as seen signed
+// in on 2026-11-02: female f, male m and event/other e, none chosen in a blank form.
+const GENDERS = { female: "f", male: "m", event: "e", horary: "e" };
 
 // readFormPage and fillForm run in the form's tab. The browser sends the tab
 // only each function's source, so neither can use anything else in this
@@ -480,8 +488,9 @@ export function readFormPage() {
  * would: the extended settings are opened so the time zone shows, each change
  * is announced to the page's own scripts, and the town field is focused for
  * the person to type in or pick astro.com's match. A town or name already
- * typed is kept. Never submits. Fills in nothing unless the form is still
- * blank and every value is one the form accepts.
+ * typed is kept, and so is a gender already chosen: the gender is a radio
+ * button, clicked as a person would. Never submits. Fills in nothing unless
+ * the form is still blank and every value is one the form accepts.
  *
  * @param {ReturnType<typeof formValues>} values
  * @returns {{ filled: true } | { filled: false, form: "typed" | "unrecognised" }}
@@ -492,8 +501,13 @@ export function fillForm(values) {
   if (![...Object.keys(values), "extset", "scit"].every(field)) return { filled: false, form: "unrecognised" };
   // What the person typed in these is theirs: only empty ones are filled in.
   const kept = ["scit", "sfnm", "snam"];
-  const names = Object.keys(values).filter((name) => !kept.includes(name) || field(name).value === "");
+  const names = Object.keys(values).filter((name) => name !== "ssx" && (!kept.includes(name) || field(name).value === ""));
   if (["sday", "syar", "smin", "ihou"].some((name) => field(name).value !== "")) return { filled: false, form: "typed" };
+  // ssx is a group of radio buttons, which namedItem gives as a list. One the
+  // person chose is theirs.
+  const radios = values.ssx === undefined ? [] : [...field("ssx")];
+  const gender = radios.find((radio) => radio.value === values.ssx) ?? null;
+  if (values.ssx !== undefined && !gender) return { filled: false, form: "unrecognised" };
 
   // A select ignores a value none of its options has, so each is tried and put
   // back before anything is changed.
@@ -515,6 +529,8 @@ export function fillForm(values) {
     element.dispatchEvent(new Event("input", { bubbles: true }));
     element.dispatchEvent(new Event("change", { bubbles: true }));
   }
+  // A click checks it and tells the page, which warns about event charts.
+  if (gender && !radios.some((radio) => radio.checked)) gender.click();
   field("scit").focus();
   return { filled: true };
 }

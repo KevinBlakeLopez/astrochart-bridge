@@ -63,7 +63,7 @@ test("a screenshot's name and place show as rows and go to both forms", () => {
   assert.deepEqual(view.rows.slice(-2), [["Place", "40°38'N, 73°56'W"], ["Town", "Brooklyn, New York"]]);
   assert.deepEqual(view.next.view, viewForAstroCom(view.sky, { local: "1942-04-24T05:04:00", name, town: "Brooklyn, New York" }));
   const save = view.buttons.find(({ saves }) => saves);
-  assert.deepEqual(save.saves, { town: "Brooklyn, New York", name: "Barbra Streisand" });
+  assert.deepEqual(save.saves, { town: "Brooklyn, New York", name: "Barbra Streisand", gender: null });
 });
 
 test("pasted program text gives its name and town to the paste page, not its coordinates", () => {

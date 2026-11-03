@@ -14,9 +14,9 @@ import {
 import { HOLD_MINUTES, heldForTab, holdForTab, releaseTab } from "../extension/pending.js";
 import { viewForAstroComTab } from "../extension/popup-model.js";
 
-// What the astro.com screens keep for a tab: the sky, and a local time, town and name or null.
-const NY_SKY = { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74, local: null, town: null, name: null };
-const SYDNEY_SKY = { utc: "2024-01-14T21:00:00Z", lat: -33.866667, lng: 151.2, local: null, town: "Sydney", name: null };
+// What the astro.com screens keep for a tab: the sky, and a local time, town, name and gender or null.
+const NY_SKY = { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74, local: null, town: null, name: null, gender: null };
+const SYDNEY_SKY = { utc: "2024-01-14T21:00:00Z", lat: -33.866667, lng: 151.2, local: null, town: "Sydney", name: null, gender: null };
 const NAMED_SKY = { ...NY_SKY, name: { first: "Example", last: "Person" } };
 const FORM_URL = "https://www.astro.com/cgi/ade.cgi";
 const SIGN_IN_URL = "https://www.astro.com/cgi/awd.cgi?lang=e";
@@ -99,6 +99,16 @@ test("a name goes in the first and last name fields, sfnm and snam", () => {
   assert.equal("snam" in formValues(NY_SKY), false);
 });
 
+test("a gender goes in ssx, the form's female, male and event/other buttons; a horary chart is an event", () => {
+  // Seen signed in on 2026-11-02: f, m and e, none chosen in a blank form.
+  assert.equal(formValues({ ...NY_SKY, gender: "female" }).ssx, "f");
+  assert.equal(formValues({ ...NY_SKY, gender: "male" }).ssx, "m");
+  assert.equal(formValues({ ...NY_SKY, gender: "event" }).ssx, "e");
+  assert.equal(formValues({ ...NY_SKY, gender: "horary" }).ssx, "e");
+  assert.equal("ssx" in formValues(NY_SKY), false);
+  assert.equal("ssx" in formValues({ ...NY_SKY, gender: "unknown" }), false);
+});
+
 // --- Values kept for the astro.com tab -------------------------------------
 
 // A chart pasted with no offset: its local time, and no UTC.
@@ -158,6 +168,16 @@ test("a name with both parts empty, or not two strings, comes back as no name", 
   for (const name of [{ first: "", last: "" }, { first: "Example" }, "Example Person", { first: 1, last: "Person" }]) {
     await holdForTab(storage, 7, { ...NY_SKY, name }, T0);
     assert.deepEqual(await heldForTab(storage, 7, T0), NY_SKY, JSON.stringify(name));
+  }
+});
+
+test("a gender is kept, and anything but a gender a chart can give comes back as none", async () => {
+  const storage = fakeStorage();
+  await holdForTab(storage, 7, { ...NY_SKY, gender: "female" }, T0);
+  assert.deepEqual(await heldForTab(storage, 7, T0), { ...NY_SKY, gender: "female" });
+  for (const gender of ["f", "Female", 1, {}]) {
+    await holdForTab(storage, 7, { ...NY_SKY, gender }, T0);
+    assert.equal((await heldForTab(storage, 7, T0)).gender, null, JSON.stringify(gender));
   }
 });
 
@@ -260,10 +280,22 @@ function formPage({ hello = ["Hello [not logged in]"], cid = "", typed = {}, mis
     field("extset", "close"),
     field("szon", "au", options.szon),
   ].filter((element) => !missing.includes(element.name));
-  const form = { elements: { namedItem: (name) => fields.find((element) => element.name === name) ?? null } };
+  // The gender radio buttons, seen signed in on 2026-11-02 with none checked.
+  // namedItem gives a group of radio buttons as a list, as a browser does,
+  // and a click checks one and unchecks the rest.
+  const radios = missing.includes("ssx") ? [] : ["f", "m", "e"].map((value) => ({ name: "ssx", value, checked: typed.ssx === value, clicks: 0 }));
+  for (const radio of radios) {
+    radio.click = () => {
+      for (const other of radios) other.checked = other === radio;
+      radio.clicks += 1;
+    };
+  }
+  const named = (name) => (name === "ssx" ? (radios.length ? radios : null) : fields.find((element) => element.name === name) ?? null);
+  const form = { elements: { namedItem: named } };
   const extended = { style: { display: "none" } };
   return {
     field: (name) => fields.find((element) => element.name === name),
+    radios,
     extended,
     forms: { namedItem: (name) => (name === "start" && !missing.includes("form") ? form : null) },
     querySelectorAll: (selector) => (selector === "li.hello" ? hello.map((text) => ({ textContent: ` ${text} ` })) : []),
@@ -354,6 +386,32 @@ test("a form without the name fields is unrecognised when there is a name, and f
     assert.equal(page.field("sday").value, "");
     assert.deepEqual(runInPage(fillForm, formPage({ ...SIGNED_IN, missing }), formValues(NY_SKY)), { filled: true });
   }
+});
+
+test("a gender is clicked in the form's gender buttons, as a person would", () => {
+  const page = formPage(SIGNED_IN);
+  assert.deepEqual(runInPage(fillForm, page, formValues({ ...NAMED_SKY, gender: "female" })), { filled: true });
+  assert.deepEqual(page.radios.map(({ value, checked, clicks }) => [value, checked, clicks]), [["f", true, 1], ["m", false, 0], ["e", false, 0]]);
+  assert.equal(page.field("sday").value, "17");
+});
+
+test("a gender already chosen is kept, and a chart without one leaves the buttons alone", () => {
+  const chosen = formPage({ ...SIGNED_IN, typed: { ssx: "m" } });
+  assert.deepEqual(runInPage(fillForm, chosen, formValues({ ...NY_SKY, gender: "female" })), { filled: true });
+  assert.deepEqual(chosen.radios.map(({ checked, clicks }) => [checked, clicks]), [[false, 0], [true, 0], [false, 0]]);
+  const none = formPage(SIGNED_IN);
+  assert.deepEqual(runInPage(fillForm, none, formValues(NY_SKY)), { filled: true });
+  assert.equal(none.radios.some(({ checked, clicks }) => checked || clicks), false);
+});
+
+test("a form without the gender buttons, or without the chart's, is unrecognised when there is a gender", () => {
+  const missing = formPage({ ...SIGNED_IN, missing: ["ssx"] });
+  assert.deepEqual(runInPage(fillForm, missing, formValues({ ...NY_SKY, gender: "male" })), { filled: false, form: "unrecognised" });
+  assert.equal(missing.field("sday").value, "");
+  assert.deepEqual(runInPage(fillForm, formPage({ ...SIGNED_IN, missing: ["ssx"] }), formValues(NY_SKY)), { filled: true });
+  const other = formPage(SIGNED_IN);
+  assert.deepEqual(runInPage(fillForm, other, { ...formValues(NY_SKY), ssx: "x" }), { filled: false, form: "unrecognised" });
+  assert.equal(other.field("sday").value, "");
 });
 
 test("a signed-in browser's blank form is filled in, and its cid is left alone", () => {

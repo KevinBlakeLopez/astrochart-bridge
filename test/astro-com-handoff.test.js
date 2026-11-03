@@ -13,7 +13,7 @@ const LA = { timeZone: "America/Los_Angeles" };
 const NY_SKY = { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 };
 // What each astro.com button keeps for the tab it opens: the sky and, when the
 // chart names one, the town to fill in.
-const NY_HELD = { ...NY_SKY, local: null, town: null, name: null };
+const NY_HELD = { ...NY_SKY, local: null, town: null, name: null, gender: null };
 
 // AstroChart Bridge can't tell from this tab whether the browser is signed in to
 // astro.com, so the sign-in advice is a note beside the form button, never a
@@ -133,7 +133,7 @@ test("a chart that names its town shows it, says it will be filled in, and keeps
     view.notes[1],
     "astro.com asks for a country and town, not coordinates. AstroChart Bridge fills in the town New York; choose the match nearest this place and check the coordinates astro.com shows.",
   );
-  assert.deepEqual(view.buttons.map((button) => button.holds), Array(3).fill({ ...NY_SKY, local: null, town: "New York", name: null }));
+  assert.deepEqual(view.buttons.map((button) => button.holds), Array(3).fill({ ...NY_SKY, local: null, town: "New York", name: null, gender: null }));
   assert.equal(viewForAstroCom(NY_SKY).rows.length, 4);
 });
 

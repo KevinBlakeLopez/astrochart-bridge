@@ -30,7 +30,7 @@ test("Save in Astro-Seek… comes right after Open chart in Astro-Seek, with its
     view.buttons.map(({ label }) => label),
     ["Open Stellarium Web", "Open chart in Astro-Seek", "Save in Astro-Seek…", "Share…"],
   );
-  assert.deepEqual(view.buttons[2], { label: "Save in Astro-Seek…", saves: { town: null, name: null }, secondary: true });
+  assert.deepEqual(view.buttons[2], { label: "Save in Astro-Seek…", saves: { town: null, name: null, gender: null }, secondary: true });
   assert.deepEqual(view.notes, ["a note", ASTRO_SEEK_SAVE_NOTE]);
   assert.equal(ASTRO_SEEK_SAVE_NOTE, "Opening or saving sends this date, time and place to astro-seek.com.");
 });
@@ -44,10 +44,10 @@ test("its note takes the place of Open chart in Astro-Seek's, keeping a popup sc
 
 test("the chart's town goes in as it is, and its name in one piece, as Astro-Seek's single Name field takes it", () => {
   const saves = (name) => withAstroSeekSave(SCREEN, { town: "New York", name }).buttons[2].saves;
-  assert.deepEqual(saves({ first: "Example", last: "Person" }), { town: "New York", name: "Example Person" });
-  assert.deepEqual(saves({ first: " Example ", last: "" }), { town: "New York", name: "Example" });
-  assert.deepEqual(saves({ first: "", last: "" }), { town: "New York", name: null });
-  assert.deepEqual(saves(null), { town: "New York", name: null });
+  assert.deepEqual(saves({ first: "Example", last: "Person" }), { town: "New York", name: "Example Person", gender: null });
+  assert.deepEqual(saves({ first: " Example ", last: "" }), { town: "New York", name: "Example", gender: null });
+  assert.deepEqual(saves({ first: "", last: "" }), { town: "New York", name: null, gender: null });
+  assert.deepEqual(saves(null), { town: "New York", name: null, gender: null });
 });
 
 test("a chart with a name or a town has the note say saving sends them too", () => {
@@ -84,10 +84,10 @@ test("an astro.com chart is saved with the name and town its record gives", () =
     town: "New York",
   };
   const view = viewFor(result, { timeZone: "America/Los_Angeles" });
-  assert.deepEqual(view.buttons.find(({ saves }) => saves).saves, { town: "New York", name: "Test" });
+  assert.deepEqual(view.buttons.find(({ saves }) => saves).saves, { town: "New York", name: "Test", gender: null });
   assert.equal(view.notes.at(-1), ASTRO_SEEK_SAVE_NAMED_NOTE);
   const unnamed = viewFor({ ...result, name: null, town: null }, { timeZone: "America/Los_Angeles" });
-  assert.deepEqual(unnamed.buttons.find(({ saves }) => saves).saves, { town: null, name: null });
+  assert.deepEqual(unnamed.buttons.find(({ saves }) => saves).saves, { town: null, name: null, gender: null });
   assert.equal(unnamed.notes.at(-1), ASTRO_SEEK_SAVE_NOTE);
 });
 
@@ -104,22 +104,22 @@ test("while the form opens, the popup says so and offers nothing to click", () =
 });
 
 test("declined, the form opens filled in by its address alone, with what to check", () => {
-  const view = viewForAstroSeekSave({ outcome: "declined" }, NY, { town: "New York", name: "Example Person" });
+  const view = viewForAstroSeekSave({ outcome: "declined" }, NY, { town: "New York", name: "Example Person", gender: null });
   assert.equal(view.message, "AstroChart Bridge can't choose the town in Astro-Seek's form without access to www.astro-seek.com.");
   assert.deepEqual(view.buttons, [{ label: "Open Astro-Seek's form", url: astroSeekSaveUrl(NY, { name: "Example Person" }) }]);
   assert.deepEqual(view.notes, [
     "The form opens with this date, time and place in UT/GMT, and the name. Before Add person, choose the Birth city in Astro-Seek's list if it isn't, then check that the coordinates and UT/GMT are still the chart's.",
   ]);
   assert.equal(view.sky, NY);
-  assert.doesNotMatch(viewForAstroSeekSave({ outcome: "declined" }, NY, { town: null, name: null }).notes[0], /and the name/);
+  assert.doesNotMatch(viewForAstroSeekSave({ outcome: "declined" }, NY, { town: null, name: null, gender: null }).notes[0], /and the name/);
 });
 
 test("signed out, or sent elsewhere, the popup asks for a sign-in and leads to the tab", () => {
-  const signedOut = viewForAstroSeekSave({ outcome: "signed-out", tabId: 70 }, NY, { town: null, name: null });
+  const signedOut = viewForAstroSeekSave({ outcome: "signed-out", tabId: 70 }, NY, { town: null, name: null, gender: null });
   assert.equal(signedOut.message, "Astro-Seek shows you signed out, and saves a chart only in an account. Sign in in its tab, then click Save in Astro-Seek… again.");
   assert.deepEqual(signedOut.notes, []);
   assert.deepEqual(signedOut.buttons, [{ label: "Go to the Astro-Seek tab", does: "show-tab" }]);
-  const elsewhere = viewForAstroSeekSave({ outcome: "not-filled", tabId: 70, page: "elsewhere" }, NY, { town: null, name: null });
+  const elsewhere = viewForAstroSeekSave({ outcome: "not-filled", tabId: 70, page: "elsewhere" }, NY, { town: null, name: null, gender: null });
   assert.match(elsewhere.message, /^Astro-Seek didn't show its Add person form\. If it asks you to sign in/);
 });
 
@@ -129,7 +129,7 @@ test("a form it couldn't finish says why, and what to check before Add person", 
     ["city-typed", "Astro-Seek's form already had a Birth city, so AstroChart Bridge left it as it was."],
     ["unrecognised", "AstroChart Bridge didn't recognise Astro-Seek's form, so it didn't choose its town."],
   ]) {
-    const view = viewForAstroSeekSave({ outcome: "not-filled", tabId: 70, page }, NY, { town: "New York", name: null });
+    const view = viewForAstroSeekSave({ outcome: "not-filled", tabId: 70, page }, NY, { town: "New York", name: null, gender: null });
     assert.equal(view.message, message, page);
     assert.match(view.notes[0], /^Before Add person, choose the Birth city/, page);
     assert.deepEqual(view.buttons, [{ label: "Go to the Astro-Seek tab", does: "show-tab" }], page);
@@ -150,17 +150,17 @@ globalThis.document = {
 
 test("clicking it hands the popup its town and name, with the sky the screen decided", async () => {
   const { render } = await import("../extension/view.js");
-  const view = withAstroSeekSave({ ...SCREEN, state: "ready", sky: NY }, { town: "New York", name: { first: "Example", last: "Person" } });
+  const view = withAstroSeekSave({ ...SCREEN, state: "ready", sky: NY }, { town: "New York", name: { first: "Example", last: "Person" }, gender: null });
   const container = { replaceChildren: (...parts) => (container.parts = parts) };
   const clicks = [];
   render(container, view, (button, sky) => clicks.push([button, sky]));
   const save = container.parts.find(({ tag, textContent }) => tag === "button" && textContent === "Save in Astro-Seek…");
   assert.equal(save.className, "secondary");
   save.click();
-  assert.deepEqual(clicks, [[{ saves: { town: "New York", name: "Example Person" }, url: undefined }, NY]]);
+  assert.deepEqual(clicks, [[{ saves: { town: "New York", name: "Example Person", gender: null }, url: undefined }, NY]]);
 
   // Open chart in Astro-Seek hands over what to keep for its tab, with the same sky.
   const open = container.parts.find(({ tag, textContent }) => tag === "button" && textContent === "Open chart in Astro-Seek");
   open.click();
-  assert.deepEqual(clicks[1], [{ keeps: { town: "New York", name: { first: "Example", last: "Person" } }, url: astroSeekUrl(NY) }, NY]);
+  assert.deepEqual(clicks[1], [{ keeps: { town: "New York", name: { first: "Example", last: "Person" }, gender: null }, url: astroSeekUrl(NY) }, NY]);
 });

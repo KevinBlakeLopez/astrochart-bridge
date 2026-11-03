@@ -95,13 +95,14 @@ const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "
  *
  * @param {ReturnType<typeof import("./core/index.js").analyzePage>} result
  * @param {{ timeZone?: string, town?: string | null, name?: { first: string, last: string } | null,
- *   kept?: { town: string | null, name: { first: string, last: string } | null } | null }} [options]
+ *   kept?: { town: string | null, name: { first: string, last: string } | null, gender?: string | null } | null }} [options]
  *   timeZone is the computer's time zone; when left out, Intl uses the one
  *   this code runs in, which the popup shares with the Stellarium tab. Tests
  *   pass it so they give the same result anywhere. town and name are the ones
- *   the chart's page names, for astro.com's form. kept is the town and name
- *   Open chart in Astro-Seek kept for an Astro-Seek tab whose page still shows
- *   its chart, used where the page names none.
+ *   the chart's page names, for astro.com's form. kept is the town, name and
+ *   gender Open chart in Astro-Seek kept for an Astro-Seek tab whose page
+ *   still shows its chart, used where the page names none. The page never
+ *   gives a gender.
  */
 export function viewFor(result, { timeZone, town = null, name = null, kept = null } = {}) {
   if (result.kind === "refused") {
@@ -172,7 +173,7 @@ export function viewFor(result, { timeZone, town = null, name = null, kept = nul
   // link, in its own time zone. No note: the chart is already on astro-seek.com.
   // The page's own town and name, or else those kept for the tab, go to
   // Astro-Seek's form and astro.com's alike.
-  const chart = { town: town ?? kept?.town ?? null, name: name ?? kept?.name ?? null };
+  const chart = { town: town ?? kept?.town ?? null, name: name ?? kept?.name ?? null, gender: kept?.gender ?? null };
   const buttons = town === null ? chartButtons([OPEN_SKY_BUTTON, astroSeekSaveButton(chart)]) : ready.buttons;
   return { ...ready, buttons, next: astroComStep(ready.sky, { ...chart, local }) };
 }
@@ -231,18 +232,22 @@ const ASTRO_SEEK_OPEN_NOTE = ASTRO_SEEK_NOTES[1];
  * Open chart in Astro-Seek, it waits for the screen to decide the sky. A
  * screen built on one that has them, such as a screenshot of an astro.com
  * chart on the popup's astro.com screen, isn't given them twice. A chart
- * with a town or name has Open chart in Astro-Seek keep them for the tab it
- * opens (pending.js's astroSeekTabs), for Save in Astro-Seek… in the popup
- * on that tab: someone may look at the chart first and save it after.
+ * with a town, name or gender has Open chart in Astro-Seek keep them for the
+ * tab it opens (pending.js's astroSeekTabs), for Save in Astro-Seek… in the
+ * popup on that tab: someone may look at the chart first and save it after.
  *
  * @param {object} view  with a button that opens "astro-seek"
- * @param {{ town?: string | null, name?: { first: string, last: string } | null }} [chart]
- *   the chart's town and name, for the form's Birth city and Name
+ * @param {{ town?: string | null, name?: { first: string, last: string } | null,
+ *   gender?: "female" | "male" | "event" | "horary" | null }} [chart]
+ *   the chart's town, name and gender, for the form's Birth city, Name and Gender
  */
 export function withAstroSeekSave(view, chart = {}) {
   const button = astroSeekSaveButton(chart);
   const { saves } = button;
-  const keeps = saves.town === null && saves.name === null ? null : { town: saves.town, name: chart.name ?? null };
+  const keeps =
+    saves.town === null && saves.name === null && saves.gender === null
+      ? null
+      : { town: saves.town, name: chart.name ?? null, gender: saves.gender };
   const opener = (each) => (keeps && each.opens === "astro-seek" ? { ...each, keeps } : each);
   const at = view.buttons.findIndex(({ opens }) => opens === "astro-seek") + 1;
   const note = saves.town === null && saves.name === null ? ASTRO_SEEK_SAVE_NOTE : ASTRO_SEEK_SAVE_NAMED_NOTE;
@@ -259,10 +264,10 @@ export function withAstroSeekSave(view, chart = {}) {
   };
 }
 
-// Save in Astro-Seek… for a chart's town and name, which popup.js and
+// Save in Astro-Seek… for a chart's town, name and gender, which popup.js and
 // astro-com-page.js pass to astro-seek-open.js with the sky the screen decided.
-function astroSeekSaveButton({ town = null, name = null } = {}) {
-  return { label: ASTRO_SEEK_SAVE_LABEL, saves: { town, name: nickFor(name) }, secondary: true };
+function astroSeekSaveButton({ town = null, name = null, gender = null } = {}) {
+  return { label: ASTRO_SEEK_SAVE_LABEL, saves: { town, name: nickFor(name), gender }, secondary: true };
 }
 
 // Astro-Seek's form has one Name field, so a name's two parts go in it as one.
@@ -547,6 +552,19 @@ const NAME_NOTE =
 export { nameFromText };
 
 /**
+ * A chart screen's Gender row, for a chart whose file gives one, so it shows
+ * before astro.com's or Astro-Seek's form opens with it. A horary chart has
+ * none: its Chart type row says so.
+ *
+ * @param {"female" | "male" | "event" | "horary" | null} gender
+ * @returns {[string, string][]}
+ */
+export function genderRows(gender) {
+  const label = { female: "Female", male: "Male", event: "Event" }[gender];
+  return label ? [["Gender", label]] : [];
+}
+
+/**
  * The name the boxes on the astro.com screen give, in place of the one the
  * buttons kept: each part trimmed, and no name when both are empty.
  *
@@ -603,15 +621,16 @@ export function viewForAstroComByHand({ utc, lat, lng }, { local = null } = {}) 
  * place, in the form's own terms, and links to the form and to signing in.
  *
  * @param {{ utc: string | null, lat: number, lng: number }} sky
- * @param {{ local?: string | null, town?: string | null, name?: { first: string, last: string } | null }} [chart]
- *   the local time, town and name the chart gives, filled in with the rest. A
- *   sky with no local time, such as Stellarium's, goes in as Universal Time.
+ * @param {{ local?: string | null, town?: string | null, name?: { first: string, last: string } | null,
+ *   gender?: "female" | "male" | "event" | "horary" | null }} [chart]
+ *   the local time, town, name and gender the chart gives, filled in with the
+ *   rest. A sky with no local time, such as Stellarium's, goes in as Universal Time.
  *   One with no UTC, pasted with no offset, has a local time for astro.com's
  *   automatic time zone.
  */
-export function viewForAstroCom({ utc, lat, lng }, { local = null, town = null, name = null } = {}) {
+export function viewForAstroCom({ utc, lat, lng }, { local = null, town = null, name = null, gender = null } = {}) {
   const sky = { utc, lat, lng };
-  const held = { ...sky, local, town, name };
+  const held = { ...sky, local, town, name, gender };
   return {
     state: "to-astro-com",
     // The name is in its boxes, not the rows, so it shows once.
@@ -726,18 +745,23 @@ export function viewForAstroComTab(sky, page) {
 
 // What filling in sets: "the birthday, hour, minute, the 00:00 GMT / UT time zone and the town Sydney".
 // The automatic time zone is the form's default, so it isn't named.
-function filledText({ utc, local = null, town = null, name = null }) {
+function filledText({ utc, local = null, town = null, name = null, gender = null }) {
   const parts = ["the birthday", "hour", "minute"];
   if (formTime({ utc, local }).szon === "h0w") parts.push("the 00:00 GMT / UT time zone");
   if (name !== null) parts.push("the name");
+  if (ASTRO_COM_GENDERS[gender]) parts.push("the gender");
   if (town !== null) parts.push(`the town ${town}`);
   return `${parts.slice(0, -1).join(", ")} and ${parts.at(-1)}`;
 }
 
+// astro.com's words for its gender buttons, by the chart's gender: a horary
+// chart is an event there.
+const ASTRO_COM_GENDERS = { female: "female", male: "male", event: "event/other", horary: "event/other" };
+
 // The rows and warnings every astro.com screen shows: the form's values in its own terms.
 // An empty name part, such as the first name of an event, has no row. With the
 // automatic time zone, the Offset row is the chart's, to check astro.com's against.
-function astroComValues({ utc, lat, lng, local = null, town = null, name = null }) {
+function astroComValues({ utc, lat, lng, local = null, town = null, name = null, gender = null }) {
   const { time, szon } = formTime({ utc, local });
   const [year, month, day] = time.slice(0, 10).split("-");
   const seconds = Number(time.slice(17, 19));
@@ -752,6 +776,7 @@ function astroComValues({ utc, lat, lng, local = null, town = null, name = null 
       ...(town === null ? [] : [["Town", town]]),
       ...(name === null || name.first === "" ? [] : [["First name", name.first]]),
       ...(name === null || name.last === "" ? [] : [["Last name", name.last]]),
+      ...(ASTRO_COM_GENDERS[gender] ? [["Gender", ASTRO_COM_GENDERS[gender]]] : []),
     ],
     warnings: seconds === 0 ? [] : [`astro.com takes whole minutes, so the ${seconds} seconds are left out.`],
   };

@@ -22,7 +22,7 @@ import {
 } from "../extension/popup-model.js";
 
 const FORM_URL = "https://www.astro.com/cgi/ade.cgi";
-const VALUES = { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74, local: null, town: "New York", name: null };
+const VALUES = { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74, local: null, town: "New York", name: null, gender: null };
 
 // A stand-in for chrome.storage.session, as in test/astro-com-form.test.js.
 function fakeStorage() {

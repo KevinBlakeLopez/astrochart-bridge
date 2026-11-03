@@ -33,8 +33,8 @@ test("a Morinus chart opens like an AAF chart, with its name, birthplace and the
   assert.deepEqual(view.sky, { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 });
   assert.deepEqual(view.buttons, [
     ASTRO_SEEK_BUTTONS[0],
-    { ...ASTRO_SEEK_BUTTONS[1], keeps: { town: "New York", name: { first: "Test", last: "" } } },
-    { label: "Save in Astro-Seek…", saves: { town: "New York", name: "Test" }, secondary: true },
+    { ...ASTRO_SEEK_BUTTONS[1], keeps: { town: "New York", name: { first: "Test", last: "" }, gender: null } },
+    { label: "Save in Astro-Seek…", saves: { town: "New York", name: "Test", gender: null }, secondary: true },
   ]);
   assert.deepEqual(view.notes, [...plain.notes, ZONE_NOTE, ASTRO_SEEK_NOTES[0], ASTRO_SEEK_SAVE_NAMED_NOTE]);
   assert.deepEqual(view.warnings, []);
@@ -81,6 +81,26 @@ test("a Morinus chart that can't open has no astro.com step", () => {
 test("a horary chart says what kind it is", () => {
   const { view } = viewOf("horary").items[0];
   assert.deepEqual(view.rows[1], ["Chart type", "Horary"]);
+});
+
+test("a horary chart is an event for astro.com and a Horary question for Astro-Seek, with no Gender row", () => {
+  const { view } = viewOf("horary").items[0];
+  assert.equal(view.rows.some(([label]) => label === "Gender"), false);
+  assert.equal(view.next.view.buttons[0].holds.gender, "horary");
+  assert.deepEqual(view.next.view.rows.at(-1), ["Gender", "event/other"]);
+  assert.equal(view.buttons.find(({ saves }) => saves).saves.gender, "horary");
+});
+
+test("a radix chart not ticked male is female in both forms; a ticked one gives no gender", () => {
+  const result = chartFromHor(parseHor(file("ny-est-plus-dst")));
+  const female = viewForHorChart({ ...result, morinus: { ...result.morinus, male: false } }, LA);
+  assert.deepEqual(female.rows.slice(0, 2), [["Name", "Test"], ["Gender", "Female"]]);
+  assert.equal(female.next.view.buttons[0].holds.gender, "female");
+  assert.equal(female.buttons.find(({ saves }) => saves).saves.gender, "female");
+  // Every fixture is ticked male, horary charts too, so a tick may never have been changed.
+  const ticked = viewForHorChart(result, LA);
+  assert.equal(ticked.rows.some(([label]) => label === "Gender"), false);
+  assert.equal(ticked.next.view.buttons[0].holds.gender, null);
 });
 
 test("each warning is worded for the screen", () => {

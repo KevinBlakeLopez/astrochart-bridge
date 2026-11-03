@@ -39,8 +39,8 @@ const T0 = Date.UTC(2026, 10, 2, 12);
 
 test("an Astro-Seek tab's town and name are kept until the browser quits, apart from astro.com's", async () => {
   const storage = fakeStorage();
-  await astroSeekTabs.hold(storage, 7, { ...SKY, town: "New York", name: NAME }, T0);
-  const kept = { ...SKY, local: null, town: "New York", name: NAME };
+  await astroSeekTabs.hold(storage, 7, { ...SKY, town: "New York", name: NAME, gender: null }, T0);
+  const kept = { ...SKY, local: null, town: "New York", name: NAME, gender: null };
   assert.deepEqual(await astroSeekTabs.held(storage, 7, T0 + 7 * DAY), kept);
   // Never an astro.com tab's, nor theirs an Astro-Seek tab's.
   assert.equal(await heldForTab(storage, 7, T0), null);
@@ -65,19 +65,31 @@ test("the same Astro-Seek chart is the same to the minute and to the minute of a
 test("Open chart in Astro-Seek keeps a town or name for its tab, and nothing for a chart with neither", () => {
   const screen = { notes: [], buttons: [{ label: "Open Stellarium Web", opens: "stellarium" }, { label: "Open chart in Astro-Seek", opens: "astro-seek" }] };
   const opener = (chart) => withAstroSeekSave(screen, chart).buttons[1];
-  assert.deepEqual(opener({ town: "New York", name: NAME }).keeps, { town: "New York", name: NAME });
-  assert.deepEqual(opener({ town: "New York" }).keeps, { town: "New York", name: null });
+  assert.deepEqual(opener({ town: "New York", name: NAME, gender: null }).keeps, { town: "New York", name: NAME, gender: null });
+  assert.deepEqual(opener({ town: "New York" }).keeps, { town: "New York", name: null, gender: null });
   assert.equal(opener({}).keeps, undefined);
   assert.equal(opener({ name: { first: " ", last: "" } }).keeps, undefined);
 });
 
 test("on the tab, Save in Astro-Seek… and Enter in astro.com… use the kept town and name", () => {
-  const kept = { town: "New York", name: NAME };
+  const kept = { town: "New York", name: NAME, gender: null };
   const view = viewFor(PAGE, { ...LA, kept });
-  assert.deepEqual(view.buttons[1], { label: "Save in Astro-Seek…", saves: { town: "New York", name: "Example Person" }, secondary: true });
-  assert.deepEqual(view.next.view, viewForAstroCom(view.sky, { local: PAGE.local, town: "New York", name: NAME }));
+  assert.deepEqual(view.buttons[1], { label: "Save in Astro-Seek…", saves: { town: "New York", name: "Example Person", gender: null }, secondary: true });
+  assert.deepEqual(view.next.view, viewForAstroCom(view.sky, { local: PAGE.local, town: "New York", name: NAME, gender: null }));
   // Kept for a tab or not, a chart Astro-Seek placed by its own town keeps Astro-Seek's own save link.
   assert.equal(viewFor(PAGE, { ...LA, town: "New York", kept }).buttons.some(({ saves }) => saves), false);
+});
+
+test("a chart's gender alone is kept for its tab, and reaches both forms there", async () => {
+  const screen = { notes: [], buttons: [{ label: "Open chart in Astro-Seek", opens: "astro-seek" }] };
+  assert.deepEqual(withAstroSeekSave(screen, { gender: "female" }).buttons[0].keeps, { town: null, name: null, gender: "female" });
+  const storage = fakeStorage();
+  await astroSeekTabs.hold(storage, 5, { ...SKY, local: null, gender: "female" }, T0);
+  const kept = await astroSeekTabs.held(storage, 5, T0 + DAY);
+  assert.equal(kept.gender, "female");
+  const view = viewFor(PAGE, { ...LA, kept });
+  assert.equal(view.buttons.find(({ saves }) => saves).saves.gender, "female");
+  assert.equal(view.next.view.buttons[0].holds.gender, "female");
 });
 
 test("a page opens Open chart in Astro-Seek through the browser, keeping the town and name for the tab", async (t) => {
@@ -93,7 +105,7 @@ test("a page opens Open chart in Astro-Seek through the browser, keeping the tow
   const { openLink } = await import("../extension/astro-com-page.js");
   const url = astroSeekUrl(SKY);
 
-  await openLink(null, { url, keeps: { town: "New York", name: NAME } }, SKY);
+  await openLink(null, { url, keeps: { town: "New York", name: NAME, gender: null } }, SKY);
   assert.deepEqual(created, [url]);
   const kept = await astroSeekTabs.held(storage, 41);
   assert.equal(sameAstroSeekChart(kept, PAGE), true);
