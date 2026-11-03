@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { analyzePage } from "../extension/core/index.js";
-import { BUSY, SETUP_STEPS, desktopHint, viewForDesktopImport, viewForDesktopSend, withDesktopSend } from "../extension/desktop-model.js";
+import { busy, desktopHint, setupSteps, viewForDesktopImport, viewForDesktopSend, withDesktopSend } from "../extension/desktop-model.js";
 import { astroSeekSaveNamedNote, viewFor, viewForAstroCom, viewForSky } from "../extension/popup-model.js";
 
 const fixture = (name) =>
@@ -132,7 +132,7 @@ test("unreachable: the requested message, every setup step, and Try again", () =
   assert.equal(view.state, "desktop-problem");
   assert.equal(view.heading, "Stellarium Desktop isn't reachable");
   assert.equal(view.message, "Stellarium Desktop could not be reached. Open Stellarium and enable its Remote Control plugin.");
-  assert.deepEqual(view.steps, SETUP_STEPS);
+  assert.deepEqual(view.steps, setupSteps());
   assert.deepEqual(view.buttons, [{ label: "Try again", does: "send-to-desktop" }]);
   assert.equal(view.sky, NY);
 });
@@ -141,7 +141,7 @@ test("unreachable: the requested message, every setup step, and Try again", () =
 // labels are "Server enabled", "Enable automatically on startup", "Port
 // Number", "Access requires authentication" and "Save settings".
 test("the setup steps name the plugin's own labels, in order", () => {
-  const text = SETUP_STEPS.join("\n");
+  const text = setupSteps().join("\n");
   const order = ["F2", "Plugins", "Remote Control", "Load at startup", "Quit Stellarium", "Configure", "Server enabled", "Enable automatically on startup", "8090", "Access requires authentication", "Save settings", "Try again"];
   let from = 0;
   for (const label of order) {
@@ -249,13 +249,13 @@ test("desktopHint: no line without a check", () => {
 });
 
 test("the busy screens have no buttons", () => {
-  for (const view of Object.values(BUSY)) assert.deepEqual(view.buttons, []);
+  for (const view of Object.values(busy())) assert.deepEqual(view.buttons, []);
 });
 
 test("import problems retry the import, and an out-of-range date reads as Stellarium's", () => {
   const view = viewForDesktopImport({ state: "unavailable" });
   assert.deepEqual(view.buttons, [{ label: "Try again", does: "import-from-desktop" }]);
-  assert.deepEqual(view.steps, SETUP_STEPS);
+  assert.deepEqual(view.steps, setupSteps());
   assert.equal(view.sky, null);
   assert.equal(
     viewForDesktopImport({ state: "refused", reason: "stellarium-date-out-of-range" }).message,

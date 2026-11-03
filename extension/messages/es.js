@@ -11,8 +11,21 @@ const MONTH_NAMES = [
   "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre",
 ];
 
-// "a las 05:00", but "a la 01:00", as one says la una.
-const at = (time) => (time.startsWith("01:") ? `a la ${time}` : `a las ${time}`);
+const NEWER = "Esta carta la creó una versión más reciente de AstroChart Bridge, que esta página no puede leer.";
+const NEWER_FILE = "Este archivo lo creó una versión más reciente de AstroChart Bridge, que esta página no puede leer.";
+const BEFORE_GREGORIAN = "La fecha de esta carta es anterior al 15 de octubre de 1582, y AstroChart Bridge todavía no puede abrirla.";
+const QR_TOO_LONG = "Este enlace es demasiado largo para un código QR que se lea bien.";
+
+// "a, b y c", with e before a word that starts with the sound i, as in "e hija".
+const and = (items) => {
+  if (items.length < 2) return items.join("");
+  const last = items.at(-1);
+  return `${items.slice(0, -1).join(", ")} ${/^h?i(?!e)/i.test(last) ? "e" : "y"} ${last}`;
+};
+
+// "las 05:00", but "la 01:00", as one says la una; "a las 05:00".
+const clock = (time) => (time.startsWith("01:") ? `la ${time}` : `las ${time}`);
+const at = (time) => `a ${clock(time)}`;
 
 const TOOLBAR_STEP = "vuelve a hacer clic en el icono de AstroChart Bridge de la barra de herramientas para completar el formulario.";
 
@@ -55,16 +68,13 @@ export default {
     timeOnDay: (time, day, month) => `el ${day} ${MONTHS[month - 1]} ${at(time)}`,
     // O for oeste.
     compass: { north: "N", south: "S", east: "E", west: "O" },
-    // "a, b y c", with e before a word that starts with the sound i, as in "e hija".
-    and: (items) => {
-      if (items.length === 1) return items[0];
-      const last = items.at(-1);
-      return `${items.slice(0, -1).join(", ")} ${/^h?i(?!e)/i.test(last) ? "e" : "y"} ${last}`;
-    },
+    and,
 
     rows: {
       localTime: "Hora local",
       place: "Lugar",
+      town: "Ciudad",
+      name: "Nombre",
       offset: "Diferencia horaria",
       utc: "UTC",
       stellariumTime: "Hora de Stellarium",
@@ -221,5 +231,384 @@ export default {
     zoneToCheck: (zone, date, time) =>
       LOCAL_ZONE +
       `Comprueba que sea ${zone}. Si no lo es, elige 00:00 GMT / UT en show / hide extended settings y escribe ${date}, ${time} en su lugar.`,
+  },
+
+  // Stellarium follows the computer's language, so its windows, tabs and
+  // settings are named as its own Spanish translation names them
+  // (po/stellarium/es.po in Stellarium's repository, read on 2026-11-02):
+  // Ventana de configuración, Complementos, Control Remoto, Cargar al inicio,
+  // configurar, Servidor habilitado, Activar automáticamente el inicio,
+  // Número de puerto, El acceso requiere autenticación, Guardar
+  // configuración, Ventana de ubicación.
+  desktop: {
+    send: "Enviar a Stellarium Desktop",
+    nowDefault: "Stellarium Desktop es ahora tu opción predeterminada para las cartas. Cada pantalla de carta tiene un enlace para volver a cambiarla.",
+    undo: "Deshacer",
+    isDefault: "Stellarium Desktop es tu opción predeterminada para las cartas.",
+    makeWebDefault: "Usar Stellarium Web de forma predeterminada",
+    webDefaultAgain: "Stellarium Web vuelve a ser la opción predeterminada.",
+    useByDefault: "Usar Stellarium Desktop de forma predeterminada",
+    hints: {
+      connected: "Stellarium Desktop está abierto y listo.",
+      unavailable: "Ahora mismo no se puede conectar con Stellarium Desktop. El botón muestra cómo configurarlo.",
+      "auth-required": "Stellarium pide una contraseña, que AstroChart Bridge no usa. El botón muestra cómo desactivarla.",
+      "invalid-response": "Un programa que no es Stellarium está respondiendo en el puerto 8090.",
+      "stellarium-not-earth": "El observador de Stellarium está en otro planeta.",
+    },
+    noAnswer: "Stellarium Desktop no respondió.",
+    sending: "Enviando a Stellarium Desktop…",
+    reading: "Leyendo Stellarium Desktop…",
+    setupSteps: [
+      "Abre Stellarium y presiona F2 (fn+F2 en muchos teclados de Mac) para abrir su Ventana de configuración.",
+      "En la pestaña Complementos, selecciona Control Remoto y marca Cargar al inicio.",
+      "Cierra Stellarium y vuelve a abrirlo: el complemento solo se carga cuando Stellarium se inicia.",
+      "Presiona F2 de nuevo, selecciona Control Remoto en la pestaña Complementos y haz clic en configurar.",
+      "Marca Servidor habilitado, y también Activar automáticamente el inicio para no tener que hacerlo la próxima vez. Deja Número de puerto en 8090 y El acceso requiere autenticación sin marcar, y haz clic en Guardar configuración.",
+      "Vuelve aquí y haz clic en Reintentar.",
+    ],
+    networkNote:
+      "Mientras su servidor está activo, otros dispositivos de tu red también pueden controlar Stellarium. Desmarca Servidor habilitado cuando termines si eso importa en esta red.",
+    problems: {
+      unavailable: {
+        heading: "No se puede conectar con Stellarium Desktop",
+        message: "No se pudo conectar con Stellarium Desktop. Abre Stellarium y activa su complemento Control Remoto.",
+      },
+      "no-permission": {
+        heading: "AstroChart Bridge necesita tu permiso",
+        message:
+          "Para llegar a Stellarium, AstroChart Bridge necesita permiso para conectarse a este equipo en 127.0.0.1. No se conecta a ningún otro sitio, y solo cuando haces clic.",
+      },
+      "auth-required": {
+        heading: "Stellarium pide una contraseña",
+        message:
+          "AstroChart Bridge no usa la contraseña de Control Remoto. En la configuración de Control Remoto de Stellarium, desmarca El acceso requiere autenticación y haz clic en Guardar configuración; después desmarca y vuelve a marcar Servidor habilitado para reiniciar el servidor.",
+      },
+      "invalid-response": {
+        heading: "Otro programa está usando el puerto 8090",
+        message:
+          "El programa que responde en el puerto 8090 no es el Control Remoto de Stellarium, así que AstroChart Bridge no envió nada. Cierra ese programa y después desmarca y vuelve a marcar Servidor habilitado en la configuración de Control Remoto de Stellarium.",
+      },
+      "request-failed": {
+        heading: "Stellarium no terminó la solicitud",
+        message: "El Control Remoto de Stellarium no respondió como se esperaba. Comprueba que Stellarium esté abierto y responda, y vuelve a intentarlo.",
+      },
+      "stellarium-not-earth": {
+        heading: "Stellarium no está en la Tierra",
+        message: "El observador de Stellarium está en otro planeta. Elige un lugar de la Tierra en su Ventana de ubicación (F6) y vuelve a intentarlo.",
+      },
+      "stellarium-date-out-of-range": {
+        heading: "Esta fecha no se puede enviar a Stellarium",
+        message: {
+          send: "AstroChart Bridge envía a Stellarium fechas desde el 15 de octubre de 1582 hasta el año 9999.",
+          import: "Stellarium muestra una fecha anterior al 15 de octubre de 1582 o posterior al año 9999, que AstroChart Bridge no puede leer.",
+        },
+      },
+      mismatch: {
+        heading: "Stellarium no aceptó toda la carta",
+      },
+    },
+    mismatchNames: { time: "la hora", "clock-running": "el reloj en pausa", latitude: "la latitud", longitude: "la longitud" },
+    mismatch: (names) =>
+      `Después del envío, ${and(names)} de Stellarium no ${names.length === 1 ? "coincidía" : "coincidían"} con la carta. ` +
+      "Vuelve a intentarlo y comprueba que Stellarium no esté ocupado con un script.",
+    tryAgain: "Reintentar",
+    sentHeading: "Enviado a Stellarium Desktop",
+    sentNotes: [
+      "El reloj de Stellarium está en pausa en este momento. Su botón de reproducción, o K, lo vuelve a poner en marcha.",
+      "Stellarium muestra la hora en su propia zona horaria, que esto no cambia, así que su reloj puede no mostrar la hora local del lugar de nacimiento. El UTC de arriba es el momento que recibió.",
+      "Stellarium nombra el lugar por sus coordenadas.",
+    ],
+    done: "Listo",
+    fromHeading: "Desde Stellarium Desktop",
+    pauseNote: "Si el reloj de Stellarium está en marcha, ponlo en pausa e importa de nuevo, para que la carta sea el momento que elegiste.",
+  },
+
+  // A program's own labels stay as it prints them, since the readers read
+  // English screenshots only: Date of Birth, Sid. Time, St:, Time Zone, LC.
+  screenshot: {
+    refusals: {
+      "unreadable-screenshot":
+        "AstroChart Bridge no encontró los datos de nacimiento en esta captura de pantalla. De Astro-Seek, incluye todo desde Date of Birth hasta Latitude, Longitude; de astro.com, la cabecera de la carta desde la fecha hasta Sid. Time; de Solar Fire o Astro Gold, los datos de la carta desde la fecha hasta las coordenadas; de Morinus, su barra de estado o el centro de su carta cuadrada; de Valens, el centro de su rueda; de Planetdance, las líneas de arriba a la izquierda de la rueda, hasta St:; de Jagannatha Hora, los datos de nacimiento desde Date hasta Sidereal Time; de Kepler o Sirius, el bloque de datos desde el nombre hasta Time Zone; de Janus, el centro de la rueda desde la fecha hasta las coordenadas; de Win*Star, la parte superior derecha de la rueda desde la fecha hasta la latitud; de TimePassages, toda la carta, con sus esquinas; de Astrolog, la parte superior de la barra lateral desde la fecha hasta Julian Day. Hazla a tamaño completo.",
+      "no-coordinates":
+        "Esta captura de pantalla no tiene coordenadas. La rueda de Astro Gold no las muestra: captura su panel Chart Details o su pantalla Edit Chart. De Solar Fire, incluye los datos de la carta hasta las coordenadas.",
+      "ambiguous-screenshot": "Esta captura de pantalla muestra más de una carta. AstroChart Bridge solo abre cartas natales.",
+      "sidereal-mismatch":
+        "El tiempo sidéreo de esta captura no coincide con su Tiempo Universal y su longitud, así que probablemente alguno se leyó mal. Prueba con una captura más grande.",
+      "offset-out-of-range":
+        "La hora local de esta captura está demasiado lejos de su Tiempo Universal, así que probablemente alguna se leyó mal. Prueba con una captura más grande.",
+      "weekday-mismatch":
+        "El día de la semana de esta captura no corresponde a su fecha, así que probablemente la fecha se leyó mal. Prueba con una captura más grande.",
+      "zone-offset-mismatch":
+        "La zona horaria de esta captura no coincide con su diferencia horaria con UTC, así que probablemente alguna se leyó mal. Prueba con una captura más grande.",
+      "calendar-unsupported":
+        "Esta carta tiene una fecha anterior al comienzo del calendario gregoriano, el 15 de octubre de 1582, o está marcada como Old Style o BC. AstroChart Bridge solo lee fechas gregorianas.",
+      "apparent-time": "Esta carta usa la hora aparente local, que AstroChart Bridge todavía no puede abrir.",
+      "offset-off-quarter-hour":
+        "El tiempo sidéreo de esta captura da una diferencia horaria con UTC que no cae en un cuarto de hora, así que probablemente su longitud se leyó mal. Prueba con una captura más grande. Una carta de una de las pocas zonas que no caen en un cuarto de hora, como la de Ámsterdam antes de 1940, todavía no se puede leer de una captura de TimePassages.",
+      "true-local-time-mismatch":
+        "El TLT de esta captura no coincide con su tiempo sidéreo y su longitud, así que probablemente alguno se leyó mal. Prueba con una captura más grande.",
+      "local-time-ambiguous":
+        "La hora de esta carta está marcada como LC, que Morinus y Valens usan tanto para la hora media local como para la hora aparente local. AstroChart Bridge no puede saber cuál es, así que todavía no puede abrirla.",
+      "chart-type-unsupported": "Esta es una carta de revolución, profección o dirección. AstroChart Bridge solo abre cartas natales y horarias.",
+    },
+    either: (a, b) => `${a} o ${b}`,
+    offsetUnchecked: (program) =>
+      `Nada en esta captura de ${program} comprueba su diferencia horaria con UTC. Compara la fila Diferencia horaria con la captura.`,
+    noOffset: (program) =>
+      `${program} no muestra la diferencia horaria con UTC. Escribe la del lugar de nacimiento, con el horario de verano incluido, en formato ±HH:MM.`,
+    compareNote: "Leído de una captura de pantalla. Compara estas filas con ella antes de abrir el cielo: nada comprueba la latitud.",
+  },
+
+  // readText reads English labels, dates and compass letters only, so the
+  // examples are ones it reads: "15 June 1985", "122°19'W". It refuses "O"
+  // for west and a Spanish date as unreadable, rather than misreading them.
+  paste: {
+    tooLong: (max) => `Este texto es demasiado largo. Pega solo la parte con los datos de nacimiento, hasta ${max.toLocaleString("es")} caracteres.`,
+    refusals: {
+      "no-birth-data":
+        'AstroChart Bridge no encontró datos de nacimiento en este texto. Lee líneas con etiquetas en inglés, como "Date of Birth: 15 June 1985" o "latitude=47.6062".',
+      "several-records":
+        "Este texto tiene más de una fecha de nacimiento o más de un nombre, así que puede contener más de una carta. Pega una carta cada vez.",
+    },
+    fields: {
+      date: { label: "Fecha", example: "1985-06-15 o 15 June 1985" },
+      time: { label: "Hora local", example: "10:30 o 10:30 AM" },
+      lat: { label: "Latitud", example: "47.6062 o 47°36'N" },
+      lng: { label: "Longitud", example: "-122.3321 o 122°19'W" },
+      offset: { label: "Diferencia con UTC", example: "-07:00, con el horario de verano incluido" },
+    },
+    info: {
+      name: "Nombre",
+      place: "Lugar",
+      country: "País",
+      gender: "Sexo",
+      zone: "Zona horaria",
+      houses: "Casas",
+      zodiac: "Zodíaco",
+      ayanamsa: "Ayanamsa",
+    },
+    formNote: "Comprueba cada valor con el texto. No se envía nada hasta que abras el cielo o la carta.",
+    placeNote:
+      "AstroChart Bridge no busca lugares. Stellarium Web, la carta de Astro-Seek y Compartir usan la latitud y la longitud; el formulario de astro.com y Guardar en Astro-Seek… reciben la ciudad, para buscarla en sus propias listas.",
+    noOffsetNote:
+      "Si dejas vacía la diferencia con UTC, la carta solo se puede abrir en astro.com, que busca la zona horaria de la ciudad. Stellarium Web, Astro-Seek y Compartir necesitan la diferencia.",
+    localOnlyNote:
+      "No se escribió ninguna diferencia con UTC, así que esta carta solo se puede abrir en astro.com. Vuelve al formulario y escribe una para abrirla en Stellarium Web o Astro-Seek, o para compartirla.",
+    offsetNote: "Nada comprueba que esta diferencia horaria estuviera en uso en el lugar de nacimiento en esa fecha.",
+    programRefusals: {
+      "no-coordinates": "no tiene coordenadas",
+      "ambiguous-screenshot": "se puede leer como de más de un programa, o como más de una carta",
+      "sidereal-mismatch": "su tiempo sidéreo no encaja con su hora, su diferencia horaria y su longitud",
+      "offset-out-of-range": "su hora local está demasiado lejos de su Tiempo Universal",
+      "weekday-mismatch": "su día de la semana no corresponde a su fecha",
+      "zone-offset-mismatch": "su zona horaria no coincide con su diferencia con UTC",
+      "calendar-unsupported":
+        "tiene una fecha anterior al comienzo del calendario gregoriano, el 15 de octubre de 1582, o es Old Style o BC, y AstroChart Bridge solo lee fechas gregorianas",
+      "apparent-time": "usa la hora aparente local, que AstroChart Bridge todavía no puede abrir",
+      "local-time-ambiguous": "su hora está marcada como LC, que puede ser la hora media local o la hora aparente local",
+      "chart-type-unsupported": "es una revolución, una progresión u otra carta que no es la natal",
+      "offset-off-quarter-hour": "su tiempo sidéreo da una diferencia con UTC que no cae en un cuarto de hora",
+      "true-local-time-mismatch": "su hora local verdadera no encaja con su tiempo sidéreo y su longitud",
+    },
+    programRefused: "no pasa las comprobaciones de ese programa",
+    turnedDown: (why, code) =>
+      `Este texto tiene el formato de un programa o sitio de astrología, pero ${why}, así que AstroChart Bridge no usó la lectura de ese programa (${code}). Comprueba cada valor con el texto.`,
+    offsetUnchecked: (program) => `Nada en este texto de ${program} comprueba su diferencia con UTC. Compara la diferencia con el texto.`,
+    readAs: (program) => `Leído como texto de ${program}: sus datos de nacimiento tienen el formato en que ${program} los muestra.`,
+    westPlus: (program) => `${program} escribe con signo más las diferencias al oeste de Greenwich, así que su +7:00 es UTC-07:00 aquí.`,
+    programNoOffset: (program) =>
+      `${program} no muestra la diferencia con UTC. Escribe la del lugar de nacimiento en esa fecha, con el horario de verano incluido.`,
+    asProgram: (value, program) => `${value} (como texto de ${program})`,
+    readAsSource: (program) => `Leído como texto de ${program}.`,
+    lineReadAs: (line, text, program) => `Línea ${line}: ${text}, leído como texto de ${program}.`,
+    readsDifferently: (line, program) => `La línea ${line} se lee de otra manera que el formato de ${program}. Elige lo que quiere decir el texto.`,
+    onLine: (value, line) => `${value} (línea ${line})`,
+    zoneNoOffset: (zone) =>
+      `El texto nombra la zona "${zone}" pero no da ninguna diferencia horaria. Escribe la del lugar de nacimiento en esa fecha.`,
+    notInText: "No está en el texto pegado.",
+    differentLines: (lines) => `El texto da valores distintos en las líneas ${and(lines.map(String))}.`,
+    line: (line, text) => `Línea ${line}: ${text}`,
+    eitherDate: (source) => `${source}. Podría ser cualquiera de las dos fechas.`,
+    couldBe: (dates) => `Podría ser ${dates.join(" o ")}. Escribe el nombre del mes en inglés, o el año primero.`,
+    cantRead: (example) => `AstroChart Bridge no puede leer esto. Prueba con ${example}.`,
+    houses: (houses) => `El texto usa casas ${houses}, pero la carta de Astro-Seek se abrirá con casas Placidus.`,
+    sidereal: "El texto usa el zodíaco sideral. AstroChart Bridge no lo transmite, así que configúralo en la carta de Astro-Seek.",
+    or: (items) => items.join(" o "),
+    atBirthplace: (time) => `${time} en el lugar de nacimiento`,
+  },
+
+  files: {
+    oneChart: "1 carta en este archivo.",
+    unnamed: "Carta sin nombre",
+    birthplace: "Lugar de nacimiento",
+    recordDate: (day, month, year) => `${day} ${MONTHS[month - 1]} ${year}`,
+  },
+
+  aaf: {
+    refusals: {
+      "no-birth-date": "Esta carta no tiene fecha de nacimiento: el archivo da *.",
+      "no-birth-time": "Esta carta no tiene hora de nacimiento: el archivo da *. AstroChart Bridge no se inventa una.",
+      "julian-calendar": "Esta fecha está en el calendario juliano, que AstroChart Bridge todavía no puede abrir.",
+      "pre-gregorian-date": "AstroChart Bridge abre fechas a partir del 15 de octubre de 1582, cuando comenzó el calendario gregoriano.",
+      "no-coordinates": "Esta carta no tiene coordenadas, así que no hay cielo que abrir.",
+      "local-mean-time": "Esta carta usa la hora media local, que AstroChart Bridge todavía no puede abrir.",
+      "meridian-time": "Esta carta usa un meridiano especial, como la hora local de una capital, que AstroChart Bridge todavía no puede abrir.",
+      "unknown-daylight-saving":
+        "Esta carta no dice si regía el horario de verano: su tipo de hora es *. AstroChart Bridge no lo adivina.",
+      "no-offset":
+        "Esta carta no da ninguna diferencia con UTC, así que no se puede calcular su Tiempo Universal. AstroChart Bridge no se inventa una.",
+      "offset-seconds": "La diferencia horaria de esta carta tiene segundos, y AstroChart Bridge todavía no puede abrirla.",
+      "offset-out-of-range": "La diferencia horaria de esta carta, con el horario de verano incluido, está fuera del intervalo de -12:00 a +14:00.",
+      "julian-day-mismatch":
+        "El día juliano del archivo no coincide con su fecha, su hora y su diferencia horaria, así que AstroChart Bridge no puede saber cuál es correcto.",
+    },
+    unreadable: {
+      "a93-fields": "la línea #A93, que necesita siete campos,",
+      "b93-fields": "la línea #B93, que necesita cinco campos,",
+      "bad-date": "la fecha",
+      "bad-time": "la hora",
+      "bad-julian-day": "el día juliano",
+      "bad-latitude": "la latitud",
+      "bad-longitude": "la longitud",
+      "bad-offset": "la diferencia horaria",
+      "bad-time-type": "el tipo de hora",
+      "duplicate-b93": "una segunda línea #B93",
+      "duplicate-znam": "una segunda línea #ZNAM",
+      "bad-chunk": "la línea",
+    },
+    thisRecord: "este registro",
+    couldntRead: (line, what, value) => `Línea ${line}: AstroChart Bridge no pudo leer ${what} "${value}".`,
+    hourOnly: (time) => `El archivo AAF da esta hora de nacimiento solo en horas enteras, así que la carta se dibuja para ${clock(time)}.`,
+    unreadableRecord: (line) => `Línea ${line}: registro ilegible`,
+    noRecords: "AstroChart Bridge no encontró registros AAF. Cada registro empieza con una línea que comienza por #A93:.",
+    charts: (count) => `${count} cartas en este archivo. Elige una.`,
+    save: "Guardar como archivo AAF",
+    utNotes: {
+      chart:
+        "El archivo AAF da esta carta en Tiempo Universal, porque la página no dice cómo se reparte su diferencia horaria entre la hora estándar y el horario de verano.",
+      sky: "El archivo AAF da este momento en Tiempo Universal, porque Stellarium Web no muestra la zona horaria del lugar de nacimiento.",
+    },
+    dateUnknown: "fecha desconocida",
+    timeUnknown: "hora desconocida",
+    notUtf8: "Este archivo no está en UTF-8, así que AstroChart Bridge lo leyó como Windows-1252. Comprueba que las letras con acento de los nombres se vean bien.",
+  },
+
+  hor: {
+    refusals: {
+      "chart-type-unsupported":
+        "Esta es una carta de Morinus de otro tipo, como una revolución solar o un tránsito. AstroChart Bridge solo abre cartas radicales y horarias.",
+      "bce-date": "La fecha de esta carta es a. C., y AstroChart Bridge todavía no puede abrirla.",
+      "julian-calendar": "Esta fecha está en el calendario juliano, que AstroChart Bridge todavía no puede abrir.",
+      "pre-gregorian-date": "AstroChart Bridge abre fechas a partir del 15 de octubre de 1582, cuando comenzó el calendario gregoriano.",
+      "bad-date": "La fecha de esta carta no existe en el calendario, como un 30 de febrero.",
+      "local-mean-time": "Esta carta está en hora media local, que AstroChart Bridge todavía no puede abrir.",
+      "local-apparent-time": "Esta carta está en hora aparente local, la del reloj de sol, que AstroChart Bridge todavía no puede abrir.",
+      "bad-coordinates": "Las coordenadas de esta carta pasan de 90° de latitud o de 180° de longitud.",
+      "offset-out-of-range": "La diferencia horaria de esta carta, con el horario de verano incluido, está fuera del intervalo de -12:00 a +14:00.",
+    },
+    cantOpen: "AstroChart Bridge no puede abrir esta carta.",
+    // field is fieldWords', which carry their own su or sus.
+    unreadable: {
+      "too-large": () => "Este archivo es mucho más grande que una carta de Morinus, así que AstroChart Bridge no lo leyó.",
+      truncated: (field) => `Este archivo se detiene a mitad de ${field}, así que puede que esté cortado.`,
+      "trailing-data": () => "Este archivo sigue después de la carta, algo que un archivo de carta de Morinus no hace, así que puede que no lo sea.",
+      "unsupported-opcode": (field) =>
+        `En ${field}, este archivo contiene algo que no es texto, un número ni un sí o un no, que es todo lo que contiene una carta de Morinus. AstroChart Bridge no lo leyó.`,
+      malformed: (field) => `AstroChart Bridge no pudo leer este archivo en ${field}. Puede que no sea un archivo de carta de Morinus.`,
+      "bad-text": (field) => `En ${field}, este archivo tiene un texto que no se puede leer. Puede que no sea un archivo de carta de Morinus.`,
+      "field-type": (field) =>
+        `En ${field}, este archivo tiene un tipo de valor que Morinus no guarda ahí, así que puede que no sea un archivo de carta de Morinus.`,
+      "field-range": (field) =>
+        `En ${field}, este archivo tiene un valor fuera de lo que Morinus permite, así que puede que no sea un archivo de carta de Morinus.`,
+    },
+    couldntReadFile: "AstroChart Bridge no pudo leer este archivo.",
+    fieldWords: {
+      name: "su nombre", male: "su sexo", htype: "su tipo de carta", bc: "su casilla a. C.", year: "su año", month: "su mes",
+      day: "su día", hour: "su hora", minute: "su minuto", second: "su segundo", cal: "su calendario", zt: "su tipo de hora",
+      plus: "su dirección de zona", zh: "sus horas de zona", zm: "sus minutos de zona", daylightsaving: "su casilla de horario de verano",
+      place: "su lugar", deglon: "su longitud", minlon: "su longitud", seclon: "su longitud", east: "su longitud",
+      deglat: "su latitud", minlat: "su latitud", seclat: "su latitud", north: "su latitud", altitude: "su altitud", notes: "sus notas",
+    },
+    warnings: {
+      "text-encoding-guessed":
+        "Este archivo lo guardó una versión antigua de Morinus, que no registra cómo escribió las letras con acento. Comprueba que el nombre y el lugar se vean bien.",
+      "daylight-saving-on-ut":
+        "Morinus tiene esta carta en hora de Greenwich con el horario de verano marcado, así que resta una hora a la hora escrita, y AstroChart Bridge también.",
+      "longitude-seconds-ignored-by-morinus":
+        "El archivo da la longitud al segundo, pero Morinus omite los segundos al abrir el archivo, así que su carta se dibuja hasta 59\" al este o al oeste de esta.",
+    },
+    zoneNote:
+      "Morinus guarda la diferencia horaria escrita para una carta, no su zona horaria, así que aquí nada comprueba esa diferencia frente al lugar y la fecha de nacimiento.",
+    utDownloadNote: "El archivo AAF da esta carta en Tiempo Universal, la hora que Morinus calcula a partir de la hora escrita.",
+    unreadableLabel: "Archivo de Morinus ilegible",
+    couldntReadMorinus: "AstroChart Bridge no pudo leer este archivo de Morinus.",
+    enteredAs: "Escrita como",
+    chartType: "Tipo de carta",
+    horary: "Horaria",
+    zone: (offset) => `zona ${offset}`,
+    greenwich: "hora de Greenwich",
+    withDaylightSaving: (basis) => `${basis}, con horario de verano`,
+    recordDate: (day, month, year, bc, julian) => `${day} ${MONTHS[month - 1]} ${year}${bc ? " a. C." : ""}${julian ? " (juliano)" : ""}`,
+  },
+
+  chart: {
+    copyLink: "Copiar enlace",
+    showQr: "Mostrar código QR",
+    downloadFile: "Descargar archivo",
+    shareLink: "Compartir enlace…",
+    shareFile: "Compartir archivo…",
+    shareNote: "Compartir enlace… y Compartir archivo… envían la carta a la aplicación que elijas.",
+    includesLegend: "Incluir en el enlace, el código QR y el archivo",
+    includesNote: "El nombre y la ciudad van en el enlace, el código QR y el archivo solo si están marcados, y cualquiera que los tenga puede leerlos.",
+    remembersNote: "AstroChart Bridge recuerda lo que marcas, en este equipo.",
+    from: "Origen",
+    viaNames: { page: "página", screenshot: "captura de pantalla", paste: "texto pegado" },
+    // "página de Astro-Seek", "texto pegado"
+    origin: (site, via) => (site && via ? `${via} de ${site}` : site || via || ""),
+    viaWarnings: {
+      screenshot:
+        "Esta carta se leyó de una captura de pantalla mediante OCR en el dispositivo que la compartió. Compara estas filas con la carta antes de abrirla: nada comprobó la latitud.",
+      paste:
+        "Esta carta se leyó de un texto pegado y se comprobó a mano en el dispositivo que la compartió. Nada comprobó su diferencia horaria con UTC frente al lugar y la fecha de nacimiento.",
+    },
+    refusals: {
+      link: {
+        malformed: "Este enlace está incompleto o dañado. Vuelve a copiar el enlace completo.",
+        "too-large": "Este enlace es demasiado largo para ser una carta de AstroChart Bridge.",
+        "not-astrochart": "Este enlace no contiene una carta de AstroChart Bridge.",
+        "unsupported-version": NEWER,
+        "unknown-field": NEWER,
+        "unsupported-calendar": NEWER,
+        "before-gregorian": BEFORE_GREGORIAN,
+      },
+      file: {
+        malformed: "Este archivo no es una carta de AstroChart Bridge, o está dañado.",
+        "too-large": "Este archivo es demasiado grande para ser una carta de AstroChart Bridge.",
+        "not-astrochart": "Este archivo no es una carta de AstroChart Bridge.",
+        "unsupported-version": NEWER_FILE,
+        "unknown-field": NEWER_FILE,
+        "unsupported-calendar": NEWER_FILE,
+        "before-gregorian": BEFORE_GREGORIAN,
+      },
+    },
+    damaged: {
+      link: "La carta de este enlace no es válida. Vuelve a copiar el enlace completo.",
+      file: "La carta de este archivo no es válida.",
+    },
+    empty: "Abre un enlace o un archivo de carta de AstroChart Bridge para ver aquí su carta.",
+    otherFiles: {
+      "morinus-file": "Este es un archivo de carta de Morinus (.hor), no una carta de AstroChart Bridge.",
+      "aaf-file": "Este es un archivo AAF, no una carta de AstroChart Bridge.",
+    },
+    inExtension: "Se abre en la página de archivos AAF y de Morinus.",
+    onTheWeb: "Lo abre la extensión AstroChart Bridge: haz clic en Abrir un archivo AAF o de Morinus en su ventana emergente.",
+    openItThere: "Abrirlo allí",
+    qrTooLong: (labelled) =>
+      labelled
+        ? `${QR_TOO_LONG} Desmarca el nombre o la ciudad para acortarlo, o usa Copiar enlace o Descargar archivo.`
+        : `${QR_TOO_LONG} Usa Copiar enlace o Descargar archivo.`,
+    qrLabel: "Código QR del enlace a esta carta",
+    qrNote: "Escanéalo con la cámara de un teléfono o una tableta para abrir la carta en él. Cualquiera que pueda ver el código puede leer la carta.",
+    shareTitle: "Carta de AstroChart Bridge",
   },
 };
