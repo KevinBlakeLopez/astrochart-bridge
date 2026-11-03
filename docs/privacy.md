@@ -4,7 +4,7 @@ AstroChart Bridge has no server, no account and no tracking. Its developer recei
 
 ## What it reads
 
-- **The page you're on**, when you click its toolbar button: the chart's birth data on an Astro-Seek or astro.com chart page, or the sky Stellarium Web is showing and the name it gives that place, for astro.com's and Astro-Seek's forms. It reads that one tab, at that moment, and no other. It doesn't read where Stellarium Web has detected you are.
+- **The page you're on**, when you click its toolbar button: the chart's birth data on an Astro-Seek or astro.com chart page, with its name and town when the page gives them, or the sky Stellarium Web is showing and the name it gives that place, for astro.com's and Astro-Seek's forms. It reads that one tab, at that moment, and no other. It doesn't read where Stellarium Web has detected you are.
 - **A screenshot you choose.** Its text is read on your computer by Tesseract, which is built into the extension. The screenshot isn't uploaded anywhere.
 - **Text you paste**, and **chart files you open**: AAF files, Morinus `.hor` files and `.astrochart.json` files. A Morinus file is read without running anything in it.
 - **Stellarium Desktop's moment and place**, through its Remote Control plugin at `127.0.0.1` on your own computer, when you import from it, and after a send, to check the values took. Once you've allowed `127.0.0.1`, AstroChart Bridge also asks Stellarium whether it's ready each time a screen with the desktop button opens. That request carries no chart and changes nothing.

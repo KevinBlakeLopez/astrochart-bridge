@@ -49,16 +49,40 @@ export function classifyUrl(url) {
  * @returns {string | null}
  */
 export function townFromUrl(url) {
+  const params = chartParams(url);
+  const town = params?.get("narozeni_mesto_hidden")?.trim() ?? "";
+  const country = params?.get("narozeni_stat_hidden")?.trim() ?? "";
+  return town !== "" && country !== "" ? town : null;
+}
+
+/**
+ * The name a chart's address gives, for astro.com's name fields, or null. A
+ * chart opened from the account's saved people carries its saved name as
+ * nick=, in its address and in every link on its page, so it stays through a
+ * change of settings, as seen on 2026-11-02. The page prints it too, above
+ * Date of Birth, but a chart from the calculator, or one AstroChart Bridge
+ * opens, has no nick= and something else, or nothing, there. Taken
+ * unchecked, as the town is: it shows in the astro.com screen's name boxes,
+ * to change before anything is filled in.
+ *
+ * @param {string} url
+ * @returns {string | null}
+ */
+export function nameFromUrl(url) {
+  const name = chartParams(url)?.get("nick")?.trim() ?? "";
+  return name === "" ? null : name;
+}
+
+// An Astro-Seek chart address's parameters, or null for another site's page
+// or text that isn't an address.
+function chartParams(url) {
   let page;
   try {
     page = new URL(url);
   } catch {
     return null;
   }
-  if (page.hostname !== HOST) return null;
-  const town = page.searchParams.get("narozeni_mesto_hidden")?.trim() ?? "";
-  const country = page.searchParams.get("narozeni_stat_hidden")?.trim() ?? "";
-  return town !== "" && country !== "" ? town : null;
+  return page.hostname === HOST ? page.searchParams : null;
 }
 
 const LABEL_LOCAL = "Date of Birth (local time):";

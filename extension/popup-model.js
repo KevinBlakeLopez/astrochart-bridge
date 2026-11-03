@@ -93,13 +93,13 @@ const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "
  * screen is made here, so popup.js only renders it.
  *
  * @param {ReturnType<typeof import("./core/index.js").analyzePage>} result
- * @param {{ timeZone?: string, town?: string | null }} [options]  timeZone is the
- *   computer's time zone; when left out, Intl uses the one this code runs in,
- *   which the popup shares with the Stellarium tab. Tests pass it so they give
- *   the same result anywhere. town is the one the chart's page names, for
- *   astro.com's form.
+ * @param {{ timeZone?: string, town?: string | null, name?: { first: string, last: string } | null }} [options]
+ *   timeZone is the computer's time zone; when left out, Intl uses the one
+ *   this code runs in, which the popup shares with the Stellarium tab. Tests
+ *   pass it so they give the same result anywhere. town and name are the ones
+ *   the chart's page names, for astro.com's form.
  */
-export function viewFor(result, { timeZone, town = null } = {}) {
+export function viewFor(result, { timeZone, town = null, name = null } = {}) {
   if (result.kind === "refused") {
     return Object.hasOwn(REFUSALS, result.reason)
       ? { state: "refused", message: REFUSALS[result.reason] }
@@ -160,7 +160,7 @@ export function viewFor(result, { timeZone, town = null } = {}) {
       { town: result.town ?? null, name: result.name ?? null },
     );
   }
-  return result.site === "astro-seek" ? { ...ready, next: astroComStep(ready.sky, { town, local }) } : ready;
+  return result.site === "astro-seek" ? { ...ready, next: astroComStep(ready.sky, { town, name, local }) } : ready;
 }
 
 /**
