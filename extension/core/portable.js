@@ -12,7 +12,8 @@
 //       "latitude": 40.716667,
 //       "longitude": -74
 //     },
-//     "source": { "site": "astro-seek", "via": "page", "zoneLabel": "EDT, DST", "utcBasis": "printed" }
+//     "source": { "site": "astro-seek", "via": "page", "zoneLabel": "EDT, DST", "utcBasis": "printed" },
+//     "labels": { "name": "Jane Doe", "town": "New York, NY, USA" }
 //   }
 //
 // chart is what the sky depends on: the wall-clock time at the birthplace, its
@@ -26,9 +27,16 @@
 // source only says where the chart came from. Its fields are all optional, and
 // a reader drops ones it doesn't know, so new ones can be added within a version.
 //
-// There are no names, place names or IANA time zones: no reader has one to give.
-// Only a decided chart can be written, never one whose offset is still to be
-// chosen or entered, and no unknown or approximate time.
+// labels are the chart's name and town, written only when the person sharing
+// it chose to include them. They name the chart, and the sky never depends on
+// them: the place is still its coordinates. Like source, its fields are
+// optional and a reader drops ones it doesn't know. A chart with no labels has
+// no labels key, so it gives the same link as before labels existed; a reader
+// from before then refuses one that has them as a newer version's.
+//
+// There are no IANA time zones: no reader has one to give. Only a decided
+// chart can be written, never one whose offset is still to be chosen or
+// entered, and no unknown or approximate time.
 
 export const FORMAT = "astrochart";
 export const VERSION = 1;
@@ -53,7 +61,7 @@ const UTC_INSTANT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/;
 const MIN_OFFSET_SECONDS = -12 * 3600;
 const MAX_OFFSET_SECONDS = 14 * 3600;
 
-const TOP_KEYS = new Set(["format", "version", "chart", "source"]);
+const TOP_KEYS = new Set(["format", "version", "chart", "source", "labels"]);
 const CHART_KEYS = new Set(["calendar", "local", "utcOffsetSeconds", "latitude", "longitude"]);
 
 // "astro-seek", "screenshot", "printed": lower-case words joined by hyphens.
@@ -68,6 +76,20 @@ const isLabel = (value) =>
 // The known source fields, in the order they are written.
 const SOURCE_FIELDS = { site: isCode, via: isCode, zoneLabel: isLabel, utcBasis: isCode };
 
+// A name or town as a person or program wrote it. Control characters and
+// format characters are refused as in a zone label, except the zero-width
+// joiner and non-joiner, which some scripts' names are spelled with.
+export const MAX_LABEL_LENGTH = 100;
+export const isLabelText = (value) =>
+  typeof value === "string" &&
+  value.trim().length >= 1 &&
+  value.length <= MAX_LABEL_LENGTH &&
+  value.isWellFormed() &&
+  !/[\p{Cc}]|(?![\u200C\u200D])\p{Cf}/u.test(value);
+
+// The known label fields, in the order they are written.
+const LABEL_FIELDS = { name: isLabelText, town: isLabelText };
+
 /**
  * The portable chart for a decided sky and the wall-clock time it was decided
  * from. Refuses what a reader would refuse, so anything it returns can be shared.
@@ -77,18 +99,35 @@ const SOURCE_FIELDS = { site: isCode, via: isCode, zoneLabel: isLabel, utcBasis:
  * @param {{ site?: string, via?: string, zoneLabel?: string, utcBasis?: string }} [source]
  *   site is analyzePage's; via is "page" or "screenshot"; utcBasis says how the
  *   offset was decided: "printed", "declared", "zone-label" or "entered"
+ * @param {{ name?: string | null, town?: string | null }} [labels]  the chart's
+ *   name and town; null or undefined is none
  * @returns {{ kind: "portable", chart: object } | { kind: "refused", reason: string }}
  */
-export function toPortable({ local, utc, lat, lng }, source = {}) {
+export function toPortable({ local, utc, lat, lng }, source = {}, labels = {}) {
   const decided = typeof local === "string" && typeof utc === "string" && UTC_INSTANT.test(utc);
   const offsetSeconds = decided ? (Date.parse(`${local}Z`) - Date.parse(utc)) / 1000 : NaN;
   const given = Object.fromEntries(Object.entries(source).filter(([, value]) => value !== undefined));
+  const named = Object.fromEntries(Object.entries(labels).filter(([, value]) => value !== undefined && value !== null));
   return check({
     format: FORMAT,
     version: VERSION,
     chart: { calendar: "gregorian", local, utcOffsetSeconds: offsetSeconds, latitude: lat, longitude: lng },
     source: given,
+    labels: named,
   });
+}
+
+/**
+ * The chart with only the labels the person sharing it chose to include.
+ *
+ * @param {object} chart  from toPortable or parse
+ * @param {{ name?: boolean, town?: boolean }} include
+ * @returns {object}  a portable chart
+ */
+export function keepLabels(chart, include) {
+  const labels = chart.labels ?? {};
+  const kept = Object.fromEntries(Object.entries(labels).filter(([field]) => include[field] === true));
+  return canonical({ ...chart, labels: kept });
 }
 
 /**
@@ -111,7 +150,7 @@ export function serialize(chart, indent) {
  * @returns {{ kind: "portable", chart: object }
  *   | { kind: "refused", reason: "malformed" | "too-large" | "not-astrochart" | "unsupported-version"
  *       | "unknown-field" | "unsupported-calendar" | "invalid-date" | "before-gregorian"
- *       | "invalid-offset" | "invalid-coordinates" | "invalid-source" }}
+ *       | "invalid-offset" | "invalid-coordinates" | "invalid-source" | "invalid-labels" }}
  */
 export function parse(text) {
   if (typeof text !== "string") return refused("malformed");
@@ -200,12 +239,20 @@ function check(document) {
     if (Object.hasOwn(source, field) && !valid(source[field])) return refused("invalid-source");
   }
 
+  const labels = Object.hasOwn(document, "labels") ? document.labels : {};
+  if (!isObject(labels)) return refused("invalid-labels");
+  for (const [field, valid] of Object.entries(LABEL_FIELDS)) {
+    if (Object.hasOwn(labels, field) && !valid(labels[field])) return refused("invalid-labels");
+  }
+
   return { kind: "portable", chart: canonical(document) };
 }
 
 // The known keys in writing order. "+ 0" turns -0 into 0, which JSON writes
-// as 0 anyway, so a chart is equal to itself after the trip.
-function canonical({ chart, source = {} }) {
+// as 0 anyway, so a chart is equal to itself after the trip. labels is left
+// out when it has no known field, so a chart without them reads as before.
+function canonical({ chart, source = {}, labels = {} }) {
+  const named = known(labels, LABEL_FIELDS);
   return {
     format: FORMAT,
     version: VERSION,
@@ -216,13 +263,18 @@ function canonical({ chart, source = {} }) {
       latitude: chart.latitude + 0,
       longitude: chart.longitude + 0,
     },
-    source: Object.fromEntries(
-      Object.keys(SOURCE_FIELDS)
-        .filter((field) => Object.hasOwn(source, field))
-        .map((field) => [field, source[field]]),
-    ),
+    source: known(source, SOURCE_FIELDS),
+    ...(Object.keys(named).length === 0 ? {} : { labels: named }),
   };
 }
+
+// The fields of section that fields knows, in fields' order.
+const known = (section, fields) =>
+  Object.fromEntries(
+    Object.keys(fields)
+      .filter((field) => Object.hasOwn(section, field))
+      .map((field) => [field, section[field]]),
+  );
 
 const isObject = (value) => typeof value === "object" && value !== null && !Array.isArray(value);
 

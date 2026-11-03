@@ -102,7 +102,7 @@ function showChart(result) {
   const view = viewForScreenshot(result);
   const onButton = async (button, sky, screen) => {
     if (button.does !== "share") return openLink(button, sky);
-    const shared = chartToShare(result, sky, "screenshot");
+    const shared = chartToShare(result, sky, "screenshot", { town: result.town, name: result.name });
     if (shared.kind === "refused") {
       render(app, viewForShareRefusal(shared.reason), screen.onButton, screen.view);
       return;

@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import { fromFragment, parse, toFragment, toPortable } from "../extension/core/portable.js";
 import {
   MAX_FILE_BYTES,
+  chartToPassOn,
   fileFor,
   linkBase,
   linkFor,
@@ -27,8 +28,8 @@ const NY_SKY = { utc: NY.utc, lat: NY.lat, lng: NY.lng };
 const NY_SOURCE = { site: "astro-seek", via: "page", zoneLabel: "EDT, DST", utcBasis: "printed" };
 
 // What readLink gives for a chart's link.
-function received(sky, source) {
-  const built = toPortable(sky, source);
+function received(sky, source, labels) {
+  const built = toPortable(sky, source, labels);
   assert.equal(built.kind, "portable", `refused: ${built.reason}`);
   return fromFragment(`#${toFragment(built.chart)}`);
 }
@@ -36,9 +37,9 @@ function received(sky, source) {
 const BUTTONS = [
   { label: "Open Stellarium Web", opens: "stellarium" },
   { label: "Open chart in Astro-Seek", opens: "astro-seek" },
-  { label: "Copy link", does: "copy", secondary: true },
-  { label: "Show QR code", does: "qr", secondary: true },
-  { label: "Download file", does: "download", secondary: true },
+  { label: "Copy link", does: "copy", secondary: true, shares: true },
+  { label: "Show QR code", does: "qr", secondary: true, shares: true },
+  { label: "Download file", does: "download", secondary: true, shares: true },
 ];
 
 // --- Reading the link ---
@@ -377,8 +378,8 @@ test("a chart from a file shows as it would from a link", () => {
 
 // --- The system share sheet ---
 
-const SHARE_LINK = { label: "Share link…", does: "share-link", secondary: true };
-const SHARE_FILE = { label: "Share file…", does: "share-file", secondary: true };
+const SHARE_LINK = { label: "Share link…", does: "share-link", secondary: true, shares: true };
+const SHARE_FILE = { label: "Share file…", does: "share-file", secondary: true, shares: true };
 const SHARE_NOTE = "Share link… and Share file… send the chart to the app you choose.";
 
 test("Share link… comes before Copy link, where the browser can share links", () => {
@@ -494,3 +495,122 @@ test("a file too big to keep, or storage that refuses, is reported, not thrown",
   assert.equal(takeFileForImport(refusing), null);
 });
 
+
+// --- A chart's name and town ---
+
+const NY_LABELS = { name: "Jane Doe", town: "New York, NY, USA" };
+const INCLUDES_NOTE = "The name and town go in the link, QR code and file only when ticked, and anyone with them can read them.";
+const REMEMBERS_NOTE = "AstroChart Bridge remembers what you tick, on this computer.";
+
+test("a chart with no name or town has no boxes, rows or notes for them", () => {
+  const view = viewForImport(received(NY, NY_SOURCE), LOS_ANGELES);
+  assert.equal(view.includes, undefined);
+  assert.ok(!view.rows.some(([label]) => label === "Name" || label === "Town"));
+  assert.ok(!view.notes.includes(INCLUDES_NOTE));
+});
+
+test("a chart's name comes first and its town after Place, as on the screenshot page", () => {
+  const view = viewForImport(received(NY, NY_SOURCE, NY_LABELS), LOS_ANGELES);
+  assert.deepEqual(view.rows, [
+    ["Name", "Jane Doe"],
+    ["Local time", "17 Apr 2024, 08:00 (EDT, DST)"],
+    ["Offset", "UTC-04:00"],
+    ["UTC", "2024-04-17 12:00"],
+    ["Place", "40°43'N, 74°0'W"],
+    ["Town", "New York, NY, USA"],
+    ["From", "Astro-Seek page"],
+  ]);
+});
+
+test("each of the chart's labels has a box, unticked until the user ticks it", () => {
+  const view = viewForImport(received(NY, NY_SOURCE, NY_LABELS), LOS_ANGELES);
+  assert.deepEqual(view.includes, {
+    legend: "Include in the link, QR code and file",
+    boxes: [
+      { field: "name", label: "Name: Jane Doe", checked: false },
+      { field: "town", label: "Town: New York, NY, USA", checked: false },
+    ],
+  });
+  assert.equal(view.notes.at(-1), INCLUDES_NOTE);
+});
+
+test("the boxes are ticked as the remembered choice says, and say it is remembered where it is", () => {
+  const view = viewForImport(received(NY, NY_SOURCE, NY_LABELS), { ...LOS_ANGELES, include: { name: true }, remembers: true });
+  assert.deepEqual(view.includes.boxes.map(({ field, checked }) => [field, checked]), [["name", true], ["town", false]]);
+  assert.deepEqual(view.notes.slice(-2), [INCLUDES_NOTE, REMEMBERS_NOTE]);
+});
+
+test("a chart with a town alone has only the town's box", () => {
+  const view = viewForImport(received(NY, NY_SOURCE, { town: "New York, NY, USA" }), { ...LOS_ANGELES, include: { name: true } });
+  assert.deepEqual(view.includes.boxes, [{ field: "town", label: "Town: New York, NY, USA", checked: false }]);
+  assert.equal(view.rows[0][0], "Local time");
+});
+
+test("a name is only ever text on the page: markup isn't parsed", () => {
+  const name = `<img src=x onerror="alert(1)">`;
+  const view = viewForImport(received(NY, NY_SOURCE, { name }), LOS_ANGELES);
+  assert.deepEqual(view.rows[0], ["Name", name]);
+  assert.equal(view.includes.boxes[0].label, `Name: ${name}`);
+});
+
+test("the link, file and QR code carry only the labels ticked", () => {
+  const { chart } = received(NY, NY_SOURCE, NY_LABELS);
+  const plain = received(NY, NY_SOURCE).chart;
+  const base = "https://example.invalid/chart.html";
+  assert.equal(linkFor(base, chartToPassOn(chart, {})), linkFor(base, plain));
+  assert.equal(fileFor(chartToPassOn(chart, { name: false, town: false })).text, fileFor(plain).text);
+  const townOnly = fromFragment(new URL(linkFor(base, chartToPassOn(chart, { town: true }))).hash);
+  assert.deepEqual(townOnly.chart.labels, { town: "New York, NY, USA" });
+  const both = JSON.parse(fileFor(chartToPassOn(chart, { name: true, town: true })).text);
+  assert.deepEqual(both.labels, NY_LABELS);
+  assert.equal(qrViewFor(base, chartToPassOn(chart, {})).link, linkFor(base, plain));
+});
+
+test("the file's name and the share sheet's title never carry the chart's name", () => {
+  const passed = chartToPassOn(received(NY, NY_SOURCE, NY_LABELS).chart, { name: true, town: true });
+  assert.equal(fileFor(passed).name, "chart-2024-04-17.astrochart.json");
+  assert.equal(shareDataFor("https://example.invalid/chart.html", passed).title, "AstroChart Bridge chart");
+});
+
+test("a link with labels opens on this page, and one a reader before labels made still does", () => {
+  const view = viewForImport(received(NY, NY_SOURCE, NY_LABELS), LOS_ANGELES);
+  assert.equal(view.state, "ready");
+  assert.deepEqual(view.sky, viewForImport(received(NY, NY_SOURCE), LOS_ANGELES).sky);
+});
+
+test("labels that aren't valid are refused as a damaged link or file", () => {
+  const text = JSON.stringify({ ...JSON.parse(fileFor(received(NY, NY_SOURCE).chart).text), labels: { name: "" } });
+  const result = readChartFile(new TextEncoder().encode(text), "chart.astrochart.json");
+  assert.deepEqual(result, { kind: "refused", reason: "invalid-labels" });
+  assert.deepEqual(viewForImport(result, { from: "file" }), { state: "refused", message: "This file's chart isn't valid.", code: "invalid-labels" });
+});
+
+test("Enter in astro.com… gets the chart's name and town, ticked or not, the name as a first name", () => {
+  const result = received(NY, NY_SOURCE, NY_LABELS);
+  const name = { first: "Jane Doe", last: "" };
+  const extension = viewForImport(result, { ...LOS_ANGELES, canFill: true });
+  assert.deepEqual(extension.next.view, viewForAstroCom(NY_SKY, { local: NY.local, town: "New York, NY, USA", name }));
+  assert.deepEqual(extension.next.view.buttons[0].holds.town, "New York, NY, USA");
+  assert.deepEqual(extension.next.view.buttons[0].holds.name, name);
+  const ticked = viewForImport(result, { ...LOS_ANGELES, canFill: true, include: { name: true, town: true } });
+  assert.deepEqual(ticked.next, extension.next);
+});
+
+test("on the web, the name and town are among the values to type in", () => {
+  const view = viewForImport(received(NY, NY_SOURCE, NY_LABELS), LOS_ANGELES).next.view;
+  assert.equal(view.state, "astro-com-by-hand");
+  assert.deepEqual(view.rows.slice(-2), [["Town", "New York, NY, USA"], ["First name", "Jane Doe"]]);
+  assert.match(view.notes.at(-1), /^astro\.com asks for a country and town, not coordinates\. Type the town New York, choose the match nearest this place/);
+  // No buttons keep anything: the web's copy fills nothing in.
+  assert.deepEqual(view.buttons, [{ label: "Open astro.com's form", url: "https://www.astro.com/cgi/ade.cgi" }]);
+});
+
+test("a link a long name and town make too long for a QR code says unticking them shortens it", () => {
+  const { chart } = received(NY, { ...NY_SOURCE, via: "screenshot" }, { name: "x".repeat(100), town: "y".repeat(100) });
+  const base = "https://kevinblakelopez.github.io/astrochart-bridge/chart.html";
+  assert.deepEqual(qrViewFor(base, chartToPassOn(chart, { name: true, town: true })), {
+    state: "qr-refused",
+    message: "This link is too long for a QR code that scans reliably. Untick the name or town to shorten it, or use Copy link or Download file instead.",
+  });
+  assert.equal(qrViewFor(base, chartToPassOn(chart, {})).state, "qr");
+});

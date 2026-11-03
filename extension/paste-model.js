@@ -7,6 +7,7 @@ import {
   SHARE_BUTTON,
   astroComStep,
   genderRows,
+  labelsToShare,
   nameFromText,
   viewFor,
   viewForAstroCom,
@@ -395,18 +396,20 @@ export function viewForEntry(entry, { warnings = [], timeZone, name = null, town
  * The portable chart Share… sends for a confirmed entry. Pasted text has no
  * site, so its source names only how it came, "paste", and whether the offset
  * is one the text stated ("declared") or one typed on the form ("entered").
- * No name, place or zone goes with it.
+ * No zone goes with it. The chart's name and town go as labels, which the
+ * share page offers to include.
  *
  * @param {ReturnType<typeof entryFor>} entry
  * @param {number[]} statedOffsets  formFor's, the offsets the text gives
+ * @param {{ town?: string | null, name?: { first: string, last: string } | null }} [chart]  formFor's town and name
  * @returns {ReturnType<typeof toPortable>}
  */
-export function chartForEntry(entry, statedOffsets) {
+export function chartForEntry(entry, statedOffsets, chart = {}) {
   const { local, utc, lat, lng } = analyzeEntry(entry);
   // To the second: an offset with seconds is a fraction of a minute.
   const stated = statedOffsets.some((offset) => Math.round(offset * 60) === Math.round(entry.offsetMinutes * 60));
   const utcBasis = stated ? "declared" : "entered";
-  return toPortable({ local, utc, lat, lng }, { via: "paste", utcBasis });
+  return toPortable({ local, utc, lat, lng }, { via: "paste", utcBasis }, labelsToShare(chart));
 }
 
 // Astro-Seek's chart opens with the house system astroSeekUrl names, Placidus,

@@ -417,7 +417,13 @@ python3 -m http.server 8778 --bind 127.0.0.1 --directory extension
 The New York 2024 chart from test 1, as a link:
 
 ```
-http://127.0.0.1:8778/chart.html#v1=eyJmb3JtYXQiOiJjaGFydC1icmlkZ2UiLCJ2ZXJzaW9uIjoxLCJjaGFydCI6eyJjYWxlbmRhciI6ImdyZWdvcmlhbiIsImxvY2FsIjoiMjAyNC0wNC0xN1QwODowMDowMCIsInV0Y09mZnNldFNlY29uZHMiOi0xNDQwMCwibGF0aXR1ZGUiOjQwLjcxNjY2NywibG9uZ2l0dWRlIjotNzR9LCJzb3VyY2UiOnsic2l0ZSI6ImFzdHJvLXNlZWsiLCJ2aWEiOiJwYWdlIiwiem9uZUxhYmVsIjoiRURULCBEU1QiLCJ1dGNCYXNpcyI6InByaW50ZWQifX0
+http://127.0.0.1:8778/chart.html#v1=eyJmb3JtYXQiOiJhc3Ryb2NoYXJ0IiwidmVyc2lvbiI6MSwiY2hhcnQiOnsiY2FsZW5kYXIiOiJncmVnb3JpYW4iLCJsb2NhbCI6IjIwMjQtMDQtMTdUMDg6MDA6MDAiLCJ1dGNPZmZzZXRTZWNvbmRzIjotMTQ0MDAsImxhdGl0dWRlIjo0MC43MTY2NjcsImxvbmdpdHVkZSI6LTc0fSwic291cmNlIjp7InNpdGUiOiJhc3Ryby1zZWVrIiwidmlhIjoicGFnZSIsInpvbmVMYWJlbCI6IkVEVCwgRFNUIiwidXRjQmFzaXMiOiJwcmludGVkIn19
+```
+
+The same chart with a name and town, `Example Person` and `New York, NY, US`:
+
+```
+http://127.0.0.1:8778/chart.html#v1=eyJmb3JtYXQiOiJhc3Ryb2NoYXJ0IiwidmVyc2lvbiI6MSwiY2hhcnQiOnsiY2FsZW5kYXIiOiJncmVnb3JpYW4iLCJsb2NhbCI6IjIwMjQtMDQtMTdUMDg6MDA6MDAiLCJ1dGNPZmZzZXRTZWNvbmRzIjotMTQ0MDAsImxhdGl0dWRlIjo0MC43MTY2NjcsImxvbmdpdHVkZSI6LTc0fSwic291cmNlIjp7InNpdGUiOiJhc3Ryby1zZWVrIiwidmlhIjoicGFnZSIsInpvbmVMYWJlbCI6IkVEVCwgRFNUIiwidXRjQmFzaXMiOiJwcmludGVkIn0sImxhYmVscyI6eyJuYW1lIjoiRXhhbXBsZSBQZXJzb24iLCJ0b3duIjoiTmV3IFlvcmssIE5ZLCBVUyJ9fQ
 ```
 
 ### A: desktop
@@ -432,6 +438,12 @@ http://127.0.0.1:8778/chart.html#v1=eyJmb3JtYXQiOiJjaGFydC1icmlkZ2UiLCJ2ZXJzaW9u
 - [ ] Open the browser's History list. Note whether it shows the address with `#v1=…`: the page removes it from the tab's address and its Back entry, but whether a browser's History list keeps the original address hasn't been checked in any browser.
 - [ ] Delete the last ten characters of the link and open it: the page says the link is incomplete or damaged, shows `Code: malformed`, and has no buttons.
 - [ ] Open `http://127.0.0.1:8778/chart.html` with nothing after it: the page asks for an AstroChart Bridge link or chart file, and its only button is a blue **Open an AstroChart Bridge file**.
+- [ ] Open the link with a name and town. The rows start with Name `Example Person` and have Town `New York, NY, US` right after Place. Under "Take the chart elsewhere", right above **Copy link**, "Include in the link, QR code and file" has two unticked boxes, **Name: Example Person** and **Town: New York, NY, US**, and a grey note says the name and town go in only when ticked. There's no note about remembering.
+- [ ] With both unticked, **Copy link** gives exactly the first link above, with no name or town.
+- [ ] **Show QR code**, then tick **Town**: the code changes in place without the page jumping. Tick **Name** too, then **Copy link**: pasting the link into a new tab shows the Name and Town rows again. **Download file** saves `chart-2024-04-17.astrochart.json` (no name in the file's name), and the file has `"labels"` with both.
+- [ ] Untick both and **Copy link** again: the first link above.
+- [ ] **Enter in astro.com…** shows Town `New York, NY, US` and First name `Example Person`, ticked or not, and a grey note to type the town New York.
+- [ ] Reload the page with the named link: both boxes are unticked again. The web page keeps nothing.
 - [ ] The Console stays empty throughout.
 
 ### B: phones and tablets (needs the devices)
@@ -446,11 +458,13 @@ A phone reaches the page through the Mac's address on the local network, which m
 
 Copied links point at `RECEIVER_URL` in `extension/share-config.js`, the receiving page on GitHub Pages. Until that page is deployed, a copied link opens a 404 there; check its address and contents instead.
 
-- [ ] On the test 1 chart, **Share…** opens a tab at `chrome-extension://…/chart.html` (`moz-extension://…` in Firefox) and closes the popup. The tab shows the same rows as test 19 A, From `Astro-Seek page`, and the address has nothing after `chart.html`.
-- [ ] **Copy link** says "Link copied.", and the pasted link starts `https://kevinblakelopez.github.io/astrochart-bridge/chart.html#v1=`. Pasting it after `http://127.0.0.1:8778/chart.html` in place of that address, with the test 19 server running, shows the same chart.
+- [ ] On the test 1 chart, **Share…** opens a tab at `chrome-extension://…/chart.html` (`moz-extension://…` in Firefox) and closes the popup. The tab shows the same rows as test 19 A, with Town `New York, NY, US` after Place, From `Astro-Seek page`, and the address has nothing after `chart.html`. Above **Copy link** is one unticked box, **Town: New York, NY, US**, with the grey notes that the name and town go in only when ticked and that AstroChart Bridge remembers what you tick.
+- [ ] **Copy link** says "Link copied.", and the pasted link starts `https://kevinblakelopez.github.io/astrochart-bridge/chart.html#v1=`. Pasting it after `http://127.0.0.1:8778/chart.html` in place of that address, with the test 19 server running, shows the same chart with no Town row.
+- [ ] Tick **Town** and **Copy link** again: pasted after the test 19 address the same way, it shows Town `New York, NY, US`. Close the tab and click **Share…** on the test 1 chart again: the box starts ticked. Untick it, close the tab, and **Share…** again: it starts unticked.
+- [ ] On an astro.com account chart with a name (test 14's), **Share…** shows Name and Town rows and both boxes, each as you last left it.
 - [ ] **Download file** saves `chart-2024-04-17.astrochart.json`, in Chrome and in Firefox.
 - [ ] **Open Stellarium Web** on that tab opens the same Stellarium address as test 1.
-- [ ] **Enter in astro.com…** on that tab shows the popup's test 14 screen, without the Town row: "AstroChart Bridge opens astro.com's form and fills it in as it opens…", empty name boxes, and **Open astro.com's form**, **Sign in** and **Create account**. **Open astro.com's form** asks for access to www.astro.com as in test 14 if it hasn't been given, then fills in the form in a tab behind this one, and the page says it filled it in, or that something needs your choice first.
+- [ ] **Enter in astro.com…** on that tab shows the popup's test 14 screen, with Town `New York, NY, US`, ticked or not: "AstroChart Bridge opens astro.com's form and fills it in as it opens…", empty name boxes, and **Open astro.com's form**, **Sign in** and **Create account**. **Open astro.com's form** asks for access to www.astro.com as in test 14 if it hasn't been given, then fills in the form in a tab behind this one, and the page says it filled it in, or that something needs your choice first.
 - [ ] Choose a chart file on that tab with **Open an AstroChart Bridge file** and do the same: the form fills in the same way.
 - [ ] On the test 4 chart, **Share…** is faded until a reading is picked. Pick the second reading (the label EST), then **Share…**: the tab shows Offset `UTC-05:00` and UTC `2021-03-14 07:30`.
 - [ ] On an astro.com account chart (test 14's), **Share…** opens a tab showing From `astro.com page`.

@@ -2,7 +2,15 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { analyzePage } from "../extension/core/index.js";
-import { chartToShare, viewFor, viewForAstroCom, viewForShareRefusal, viewForSky } from "../extension/popup-model.js";
+import {
+  chartToShare,
+  labelsToShare,
+  townAndName,
+  viewFor,
+  viewForAstroCom,
+  viewForShareRefusal,
+  viewForSky,
+} from "../extension/popup-model.js";
 import { RECEIVER_URL } from "../extension/share-config.js";
 
 const analyze = (name) => {
@@ -13,8 +21,8 @@ const analyze = (name) => {
 const NY_SKY = { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 };
 
 // chartToShare's chart, or a failed assertion naming the refusal.
-function shared(result, sky, via) {
-  const built = chartToShare(result, sky, via);
+function shared(result, sky, via, chart) {
+  const built = chartToShare(result, sky, via, chart);
   assert.equal(built.kind, "portable", `refused: ${built.reason}`);
   return built.chart;
 }
@@ -86,6 +94,50 @@ test("a chart before 15 October 1582 is refused", () => {
     kind: "refused",
     reason: "before-gregorian",
   });
+});
+
+// --- The chart's name and town ---
+
+const ASTRO_COM = {
+  kind: "natal", site: "astro-com", local: "2024-04-17T08:00:00", zoneLabel: null, lat: 40.716667, lng: -74,
+  utc: "2024-04-17T12:00:00Z", utcSource: "declared", offsetMinutes: -240,
+  town: "New York, NY", name: { first: "Jane", last: "Doe" },
+};
+
+test("a chart with no town or name is shared with no labels, as before", () => {
+  assert.ok(!Object.hasOwn(shared(analyze("ny-2024-04-17"), NY_SKY, "page"), "labels"));
+  assert.ok(!Object.hasOwn(shared(analyze("ny-2024-04-17"), NY_SKY, "page", { town: null, name: null }), "labels"));
+});
+
+test("a chart's town and name go with it as labels, the name's two parts as one", () => {
+  const chart = shared(ASTRO_COM, NY_SKY, "page", townAndName(ASTRO_COM));
+  assert.deepEqual(chart.labels, { name: "Jane Doe", town: "New York, NY" });
+});
+
+test("townAndName gives an astro.com page's own record, and an Astro-Seek page's or its tab's", () => {
+  assert.deepEqual(townAndName(ASTRO_COM, { town: "Elsewhere", name: null }), { town: "New York, NY", name: { first: "Jane", last: "Doe" } });
+  const seek = analyze("ny-2024-04-17");
+  const kept = { town: "Kept Town", name: { first: "Kept", last: "" } };
+  assert.deepEqual(townAndName(seek), { town: null, name: null });
+  assert.deepEqual(townAndName(seek, { kept }), { town: "Kept Town", name: { first: "Kept", last: "" } });
+  assert.deepEqual(townAndName(seek, { town: "Page Town", name: null, kept }), { town: "Page Town", name: { first: "Kept", last: "" } });
+});
+
+test("townAndName gives Share… what the Astro-Seek screen gives astro.com's form", () => {
+  const seek = analyze("ny-2024-04-17");
+  const options = { town: null, name: { first: "Jane", last: "Doe" }, kept: { town: "New York, NY", name: null } };
+  const holds = viewFor(seek, options).next.view.buttons[0].holds;
+  assert.deepEqual(townAndName(seek, options), { town: holds.town, name: holds.name });
+});
+
+test("a name or town the format can't carry is left out, and the chart still shares", () => {
+  assert.deepEqual(labelsToShare({ name: { first: "x".repeat(101), last: "" }, town: "Paris" }), { town: "Paris" });
+  assert.deepEqual(labelsToShare({ name: { first: "Jane", last: "Doe" }, town: "Paris\u202E" }), { name: "Jane Doe" });
+  assert.deepEqual(labelsToShare({ name: { first: " ", last: "" }, town: "  " }), {});
+  assert.deepEqual(labelsToShare({ town: "  Paris  " }), { town: "Paris" });
+  assert.deepEqual(labelsToShare(), {});
+  const chart = shared(ASTRO_COM, NY_SKY, "page", { name: { first: "x".repeat(101), last: "" }, town: null });
+  assert.ok(!Object.hasOwn(chart, "labels"));
 });
 
 // --- When sharing is refused ---

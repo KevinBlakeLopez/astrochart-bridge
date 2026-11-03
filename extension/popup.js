@@ -19,6 +19,7 @@ import {
   chartToShare,
   nameFromText,
   offersOtherWays,
+  townAndName,
   viewFor,
   viewForAstroComManual,
   viewForAstroComNotFilled,
@@ -36,9 +37,10 @@ const app = document.getElementById("app");
 // Where the values for an astro.com tab are kept. The browser empties it when it quits.
 const held = chrome.storage.session;
 
-// The chart page's analyzePage result, for Share…. A Stellarium tab's screen
-// has no Share…: it has no birthplace time.
+// The chart page's analyzePage result, and its town and name, for Share…. A
+// Stellarium tab's screen has no Share…: it has no birthplace time.
 let sharing = null;
+let sharingLabels = {};
 
 main().catch((error) => {
   const view = { state: "refused", message: "AstroChart Bridge couldn't read this tab.", code: String(error?.message ?? error) };
@@ -111,6 +113,7 @@ async function main() {
     name: nameFromText(nameFromUrl(url)),
     kept: kept && sameAstroSeekChart(kept, result) ? kept : null,
   };
+  sharingLabels = townAndName(result, options);
   showChart(withAafExport(viewFor(result, options), result));
 }
 
@@ -243,7 +246,7 @@ function chartButtons(button, sky, screen) {
 // chart in its link, for the sky the screen decided. A chart the format can't
 // carry says why, and Cancel goes back to the chart.
 async function share(sky, back, onButton) {
-  const shared = chartToShare(sharing, sky, "page");
+  const shared = chartToShare(sharing, sky, "page", sharingLabels);
   if (shared.kind === "refused") {
     render(app, viewForShareRefusal(shared.reason), onButton, back);
     return;
