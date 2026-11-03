@@ -34,11 +34,14 @@ export const ENTRY_FIELDS = [
 ];
 
 // The other fields readText finds. They are shown as written, and only the
-// name and place go anywhere: into astro.com's form, by the step after the
-// form, the place as the town for its atlas to look up.
+// name, place, country and gender go anywhere: into astro.com's form and
+// Astro-Seek's, by the step after the form, the place as the town for their
+// lists to look up and the country to help choose among them.
 const INFO_FIELDS = [
   ["name", "Name"],
   ["place", "Place"],
+  ["country", "Country"],
+  ["gender", "Gender"],
   ["zone", "Time zone"],
   ["houses", "Houses"],
   ["zodiac", "Zodiac"],
@@ -157,7 +160,11 @@ export function formFor(result, program = null) {
   // them, so they go before readText's labels; a labelled place that is only
   // coordinates names no town.
   const labelledPlace = fields.place?.value ?? null;
-  const town = read?.town ?? (labelledPlace !== null && !COORDINATES.test(labelledPlace) ? labelledPlace : null);
+  const place = read?.town ?? (labelledPlace !== null && !COORDINATES.test(labelledPlace) ? labelledPlace : null);
+  // A Country line goes after the town, where it helps choose among the
+  // forms' matches; only the town is typed. A country alone names no town.
+  const country = fields.country?.value ?? null;
+  const town = place === null ? null : [place, country].filter(Boolean).join(", ");
   const chartName = read?.name ?? nameFromText(fields.name?.value);
   if (town !== null) notes.push(PLACE_NOTE);
   const boxes = ENTRY_FIELDS.map((field) => ({
@@ -184,6 +191,8 @@ export function formFor(result, program = null) {
     name: chartName,
     // Null when the text gives two places.
     town,
+    // "female", "male" or "event", or null when the text gives none it can read.
+    gender: fields.gender?.value ?? null,
   };
 }
 
@@ -344,10 +353,10 @@ export function localEntryFor({ date, time, lat, lng }, offsetText) {
  * with no UTC, so astro.com's automatic time zone decides the moment.
  *
  * @param {NonNullable<ReturnType<typeof localEntryFor>>} chart
- * @param {{ name?: { first: string, last: string } | null, town?: string | null }} [options]  formFor's
+ * @param {{ name?: { first: string, last: string } | null, town?: string | null, gender?: string | null }} [options]  formFor's
  */
-export function viewForLocalEntry({ local, lat, lng }, { name = null, town = null } = {}) {
-  const view = viewForAstroCom({ utc: null, lat, lng }, { local, name, town });
+export function viewForLocalEntry({ local, lat, lng }, { name = null, town = null, gender = null } = {}) {
+  const view = viewForAstroCom({ utc: null, lat, lng }, { local, name, town, gender });
   return { ...view, notes: [LOCAL_ONLY_NOTE, ...view.notes] };
 }
 
@@ -358,10 +367,10 @@ export function viewForLocalEntry({ local, lat, lng }, { name = null, town = nul
  * the step to enter it in astro.com with the text's name and place.
  *
  * @param {ReturnType<typeof entryFor>} entry
- * @param {{ warnings?: string[], timeZone?: string, name?: { first: string, last: string } | null, town?: string | null }} [options]
- *   timeZone is passed on to viewFor; name and town are formFor's
+ * @param {{ warnings?: string[], timeZone?: string, name?: { first: string, last: string } | null, town?: string | null,
+ *   gender?: string | null }} [options]  timeZone is passed on to viewFor; name, town and gender are formFor's
  */
-export function viewForEntry(entry, { warnings = [], timeZone, name = null, town = null } = {}) {
+export function viewForEntry(entry, { warnings = [], timeZone, name = null, town = null, gender = null } = {}) {
   const result = analyzeEntry(entry);
   const view = viewFor(result, { timeZone });
   return withAstroSeekSave(
@@ -370,9 +379,9 @@ export function viewForEntry(entry, { warnings = [], timeZone, name = null, town
       warnings: [...view.warnings, ...warnings],
       notes: [OFFSET_NOTE, ...view.notes, ...ASTRO_SEEK_NOTES],
       buttons: [...ASTRO_SEEK_BUTTONS, SHARE_BUTTON].map((button) => ({ ...button })),
-      next: astroComStep(view.sky, { local: result.local, name, town }),
+      next: astroComStep(view.sky, { local: result.local, name, town, gender }),
     },
-    { town, name },
+    { town, name, gender },
   );
 }
 
