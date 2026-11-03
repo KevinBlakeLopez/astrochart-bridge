@@ -1,5 +1,6 @@
 import { isoUtc } from "./civiltime.js";
 import { chartRecord, readClock, readDate, readLatitude, readLongitude, readZone } from "./esotech.js";
+import { withLabels } from "./names.js";
 import { linesOf } from "./printed-chart.js";
 
 const refused = (reason) => ({ kind: "refused", reason });
@@ -69,8 +70,15 @@ export function read(text) {
     readLatitude(lat.text),
     readLongitude(lng.text),
   ]);
-  if (chart.kind === "refused" || !julianDay) return chart;
+  // The name is the line above the date, and the place the one between the
+  // date and the time, where nothing else this reader knows is.
+  const dateAt = lines.findIndex((line) => FIELDS.date.test(line));
+  const timeAt = lines.findIndex((line) => FIELDS.time.test(line));
+  const known = (line) => Object.values(FIELDS).some((pattern) => pattern.test(line));
+  const label = (at) => (at >= 0 && !known(lines[at]) ? lines[at] : null);
+  const labelled = withLabels(chart, { name: label(dateAt - 1), place: timeAt === dateAt + 2 ? label(dateAt + 1) : null });
+  if (labelled.kind === "refused" || !julianDay) return labelled;
   // Rounded to the second: five decimals of a day are 0.864 s.
   const ms = Math.round(((Number(julianDay.jd) - UNIX_EPOCH_JD) * 86_400_000) / 1000) * 1000;
-  return { ...chart, utc: isoUtc(ms) };
+  return { ...labelled, utc: isoUtc(ms) };
 }

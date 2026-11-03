@@ -27,6 +27,7 @@ export const SITE_FILES = Object.freeze([
   "core/astroseek.js",
   "core/astrocom.js",
   "core/towns.js",
+  "core/names.js",
   "core/stellarium.js",
   "core/civiltime.js",
   "vendor/lean-qr/index.mjs",

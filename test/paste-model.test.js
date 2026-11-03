@@ -38,7 +38,7 @@ test("the form fills each box from the text and says which line it came from", (
   );
 });
 
-test("the other fields are shown as written, with a note that only astro.com gets the place", () => {
+test("the other fields are shown as written, with a note that only the forms get the town", () => {
   const form = formOf(LABELLED);
   assert.deepEqual(form.rows, [
     ["Name", "Example Person"],
@@ -48,7 +48,20 @@ test("the other fields are shown as written, with a note that only astro.com get
     ["Zodiac", "Tropical"],
   ]);
   assert.deepEqual(form.warnings, []);
-  assert.match(form.notes.at(-1), /doesn't look places up\..*astro\.com's form gets the place as its town/);
+  assert.match(form.notes.at(-1), /doesn't look places up\..*astro\.com's form and Save in Astro-Seek… get the town/);
+  assert.equal(form.town, "Seattle, Washington, USA");
+});
+
+test("a labelled place that is only coordinates names no town for the forms", () => {
+  for (const place of [`122 W 20' 30", 47 N 36' 32"`, "40N43 74W00", "47°36'N 122°20'W"]) {
+    const form = formOf(`Name: Example Person\nDate: 2024-04-17\nTime: 08:00\nOffset: -04:00\nPlace: ${place}\nLatitude: 40°43'N\nLongitude: 74°0'W`);
+    assert.equal(form.town, null, place);
+    assert.ok(!form.notes.some((note) => note.includes("doesn't look places up")), place);
+  }
+  for (const place of ["5 North Street, Springfield", "Route 66 East, Tulsa"]) {
+    const form = formOf(`Date: 2024-04-17\nTime: 08:00\nOffset: -04:00\nPlace: ${place}\nLatitude: 40°43'N\nLongitude: 74°0'W`);
+    assert.equal(form.town, place);
+  }
 });
 
 test("each box's text reads back as the value it was filled from", () => {

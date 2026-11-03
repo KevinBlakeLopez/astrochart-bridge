@@ -1,4 +1,5 @@
 import { chartRecord, readClock, readDate, readLatitude, readLongitude, readZone } from "./esotech.js";
+import { withLabels } from "./names.js";
 import { linesOf } from "./printed-chart.js";
 
 const refused = (reason) => ({ kind: "refused", reason });
@@ -20,6 +21,7 @@ const FIELDS = {
   lat: [/^Latitude:? (.+)$/, readLatitude],
   lng: [/^Longitude:? (.+)$/, readLongitude],
 };
+const PLACE = /^Place:? (.+)$/;
 
 /**
  * Whether a screenshot's text has Astro Gold's Edit Chart fields: a Latitude
@@ -48,5 +50,7 @@ export function read(text) {
     if (matches.length === 0) return refused("unreadable-screenshot");
     parts.push(readValue(matches[0][1]));
   }
-  return chartRecord("astro-gold", parts);
+  // The Place row names the town; the screen has no name.
+  const place = lines.map((line) => PLACE.exec(line)).filter(Boolean);
+  return withLabels(chartRecord("astro-gold", parts), { place: place.length === 1 ? place[0][1] : null });
 }

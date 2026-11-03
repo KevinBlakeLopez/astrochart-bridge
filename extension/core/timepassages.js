@@ -1,5 +1,6 @@
 import { isoUtc } from "./civiltime.js";
 import { chartRecord, readClock, readDate } from "./esotech.js";
+import { withLabels } from "./names.js";
 import { angle, linesOf } from "./printed-chart.js";
 import { localSiderealSeconds } from "./sidereal.js";
 
@@ -33,6 +34,8 @@ const FIELDS = {
   sidereal: /^ST (?<hour>\d{1,2}):(?<minute>\d{2}):(?<second>\d{2})$/,
 };
 const REQUIRED = ["when", "coords"];
+// The wheel's corner lines that name a sign: "Cancer Rising", "Pisces Sun".
+const SIGN_LINE = /^[A-Z][a-z]+ (?:Rising|Sun|Moon)$/;
 // A chart of two people or two moments, whose corners don't all describe one birth.
 const NOT_NATAL = /\b(?:Biwheel|Comparison|Transits?|Progressed)\b/;
 
@@ -89,7 +92,15 @@ export function read(text) {
   const siderealSeconds = sidereal && clockSeconds([sidereal.hour, sidereal.minute, sidereal.second]);
   const tltSeconds = tlt && clockSeconds([tlt.hour, tlt.minute, "0"]);
   if (siderealSeconds === null || tltSeconds === null) return refused("unreadable-screenshot");
-  if (siderealSeconds === undefined) return chart;
+  // Top left, the name is above the date and time; bottom left, the place is
+  // above the coordinates. A line this reader knows, or a sign's, is neither.
+  const at = (name) => lines.findIndex((line) => FIELDS[name].test(line));
+  const label = (index) => {
+    const line = lines[index] ?? "";
+    return Object.values(FIELDS).some((pattern) => pattern.test(line)) || SIGN_LINE.test(line) ? null : line;
+  };
+  const labels = { name: label(at("when") - 1), place: label(at("coords") - 1) };
+  if (siderealSeconds === undefined) return withLabels(chart, labels);
 
   const offsets = siderealOffsets(chart.local, lng, siderealSeconds, chart.zoneLabel === "LMT");
   if (offsets.length === 0) return refused("sidereal-mismatch");
@@ -99,7 +110,10 @@ export function read(text) {
   // also chooses between them.
   const zoned = chart.zoneLabel === "LMT" ? fitting : fitting.filter((offset) => Math.abs(offset) % 15 === 0);
   if (zoned.length === 0) return refused("offset-off-quarter-hour");
-  return zoned.map((offsetMinutes) => ({ ...chart, offsetMinutes, siderealSeconds }));
+  return withLabels(
+    zoned.map((offsetMinutes) => ({ ...chart, offsetMinutes, siderealSeconds })),
+    labels,
+  );
 }
 
 // The offsets, in minutes east of UTC and inside -12:00 to +14:00, at which

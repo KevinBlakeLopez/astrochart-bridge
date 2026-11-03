@@ -1,4 +1,5 @@
 import { chartRecord, readClock, readDate, readZone } from "./esotech.js";
+import { withLabels } from "./names.js";
 import { angle, linesOf } from "./printed-chart.js";
 
 const refused = (reason) => ({ kind: "refused", reason });
@@ -75,9 +76,18 @@ export function read(text) {
   const place = coords[0].groups;
   const lng = angle({ deg: Number(place.lngDeg), min: Number(place.lngMin), sec: Number(place.lngSec ?? 0), negative: place.lngSide === "w", limit: 180 });
   const lat = angle({ deg: Number(place.latDeg), min: Number(place.latMin), sec: Number(place.latSec ?? 0), negative: place.latSide === "s", limit: 90 });
-  return chartRecord("janus", [
+  const chart = chartRecord("janus", [
     ...parts,
     lat === null ? refused("unreadable-screenshot") : { lat },
     lng === null ? refused("unreadable-screenshot") : { lng },
   ]);
+  // Only the wheel's layout is known: the name above Natal Chart, and the
+  // town and country between the zone and the coordinates.
+  if (zoneAt.length === 0) return chart;
+  const coordsAt = lines.findIndex((line) => COORDS.test(line));
+  const placeLines = coordsAt > zoneAt[0] ? lines.slice(zoneAt[0] + 1, coordsAt) : [];
+  return withLabels(chart, {
+    name: OPENS.has(above) ? (lines[dateAt - 2] ?? null) : null,
+    place: placeLines.length === 1 || placeLines.length === 2 ? placeLines.join(", ") : null,
+  });
 }

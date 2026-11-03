@@ -51,7 +51,26 @@ test("a block without a zone label reads as printed, with Solar Fire's + turned 
     lng: -73.933333,
     zoneLabel: null,
     offsetMinutes: -240,
+    // Above the type line, and under the time.
+    name: "Barbra Streisand",
+    place: "Brooklyn, New York",
   });
+});
+
+test("the chart's name is read above a type line this reader knows, and the place under the time", () => {
+  const labels = (lines) => {
+    const { name, place } = read(ocr(lines));
+    return { name, place };
+  };
+  assert.deepEqual(labels(STREISAND), { name: "Barbra Streisand", place: "Brooklyn, New York" });
+  // Solar Fire's user named this chart with a date; it is still its name.
+  assert.deepEqual(labels(DENVER), { name: "July 5 2015", place: "Denver, Colorado" });
+  assert.deepEqual(labels(CHAPLIN), { name: "Charles Chaplin", place: "London, England" });
+  // No type line above the date, so the line above it, if any, isn't taken for a name.
+  assert.deepEqual(labels(NEW_YORK), { name: undefined, place: "New York, NY" });
+  assert.deepEqual(labels(["A heading", ...NEW_YORK]), { name: undefined, place: "New York, NY" });
+  // With the coordinates straight under the time, there is no place line.
+  assert.deepEqual(labels(STREISAND.filter((line) => line !== "Brooklyn, New York")), { name: "Barbra Streisand", place: undefined });
 });
 
 test("a block with no label opens at its offset, with nothing to check it", () => {
@@ -66,6 +85,9 @@ test("a block with no label opens at its offset, with nothing to check it", () =
     utcSource: "declared",
     offsetMinutes: -240,
     warnings: ["offset-unchecked"],
+    // For astro.com's and Astro-Seek's forms.
+    name: { first: "Barbra Streisand", last: "" },
+    town: "Brooklyn, New York",
   });
 });
 
@@ -194,6 +216,8 @@ test("Astro Gold's Chart Details panel reads as Astro Gold", () => {
     utcSource: "declared",
     offsetMinutes: -420,
     warnings: ["offset-unchecked"],
+    name: { first: "Angelina Jolie", last: "" },
+    town: "Los Angeles, California",
   });
 });
 
@@ -235,6 +259,8 @@ test("Astro Gold's Edit Chart screen reads its labelled fields", () => {
     utc: "1963-11-22T21:12:00Z",
     utcSource: "declared",
     offsetMinutes: 600,
+    // The Place row; the screen has no name.
+    town: "Melbourne",
   });
 });
 
