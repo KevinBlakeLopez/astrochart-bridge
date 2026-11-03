@@ -46,6 +46,8 @@ test("a block opens at its offset, which its sidereal time checks", () => {
     utc: "1955-10-27T05:17:59Z",
     utcSource: "declared",
     offsetMinutes: -480,
+    // Above Natal Chart. Its place's name is "--, --", so there is no town.
+    name: { first: "Bill Gates", last: "" },
   });
 });
 

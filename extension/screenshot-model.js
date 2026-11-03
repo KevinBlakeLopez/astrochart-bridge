@@ -87,6 +87,18 @@ export function viewForScreenshot(result, options) {
   // viewFor leads only an Astro-Seek chart on to astro.com, since the popup
   // is on an astro.com chart's own page. A screenshot can be any chart, so
   // every chart with a decided sky can be entered there, at its own local time.
-  const next = view.next || !view.sky ? {} : { next: astroComStep(view.sky, { local: result.local }) };
-  return withAstroSeekSave({ ...view, ...warnings, ...message, ...next, notes: [COMPARE_NOTE, ...notes], buttons });
+  // A program's name and place, where its reader found them, go on to both
+  // forms, and show as rows to compare with the screenshot like the others.
+  const { name = null, town = null } = result;
+  const next = view.next || !view.sky ? {} : { next: astroComStep(view.sky, { local: result.local, name, town }) };
+  const rows = view.rows && (name || town) ? { rows: labelRows(view.rows, { name, town }) } : {};
+  return withAstroSeekSave({ ...view, ...rows, ...warnings, ...message, ...next, notes: [COMPARE_NOTE, ...notes], buttons }, { name, town });
+}
+
+// The screen's rows with Name first and Town after Place, as printed.
+function labelRows(rows, { name, town }) {
+  const at = rows.findIndex(([label]) => label === "Place") + 1 || rows.length;
+  const nameRow = name ? [["Name", [name.first, name.last].filter(Boolean).join(" ")]] : [];
+  const townRow = town ? [["Town", town]] : [];
+  return [...nameRow, ...rows.slice(0, at), ...townRow, ...rows.slice(at)];
 }

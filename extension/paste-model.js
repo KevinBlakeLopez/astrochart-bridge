@@ -47,7 +47,13 @@ const INFO_FIELDS = [
 
 const FORM_NOTE = "Check each value against the text. Nothing is sent until you open the sky or the chart.";
 const PLACE_NOTE =
-  "AstroChart Bridge doesn't look places up. Stellarium Web, Astro-Seek and Share use the latitude and longitude; astro.com's form gets the place as its town, for its own atlas to look up.";
+  "AstroChart Bridge doesn't look places up. Stellarium Web, Astro-Seek's chart and Share use the latitude and longitude; astro.com's form and Save in Astro-Seek… get the town, for their own lists to look up.";
+
+// A place written as coordinates, such as Jagannatha Hora's "Place: 122 W 20'
+// 30", 47 N 36' 32"", "40N43" or "47°36'N": a number, perhaps a degree or
+// minute mark, then a compass letter that doesn't start a word, as N in
+// "5 North St" would. It names no town for astro.com's or Astro-Seek's town search.
+const COORDINATES = /\d\s*[°'′"]?\s*[NSEW](?![a-z])/i;
 
 // On a form whose text gives no offset. astro.com's form takes the local time
 // and looks the zone up for the town; everything else needs the UTC.
@@ -147,7 +153,13 @@ export function formFor(result, program = null) {
   if (read && WEST_PLUS.has(read.site)) {
     notes.push(`${name} writes offsets west of Greenwich with a plus sign, so its +7:00 is UTC-07:00 here.`);
   }
-  if (fields.place) notes.push(PLACE_NOTE);
+  // The program's reader finds a name and town by where its program prints
+  // them, so they go before readText's labels; a labelled place that is only
+  // coordinates names no town.
+  const labelledPlace = fields.place?.value ?? null;
+  const town = read?.town ?? (labelledPlace !== null && !COORDINATES.test(labelledPlace) ? labelledPlace : null);
+  const chartName = read?.name ?? nameFromText(fields.name?.value);
+  if (town !== null) notes.push(PLACE_NOTE);
   const boxes = ENTRY_FIELDS.map((field) => ({
     name: field.name,
     label: field.label,
@@ -161,13 +173,17 @@ export function formFor(result, program = null) {
   return {
     state: "form",
     fields: boxes,
-    rows: INFO_FIELDS.filter(([field]) => fields[field]).map(([field, label]) => [label, asWritten(fields[field])]),
+    rows: [
+      ...INFO_FIELDS.filter(([field]) => fields[field]).map(([field, label]) => [label, asWritten(fields[field])]),
+      ...(read?.name && !fields.name ? [["Name", read.name.first]] : []),
+      ...(read?.town ? [["Town", read.town]] : []),
+    ],
     warnings,
     notes,
     statedOffsets: [...statedOffsets(fields.offset), ...(values.offset == null ? [] : [values.offset])],
-    name: nameFromText(fields.name?.value),
+    name: chartName,
     // Null when the text gives two places.
-    town: fields.place?.value ?? null,
+    town,
   };
 }
 

@@ -1,3 +1,4 @@
+import { withLabels } from "./names.js";
 import { angle, linesOf, localIso, monthNumber, weekdayNumber } from "./printed-chart.js";
 
 const refused = (reason) => ({ kind: "refused", reason });
@@ -93,13 +94,22 @@ export function read(text) {
   const at = timeAt[0];
   const { clock, zone } = TIME_LINE.exec(lines[at]).groups;
   const { lat, lng } = COORDS_LINE.exec(coordsLines[0]).groups;
-  return chartRecord(siteOf(lines[at - 2] ?? ""), [
+  const site = siteOf(lines[at - 2] ?? "");
+  const chart = chartRecord(site, [
     readDate(lines[at - 1] ?? ""),
     readClock(clock),
     readZone(zone),
     readLatitude(lat),
     readLongitude(lng),
   ]);
+  // The name is above the type line, so it is read only where the type line
+  // is one this reader knows; the place is the line under the time, unless
+  // the coordinates come straight after it.
+  const place = lines[at + 1] ?? null;
+  return withLabels(chart, {
+    name: site === "solar-fire-or-astro-gold" ? null : (lines[at - 3] ?? null),
+    place: place !== null && !COORDS_LINE.test(place) ? place : null,
+  });
 }
 
 function siteOf(typeLine) {

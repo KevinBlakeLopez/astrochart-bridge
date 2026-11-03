@@ -22,6 +22,9 @@ test("the offset comes from ST, rounded to the minute, and TLT agrees", () => {
     utc: "1963-12-18T12:31:00Z",
     utcSource: "declared",
     offsetMinutes: -360,
+    // Above the date and time, and above the coordinates.
+    name: { first: "Brad Pitt", last: "" },
+    town: "Shawnee, OK",
   });
 });
 

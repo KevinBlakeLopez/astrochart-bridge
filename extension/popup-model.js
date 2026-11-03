@@ -1,6 +1,7 @@
 import { formTime, localOffset, zoneWords } from "./core/astrocom.js";
 import { astroSeekSaveUrl } from "./core/astroseek.js";
 import { parseOffset, utcFromOffset } from "./core/civiltime.js";
+import { nameFromText } from "./core/names.js";
 import { toPortable } from "./core/portable.js";
 import { HOLD_MINUTES } from "./pending.js";
 
@@ -542,19 +543,8 @@ export const NAME_LENGTH = 40;
 const NAME_NOTE =
   "The name goes in astro.com's first and last name fields, and you can change it here first. A name in one piece goes in First name, which astro.com won't save a chart without.";
 
-/**
- * The name for astro.com's form from a chart that keeps it as one string, as
- * pasted text and Morinus do: all of it is the first name, since astro.com's
- * form refuses a chart with no first name ("Please write something as 'first
- * name'", seen on 2026-11-01). Runs of spaces become one, as a person would type it.
- *
- * @param {string | null | undefined} text
- * @returns {{ first: string, last: "" } | null}
- */
-export function nameFromText(text) {
-  const first = text?.replace(/\s+/g, " ").trim() ?? "";
-  return first === "" ? null : { first, last: "" };
-}
+// The core readers give a chart's name the same way, so the rule is theirs.
+export { nameFromText };
 
 /**
  * The name the boxes on the astro.com screen give, in place of the one the

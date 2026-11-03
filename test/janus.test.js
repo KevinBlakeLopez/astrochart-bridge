@@ -36,6 +36,9 @@ test("the wheel's LMT offset, to the second, fits its longitude", () => {
     utc: "1809-02-12T12:40:51Z",
     utcSource: "declared",
     offsetMinutes: 0 - (342 + 58 / 60),
+    // Above Natal Chart, and the town and country lines between the zone and the coordinates.
+    name: { first: "Abraham Lincoln", last: "" },
+    town: "Hodgenville KY, USA",
   });
 });
 

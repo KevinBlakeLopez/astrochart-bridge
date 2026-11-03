@@ -207,6 +207,7 @@ The screenshot page reads the image on this computer with the Tesseract.js files
 - [ ] In light and dark mode the page is readable, like the popup in test 10.
 - [ ] Open a chart drawing on astro.com and paste a screenshot of the whole drawing. The rows show the header's local date and time, its Univ.Time as UTC, and its coordinates. There is no zone label in the Local time row, and the page offers **Open Stellarium Web**, **Open chart in Astro-Seek** and **Enter in astro.com…**, which shows the header's local date and time with the automatic time zone and its offset, no Town row, and empty name boxes.
 - [ ] If you have Solar Fire, Astro Gold or another program the page reads, paste a screenshot of a chart's details from it. The page offers **Enter in astro.com…** with the chart's local date and time, and **Open astro.com's form** fills in astro.com's form as in test 14.
+- [ ] From Solar Fire, Astro Gold's Chart Details, a Janus wheel, Win*Star, TimePassages or Jagannatha Hora, with a chart whose name and town you know: the rows start with **Name**, the chart's name, and have **Town**, its place as printed, after **Place**. Note any program where either is another line of the screenshot, or missing. **Enter in astro.com…** has the name in **First name** and the town as **Town**, and **Save in Astro-Seek…** opens Astro-Seek's form with the name and chooses the town, as in test 24. A screenshot that leaves out the line above the date has no **Name** row.
 
 ## Test 14: entering a chart in astro.com
 
@@ -342,6 +343,7 @@ Place:         122 W 20' 30", 47 N 36' 32"
 Sidereal Time: 23:27:48
 ```
 
+- [ ] Read that block again. Under the form, the rows end with **Town** `Seattle, Washington, USA`. **Continue**, then **Enter in astro.com…**: First name is `Bill Gates` and Town is `Seattle, Washington, USA`, not the coordinates on the `Place:` line.
 - [ ] Replace the text with `Name: <b>Example</b>` and `Date of Birth: 15 June 1985` on two lines and click **Read the text**. The Name row shows the angle brackets as typed, not bold text.
 - [ ] Replace the text with `Sun: 24°15' Gemini` and click **Read the text**. The page says it found no birth data and shows `Code: no-birth-data`.
 - [ ] In light and dark mode the page is readable, like the popup in test 10.

@@ -25,6 +25,9 @@ test("the wheel opens at its ZONE, west of Greenwich as +", () => {
     utcSource: "declared",
     offsetMinutes: -480,
     warnings: ["offset-unchecked"],
+    // Above the date, and between the date and the time, as printed.
+    name: { first: "Jodie Foster", last: "" },
+    town: "Los Angeles,CA",
   });
 });
 

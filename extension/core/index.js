@@ -12,6 +12,7 @@ import * as morinus from "./morinus.js";
 import * as planetdance from "./planetdance.js";
 import * as timepassages from "./timepassages.js";
 import * as winstar from "./winstar.js";
+import { nameFromText } from "./names.js";
 import { resolvePrinted, resolveReadings } from "./printed-chart.js";
 import { SIDEREAL_TOLERANCE_SECONDS, siderealGap } from "./sidereal.js";
 import { separateLabels } from "./text.js";
@@ -185,11 +186,15 @@ const ASTRO_SEEK_LABELS = /^(Date of Birth|Universal Time)/m;
 const ASTRO_COM_LABELS = /Univ\W*Time/;
 
 // Programs whose readers return a record for resolvePrinted, or several
-// readings of one for resolveReadings to choose between.
+// readings of one for resolveReadings to choose between. The chart's name and
+// place, where the reader found them (withLabels), go on to astro.com's and
+// Astro-Seek's forms as an astro.com chart's do.
 const printedBy = (reader) => (text) => {
   const chart = reader.read(text);
-  if (Array.isArray(chart)) return resolveReadings(chart);
-  return chart.kind === "refused" ? chart : resolvePrinted(chart);
+  const resolved = Array.isArray(chart) ? resolveReadings(chart) : chart.kind === "refused" ? chart : resolvePrinted(chart);
+  if (resolved.kind !== "natal") return resolved;
+  const { name = null, place = null } = Array.isArray(chart) ? chart[0] : chart;
+  return { ...resolved, ...(name === null ? {} : { name: nameFromText(name) }), ...(place === null ? {} : { town: place }) };
 };
 
 const PROGRAM_READERS = [

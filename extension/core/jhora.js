@@ -1,3 +1,4 @@
+import { withLabels } from "./names.js";
 import { angle, linesOf, localIso, monthNumber } from "./printed-chart.js";
 
 const refused = (reason) => ({ kind: "refused", reason });
@@ -85,15 +86,25 @@ export function read(text) {
 
   // "0 - size" keeps 0:00:00 West of GMT at 0 instead of -0.
   const size = Number(zone.hours) * 60 + Number(zone.minutes) + Number(zone.seconds) / 60;
-  return {
-    site: "jhora",
-    local,
-    lat,
-    lng,
-    zoneLabel: null,
-    offsetMinutes: zone.side === "West" ? 0 - size : size,
-    siderealSeconds,
-  };
+  // The name is above Natal Chart, and the place's name on the line under its
+  // coordinates: one with letters and no label, as "--, --", where
+  // Jagannatha Hora has none, and "Altitude:" are not.
+  const placeName = lines[found.place.at + 1] ?? "";
+  return withLabels(
+    {
+      site: "jhora",
+      local,
+      lat,
+      lng,
+      zoneLabel: null,
+      offsetMinutes: zone.side === "West" ? 0 - size : size,
+      siderealSeconds,
+    },
+    {
+      name: above === "Natal Chart" ? (lines[found.date.at - 2] ?? null) : null,
+      place: /[A-Za-z]/.test(placeName) && !placeName.includes(":") ? placeName : null,
+    },
+  );
 }
 
 // 1 to 12 with "a" or "p" as a 24-hour hour; 0 to 23 with neither. null otherwise.
