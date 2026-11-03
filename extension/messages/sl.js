@@ -16,11 +16,28 @@ const MONTH_NAMES = [
 // Slovenian counts have four forms: 1 minuto, 2 minuti, 3 minute, 5 minut.
 // Intl's rules also cover 101, 102, 103 and so on, which end the same way.
 const PLURAL = new Intl.PluralRules("sl");
-const count = (n, forms) => `${n} ${forms[PLURAL.select(n)]}`;
+const count = (n, forms) => `${n.toLocaleString("sl")} ${forms[PLURAL.select(n)]}`;
 // After a verb, as in "jih hrani 30 minut" or "izpusti 3 sekunde".
 const MINUTES = { one: "minuto", two: "minuti", few: "minute", other: "minut" };
 const SECONDS = { one: "sekundo", two: "sekundi", few: "sekunde", other: "sekund" };
 const CHARACTERS = { one: "znak", two: "znaka", few: "znake", other: "znakov" };
+// After "do", as in "do 100.000 znakov".
+const UP_TO_CHARACTERS = { one: "znaka", two: "znakov", few: "znakov", other: "znakov" };
+// The verb agrees with the count too: "sta 2 horoskopa", "je 5 horoskopov".
+const CHARTS_IN_FILE = { one: "je # horoskop", two: "sta # horoskopa", few: "so # horoskopi", other: "je # horoskopov" };
+
+// "a, b in c"
+const and = (items) => (items.length < 2 ? items.join("") : `${items.slice(0, -1).join(", ")} in ${items.at(-1)}`);
+
+const NEWER = "Ta horoskop je naredila novejša različica AstroChart Bridge, zato ga ta stran ne zna prebrati.";
+const NEWER_FILE = "To datoteko je naredila novejša različica AstroChart Bridge, zato je ta stran ne zna prebrati.";
+const BEFORE_GREGORIAN = "Datum tega horoskopa je pred 15. oktobrom 1582, zato ga AstroChart Bridge še ne zna odpreti.";
+const QR_TOO_LONG = "Ta povezava je predolga za kodo QR, ki bi se zanesljivo prebrala.";
+const JULIAN = "Ta datum je v julijanskem koledarju, ki ga AstroChart Bridge še ne zna odpreti.";
+const PRE_GREGORIAN = "AstroChart Bridge odpira datume od 15. oktobra 1582 naprej, ko se je začel gregorijanski koledar.";
+const OFFSET_RANGE = "Zamik tega horoskopa je, vključno s poletnim časom, zunaj obsega od -12:00 do +14:00.";
+// Each screenshot refusal that blames a misreading ends with the same advice.
+const MISREAD = "zato je bil eden od podatkov verjetno napačno prebran. Poskusite z večjim posnetkom.";
 
 const TOOLBAR_STEP = "znova kliknite ikono AstroChart Bridge v orodni vrstici, da izpolni obrazec.";
 
@@ -65,12 +82,13 @@ export default {
     // English's letters, not S, J, V and Z: a Slovenian S is sever, north, and
     // the coordinates are copied into sites that read S as south.
     compass: { north: "N", south: "S", east: "E", west: "W" },
-    // "a, b in c"
-    and: (items) => (items.length === 1 ? items[0] : `${items.slice(0, -1).join(", ")} in ${items.at(-1)}`),
+    and,
 
     rows: {
       localTime: "Lokalni čas",
       place: "Kraj",
+      town: "Mesto",
+      name: "Ime",
       offset: "Zamik",
       utc: "UTC",
       stellariumTime: "Čas v Stellariumu",
@@ -227,5 +245,388 @@ export default {
     zoneToCheck: (zone, date, time) =>
       LOCAL_ZONE +
       `Preverite, da je ${zone}. Če ni, pod show / hide extended settings izberite 00:00 GMT / UT in namesto tega vnesite ${date}, ${time}.`,
+  },
+
+  // Stellarium follows the computer's language. Its Slovenian translation, as
+  // Stellarium 25.1 ships it (translations/stellarium/sl.qm), names Okno za
+  // nastavitve, Vtičniki, Naloži ob zagonu, nastavi, Shrani nastavitve and
+  // Okno za nastavljanje kraja; the Remote Control plugin's own settings
+  // aren't translated, so they stay as Stellarium shows them: Remote Control,
+  // Server enabled, Enable automatically on startup, Port Number, Access
+  // requires authentication.
+  desktop: {
+    send: "Pošlji v Stellarium Desktop",
+    nowDefault: "Stellarium Desktop je zdaj vaša privzeta izbira za horoskope. Na vsakem zaslonu s horoskopom je povezava, s katero to spremenite nazaj.",
+    undo: "Razveljavi",
+    isDefault: "Stellarium Desktop je vaša privzeta izbira za horoskope.",
+    makeWebDefault: "Nastavi Stellarium Web kot privzetega",
+    webDefaultAgain: "Stellarium Web je spet privzet.",
+    useByDefault: "Privzeto uporabljaj Stellarium Desktop",
+    hints: {
+      connected: "Stellarium Desktop je odprt in pripravljen.",
+      unavailable: "Stellarium Desktop trenutno ni dosegljiv. Gumb pokaže, kako ga nastavite.",
+      "auth-required": "Stellarium zahteva geslo, ki ga AstroChart Bridge ne uporablja. Gumb pokaže, kako ga izklopite.",
+      "invalid-response": "Na vratih 8090 se odziva nekaj drugega kot Stellarium.",
+      "stellarium-not-earth": "Opazovalec v Stellariumu je na drugem planetu.",
+    },
+    noAnswer: "Stellarium Desktop se ni odzval.",
+    sending: "Pošiljanje v Stellarium Desktop …",
+    reading: "Branje iz Stellarium Desktop …",
+    setupSteps: [
+      "Odprite Stellarium in pritisnite F2 (na mnogih tipkovnicah Mac fn+F2), da odprete Okno za nastavitve.",
+      "Na zavihku Vtičniki izberite Remote Control in obkljukajte Naloži ob zagonu.",
+      "Zaprite Stellarium in ga znova odprite: vtičnik se naloži samo ob zagonu Stellariuma.",
+      "Znova pritisnite F2, na zavihku Vtičniki izberite Remote Control in kliknite nastavi.",
+      "Obkljukajte Server enabled in še Enable automatically on startup, da vam naslednjič tega ne bo treba. Port Number pustite na 8090 in Access requires authentication neobkljukano, nato kliknite Shrani nastavitve.",
+      "Vrnite se sem in kliknite Poskusi znova.",
+    ],
+    networkNote:
+      "Dokler je njegov strežnik vklopljen, lahko Stellarium upravljajo tudi druge naprave v vašem omrežju. Ko končate, odkljukajte Server enabled, če je to v tem omrežju pomembno.",
+    problems: {
+      unavailable: {
+        heading: "Stellarium Desktop ni dosegljiv",
+        message: "Povezava s Stellarium Desktop ni uspela. Odprite Stellarium in vklopite njegov vtičnik Remote Control.",
+      },
+      "no-permission": {
+        heading: "AstroChart Bridge potrebuje vaše dovoljenje",
+        message:
+          "Za dostop do Stellariuma AstroChart Bridge potrebuje dovoljenje za povezavo s tem računalnikom na 127.0.0.1. Nikamor drugam se ne povezuje, in to samo, ko kliknete.",
+      },
+      "auth-required": {
+        heading: "Stellarium zahteva geslo",
+        message:
+          "AstroChart Bridge ne uporablja gesla vtičnika Remote Control. V nastavitvah Remote Control v Stellariumu odkljukajte Access requires authentication in kliknite Shrani nastavitve, nato odkljukajte in znova obkljukajte Server enabled, da se strežnik znova zažene.",
+      },
+      "invalid-response": {
+        heading: "Vrata 8090 uporablja nekaj drugega",
+        message:
+          "Program, ki se odziva na vratih 8090, ni Stellariumov Remote Control, zato AstroChart Bridge ni poslal ničesar. Zaprite ta program, nato v nastavitvah Remote Control v Stellariumu odkljukajte in znova obkljukajte Server enabled.",
+      },
+      "request-failed": {
+        heading: "Stellarium zahteve ni dokončal",
+        message: "Stellariumov Remote Control se ni odzval po pričakovanjih. Preverite, ali je Stellarium odprt in se odziva, nato poskusite znova.",
+      },
+      "stellarium-not-earth": {
+        heading: "Stellarium ni na Zemlji",
+        message: "Opazovalec v Stellariumu je na drugem planetu. V Oknu za nastavljanje kraja (F6) izberite kraj na Zemlji, nato poskusite znova.",
+      },
+      "stellarium-date-out-of-range": {
+        heading: "Tega datuma ni mogoče poslati v Stellarium",
+        message: {
+          send: "AstroChart Bridge pošilja Stellariumu datume od 15. oktobra 1582 do leta 9999.",
+          import: "Stellarium kaže datum pred 15. oktobrom 1582 ali po letu 9999, ki ga AstroChart Bridge ne more prebrati.",
+        },
+      },
+      mismatch: {
+        heading: "Stellarium ni sprejel celotnega horoskopa",
+      },
+    },
+    mismatchNames: { time: "čas", "clock-running": "ustavljena ura", latitude: "zemljepisna širina", longitude: "zemljepisna dolžina" },
+    // After a colon, so the names don't have to agree with a verb.
+    mismatch: (names) =>
+      `Po pošiljanju se v Stellariumu s horoskopom ni ujemalo naslednje: ${and(names)}. Poskusite znova in preverite, da Stellarium ni zaposlen s skriptom.`,
+    tryAgain: "Poskusi znova",
+    sentHeading: "Poslano v Stellarium Desktop",
+    sentNotes: [
+      "Ura v Stellariumu je ustavljena na tem trenutku. Znova jo zaženeta njen gumb za predvajanje ali tipka K.",
+      "Stellarium kaže čas v svojem časovnem pasu, ki ga to ne spremeni, zato njegova ura morda ne kaže lokalnega časa kraja rojstva. Zgornji UTC je trenutek, ki ga je prejel.",
+      "Stellarium kraj poimenuje po koordinatah.",
+    ],
+    done: "Končano",
+    fromHeading: "Iz Stellarium Desktop",
+    pauseNote: "Če ura v Stellariumu teče, jo ustavite in znova uvozite, da bo horoskop trenutek, ki ste ga izbrali.",
+  },
+
+  // A program's own labels stay as it prints them, since the readers read
+  // English screenshots only: Date of Birth, Sid. Time, St:, Time Zone, LC.
+  screenshot: {
+    refusals: {
+      "unreadable-screenshot":
+        "AstroChart Bridge v tem posnetku zaslona ni našel rojstnih podatkov. Z Astro-Seeka zajemite vse od Date of Birth do Latitude, Longitude; z astro.com glavo horoskopa od datuma do Sid. Time; iz Solar Fire ali Astro Gold podatke horoskopa od datuma do koordinat; iz Morinusa njegovo vrstico stanja ali sredino njegovega kvadratnega horoskopa; iz Valensa sredino njegovega kolesa; iz Planetdance vrstice levo zgoraj ob kolesu, do St:; iz Jagannatha Hora rojstne podatke od Date do Sidereal Time; iz Keplerja ali Siriusa blok podatkov od imena do Time Zone; iz Janusa sredino kolesa od datuma do koordinat; iz Win*Star desni zgornji del kolesa od datuma do zemljepisne širine; iz TimePassages ves horoskop z vogali; iz Astrologa zgornji del stranske vrstice od datuma do Julian Day. Posnetek naredite v polni velikosti.",
+      "no-coordinates":
+        "Ta posnetek zaslona nima koordinat. Kolo horoskopa v Astro Gold jih ne izpiše: zajemite raje njegovo ploščo Chart Details ali zaslon Edit Chart. Iz Solar Fire zajemite podatke horoskopa vse do koordinat.",
+      "ambiguous-screenshot": "Ta posnetek zaslona kaže več kot en horoskop. AstroChart Bridge odpira samo rojstne horoskope.",
+      "sidereal-mismatch": `Zvezdni čas v tem posnetku se ne ujema z njegovim univerzalnim časom in zemljepisno dolžino, ${MISREAD}`,
+      "offset-out-of-range": `Lokalni čas v tem posnetku je preveč oddaljen od njegovega univerzalnega časa, ${MISREAD}`,
+      "weekday-mismatch":
+        "Dan v tednu v tem posnetku ne ustreza njegovemu datumu, zato je bil datum verjetno napačno prebran. Poskusite z večjim posnetkom.",
+      "zone-offset-mismatch": `Časovni pas v tem posnetku se ne ujema z njegovim zamikom od UTC, ${MISREAD}`,
+      "calendar-unsupported":
+        "Ta horoskop ima datum pred začetkom gregorijanskega koledarja 15. oktobra 1582 ali je označen z Old Style ali BC. AstroChart Bridge bere samo gregorijanske datume.",
+      "apparent-time": "Ta horoskop uporablja lokalni pravi sončni čas, ki ga AstroChart Bridge še ne zna odpreti.",
+      "offset-off-quarter-hour":
+        "Zvezdni čas v tem posnetku da zamik od UTC, ki ni na četrt ure, zato je bila zemljepisna dolžina verjetno napačno prebrana. Poskusite z večjim posnetkom. Horoskopa iz enega redkih pasov, ki niso na četrt ure, na primer amsterdamskega pred letom 1940, s posnetka TimePassages še ni mogoče prebrati.",
+      "true-local-time-mismatch": `TLT v tem posnetku se ne ujema z njegovim zvezdnim časom in zemljepisno dolžino, ${MISREAD}`,
+      "local-time-ambiguous":
+        "Čas tega horoskopa je označen z LC, kar Morinus in Valens izpišeta tako za lokalni srednji kot za lokalni pravi sončni čas. AstroChart Bridge ne more ugotoviti, kateri je, zato ga še ne more odpreti.",
+      "chart-type-unsupported": "To je horoskop povratka, profekcije ali direkcije. AstroChart Bridge odpira samo rojstne in horarne horoskope.",
+    },
+    either: (a, b) => `${a} ali ${b}`,
+    // "iz programa Kepler ali Sirius", so a program's name needn't decline.
+    offsetUnchecked: (program) =>
+      `Nič v tem posnetku iz programa ${program} ne preveri njegovega zamika od UTC. Primerjajte vrstico Zamik s posnetkom.`,
+    noOffset: (program) =>
+      `Program ${program} ne izpiše zamika od UTC. Vnesite zamik v kraju rojstva, vključno s poletnim časom, v obliki ±HH:MM.`,
+    compareNote: "Prebrano s posnetka zaslona. Preden odprete nebo, primerjajte te vrstice s posnetkom: nič ne preveri zemljepisne širine.",
+  },
+
+  // readText reads English labels, dates and compass letters only, so the
+  // examples are ones it reads: "15 June 1985", "122°19'W". A Slovenian date
+  // or a V for vzhod is refused as unreadable, not misread.
+  paste: {
+    tooLong: (max) =>
+      `To besedilo je predolgo. Prilepite samo del z rojstnimi podatki, do ${count(max, UP_TO_CHARACTERS)}.`,
+    refusals: {
+      "no-birth-data":
+        "AstroChart Bridge v tem besedilu ni našel rojstnih podatkov. Bere vrstice z angleškimi oznakami, kot sta »Date of Birth: 15 June 1985« in »latitude=47.6062«.",
+      "several-records":
+        "To besedilo ima več kot en datum rojstva ali ime, zato morda vsebuje več horoskopov. Prilepite po en horoskop naenkrat.",
+    },
+    fields: {
+      date: { label: "Datum", example: "1985-06-15 ali 15 June 1985" },
+      time: { label: "Lokalni čas", example: "10:30 ali 10:30 AM" },
+      lat: { label: "Zemljepisna širina", example: "47.6062 ali 47°36'N" },
+      lng: { label: "Zemljepisna dolžina", example: "-122.3321 ali 122°19'W" },
+      offset: { label: "Zamik od UTC", example: "-07:00, vključno s poletnim časom" },
+    },
+    info: {
+      name: "Ime",
+      place: "Kraj",
+      country: "Država",
+      gender: "Spol",
+      zone: "Časovni pas",
+      houses: "Hiše",
+      zodiac: "Zodiak",
+      ayanamsa: "Ayanamsa",
+    },
+    formNote: "Vsako vrednost primerjajte z besedilom. Nič se ne pošlje, dokler ne odprete neba ali horoskopa.",
+    placeNote:
+      "AstroChart Bridge krajev ne išče. Stellarium Web, horoskop na Astro-Seeku in Deli uporabljajo zemljepisno širino in dolžino; obrazec astro.com in Shrani na Astro-Seeku … dobita mesto, da ga poiščeta v svojih seznamih.",
+    noOffsetNote:
+      "Če zamik od UTC pustite prazen, se horoskop lahko odpre samo na astro.com, ki poišče časovni pas za mesto. Stellarium Web, Astro-Seek in Deli potrebujejo zamik.",
+    localOnlyNote:
+      "Zamik od UTC ni vnesen, zato se ta horoskop lahko odpre samo na astro.com. Vrnite se na obrazec in vnesite zamik, da boste horoskop lahko odprli v Stellarium Web ali na Astro-Seeku ali ga delili.",
+    offsetNote: "Nič ne preveri, ali je ta zamik na ta datum veljal v kraju rojstva.",
+    // After "vendar", but.
+    programRefusals: {
+      "no-coordinates": "nima koordinat",
+      "ambiguous-screenshot": "ga je mogoče prebrati kot besedilo več programov ali več horoskopov",
+      "sidereal-mismatch": "se njegov zvezdni čas ne ujema z njegovim časom, zamikom in zemljepisno dolžino",
+      "offset-out-of-range": "je njegov lokalni čas preveč oddaljen od njegovega univerzalnega časa",
+      "weekday-mismatch": "njegov dan v tednu ne ustreza njegovemu datumu",
+      "zone-offset-mismatch": "se njegov časovni pas ne ujema z njegovim zamikom od UTC",
+      "calendar-unsupported":
+        "ima datum pred začetkom gregorijanskega koledarja 15. oktobra 1582 ali je označen z Old Style ali BC, AstroChart Bridge pa bere samo gregorijanske datume",
+      "apparent-time": "uporablja lokalni pravi sončni čas, ki ga AstroChart Bridge še ne zna odpreti",
+      "local-time-ambiguous": "je njegov čas označen z LC, kar lahko pomeni lokalni srednji ali lokalni pravi sončni čas",
+      "chart-type-unsupported": "je horoskop povratka, progresije ali drug horoskop, ki ni rojstni",
+      "offset-off-quarter-hour": "njegov zvezdni čas da zamik od UTC, ki ni na četrt ure",
+      "true-local-time-mismatch": "se njegov pravi lokalni čas ne ujema z njegovim zvezdnim časom in zemljepisno dolžino",
+    },
+    programRefused: "ne prestane preverjanj tega programa",
+    turnedDown: (why, code) =>
+      `To besedilo je oblikovano kot besedilo astrološkega programa ali spletnega mesta, vendar ${why}, zato AstroChart Bridge ni uporabil branja tega programa (${code}). Vsako vrednost primerjajte z besedilom.`,
+    offsetUnchecked: (program) => `Nič v tem besedilu iz programa ${program} ne preveri njegovega zamika od UTC. Primerjajte zamik z besedilom.`,
+    readAs: (program) => `Prebrano kot besedilo iz programa ${program}: rojstni podatki so razporejeni tako, kot jih izpiše ${program}.`,
+    westPlus: (program) => `${program} zamike zahodno od Greenwicha piše s plusom, zato je njegov +7:00 tukaj UTC-07:00.`,
+    programNoOffset: (program) =>
+      `${program} ne izpiše zamika od UTC. Vnesite zamik v kraju rojstva na ta datum, vključno s poletnim časom.`,
+    asProgram: (value, program) => `${value} (kot besedilo iz programa ${program})`,
+    readAsSource: (program) => `Prebrano kot besedilo iz programa ${program}.`,
+    lineReadAs: (line, text, program) => `Vrstica ${line}: ${text}, prebrano kot besedilo iz programa ${program}.`,
+    readsDifferently: (line, program) => `Vrstica ${line} se bere drugače kot po razporedu programa ${program}. Izberite, kar besedilo pomeni.`,
+    onLine: (value, line) => `${value} (vrstica ${line})`,
+    zoneNoOffset: (zone) => `Besedilo navaja časovni pas »${zone}«, ne pa zamika. Vnesite zamik v kraju rojstva na ta datum.`,
+    notInText: "Ni v prilepljenem besedilu.",
+    differentLines: (lines) => `Besedilo navaja različne vrednosti v vrsticah ${and(lines.map(String))}.`,
+    line: (line, text) => `Vrstica ${line}: ${text}`,
+    eitherDate: (source) => `${source}. To je lahko kateri koli od obeh datumov.`,
+    couldBe: (dates) => `To je lahko ${dates.join(" ali ")}. Napišite ime meseca v angleščini ali najprej leto.`,
+    cantRead: (example) => `AstroChart Bridge tega ne zna prebrati. Poskusite na primer ${example}.`,
+    houses: (houses) => `Besedilo uporablja hiše ${houses}, horoskop na Astro-Seeku pa se bo odprl s hišami Placidus.`,
+    sidereal: "Besedilo uporablja siderični zodiak. AstroChart Bridge ga ne posreduje, zato ga nastavite v horoskopu na Astro-Seeku.",
+    or: (items) => items.join(" ali "),
+    atBirthplace: (time) => `${time} v kraju rojstva`,
+  },
+
+  files: {
+    oneChart: "V tej datoteki je 1 horoskop.",
+    unnamed: "Horoskop brez imena",
+    birthplace: "Kraj rojstva",
+    recordDate: (day, month, year) => `${day}. ${MONTHS[month - 1]} ${year}`,
+  },
+
+  aaf: {
+    refusals: {
+      "no-birth-date": "Ta horoskop nima datuma rojstva: datoteka navaja *.",
+      "no-birth-time": "Ta horoskop nima časa rojstva: datoteka navaja *. AstroChart Bridge ga ne ugiba.",
+      "julian-calendar": JULIAN,
+      "pre-gregorian-date": PRE_GREGORIAN,
+      "no-coordinates": "Ta horoskop nima koordinat, zato ni neba, ki bi ga lahko odprli.",
+      "local-mean-time": "Ta horoskop uporablja lokalni srednji čas, ki ga AstroChart Bridge še ne zna odpreti.",
+      "meridian-time":
+        "Ta horoskop uporablja poseben poldnevnik, na primer lokalni čas prestolnice, ki ga AstroChart Bridge še ne zna odpreti.",
+      "unknown-daylight-saving":
+        "Ta horoskop ne pove, ali je veljal poletni čas: njegova vrsta časa je *. AstroChart Bridge tega ne ugiba.",
+      "no-offset":
+        "Ta horoskop ne navaja zamika od UTC, zato njegovega univerzalnega časa ni mogoče izračunati. AstroChart Bridge zamika ne ugiba.",
+      "offset-seconds": "Zamik tega horoskopa vsebuje sekunde, česar AstroChart Bridge še ne zna odpreti.",
+      "offset-out-of-range": OFFSET_RANGE,
+      "julian-day-mismatch":
+        "Julijanski dan v datoteki se ne ujema z njenim datumom, časom in zamikom, zato AstroChart Bridge ne more ugotoviti, kaj je pravilno.",
+    },
+    // In the genitive, after couldntRead's "ni mogel prebrati".
+    unreadable: {
+      "a93-fields": "vrstice #A93, ki potrebuje sedem polj,",
+      "b93-fields": "vrstice #B93, ki potrebuje pet polj,",
+      "bad-date": "datuma",
+      "bad-time": "časa",
+      "bad-julian-day": "julijanskega dneva",
+      "bad-latitude": "zemljepisne širine",
+      "bad-longitude": "zemljepisne dolžine",
+      "bad-offset": "zamika",
+      "bad-time-type": "vrste časa",
+      "duplicate-b93": "druge vrstice #B93",
+      "duplicate-znam": "druge vrstice #ZNAM",
+      "bad-chunk": "vrstice",
+    },
+    thisRecord: "tega zapisa",
+    couldntRead: (line, what, value) => `Vrstica ${line}: AstroChart Bridge ni mogel prebrati ${what} »${value}«.`,
+    hourOnly: (time) => `Datoteka AAF navaja ta čas rojstva samo na uro natančno, zato je horoskop narisan za ${time}.`,
+    unreadableRecord: (line) => `Vrstica ${line}: neberljiv zapis`,
+    noRecords: "AstroChart Bridge ni našel zapisov AAF. Vsak zapis se začne z vrstico, ki se začne s #A93:.",
+    charts: (n) => `V tej datoteki ${CHARTS_IN_FILE[PLURAL.select(n)].replace("#", n.toLocaleString("sl"))}. Izberite enega.`,
+    save: "Shrani kot datoteko AAF",
+    utNotes: {
+      chart:
+        "Datoteka AAF navaja ta horoskop v univerzalnem času, ker stran ne pove, kako se njegov zamik deli na standardni in poletni čas.",
+      sky: "Datoteka AAF navaja ta trenutek v univerzalnem času, ker Stellarium Web ne kaže časovnega pasu kraja rojstva.",
+    },
+    dateUnknown: "datum neznan",
+    timeUnknown: "čas neznan",
+    notUtf8: "Ta datoteka ni v UTF-8, zato jo je AstroChart Bridge prebral kot Windows-1252. Preverite, ali so črke s strešicami in naglasi v imenih videti pravilno.",
+  },
+
+  hor: {
+    refusals: {
+      "chart-type-unsupported":
+        "To je Morinusov horoskop druge vrste, na primer sončni povratek ali tranzit. AstroChart Bridge odpira samo radix in horarne horoskope.",
+      "bce-date": "Datum tega horoskopa je pred našim štetjem, česar AstroChart Bridge še ne zna odpreti.",
+      "julian-calendar": JULIAN,
+      "pre-gregorian-date": PRE_GREGORIAN,
+      "bad-date": "Datuma tega horoskopa ni v koledarju, na primer 30. februar.",
+      "local-mean-time": "Ta horoskop je v lokalnem srednjem času, ki ga AstroChart Bridge še ne zna odpreti.",
+      "local-apparent-time": "Ta horoskop je v lokalnem pravem sončnem času, času sončne ure, ki ga AstroChart Bridge še ne zna odpreti.",
+      "bad-coordinates": "Koordinate tega horoskopa presegajo 90° zemljepisne širine ali 180° zemljepisne dolžine.",
+      "offset-out-of-range": OFFSET_RANGE,
+    },
+    cantOpen: "AstroChart Bridge tega horoskopa ne more odpreti.",
+    // The field's name in quotation marks, so it needn't decline: "polja »ime«".
+    unreadable: {
+      "too-large": () => "Ta datoteka je veliko večja od Morinusovega horoskopa, zato je AstroChart Bridge ni prebral.",
+      truncated: (field) => `Ta datoteka se konča sredi polja »${field}«, zato je bila morda odrezana.`,
+      "trailing-data": () => "Ta datoteka se nadaljuje za horoskopom, česar Morinusova datoteka s horoskopom ne počne, zato morda ni taka datoteka.",
+      "unsupported-opcode": (field) =>
+        `V polju »${field}« ta datoteka vsebuje nekaj, kar ni besedilo, število ali da oziroma ne, kar je edino, kar vsebuje Morinusov horoskop. AstroChart Bridge je ni prebral.`,
+      malformed: (field) => `AstroChart Bridge te datoteke ni mogel prebrati pri polju »${field}«. Morda ni Morinusova datoteka s horoskopom.`,
+      "bad-text": (field) => `V polju »${field}« ima ta datoteka besedilo, ki ga ni mogoče prebrati. Morda ni Morinusova datoteka s horoskopom.`,
+      "field-type": (field) =>
+        `V polju »${field}« ima ta datoteka vrsto vrednosti, ki je Morinus tja ne shranjuje, zato morda ni Morinusova datoteka s horoskopom.`,
+      "field-range": (field) =>
+        `V polju »${field}« ima ta datoteka vrednost zunaj tega, kar Morinus dovoli, zato morda ni Morinusova datoteka s horoskopom.`,
+    },
+    couldntReadFile: "AstroChart Bridge te datoteke ni mogel prebrati.",
+    fieldWords: {
+      name: "ime", male: "spol", htype: "vrsta horoskopa", bc: "pr. n. št.", year: "leto", month: "mesec", day: "dan",
+      hour: "ura", minute: "minuta", second: "sekunda", cal: "koledar", zt: "vrsta časa", plus: "smer pasu",
+      zh: "ure pasu", zm: "minute pasu", daylightsaving: "poletni čas", place: "kraj",
+      deglon: "zemljepisna dolžina", minlon: "zemljepisna dolžina", seclon: "zemljepisna dolžina", east: "zemljepisna dolžina",
+      deglat: "zemljepisna širina", minlat: "zemljepisna širina", seclat: "zemljepisna širina", north: "zemljepisna širina",
+      altitude: "nadmorska višina", notes: "opombe",
+    },
+    warnings: {
+      "text-encoding-guessed":
+        "To datoteko je shranil starejši Morinus, ki ne zabeleži, kako je zapisal črke s strešicami in naglasi. Preverite, ali sta ime in kraj videti pravilna.",
+      "daylight-saving-on-ut":
+        "Morinus ima ta horoskop v greenwiškem času z obkljukanim poletnim časom, zato od vnesenega časa odšteje uro, in prav tako AstroChart Bridge.",
+      "longitude-seconds-ignored-by-morinus":
+        "Datoteka navaja zemljepisno dolžino na sekundo natančno, Morinus pa sekunde ob odpiranju datoteke izpusti, zato je njegov horoskop narisan do 59\" vzhodno ali zahodno od tega.",
+    },
+    zoneNote:
+      "Morinus shrani zamik, vnesen za horoskop, ne pa njegovega časovnega pasu, zato nič tukaj ne preveri tega zamika glede na kraj rojstva in datum.",
+    utDownloadNote: "Datoteka AAF navaja ta horoskop v univerzalnem času, ki ga Morinus izračuna iz vnesenega časa.",
+    unreadableLabel: "Neberljiva datoteka Morinus",
+    couldntReadMorinus: "AstroChart Bridge te datoteke Morinus ni mogel prebrati.",
+    enteredAs: "Vneseno kot",
+    chartType: "Vrsta horoskopa",
+    horary: "Horarni",
+    // "pas UTC-05:00, s poletnim časom" or "greenwiški čas".
+    zone: (offset) => `pas ${offset}`,
+    greenwich: "greenwiški čas",
+    withDaylightSaving: (basis) => `${basis}, s poletnim časom`,
+    // "16. nov. 575 pr. n. št. (julijanski)"
+    recordDate: (day, month, year, bc, julian) =>
+      `${day}. ${MONTHS[month - 1]} ${year}${bc ? " pr. n. št." : ""}${julian ? " (julijanski)" : ""}`,
+  },
+
+  chart: {
+    copyLink: "Kopiraj povezavo",
+    showQr: "Prikaži kodo QR",
+    downloadFile: "Prenesi datoteko",
+    shareLink: "Deli povezavo …",
+    shareFile: "Deli datoteko …",
+    shareNote: "Deli povezavo … in Deli datoteko … pošljeta horoskop v aplikacijo, ki jo izberete.",
+    includesLegend: "Vključi v povezavo, kodo QR in datoteko",
+    includesNote: "Ime in mesto gresta v povezavo, kodo QR in datoteko samo, če sta obkljukana, in kdor jih ima, ju lahko prebere.",
+    remembersNote: "AstroChart Bridge si na tem računalniku zapomni, kaj obkljukate.",
+    from: "Vir",
+    viaNames: { page: "stran", screenshot: "posnetek zaslona", paste: "prilepljeno besedilo" },
+    // "stran Astro-Seek", "posnetek zaslona astro.com": the kind first, so the site needn't decline.
+    origin: (site, via) => [via, site].filter(Boolean).join(" "),
+    viaWarnings: {
+      screenshot:
+        "Ta horoskop je bil na napravi, ki ga je delila, prebran s posnetka zaslona z OCR. Preden ga odprete, primerjajte te vrstice s horoskopom: nič ni preverilo zemljepisne širine.",
+      paste:
+        "Ta horoskop je bil na napravi, ki ga je delila, prebran iz prilepljenega besedila in ročno preverjen. Nič ni preverilo njegovega zamika od UTC glede na kraj rojstva in datum.",
+    },
+    refusals: {
+      link: {
+        malformed: "Ta povezava je nepopolna ali poškodovana. Znova kopirajte celotno povezavo.",
+        "too-large": "Ta povezava je predolga, da bi bila horoskop AstroChart Bridge.",
+        "not-astrochart": "Ta povezava ne vsebuje horoskopa AstroChart Bridge.",
+        "unsupported-version": NEWER,
+        "unknown-field": NEWER,
+        "unsupported-calendar": NEWER,
+        "before-gregorian": BEFORE_GREGORIAN,
+      },
+      file: {
+        malformed: "Ta datoteka ni horoskop AstroChart Bridge ali pa je poškodovana.",
+        "too-large": "Ta datoteka je prevelika, da bi bila horoskop AstroChart Bridge.",
+        "not-astrochart": "Ta datoteka ni horoskop AstroChart Bridge.",
+        "unsupported-version": NEWER_FILE,
+        "unknown-field": NEWER_FILE,
+        "unsupported-calendar": NEWER_FILE,
+        "before-gregorian": BEFORE_GREGORIAN,
+      },
+    },
+    damaged: {
+      link: "Horoskop v tej povezavi ni veljaven. Znova kopirajte celotno povezavo.",
+      file: "Horoskop v tej datoteki ni veljaven.",
+    },
+    empty: "Odprite povezavo ali datoteko AstroChart Bridge, da tukaj vidite njen horoskop.",
+    otherFiles: {
+      "morinus-file": "To je Morinusova datoteka s horoskopom (.hor), ne horoskop AstroChart Bridge.",
+      "aaf-file": "To je datoteka AAF, ne horoskop AstroChart Bridge.",
+    },
+    inExtension: "Odpre se na strani za datoteke AAF in Morinus.",
+    onTheWeb: "Odpre jo razširitev AstroChart Bridge: v njenem pojavnem oknu kliknite Odpri datoteko AAF ali Morinus.",
+    openItThere: "Odpri jo tam",
+    qrTooLong: (labelled) =>
+      labelled
+        ? `${QR_TOO_LONG} Odkljukajte ime ali mesto, da jo skrajšate, ali pa uporabite Kopiraj povezavo ali Prenesi datoteko.`
+        : `${QR_TOO_LONG} Uporabite Kopiraj povezavo ali Prenesi datoteko.`,
+    qrLabel: "Koda QR za povezavo do tega horoskopa",
+    qrNote: "To skenirajte s kamero telefona ali tablice, da tam odprete horoskop. Kdor vidi kodo, lahko prebere horoskop.",
+    shareTitle: "Horoskop AstroChart Bridge",
   },
 };

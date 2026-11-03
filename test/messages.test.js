@@ -199,6 +199,14 @@ test("Slovenian counts take the form for their number", () => {
   ]);
   const seconds = [1, 2, 3, 42, 59].map((n) => sl.popup.wholeMinutes(n).match(/izpusti (\d+ \S+)\.$/)[1]);
   assert.deepEqual(seconds, ["1 sekundo", "2 sekundi", "3 sekunde", "42 sekund", "59 sekund"]);
+  // The verb agrees with the count too.
+  assert.deepEqual([2, 3, 5, 102].map((n) => sl.aaf.charts(n)), [
+    "V tej datoteki sta 2 horoskopa. Izberite enega.",
+    "V tej datoteki so 3 horoskopi. Izberite enega.",
+    "V tej datoteki je 5 horoskopov. Izberite enega.",
+    "V tej datoteki sta 102 horoskopa. Izberite enega.",
+  ]);
+  assert.equal(sl.paste.tooLong(100_000), "To besedilo je predolgo. Prilepite samo del z rojstnimi podatki, do 100.000 znakov.");
   assert.match(sl.popup.nameWarning(40, "First name"), /^Polja za ime na astro\.com sprejmejo 40 znakov\. Tukaj skrajšajte First name,/);
 });
 
@@ -210,19 +218,28 @@ test("Slovenian dates put a full stop after the day, and lists join with in", ()
   assert.equal(sl.popup.and(["First name"]), "First name");
 });
 
-// Every message as a screen would show it, with "X" for each value.
+// Every message as a screen would show it, with "X" for each value, or ["X"]
+// for a message that takes a list, such as and.
 function texts(messages) {
   if (typeof messages === "string") return [messages];
-  if (typeof messages === "function") return [messages(...Array(messages.length).fill("X"))];
+  if (typeof messages === "function") {
+    const withEach = (value) => messages(...Array(messages.length).fill(value));
+    try {
+      return [withEach("X")];
+    } catch {
+      return [withEach(["X"])];
+    }
+  }
   return Object.values(messages).flatMap(texts);
 }
 
 test("every message has a space after its punctuation", () => {
   for (const [code, messages] of Object.entries({ en, es, sl })) {
     for (const message of texts(messages)) {
-      // Host names, "e.g." and ±HH:MM have their punctuation inside a word.
-      const words = message.replace(/[\w-]+(?:\.[\w-]+)+/g, "").replace("HH:MM", "");
-      assert.doesNotMatch(words, /[,.:;!?][^\s\d)»"'…,.]/u, `${code}: ${message}`);
+      // Host names, "e.g.", ±HH:MM and "(.hor)" have their punctuation inside a
+      // word, and Planetdance's "St:" can end a clause.
+      const words = message.replace(/[\w-]+(?:\.[\w-]+)+/g, "").replace("HH:MM", "").replace(/\(\.\w+\)/g, "");
+      assert.doesNotMatch(words, /[,.:;!?][^\s\d)»"'…,.;]/u, `${code}: ${message}`);
     }
   }
 });
@@ -231,4 +248,52 @@ test("every message has a space after its punctuation", () => {
 // latitude around for anyone who reads it the English way.
 test("Slovenian coordinates keep N, S, E and W", () => {
   assert.deepEqual(sl.popup.compass, en.popup.compass);
+});
+
+test("the paste form speaks Slovenian, but its boxes keep what the English-only reader reads back", () => {
+  inLanguage("sl", () => {
+    const form = formForText("Date of Birth: 15 June 1985\nTime of Birth: 10:30\nLatitude: 47°36'N\nLongitude: 122°19'W\nUTC Offset: -07:00");
+    assert.deepEqual(form.fields.map(({ label }) => label), ["Datum", "Lokalni čas", "Zemljepisna širina", "Zemljepisna dolžina", "Zamik od UTC"]);
+    for (const { name, text } of form.fields) assert.notEqual(checkField(name, text).value, null, `${name}: ${text}`);
+    assert.equal(checkField("time", "10:30").message, "10:30 v kraju rojstva");
+    assert.equal(checkField("date", "1985-06-15").message, "15. junij 1985");
+    assert.equal(checkField("lng", "-122.3321").message, "122°19'56\"W");
+    // V for vzhod, east, isn't read, and the form says so rather than misreading it.
+    assert.deepEqual(checkField("lng", "14°30'V"), {
+      value: null,
+      message: "AstroChart Bridge tega ne zna prebrati. Poskusite na primer -122.3321 ali 122°19'W.",
+    });
+  });
+});
+
+test("a Morinus chart keeps its Entered as and Birthplace rows in Slovenian", () => {
+  const bytes = new Uint8Array(readFileSync(new URL("../fixtures/morinus/ny-est-plus-dst.p2.hor", import.meta.url)));
+  inLanguage("sl", () => {
+    const list = viewForHorFile(bytes, { timeZone: "America/Los_Angeles" });
+    assert.equal(list.message, "V tej datoteki je 1 horoskop.");
+    assert.equal(list.items[0].label, "Test: 17. apr. 2024, 08:00, New York");
+    assert.deepEqual(list.items[0].view.rows, [
+      ["Ime", "Test"],
+      ["Lokalni čas", "17. apr. 2024, 08:00"],
+      ["Zamik", "UTC-04:00"],
+      ["Vneseno kot", "pas UTC-05:00, s poletnim časom"],
+      ["UTC", "2024-04-17 12:00"],
+      ["Kraj rojstva", "New York"],
+      ["Kraj", "40°43'N, 74°0'W"],
+    ]);
+  });
+});
+
+test("a shared chart's town goes right after the place row, before the From row, in Slovenian", () => {
+  const shared = toPortable(
+    { local: "2024-04-17T08:00:00", utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 },
+    { site: "astro-seek", via: "page" },
+    { name: "Ana", town: "New York" },
+  );
+  const view = () => viewForImport(readLink(`#${toFragment(shared.chart)}`), { timeZone: "UTC" });
+  inLanguage("sl", () => {
+    assert.deepEqual(view().rows.map(([label]) => label), ["Ime", "Lokalni čas", "Zamik", "UTC", "Kraj", "Mesto", "Vir"]);
+    assert.deepEqual(view().rows.at(-1), ["Vir", "stran Astro-Seek"]);
+    assert.deepEqual(view().includes.boxes.map(({ label }) => label), ["Ime: Ana", "Mesto: New York"]);
+  });
 });
