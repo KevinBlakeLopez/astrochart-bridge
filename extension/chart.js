@@ -5,6 +5,7 @@
 // in chart-model.js and drawn by view.js.
 import {
   MAX_IMPORT_BYTES,
+  chartToPassOn,
   fileFor,
   keepFileForImport,
   linkBase,
@@ -44,10 +45,24 @@ if (canFill) import("./astro-com-page.js").then(({ openLink }) => (fillAstroCom 
 // no share sheet, and neither has every embedded browser.
 const canShare = base !== null && typeof navigator.share === "function" && (navigator.canShare?.({ url: base }) ?? true);
 
+// Which of a chart's name and town its link, QR code and file carry. The
+// extension's copy remembers the choice in the extension's storage on this
+// computer, with code the web's copy doesn't publish; the web's copy keeps
+// nothing, so there both start unticked.
+const remembered = canImport ? chrome.storage.local : null;
+const preference = remembered && (await import("./preference.js"));
+let include = { name: false, town: false };
+if (preference) include = await preference.shareIncludes(remembered).catch(() => include);
+
 // The chart on screen, for the buttons, and its file when the share sheet
 // takes it. Kept only in these variables.
 let chart = null;
 let shareableFile = null;
+// The view drawn for it, which Cancel on Enter in astro.com… draws again.
+let shownView = null;
+
+// The chart as the share buttons pass it on, with only the labels ticked.
+const passedOn = () => chartToPassOn(chart, include);
 
 // Counts the links and files read, so a slow file read that finishes after a
 // newer link or file is dropped.
@@ -100,15 +115,25 @@ async function openFile(file) {
 // button sends on to the import page.
 function show(result, from, file = null) {
   chart = result?.kind === "portable" ? result.chart : null;
-  shareableFile = chart === null ? null : fileForSharing(chart);
+  shareableFile = chart === null ? null : fileForSharing(passedOn());
   status.textContent = "";
   linkField.hidden = true;
   linkField.value = "";
   hideQr();
   // The main action while there is no chart; one among several once there is.
   openFileButton.className = chart === null ? "" : "secondary";
-  const options = { canCopy: base !== null, canShare, canShareFiles: shareableFile !== null, canImport, canFill, from };
+  const options = {
+    canCopy: base !== null,
+    canShare,
+    canShareFiles: shareableFile !== null,
+    canImport,
+    canFill,
+    from,
+    include,
+    remembers: preference !== null,
+  };
   const view = viewForImport(result, options);
+  shownView = view;
   render(app, view, onButton);
   if (view.importButton && file) app.append(importButton(view.importButton, file));
 }
@@ -150,6 +175,10 @@ async function onButton(button) {
   const { url, does } = button;
   // astro.com's form button, in the extension's copy: it fills in the form.
   if (button.fills && fillAstroCom) return fillAstroCom(app, button);
+  if (does === "include") {
+    await setInclude(button.field, button.checked);
+    return;
+  }
   if (does === "copy") {
     await copyLink();
     return;
@@ -163,7 +192,7 @@ async function onButton(button) {
     return;
   }
   if (does === "share-link") {
-    share(shareDataFor(base, chart));
+    share(shareDataFor(base, passedOn()));
     return;
   }
   if (does === "share-file") {
@@ -173,11 +202,26 @@ async function onButton(button) {
   if (url) window.open(url, "_blank", "noopener,noreferrer");
 }
 
+// A box ticked or cleared. The buttons pass the chart on with the new choice
+// from now on, and a link or QR code already on screen is made again to match.
+async function setInclude(field, checked) {
+  include = { ...include, [field]: checked };
+  // The drawn view's boxes follow, so drawing it again, as Cancel on Enter in
+  // astro.com… does, shows them as they are, not as they were.
+  for (const box of shownView?.includes?.boxes ?? []) box.checked = include[box.field] === true;
+  status.textContent = "";
+  if (chart === null) return;
+  shareableFile = fileForSharing(passedOn());
+  if (!linkField.hidden) linkField.value = linkFor(base, passedOn());
+  if (!qrArea.hidden) showQr({ scroll: false });
+  if (preference) await preference.setShareIncludes(remembered, include).catch(() => {});
+}
+
 // writeText is called before anything is awaited, so Safari still counts the
 // click as the reason for it. A browser that refuses gets the link to select.
 async function copyLink() {
   if (chart === null) return;
-  const link = linkFor(base, chart);
+  const link = linkFor(base, passedOn());
   try {
     await navigator.clipboard.writeText(link);
     status.textContent = "Link copied.";
@@ -194,7 +238,7 @@ async function copyLink() {
 // in case a browser starts saving only after the click has returned.
 function download() {
   if (chart === null) return;
-  const { name, text } = fileFor(chart);
+  const { name, text } = fileFor(passedOn());
   const url = URL.createObjectURL(new Blob([text], { type: "application/json" }));
   const link = document.createElement("a");
   link.href = url;
@@ -208,9 +252,10 @@ const SVG = "http://www.w3.org/2000/svg";
 // The code is built element by element, with no markup parsed and no image
 // loaded, so the page's policy needs nothing more. It is always black on
 // white, even in dark mode: many scanners can't read a light code on dark.
-function showQr() {
+// Made again in place when a box changes what the link carries.
+function showQr({ scroll = true } = {}) {
   if (chart === null || base === null) return;
-  const view = qrViewFor(base, chart);
+  const view = qrViewFor(base, passedOn());
   if (view.state === "qr-refused") {
     qrArea.replaceChildren(paragraph(view.message, "warning"));
   } else {
@@ -235,7 +280,7 @@ function showQr() {
     qrArea.replaceChildren(svg, paragraph(view.note, "note"), hide);
   }
   qrArea.hidden = false;
-  qrArea.scrollIntoView({ block: "nearest" });
+  if (scroll) qrArea.scrollIntoView({ block: "nearest" });
 }
 
 function hideQr() {

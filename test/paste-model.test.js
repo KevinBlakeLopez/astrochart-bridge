@@ -309,12 +309,20 @@ test("an offset typed on the form, or one the text didn't give, is shared as ent
   assert.equal(chartForEntry({ ...ENTRY, offsetMinutes: -480 }, [-420, -480]).chart.source.utcBasis, "declared");
 });
 
-test("nothing but the chart and where it came from is shared: no name, place or zone", () => {
+test("nothing but the chart and where it came from is shared without a name and town: no zone", () => {
   const form = formOf(LABELLED);
   const text = serialize(chartForEntry(ENTRY, form.statedOffsets).chart);
   for (const kept of ["Example Person", "Seattle", "PDT", "Placidus", "Tropical"]) {
     assert.ok(!text.includes(kept), kept);
   }
+});
+
+test("the form's name and town go with the chart as labels, for the share page to offer", () => {
+  const form = formOf(LABELLED);
+  const shared = chartForEntry(ENTRY, form.statedOffsets, { town: form.town, name: form.name });
+  assert.deepEqual(shared.chart.labels, { name: "Example Person", town: "Seattle, Washington, USA" });
+  const text = serialize(shared.chart);
+  for (const kept of ["PDT", "Placidus", "Tropical"]) assert.ok(!text.includes(kept), kept);
 });
 
 test("the receiving page opens the shared link as the same sky, from pasted text", () => {

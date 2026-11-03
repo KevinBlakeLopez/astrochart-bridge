@@ -52,6 +52,23 @@ dd {
   margin: 0 auto 8px;
 }
 
+/* The boxes for a chart's name and town, right above the buttons that pass
+   it on. A long name wraps instead of widening the page. */
+fieldset.includes {
+  margin: 4px 0 8px;
+}
+
+fieldset.includes legend {
+  margin: 0 0 2px;
+  padding: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+fieldset.includes label {
+  overflow-wrap: anywhere;
+}
+
 #open-file {
   margin: 0 0 16px;
 }

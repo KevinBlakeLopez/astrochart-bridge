@@ -3,19 +3,30 @@
 // or a file rather than from a page: it can open in Stellarium Web and
 // Astro-Seek, be entered in astro.com, and be passed on. Every decision is made here, so chart.js only
 // reads the link or file and renders.
-import { fromFragment, parse, serialize, skyFor, toFragment } from "./core/portable.js";
-import { ASTRO_SEEK_NOTES, ASTRO_SEEK_BUTTONS, astroComStep, astroComStepByHand, viewFor } from "./popup-model.js";
+import { fromFragment, keepLabels, parse, serialize, skyFor, toFragment } from "./core/portable.js";
+import { ASTRO_SEEK_NOTES, ASTRO_SEEK_BUTTONS, astroComStep, astroComStepByHand, nameFromText, viewFor } from "./popup-model.js";
 import { qrFor } from "./qr.js";
 
-const COPY_LINK = { label: "Copy link", does: "copy", secondary: true };
+// shares marks the buttons that pass the chart on, which carry its name and
+// town only as the boxes above them say.
+const COPY_LINK = { label: "Copy link", does: "copy", secondary: true, shares: true };
 // The same link as Copy link, so it is offered only with it.
-const SHOW_QR = { label: "Show QR code", does: "qr", secondary: true };
-const DOWNLOAD_FILE = { label: "Download file", does: "download", secondary: true };
+const SHOW_QR = { label: "Show QR code", does: "qr", secondary: true, shares: true };
+const DOWNLOAD_FILE = { label: "Download file", does: "download", secondary: true, shares: true };
 // The system share sheet, each only where the browser says it can share that
 // thing: browsers differ, and some take links but not files.
-const SHARE_LINK = { label: "Share link…", does: "share-link", secondary: true };
-const SHARE_FILE = { label: "Share file…", does: "share-file", secondary: true };
+const SHARE_LINK = { label: "Share link…", does: "share-link", secondary: true, shares: true };
+const SHARE_FILE = { label: "Share file…", does: "share-file", secondary: true, shares: true };
 const SHARE_NOTE = "Share link… and Share file… send the chart to the app you choose.";
+
+// The chart's labels, each a box that says whether it goes with the chart.
+const LABEL_BOXES = [
+  ["name", "Name"],
+  ["town", "Town"],
+];
+const INCLUDES_LEGEND = "Include in the link, QR code and file";
+const INCLUDES_NOTE = "The name and town go in the link, QR code and file only when ticked, and anyone with them can read them.";
+const REMEMBERS_NOTE = "AstroChart Bridge remembers what you tick, on this computer.";
 
 const SITE_NAMES = { "astro-seek": "Astro-Seek", "astro-com": "astro.com" };
 
@@ -129,16 +140,28 @@ export function readChartFile(bytes, name = "") {
  *
  * @param {ReturnType<typeof readLink>} result
  * @param {{ timeZone?: string, canCopy?: boolean, canShare?: boolean, canShareFiles?: boolean, canImport?: boolean,
- *   canFill?: boolean, from?: "link" | "file" }} [options]
+ *   canFill?: boolean, from?: "link" | "file", include?: { name?: boolean, town?: boolean }, remembers?: boolean }} [options]
  *   timeZone is passed on to viewFor; canCopy is false when linkBase has
  *   nowhere to point; canShare and canShareFiles say whether the browser's
  *   share sheet takes a link and this chart's file; canImport, that this is
  *   the extension's copy, with an import page; canFill, that it can fill in
- *   astro.com's form, as the extension's copy can; from words a refusal
+ *   astro.com's form, as the extension's copy can; from words a refusal;
+ *   include, which of the chart's name and town go with it when it is passed
+ *   on; remembers, that the page keeps that choice, as the extension's copy does
  */
 export function viewForImport(
   result,
-  { canCopy = true, canShare = false, canShareFiles = false, canImport = false, canFill = false, from = "link", ...options } = {},
+  {
+    canCopy = true,
+    canShare = false,
+    canShareFiles = false,
+    canImport = false,
+    canFill = false,
+    from = "link",
+    include = {},
+    remembers = false,
+    ...options
+  } = {},
 ) {
   if (result === null) return { ...EMPTY, notes: [], buttons: [] };
   // importButton is drawn by the page: a view's own buttons wait for a sky.
@@ -150,7 +173,7 @@ export function viewForImport(
     return { state: "refused", message: REFUSALS[from][result.reason] ?? DAMAGED[from], code: result.reason };
   }
 
-  const { chart, source } = result.chart;
+  const { chart, source, labels = {} } = result.chart;
   const offsetSeconds = chart.utcOffsetSeconds;
   // The analyzePage result the chart was decided from, as far as the link
   // tells it. With no site, viewFor adds neither site's extras.
@@ -171,6 +194,14 @@ export function viewForImport(
 
   // Where the chart was first read, not how it travelled here.
   const origin = [nameFor(SITE_NAMES, source.site), nameFor(VIA_NAMES, source.via)].filter(Boolean).join(" ");
+  const rows = labelRows(origin === "" ? view.rows : [...view.rows, ["From", origin]], labels);
+  const boxes = LABEL_BOXES.filter(([field]) => Object.hasOwn(labels, field)).map(([field, label]) => ({
+    field,
+    label: `${label}: ${labels[field]}`,
+    checked: include[field] === true,
+  }));
+  const includes = boxes.length === 0 ? {} : { includes: { legend: INCLUDES_LEGEND, boxes } };
+  const includesNotes = boxes.length === 0 ? [] : [INCLUDES_NOTE, ...(remembers ? [REMEMBERS_NOTE] : [])];
   const shareLink = canCopy && canShare;
   const buttons = [
     ...ASTRO_SEEK_BUTTONS,
@@ -180,18 +211,39 @@ export function viewForImport(
     ...(canShareFiles ? [SHARE_FILE] : []),
   ];
   // Enter in astro.com… fills in astro.com's form where the page can, as the
-  // extension's copy can; on the web, it leads to the values to type in. A
-  // link or file carries no name or town, so astro.com's form gets neither.
+  // extension's copy can; on the web, it leads to the values to type in. The
+  // chart's name and town go to the form whether or not their boxes are
+  // ticked: the boxes say only what the chart takes with it when passed on.
+  // The name arrives in one piece, so all of it is astro.com's first name.
   const step = canFill ? astroComStep : astroComStepByHand;
+  const named = { local: chart.local, town: labels.town ?? null, name: nameFromText(labels.name) };
   return {
     ...view,
-    rows: origin === "" ? view.rows : [...view.rows, ["From", origin]],
+    rows,
     warnings: Object.hasOwn(VIA_WARNINGS, source.via) ? [VIA_WARNINGS[source.via]] : [],
-    notes: [...view.notes, ...ASTRO_SEEK_NOTES, ...(shareLink || canShareFiles ? [SHARE_NOTE] : [])],
+    notes: [...view.notes, ...ASTRO_SEEK_NOTES, ...(shareLink || canShareFiles ? [SHARE_NOTE] : []), ...includesNotes],
     buttons: buttons.map((button) => ({ ...button })),
-    next: step(view.sky, { local: chart.local }),
+    ...includes,
+    next: step(view.sky, named),
   };
 }
+
+// The rows with Name first and Town after Place, as the screenshot page has them.
+function labelRows(rows, { name, town }) {
+  const at = rows.findIndex(([label]) => label === "Place") + 1 || rows.length;
+  const nameRow = name ? [["Name", name]] : [];
+  const townRow = town ? [["Town", town]] : [];
+  return [...nameRow, ...rows.slice(0, at), ...townRow, ...rows.slice(at)];
+}
+
+/**
+ * The chart as the share buttons pass it on: with only the labels ticked.
+ *
+ * @param {object} chart  a portable chart
+ * @param {{ name?: boolean, town?: boolean }} include
+ * @returns {object}
+ */
+export const chartToPassOn = (chart, include) => keepLabels(chart, include);
 
 /**
  * The address a copied link starts with. On the web, the page links to
@@ -243,9 +295,11 @@ export function qrViewFor(base, chart) {
   const link = linkFor(base, chart);
   const qr = qrFor(link);
   if (qr.kind === "refused") {
+    // A long name or town can be what makes it too long.
+    const shorten = chart.labels ? "Untick the name or town to shorten it, or use" : "Use";
     return {
       state: "qr-refused",
-      message: "This link is too long for a QR code that scans reliably. Use Copy link or Download file instead.",
+      message: `This link is too long for a QR code that scans reliably. ${shorten} Copy link or Download file instead.`,
     };
   }
   return {

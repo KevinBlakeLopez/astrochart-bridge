@@ -82,6 +82,10 @@ export function render(container, view, onButton, back = null) {
         };
         return [secondaryButton(view.download.label, save), ...(note ? [note] : [])];
       },
+      // The share page's boxes for which of the chart's name and town go with
+      // it. Ticking one tells onButton, which keeps the choice; nothing is
+      // drawn again, so the box keeps its focus.
+      includes: () => [includeBoxes(view.includes, (field, checked) => onButton({ does: "include", field, checked }, sky))],
       // A further screen, such as the values to enter in astro.com, is drawn in
       // place of this one, and Cancel draws this one again. Going there and back stores nothing.
       next: () => [secondaryButton(view.next.label, () => render(container, view.next.view, onButton, view))],
@@ -205,6 +209,24 @@ function rowList(rows) {
     const detail = document.createElement("dd");
     detail.textContent = value;
     list.append(term, detail);
+  }
+  return list;
+}
+
+function includeBoxes({ legend, boxes }, onChange) {
+  const list = document.createElement("fieldset");
+  list.className = "includes";
+  const title = document.createElement("legend");
+  title.textContent = legend;
+  list.append(title);
+  for (const { field, label, checked } of boxes) {
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.checked = checked;
+    input.addEventListener("change", () => onChange(field, input.checked));
+    const wrapper = document.createElement("label");
+    wrapper.append(input, label);
+    list.append(wrapper);
   }
   return list;
 }
