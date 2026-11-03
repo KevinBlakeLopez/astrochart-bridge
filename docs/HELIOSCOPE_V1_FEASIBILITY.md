@@ -16,7 +16,7 @@ Findings are marked by how they were established. **Verified** means observed: d
 | Gate | Result | Basis |
 |---|---|---|
 | 1. Licensing | **Decided: route A**, AGPL-3.0-or-later. Before that, a material concern that needed the owner's decision | §4 |
-| 2. Browser compatibility | **Passed in Chrome**, after the decision. In an extension page under AstroChart Bridge's script policy, gate 4's 3,757 calls give results bit-identical to Node's. Firefox and Safari aren't run yet | §8 (Verified in Chrome), §5 (Read, plus binary decoding) |
+| 2. Browser compatibility | **Passed in Chrome**, after the decision. In an extension page under AstroChart Bridge's script policy, gate 4's 3,757 calls give results bit-identical to Node's. Firefox and Safari were skipped, by the owner's decision | §8 (Verified in Chrome), §5 (Read, plus binary decoding) |
 | 3. Visibility function | Passed | §3 (Verified in the binary and the glue) |
 | 4. Numerical validation | **Passed in Node**, after the decision. In 3,757 calls, the published WebAssembly matches native Swiss Ephemeris built from the same C sources | §8 (Verified) |
 | 5. Integration | Passed at design level | §6, §7 |
@@ -225,7 +225,7 @@ So "View in Stellarium" needs no new transport, just two optional fields for Ste
 - **The WebAssembly, in Node**, after the licence decision: the published 0.2.2 package against that native reference, for gate 4 (below).
 - **The WebAssembly, in Chrome 155**, on 2 November 2026: the same calls in a browser extension page, for gate 2 (below).
 
-What didn't run: the WebAssembly in Firefox and Safari (gate 2, §1), and any Helioscope code, since none exists.
+What didn't run: the WebAssembly in Firefox and Safari, which the owner chose to skip (gate 2, §1), and any Helioscope code, since none exists.
 
 ### `swe_vis_limit_mag` behaviour, verified natively
 
@@ -311,7 +311,7 @@ The comparison script and the native harness aren't committed.
 - **The corpus:** the digest equals Node's, `e80cc9dc473fc1bbbdc362bb2e3fe08c4722c60e204534b434d1217077ad7b25`. Chrome's results are therefore bit-identical to Node's, and gate 4's comparisons with native hold for Chrome unchanged.
 - **Speed:** about 22 µs a call and 2.0 ms to create an instance, against 23 µs and 1.3 ms in Node.
 
-Firefox and Safari are still to run, with the same extension. Like gate 4's script, it isn't committed.
+Firefox and Safari weren't run: on 2 November 2026 the owner chose to skip them, so gate 2 rests on Chrome alone (§9). Like gate 4's script, the extension isn't committed.
 
 ### Test plan for V1, to be written before the code
 
@@ -336,7 +336,7 @@ Firefox and Safari are still to run, with the same extension. Like gate 4's scri
 ## 9. Remaining risks
 
 - **Licensing** (§4) blocks everything else.
-- **Runtime in browsers** is verified in Chrome only (§8). Unknown in Firefox, and in Safari 26 on the Mac and the iPad: streaming instantiation and the `.wasm` MIME type, console messages, and whether the results match Node's.
+- **Runtime in browsers** is verified in Chrome only (§8), since the owner chose to skip Firefox and Safari. Unknown in Firefox, and in Safari 26 on the Mac and the iPad: streaming instantiation and the `.wasm` MIME type, console messages, and whether the results match Node's.
 - **Model validity:** in the cases tried, the margin moved by 0.5 to 2.4 magnitudes with assumptions nobody records for a birth, and it has a discontinuity of 1.1 magnitudes. A "detectable" with a small margin is weak evidence.
 - **Hidden state:** the extinction memo (item 5) and the global observer (item 3). Any sweep over atmospheres needs a fresh instance for each scenario, or calls at different instants.
 - **Magnitudes:** Swiss Ephemeris uses Mallama and Hilton's 2018 formulas. **Read:** Mercury's is applied at every phase angle without a range check (`swecl.c:3923-3926`), and only Venus gets a warning, beyond 179°. Near superior conjunction, the object's magnitude is extrapolated.
@@ -352,5 +352,5 @@ Firefox and Safari are still to run, with the same extension. Like gate 4's scri
 ## 10. Recommended next step
 
 1. **Choose the licensing route** (§4). Done: route A, on 1 November 2026.
-2. **Build an isolated prototype for gates 2 and 4**, outside the production extension. A scratch extension page loads the vendored package and calls `swe_vis_limit_mag` through `raw.cwrap` for Venus from New York at 2025-01-10 22:35:00 UTC, with the C defaults and Moshier. It compares the result with the native one: `ret` 0, limiting magnitude 3.01164805937693, Venus −4.528168498295062, altitude 30.449427707878943. Run it in Chrome, Firefox and Safari, and run the same comparison in Node from `test/`. Gate 4 is done: it ran in Node on 1 November 2026, from a script outside the repository (§8). Of the browser runs, Chrome's passed on 2 November 2026 (§8), and Firefox and Safari are still to do.
+2. **Build an isolated prototype for gates 2 and 4**, outside the production extension. A scratch extension page loads the vendored package and calls `swe_vis_limit_mag` through `raw.cwrap` for Venus from New York at 2025-01-10 22:35:00 UTC, with the C defaults and Moshier. It compares the result with the native one: `ret` 0, limiting magnitude 3.01164805937693, Venus −4.528168498295062, altitude 30.449427707878943. Run it in Chrome, Firefox and Safari, and run the same comparison in Node from `test/`. Gate 4 is done: it ran in Node on 1 November 2026, from a script outside the repository (§8). Of the browser runs, Chrome's passed on 2 November 2026 (§8), and the owner chose the same day to skip Firefox and Safari.
 3. **Then the proof of concept** the brief describes: Venus, New York, the evening window of 10 January 2025, and one visibility calculation returning the structured result of §6, with the tests written first.
