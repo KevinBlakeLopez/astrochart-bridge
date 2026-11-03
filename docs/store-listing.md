@@ -47,7 +47,7 @@ The same text serves both stores.
 >
 > It works out the chart's Universal Time from what the source prints, and refuses a chart rather than guess a time, an offset or a calendar. It opens natal charts, plus horary charts from a screenshot. Transit, synastry, compatibility, return, profection and direction charts are refused, as are dates before the Gregorian calendar began on 15 October 1582.
 >
-> Privacy: there's no server, account or tracking. Charts are read in your browser, and nothing leaves it until you click a button that opens a site. A shared chart never carries a name. Details: https://github.com/KevinBlakeLopez/astrochart-bridge/blob/main/docs/privacy.md
+> Privacy: there's no server, account or tracking. Charts are read in your browser, and nothing leaves it until you click a button that opens a site. A shared chart carries its name and town only when you tick them. Details: https://github.com/KevinBlakeLopez/astrochart-bridge/blob/main/docs/privacy.md
 >
 > AstroChart Bridge is free software under the GNU Affero General Public License, version 3 or later. Source: https://github.com/KevinBlakeLopez/astrochart-bridge
 >
@@ -88,7 +88,7 @@ Brave installs from the Chrome Web Store as it is, and Microsoft Edge does once 
 |---|---|
 | `activeTab` | Reads the chart on the page the user is viewing, only when they click the toolbar button. |
 | `scripting` | Runs the script that reads that chart's birth data from the page, fills in astro.com's birth data form in the tab the extension opens for it, and chooses the town in Astro-Seek's Add person form in the tab it opens for that. |
-| `storage` | Keeps the user's choice of Stellarium Web or Stellarium Desktop as the default, and, in session storage, the chart whose astro.com form it is filling in, for 30 minutes at most, and the town and name of a chart it opened in Astro-Seek, for saving it there, until the browser quits. |
+| `storage` | Keeps the user's choice of Stellarium Web or Stellarium Desktop as the default, and whether a chart they share includes its name and town, and, in session storage, the chart whose astro.com form it is filling in, for 30 minutes at most, and the town and name of a chart it opened in Astro-Seek, for saving it there, until the browser quits. |
 | Host permissions | All three are optional and requested the first time the user needs them. `http://127.0.0.1/*` sends the chart to Stellarium Desktop's Remote Control plugin on the user's own computer. `https://www.astro.com/*` fills in astro.com's birth data form in the tab the extension opens. `https://www.astro-seek.com/*` chooses the town in Astro-Seek's Add person form, and keeps the chart's coordinates and time zone there, in the tab the extension opens to save a chart in the user's Astro-Seek account. |
 
 **Remote code:** No. All of the extension's code is in the package, including the WebAssembly Tesseract uses to read screenshots, which is what `'wasm-unsafe-eval'` in the content security policy is for. Reviewers search a package for web addresses, and Tesseract.js's minified files contain its default jsDelivr addresses. `extension/screenshot.js` replaces all three (`workerPath`, `corePath` and `langPath`) with files in `vendor/tesseract/`, so the defaults are never used. Say so in the remote-code field if it asks why.
@@ -96,7 +96,7 @@ Brave installs from the Chrome Web Store as it is, and Microsoft Edge does once 
 **Data usage:** the store's guidance says to disclose data the extension handles even when it's only processed on the user's device. Tick:
 
 - **Website content**: it reads the chart's text from the page the user is on.
-- **Personally identifiable information**: a chart's name and birth data, which go to astro.com's form when the user asks.
+- **Personally identifiable information**: a chart's name and birth data, which go to astro.com's form when the user asks, and into a link or file they share when they tick the name or town.
 
 Leave **Location** unticked: a birthplace's coordinates aren't the user's location. Tick all three certifications. They're true here: nothing is sold, nothing is used outside the single purpose, and nothing is used for creditworthiness or lending.
 

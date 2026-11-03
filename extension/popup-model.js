@@ -3,7 +3,7 @@ import { astroSeekSaveUrl } from "./core/astroseek.js";
 import { parseOffset, utcFromOffset } from "./core/civiltime.js";
 import { nameFromText } from "./core/names.js";
 import { searchTown } from "./core/towns.js";
-import { toPortable } from "./core/portable.js";
+import { isLabelText, toPortable } from "./core/portable.js";
 import { text } from "./messages/index.js";
 import { HOLD_MINUTES } from "./pending.js";
 
@@ -137,7 +137,7 @@ export function viewFor(result, { timeZone, town = null, name = null, kept = nul
   if (result.site === "astro-com") {
     return withAstroSeekSave(
       { ...ready, notes: [...ready.notes, ...astroSeekNotes()], buttons: chartButtons(astroSeekButtons()) },
-      { town: result.town ?? null, name: result.name ?? null },
+      townAndName(result),
     );
   }
   if (result.site !== "astro-seek") return ready;
@@ -148,9 +148,24 @@ export function viewFor(result, { timeZone, town = null, name = null, kept = nul
   // link, in its own time zone. No note: the chart is already on astro-seek.com.
   // The page's own town and name, or else those kept for the tab, go to
   // Astro-Seek's form and astro.com's alike.
-  const chart = { town: town ?? kept?.town ?? null, name: name ?? kept?.name ?? null, gender: kept?.gender ?? null };
+  const chart = { ...townAndName(result, { town, name, kept }), gender: kept?.gender ?? null };
   const buttons = town === null ? chartButtons([openSkyButton(), astroSeekSaveButton(chart)]) : ready.buttons;
   return { ...ready, buttons, next: astroComStep(ready.sky, { ...chart, local }) };
+}
+
+/**
+ * The town and name a chart screen has for its chart, for astro.com's and
+ * Astro-Seek's forms and for Share…: an astro.com page's own record; an
+ * Astro-Seek page's, from its address, or else those kept for its tab.
+ *
+ * @param {ReturnType<typeof import("./core/index.js").analyzePage>} result  a natal result
+ * @param {{ town?: string | null, name?: { first: string, last: string } | null,
+ *   kept?: { town: string | null, name: { first: string, last: string } | null } | null }} [options]  as viewFor's
+ * @returns {{ town: string | null, name: { first: string, last: string } | null }}
+ */
+export function townAndName(result, { town = null, name = null, kept = null } = {}) {
+  if (result.site === "astro-com") return { town: result.town ?? null, name: result.name ?? null };
+  return { town: town ?? kept?.town ?? null, name: name ?? kept?.name ?? null };
 }
 
 /**
@@ -309,11 +324,14 @@ export const groupLabels = () => ({ ...text().popup.groups });
  *
  * Send to Stellarium Desktop comes first when it is the user's default, and
  * otherwise right after Open Stellarium Web, or last on a screen without it.
+ * The share page's boxes for a chart's name and town go right before the
+ * first button that passes the chart on.
  *
  * @param {object} view  from viewFor, viewForSky and the like, with withDesktopSend's desktop
  * @returns {{ label: string | null, actions: object[] }[]}  each action is
  *   { kind: "button", button } for one of the view's buttons, or { kind } of
- *   "url" (the view's own link), "desktop", "default-choice", "download" or "next"
+ *   "url" (the view's own link), "desktop", "default-choice", "download",
+ *   "includes" or "next"
  */
 export function actionGroups(view) {
   const actions = (view.buttons ?? [openSkyButton()]).map((button) => ({ kind: "button", button }));
@@ -322,6 +340,10 @@ export function actionGroups(view) {
     const web = actions.findIndex(({ button }) => button?.opens === "stellarium");
     if (view.desktop.primary) actions.unshift(send);
     else actions.splice(web === -1 ? actions.length : web + 1, 0, send);
+  }
+  if (view.includes) {
+    const shares = actions.findIndex(({ button }) => button?.shares);
+    if (shares !== -1) actions.splice(shares, 0, { kind: "includes" });
   }
   if (view.defaultChoice) actions.push({ kind: "default-choice" });
   if (view.download) actions.push({ kind: "download" });
@@ -350,13 +372,30 @@ const CHOICE_BASES = { "printed UT": "printed" };
  * @param {ReturnType<typeof import("./core/index.js").analyzePage>} result  a natal result
  * @param {{ utc: string, lat: number, lng: number }} sky
  * @param {"page" | "screenshot"} via
+ * @param {{ town?: string | null, name?: { first: string, last: string } | null }} [chart]
+ *   the chart's town and name, which the share page offers to include
  * @returns {ReturnType<typeof toPortable>}
  */
-export function chartToShare(result, sky, via) {
+export function chartToShare(result, sky, via, chart = {}) {
   return toPortable(
     { local: result.local, utc: sky.utc, lat: sky.lat, lng: sky.lng },
     { site: result.site, via, zoneLabel: result.zoneLabel ?? undefined, utcBasis: utcBasis(result, sky) },
+    labelsToShare(chart),
   );
+}
+
+/**
+ * A chart's town and name as a portable chart's labels: the name's two parts
+ * as one, as Astro-Seek's Name field takes them. One the format can't carry,
+ * such as a name over 100 characters, is left out rather than stopping the
+ * share; the share page shows what is included.
+ *
+ * @param {{ town?: string | null, name?: { first: string, last: string } | null }} chart
+ * @returns {{ name?: string, town?: string }}
+ */
+export function labelsToShare({ town = null, name = null } = {}) {
+  const labels = { name: nickFor(name), town: town?.trim() || null };
+  return Object.fromEntries(Object.entries(labels).filter(([, text]) => isLabelText(text)));
 }
 
 // "printed" or "declared" as the result says, "printed" or "zone-label" for
@@ -441,7 +480,9 @@ function astroComButtons() {
 }
 
 // astro.com's form has no coordinate fields: its atlas looks up a typed town.
+// The same on a page that can't fill in the form: the town is typed by hand.
 const townNote = (town) => text().popup.townNote(town === null ? null : searchTown(town));
+const townByHandNote = (town) => (town === null ? townNote(null) : text().popup.townByHandNote(searchTown(town)));
 
 // The sign-in advice is a note, not a step before the form: a signed-in browser
 // goes straight on.
@@ -552,16 +593,17 @@ export const astroComStepByHand = (sky, chart = {}) => ({ label: text().popup.bu
  * check once the town is chosen, and a plain link to the form. Nothing is kept.
  *
  * @param {{ utc: string, lat: number, lng: number }} sky
- * @param {{ local?: string | null }} [chart]  the chart's local time, as for viewForAstroCom
+ * @param {{ local?: string | null, town?: string | null, name?: { first: string, last: string } | null }} [chart]
+ *   the chart's local time, town and name, as for viewForAstroCom
  */
-export function viewForAstroComByHand({ utc, lat, lng }, { local = null } = {}) {
+export function viewForAstroComByHand({ utc, lat, lng }, { local = null, town = null, name = null } = {}) {
   const words = text().popup;
   const values = { utc, lat, lng, local };
   return {
     state: "astro-com-by-hand",
-    ...astroComValues(values),
+    ...astroComValues({ ...values, town, name }),
     message: words.byHand,
-    notes: [...zoneNotes(values, { filled: false }), townNote(null)],
+    notes: [...zoneNotes(values, { filled: false }), townByHandNote(town)],
     sky: { utc, lat, lng },
     buttons: [{ label: words.buttons.openAstroComForm, url: FORM_URL }],
   };

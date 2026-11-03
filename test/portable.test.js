@@ -4,8 +4,10 @@ import { readdirSync, readFileSync } from "node:fs";
 import { analyzePage } from "../extension/core/index.js";
 import {
   MAX_FRAGMENT_LENGTH,
+  MAX_LABEL_LENGTH,
   MAX_TEXT_LENGTH,
   fromFragment,
+  keepLabels,
   parse,
   serialize,
   skyFor,
@@ -16,9 +18,11 @@ import {
 const NY = { local: "2024-04-17T08:00:00", utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 };
 const NY_SOURCE = { site: "astro-seek", via: "page", zoneLabel: "EDT, DST", utcBasis: "printed" };
 
+const NY_LABELS = { name: "Jane Doe", town: "New York, NY, USA" };
+
 // toPortable's chart, or a failed assertion naming the refusal.
-function portable(sky, source = {}) {
-  const result = toPortable(sky, source);
+function portable(sky, source = {}, labels = {}) {
+  const result = toPortable(sky, source, labels);
   assert.equal(result.kind, "portable", `refused: ${result.reason}`);
   return result.chart;
 }
@@ -34,8 +38,8 @@ function assertRoundTrip(chart) {
 const refusal = (reason) => ({ kind: "refused", reason });
 
 // A serialized chart with one part replaced, for the parser's refusals.
-function edited(change) {
-  const document = JSON.parse(serialize(portable(NY, NY_SOURCE)));
+function edited(change, labels = {}) {
+  const document = JSON.parse(serialize(portable(NY, NY_SOURCE, labels)));
   change(document);
   return JSON.stringify(document);
 }
@@ -331,6 +335,114 @@ test("deeply nested JSON within the limit is refused without a crash", () => {
   const deep = `${"[".repeat(8000)}${"]".repeat(8000)}`;
   assert.ok(deep.length <= MAX_TEXT_LENGTH);
   assert.deepEqual(parse(deep), refusal("malformed"));
+});
+
+// --- Labels ---
+
+test("a chart's name and town are written after source, in one order", () => {
+  const chart = portable(NY, NY_SOURCE, { town: "New York, NY, USA", name: "Jane Doe" });
+  assert.deepEqual(chart.labels, NY_LABELS);
+  assert.deepEqual(Object.keys(chart), ["format", "version", "chart", "source", "labels"]);
+  assert.deepEqual(Object.keys(chart.labels), ["name", "town"]);
+  assertRoundTrip(chart);
+});
+
+test("a chart with no name or town has no labels key, so its link is the one it always had", () => {
+  const plain = portable(NY, NY_SOURCE);
+  assert.ok(!Object.hasOwn(plain, "labels"));
+  for (const none of [{}, { name: null, town: null }, { name: undefined }]) {
+    assert.equal(toFragment(portable(NY, NY_SOURCE, none)), toFragment(plain));
+  }
+  // The link the test above has always checked, unchanged.
+  assert.equal(
+    serialize(plain),
+    '{"format":"astrochart","version":1,' +
+      '"chart":{"calendar":"gregorian","local":"2024-04-17T08:00:00","utcOffsetSeconds":-14400,"latitude":40.716667,"longitude":-74},' +
+      '"source":{"site":"astro-seek","via":"page","zoneLabel":"EDT, DST","utcBasis":"printed"}}',
+  );
+});
+
+test("a name alone or a town alone is written alone", () => {
+  assert.deepEqual(portable(NY, {}, { name: "Jane Doe", town: null }).labels, { name: "Jane Doe" });
+  assert.deepEqual(portable(NY, {}, { town: "New York, NY, USA" }).labels, { town: "New York, NY, USA" });
+});
+
+test("labels never change the sky the destinations open", () => {
+  assert.deepEqual(skyFor(portable(NY, NY_SOURCE, NY_LABELS)), skyFor(portable(NY, NY_SOURCE)));
+});
+
+test("Unicode names and towns survive the trip, joiners included", () => {
+  const chart = portable(NY, {}, { name: "Zoë Ødegård-東京 कृष्‍ण", town: "São Paulo, SP, Brasil" });
+  assertRoundTrip(chart);
+});
+
+test("markup in a name stays text: nothing is escaped or stripped", () => {
+  const name = `<img src=x onerror="alert(1)">`;
+  const chart = portable(NY, {}, { name });
+  assertRoundTrip(chart);
+  assert.equal(chart.labels.name, name);
+});
+
+test("keepLabels keeps only the labels chosen", () => {
+  const chart = portable(NY, NY_SOURCE, NY_LABELS);
+  assert.deepEqual(keepLabels(chart, { name: true, town: true }), chart);
+  assert.deepEqual(keepLabels(chart, { name: false, town: true }).labels, { town: "New York, NY, USA" });
+  assert.deepEqual(keepLabels(chart, { name: true }).labels, { name: "Jane Doe" });
+  // Neither: the same chart and link as one that never had labels.
+  assert.deepEqual(keepLabels(chart, {}), portable(NY, NY_SOURCE));
+  assert.deepEqual(keepLabels(chart, { name: "yes", town: 1 }), portable(NY, NY_SOURCE));
+  // Asking for a label the chart doesn't have adds nothing.
+  assert.deepEqual(keepLabels(portable(NY), { name: true, town: true }), portable(NY));
+});
+
+test("a name or town that isn't valid text is refused by the writer", () => {
+  for (const labels of [{ name: "" }, { town: "   " }, { name: 3 }, { name: "x".repeat(MAX_LABEL_LENGTH + 1) }]) {
+    assert.deepEqual(toPortable(NY, {}, labels), refusal("invalid-labels"), JSON.stringify(labels));
+  }
+  assert.equal(toPortable(NY, {}, { name: "x".repeat(MAX_LABEL_LENGTH) }).kind, "portable");
+});
+
+test("invalid labels are refused by the reader", () => {
+  for (const change of [
+    (d) => (d.labels = "Jane Doe"),
+    (d) => (d.labels = null),
+    (d) => (d.labels = []),
+    (d) => (d.labels.name = ""),
+    (d) => (d.labels.name = null),
+    (d) => (d.labels.town = { name: "New York" }),
+    (d) => (d.labels.name = "x".repeat(MAX_LABEL_LENGTH + 1)),
+    (d) => (d.labels.name = "Jane\u0000"),
+    (d) => (d.labels.name = "Jane\nDoe"),
+    (d) => (d.labels.name = "Jane \u202Eeod"),
+    (d) => (d.labels.town = "New York\u2066"),
+    (d) => (d.labels.town = "\ud800"),
+  ]) {
+    assert.deepEqual(parse(edited(change, NY_LABELS)), refusal("invalid-labels"), change.toString());
+  }
+});
+
+test("an unknown label field is ignored and dropped", () => {
+  const parsed = parse(edited((d) => (d.labels.gender = "female"), NY_LABELS));
+  assert.deepEqual(parsed, { kind: "portable", chart: portable(NY, NY_SOURCE, NY_LABELS) });
+});
+
+test("labels with only unknown fields read as no labels", () => {
+  const parsed = parse(edited((d) => (d.labels = { gender: "female" })));
+  assert.deepEqual(parsed, { kind: "portable", chart: portable(NY, NY_SOURCE) });
+});
+
+test("a typical name and town add under 100 characters to a link", () => {
+  const plain = toFragment(portable(NY, NY_SOURCE)).length;
+  const named = toFragment(portable(NY, NY_SOURCE, NY_LABELS)).length;
+  assert.ok(named - plain < 100, `${named - plain} characters`);
+});
+
+test("the longest name and town still fit inside the link's limit", () => {
+  // Four UTF-8 bytes for every two UTF-16 units, the most a label can take.
+  const longest = "𝔸".repeat(MAX_LABEL_LENGTH / 2);
+  const chart = portable(NY, { ...NY_SOURCE, zoneLabel: "x".repeat(64) }, { name: longest, town: longest });
+  assert.ok(toFragment(chart).length <= MAX_FRAGMENT_LENGTH, `${toFragment(chart).length} characters`);
+  assertRoundTrip(chart);
 });
 
 // --- Fragments ---

@@ -148,6 +148,9 @@ export default {
       town === null
         ? "astro.com asks for a country and town, not coordinates. Choose the town nearest this place and check the coordinates astro.com shows."
         : `astro.com asks for a country and town, not coordinates. AstroChart Bridge fills in the town ${town}; choose the match nearest this place and check the coordinates astro.com shows.`,
+    // The same on a page that can't fill in the form, for a chart with a town.
+    townByHandNote: (town) =>
+      `astro.com asks for a country and town, not coordinates. Type the town ${town}, choose the match nearest this place and check the coordinates astro.com shows.`,
     signInNote:
       "astro.com draws the chart only for a signed-in account. If it asks you to sign in or create a free account, do it in that tab: AstroChart Bridge keeps these values for it.",
     keepsNote: (minutes) =>

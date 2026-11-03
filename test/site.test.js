@@ -9,8 +9,9 @@ const extension = new URL("../extension/", import.meta.url).pathname;
 const read = (file) => readFileSync(join(extension, file), "utf8");
 
 // Modules chart.js imports only in the extension's copy of the page, which
-// the extension ships: astro.com's form is filled in from there, never on the web.
-const EXTENSION_ONLY = ["astro-com-page.js"];
+// the extension ships: astro.com's form is filled in from there, never on the
+// web, and only there is the choice of a shared chart's name and town kept.
+const EXTENSION_ONLY = ["astro-com-page.js", "preference.js"];
 
 // Every file chart.html loads on the web: its scripts and stylesheets, then
 // every module those scripts import. Comments are dropped first, so a JSDoc
@@ -42,10 +43,12 @@ test("the site is exactly the files the receiving page loads, and the licence fo
   assert.deepEqual([...SITE_FILES].sort(), [...new Set(expected)].sort());
 });
 
-test("chart.js loads the code that fills in astro.com's form only in the extension's copy", () => {
+test("chart.js loads the code that fills in astro.com's form, and keeps the share choice, only in the extension's copy", () => {
   const code = read("chart.js");
   assert.match(code, /^if \(canFill\) import\("\.\/astro-com-page\.js"\)/m);
   assert.match(code, /^const canFill = canImport;$/m);
+  assert.match(code, /^const remembered = canImport \? chrome\.storage\.local : null;$/m);
+  assert.match(code, /^const preference = remembered && \(await import\("\.\/preference\.js"\)\);$/m);
   assert.match(code, /^const canImport = location\.protocol\.endsWith\("-extension:"\);$/m);
   for (const file of EXTENSION_ONLY) assert.equal(SITE_FILES.includes(file), false, file);
 });

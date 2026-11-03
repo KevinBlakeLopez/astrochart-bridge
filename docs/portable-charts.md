@@ -23,7 +23,8 @@ screenshot ──────┘                                          │
 ```
 
 - `extension/core/portable.js` is the format: building, validating, serializing and reading charts, and link fragments. It uses no browser API and knows no site.
-- The popup, the screenshot page and the paste page offer **Share…** on any screen with a chart of its own, once a reading or an offset decides the UTC. It opens the extension's copy of `chart.html` with the chart in its link.
+- The popup, the screenshot page and the paste page offer **Share…** on any screen with a chart of its own, once a reading or an offset decides the UTC. It opens the extension's copy of `chart.html` with the chart in its link, with the chart's name and town when the screen has them.
+- The share page has a box for each of the chart's name and town, right above the buttons that pass the chart on. Copy link, the QR code, the file and the share sheet carry only the ones ticked. Both start unticked. The extension's copy remembers what was ticked, in the extension's storage (`preference.js`); the web's copy keeps nothing.
 - `chart.html` is the same page in the extension and on the web. It reuses the popup's view model and `view.js`, so a received chart shows the popup's rows and notes, and opens through the same `stellariumUrl` and `astroSeekUrl` as the popup.
 - A source added later needs only to produce a decided chart; the format, page and sharing don't change. A destination added later needs only to take `skyFor`'s `{ utc, lat, lng }`.
 
@@ -40,7 +41,8 @@ screenshot ──────┘                                          │
     "latitude": 40.716667,
     "longitude": -74
   },
-  "source": { "site": "astro-seek", "via": "page", "zoneLabel": "EDT, DST", "utcBasis": "printed" }
+  "source": { "site": "astro-seek", "via": "page", "zoneLabel": "EDT, DST", "utcBasis": "printed" },
+  "labels": { "name": "Example Person", "town": "New York, NY, US" }
 }
 ```
 
@@ -56,6 +58,9 @@ screenshot ──────┘                                          │
 | `source.via` | no | `page`, `screenshot` or `paste`. A screenshot's chart was read by OCR, and nothing checked its latitude. A pasted chart was read from text and checked by hand on the paste page's form, and has no `site`: nothing checked its offset against the birthplace. |
 | `source.zoneLabel` | no | The zone label as the page printed it, at most 64 characters, with no control or format characters. |
 | `source.utcBasis` | no | How the offset was decided: `printed`, `declared`, `zone-label` or `entered`. A pasted chart is `declared` when its offset is one the text gave and `entered` when it was typed on the form. |
+| `labels` | no | Written only when it has a field. A chart without labels has no `labels` key. |
+| `labels.name` | no | The chart's name, as one piece: a name in first and last parts is joined with a space. 1 to 100 characters, not all spaces, with no control or format characters except the zero-width joiner and non-joiner, which some scripts' names are spelled with. |
+| `labels.town` | no | The chart's town, as the source wrote it, with the same rules as the name. It names the place; the coordinates are still the place. |
 
 The UTC isn't written: `skyFor` works it out as `local − utcOffsetSeconds`, so a chart can't hold two times that disagree.
 
@@ -63,8 +68,8 @@ The UTC isn't written: `skyFor` works it out as `local − utcOffsetSeconds`, so
 
 - **Deterministic.** `serialize` always writes the keys in the same order, so a chart always gives the same link, file and QR code. A file is indented; a link isn't.
 - **Validated both ways.** `toPortable` runs the same checks as `parse`, so anything the extension shares can be read back.
-- **Extensible without being misread.** A reader refuses any key it doesn't know at the top level or in `chart`, since those carry meaning: a later version's approximate time or time zone must never be read as an exact time at this offset. A change of meaning needs a new version. Unknown keys in `source` are dropped, so new provenance fields can be added within version 1.
-- **No personal identifiers.** There are no names or place names. The location is its coordinates.
+- **Extensible without being misread.** A reader refuses any key it doesn't know at the top level or in `chart`, since those carry meaning: a later version's approximate time or time zone must never be read as an exact time at this offset. A change of meaning needs a new version. Unknown keys in `source` and `labels` are dropped, so new provenance fields and labels can be added within version 1.
+- **A name and town only by choice.** The chart's name and town go in `labels` only when the person sharing it ticks them on the share page. The sky never depends on them: the location is its coordinates. A chart without them gives the same link it gave before `labels` existed. A reader from before `labels` refuses a chart with them as a newer version's, rather than dropping them unseen.
 
 ### What can't be represented, and what a trip loses
 
@@ -83,18 +88,21 @@ A link is the receiving page's address, `#v1=`, and the serialized chart in base
 | Chart | Link, with the GitHub Pages address | QR code, error correction M |
 |---|---|---|
 | The Astro-Seek fixtures | 398–406 characters | version 15, 85 modules with the quiet zone |
-| Longest possible today (64-character zone label, from a screenshot) | 494–497 characters | version 17, 93 modules |
+| Longest possible today without labels (64-character zone label, from a screenshot) | 494–497 characters | version 17, 93 modules |
+| A fixture with a name and town (`Example Person`, `New York, NY, US`) | 480 characters | version 17, 93 modules |
+| Longest possible with labels (100-character name and town, 64-character zone label) | 789–1,056 characters | none: past version 20 |
 
-A link over 2,048 characters, or a file or JSON text over 16,384 bytes or characters, is refused before it is decoded. A link that would need a QR code past version 20 gets no code, and the page points to Copy link and Download file.
+A link over 2,048 characters, or a file or JSON text over 16,384 bytes or characters, is refused before it is decoded. A link that would need a QR code past version 20 gets no code, and the page points to Copy link and Download file, and to unticking the name or town when the chart has them.
 
 ## Security and privacy
 
 - The receiving page loads only its own files: `default-src 'none'; script-src 'self'; style-src 'self'; base-uri 'none'; form-action 'none'`, set in a `<meta>` tag, and `no-referrer`. It has no third-party scripts, analytics or storage.
 - It reads the fragment once and removes it from the address and from that history entry with `history.replaceState`, whether or not the chart was valid. Whether a browser's History list still keeps the original address hasn't been checked in any browser (manual test 19).
 - Imported text is only ever set with `textContent`. The QR code is built element by element, with no markup parsed and no image loaded.
+- A downloaded file's name and the share sheet's title never carry the chart's name: they are `chart-<date>.astrochart.json` and "AstroChart Bridge chart".
 - Nothing opens until a button is clicked. Destinations open in a new tab with `noopener,noreferrer`.
 - QR codes are made on the device by the vendored `lean-qr` (`extension/vendor/lean-qr/`), never by a QR service.
-- Anyone with a link, a file or a view of its QR code can read the chart. The page says so.
+- Anyone with a link, a file or a view of its QR code can read the chart, and its name and town when they were ticked. The page says so.
 - **Not covered:** a `<meta>` policy can't set `frame-ancestors`, and GitHub Pages can't send headers, so another site could put the page in a frame. Its only actions open links and copy text.
 
 ## Compatibility
@@ -138,9 +146,10 @@ To try the page locally, serve the `extension` folder (`python3 -m http.server 8
 
 | File | Covers |
 |---|---|
-| `test/portable.test.js` | Building, serializing and reading charts; round trips of every Astro-Seek fixture and of historical, local-mean-time, half-hour, southern, date-boundary and Unicode charts; refusals of malformed, truncated, corrupted, oversized, newer and invalid input. |
-| `test/share.test.js` | `chartToShare` for each popup screen and how its UTC was decided; where Share… is and isn't offered; the receiving page's address. |
-| `test/chart-model.test.js` | The receiving page's screens, refusals for links and files, Copy link's address, file names and contents, `readChartFile`, the share buttons, QR views. |
+| `test/portable.test.js` | Building, serializing and reading charts; round trips of every Astro-Seek fixture and of historical, local-mean-time, half-hour, southern, date-boundary and Unicode charts; refusals of malformed, truncated, corrupted, oversized, newer and invalid input; labels, `keepLabels`, and the same link for a chart without them. |
+| `test/share.test.js` | `chartToShare` for each popup screen and how its UTC was decided; the town and name it takes, and those it leaves out; where Share… is and isn't offered; the receiving page's address. |
+| `test/chart-model.test.js` | The receiving page's screens, refusals for links and files, Copy link's address, file names and contents, `readChartFile`, the share buttons, QR views; the Name and Town rows, their boxes, what each button passes on, and the name and town astro.com gets. |
+| `test/preference.test.js` | Which of the name and town the extension's share page remembers, and that it keeps nothing when neither is ticked. |
 | `test/qr.test.js` | QR versions and sizes, error correction, the SVG path against the code's modules, refusal of links too long to scan. |
 | `test/site.test.js` | The published file list against what `chart.html` loads, and the site build. |
 
@@ -151,6 +160,6 @@ The popup's, screenshot page's and paste page's own scripts, the extension's Sha
 - No physical phone, tablet, camera, share sheet or AirDrop has been used. Manual tests 19 B, 21 and 22 cover them.
 - The extension's Share… flow and the popup's Open an AstroChart Bridge file haven't run in a browser: the browser pane can't load the extension. Manual tests 20 and 22 A cover them in Chrome and Firefox; no manual test covers them in Safari yet.
 - Until the page is deployed, links copied in the extension open a 404.
-- Whether a browser's History list keeps a link's `#v1=…` address is unknown.
+- Whether a browser's History list keeps a link's `#v1=…` address is unknown. The extension's own Share… puts the chart, with its name and town, in such an address for the share page it opens, which removes it at once.
 - The page can be framed by another site (see Security and privacy).
 - Dates before 15 October 1582, and unknown or approximate birth times, can't be shared.

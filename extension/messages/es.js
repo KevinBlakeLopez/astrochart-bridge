@@ -150,6 +150,8 @@ export default {
       town === null
         ? "astro.com pide un país y una ciudad, no coordenadas. Elige la ciudad más cercana a este lugar y comprueba las coordenadas que muestra astro.com."
         : `astro.com pide un país y una ciudad, no coordenadas. AstroChart Bridge escribe la ciudad ${town}; elige la coincidencia más cercana a este lugar y comprueba las coordenadas que muestra astro.com.`,
+    townByHandNote: (town) =>
+      `astro.com pide un país y una ciudad, no coordenadas. Escribe la ciudad ${town}, elige la coincidencia más cercana a este lugar y comprueba las coordenadas que muestra astro.com.`,
     signInNote:
       "astro.com solo dibuja la carta si has iniciado sesión en una cuenta. Si te pide iniciar sesión o crear una cuenta gratuita, hazlo en esa pestaña: AstroChart Bridge guarda estos valores para ella.",
     keepsNote: (minutes) =>

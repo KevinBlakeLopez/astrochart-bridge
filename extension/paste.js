@@ -143,7 +143,7 @@ function showReady(formElementToKeep, entry, form) {
     // Links, Save in Astro-Seek…, and the astro.com buttons of the step after
     // this screen, as on the screenshot page.
     if (button.does !== "share") return openPageLink(screen, button, sky);
-    const shared = chartForEntry(entry, form.statedOffsets);
+    const shared = chartForEntry(entry, form.statedOffsets, { town: form.town, name: form.name });
     if (shared.kind === "refused") {
       render(screen, viewForShareRefusal(shared.reason), drawn.onButton, drawn.view);
       return;

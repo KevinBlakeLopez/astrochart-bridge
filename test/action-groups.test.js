@@ -79,6 +79,30 @@ test("the sky imported from Stellarium Desktop is grouped the same way", () => {
   ]);
 });
 
+test("the share page's boxes for a name and town go right before the first button that passes the chart on", () => {
+  const view = {
+    sky: NY,
+    buttons: [
+      { label: "Open Stellarium Web", opens: "stellarium" },
+      { label: "Open chart in Astro-Seek", opens: "astro-seek" },
+      { label: "Share link…", does: "share-link", shares: true },
+      { label: "Copy link", does: "copy", shares: true },
+    ],
+    includes: { legend: "Include", boxes: [] },
+    next: { label: "Enter in astro.com…" },
+  };
+  assert.deepEqual(groupsOf(view), [
+    [SKY, "Open Stellarium Web"],
+    [ELSEWHERE, "Open chart in Astro-Seek", "includes", "Share link…", "Copy link", "next"],
+  ]);
+  // With no button that passes the chart on, there are no boxes to draw.
+  const noShares = { ...view, buttons: view.buttons.slice(0, 2) };
+  assert.deepEqual(groupsOf(noShares), [
+    [SKY, "Open Stellarium Web"],
+    [ELSEWHERE, "Open chart in Astro-Seek", "next"],
+  ]);
+});
+
 test("a screen without both kinds of action has no labels and keeps its order", () => {
   // The sent screen's line about the default sits beside Done: no way to see the sky.
   assert.deepEqual(groupsOf(viewForDesktopSend({ state: "sent" }, NY)), [[null, "Done", "default-choice"]]);
