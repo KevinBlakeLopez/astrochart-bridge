@@ -4,9 +4,10 @@
 // test that never chooses gets English.
 import en from "./en.js";
 import es from "./es.js";
+import sl from "./sl.js";
 
 // The catalogs, by primary language subtag.
-const CATALOGS = { en, es };
+const CATALOGS = { en, es, sl };
 
 let current = en;
 

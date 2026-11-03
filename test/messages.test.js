@@ -5,6 +5,7 @@ import { analyzePage } from "../extension/core/index.js";
 import en from "../extension/messages/en.js";
 import es from "../extension/messages/es.js";
 import { setLanguage } from "../extension/messages/index.js";
+import sl from "../extension/messages/sl.js";
 import { actionGroups, viewFor, viewForAstroCom } from "../extension/popup-model.js";
 import { viewForScreenshot } from "../extension/screenshot-model.js";
 
@@ -28,6 +29,8 @@ test("the first preferred language with a catalog is chosen, or else English", (
     assert.equal(setLanguage(["es-MX", "en"]), "es");
     assert.equal(setLanguage(["fr-FR", "ES"]), "es");
     assert.equal(setLanguage(["en-GB", "es"]), "en");
+    assert.equal(setLanguage(["sl-SI", "en"]), "sl");
+    assert.equal(setLanguage(["hr", "sl"]), "sl");
     assert.equal(setLanguage(["fr"]), "en");
     assert.equal(setLanguage([]), "en");
   });
@@ -44,6 +47,10 @@ function shape(messages) {
 
 test("the Spanish catalog has every English message, of the same kind", () => {
   assert.deepEqual(shape(es), shape(en));
+});
+
+test("the Slovenian catalog has every English message, of the same kind", () => {
+  assert.deepEqual(shape(sl), shape(en));
 });
 
 test("the popup's refusals are in the chosen language", () => {
@@ -111,4 +118,65 @@ test("a screenshot's town still goes right after the place row in Spanish", () =
   const labels = () => viewForScreenshot(result, { timeZone: "UTC" }).rows.map(([label]) => label);
   assert.deepEqual(labels().slice(-2), ["Place", "Town"]);
   inLanguage("es", () => assert.deepEqual(labels().slice(-2), ["Lugar", "Town"]));
+});
+
+test("a chart screen's rows and notes are in Slovenian", () => {
+  inLanguage("sl", () => {
+    const view = viewFor(analyze("ny-2024-04-17"), { timeZone: "America/Los_Angeles" });
+    assert.deepEqual(view.rows, [
+      ["Lokalni čas", "17. apr. 2024, 08:00 (EDT, DST)"],
+      ["Zamik", "UTC-04:00"],
+      ["UTC", "2024-04-17 12:00"],
+      ["Kraj", "40°43'N, 74°0'W"],
+    ]);
+    assert.equal(
+      view.notes[0],
+      "Ura v Stellarium Web bo kazala 17. apr. ob 05:00, čas vašega računalnika, in bo tekla, dokler je ne ustavite. " +
+        "V kraju rojstva je to 17. apr. ob 08:00.",
+    );
+    assert.deepEqual(actionGroups(view).map(({ label }) => label), ["Oglejte si nebo", "Odnesite horoskop drugam"]);
+  });
+});
+
+// 1, 2, 3 or 4, and 5 or more each take their own form, and the hundreds
+// repeat it: 101 like 1, 102 like 2, but 42 like 5.
+test("Slovenian counts take the form for their number", () => {
+  const minutes = [1, 2, 3, 4, 5, 30, 101, 102, 103].map((n) => sl.popup.keepsNote(n).match(/hrani (\d+ \S+),/)[1]);
+  assert.deepEqual(minutes, [
+    "1 minuto", "2 minuti", "3 minute", "4 minute", "5 minut", "30 minut", "101 minuto", "102 minuti", "103 minute",
+  ]);
+  const seconds = [1, 2, 3, 42, 59].map((n) => sl.popup.wholeMinutes(n).match(/izpusti (\d+ \S+)\.$/)[1]);
+  assert.deepEqual(seconds, ["1 sekundo", "2 sekundi", "3 sekunde", "42 sekund", "59 sekund"]);
+  assert.match(sl.popup.nameWarning(40, "First name"), /^Polja za ime na astro\.com sprejmejo 40 znakov\. Tukaj skrajšajte First name,/);
+});
+
+test("Slovenian dates put a full stop after the day, and lists join with in", () => {
+  assert.equal(sl.popup.shortDate(17, 4, 2024), "17. apr. 2024");
+  assert.equal(sl.popup.longDate(17, 4, 2024), "17. april 2024");
+  assert.equal(sl.popup.timeOnDay("05:00", 1, 5), "1. maj ob 05:00");
+  assert.equal(sl.popup.and(["datum rojstva", "uro", "minuto"]), "datum rojstva, uro in minuto");
+  assert.equal(sl.popup.and(["First name"]), "First name");
+});
+
+// Every message as a screen would show it, with "X" for each value.
+function texts(messages) {
+  if (typeof messages === "string") return [messages];
+  if (typeof messages === "function") return [messages(...Array(messages.length).fill("X"))];
+  return Object.values(messages).flatMap(texts);
+}
+
+test("every message has a space after its punctuation", () => {
+  for (const [code, messages] of Object.entries({ en, es, sl })) {
+    for (const message of texts(messages)) {
+      // Host names, "e.g." and ±HH:MM have their punctuation inside a word.
+      const words = message.replace(/[\w-]+(?:\.[\w-]+)+/g, "").replace("HH:MM", "");
+      assert.doesNotMatch(words, /[,.:;!?][^\s\d)»"'…,.]/u, `${code}: ${message}`);
+    }
+  }
+});
+
+// A Slovenian S is sever, north, so S, J, V and Z would turn a southern
+// latitude around for anyone who reads it the English way.
+test("Slovenian coordinates keep N, S, E and W", () => {
+  assert.deepEqual(sl.popup.compass, en.popup.compass);
 });
