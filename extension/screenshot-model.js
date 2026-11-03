@@ -85,12 +85,14 @@ export function viewForScreenshot(result, options) {
   const notes = result.site === "astro-com" ? view.notes : [...view.notes, ...ASTRO_SEEK_NOTES];
   const buttons = [...ASTRO_SEEK_BUTTONS, SHARE_BUTTON].map((button) => ({ ...button }));
   // viewFor leads only an Astro-Seek chart on to astro.com, since the popup
-  // is on an astro.com chart's own page. A screenshot can be any chart, so
-  // every chart with a decided sky can be entered there, at its own local time.
-  // A program's name, place and gender, where its reader found them, go on to
-  // both forms, and show as rows to compare with the screenshot like the others.
+  // is on an astro.com chart's own page, with the town its address names. A
+  // screenshot can be any chart, so every chart with a decided sky can be
+  // entered there, at its own local time, and with what its screenshot
+  // prints: a program's or Astro-Seek page's name, place and gender, where
+  // its reader found them, which go on to both forms and show as rows to
+  // compare with the screenshot like the others.
   const { name = null, town = null, gender = null } = result;
-  const next = view.next || !view.sky ? {} : { next: astroComStep(view.sky, { local: result.local, name, town, gender }) };
+  const next = view.sky ? { next: astroComStep(view.sky, { local: result.local, name, town, gender }) } : {};
   const rows = view.rows && (name || town || gender) ? { rows: labelRows(view.rows, { name, town, gender }) } : {};
   return withAstroSeekSave({ ...view, ...rows, ...warnings, ...message, ...next, notes: [COMPARE_NOTE, ...notes], buttons }, { name, town, gender });
 }

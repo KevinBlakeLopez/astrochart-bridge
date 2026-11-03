@@ -161,11 +161,12 @@ export function formFor(result, program = null) {
   // them, so they go before readText's labels; a labelled place that is only
   // coordinates names no town.
   const labelledPlace = fields.place?.value ?? null;
-  const place = read?.town ?? (labelledPlace !== null && !COORDINATES.test(labelledPlace) ? labelledPlace : null);
+  const place = labelledPlace !== null && !COORDINATES.test(labelledPlace) ? labelledPlace : null;
   // A Country line goes after the town, where it helps choose among the
-  // forms' matches; only the town is typed. A country alone names no town.
+  // forms' matches; only the town is typed. A country alone names no town. A
+  // program's or Astro-Seek's reader gives its town with its country already.
   const country = fields.country?.value ?? null;
-  const town = place === null ? null : [place, country].filter(Boolean).join(", ");
+  const town = read?.town ?? (place === null ? null : [place, country].filter(Boolean).join(", "));
   const chartName = read?.name ?? nameFromText(fields.name?.value);
   if (town !== null) notes.push(PLACE_NOTE);
   const boxes = ENTRY_FIELDS.map((field) => ({

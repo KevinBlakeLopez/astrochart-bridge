@@ -1,3 +1,4 @@
+import { withLabels } from "./names.js";
 import { chooseListedTown } from "./towns.js";
 
 const HOST = "horoscopes.astro-seek.com";
@@ -221,14 +222,60 @@ export function readScreenshot(text) {
     return refused("unreadable-screenshot");
   }
 
-  return {
-    local: `${isoDate(local)}T${pad(local.hour)}:${pad(local.minute)}:${pad(local.second ?? 0)}`,
-    zoneLabel: local.label,
-    printedUt: `${isoDate(ut)}T${pad(ut.hour)}:${pad(ut.minute)}:${pad(ut.second ?? 0)}Z`,
-    lat: degrees(coords.latDeg, coords.latMin, coords.latSouth),
-    lng: degrees(coords.lngDeg, coords.lngMin, coords.lngWest),
-    siderealSeconds,
-  };
+  // A saved person's chart prints its name above Date of Birth, and a chart
+  // placed at a city prints City and Country rows below the coordinates, as
+  // "City: New York" and "Country: United States (US), NY", seen on 2026-11-02;
+  // Tesseract.js read that screenshot's name line whole. An unsaved chart
+  // prints a double rule there instead, under its "Edit birth data and
+  // settings" and "Add into my database" links, so none of those is a name.
+  const above = lines[lines.findIndex((line) => line.startsWith("Date of Birth")) - 1] ?? "";
+  const city = rowValue(lines, "City");
+  const country = rowValue(lines, "Country");
+  return withLabels(
+    {
+      local: `${isoDate(local)}T${pad(local.hour)}:${pad(local.minute)}:${pad(local.second ?? 0)}`,
+      zoneLabel: local.label,
+      printedUt: `${isoDate(ut)}T${pad(ut.hour)}:${pad(ut.minute)}:${pad(ut.second ?? 0)}Z`,
+      lat: degrees(coords.latDeg, coords.latMin, coords.latSouth),
+      lng: degrees(coords.lngDeg, coords.lngMin, coords.lngWest),
+      siderealSeconds,
+    },
+    {
+      name: isChartName(above) ? above : null,
+      place: city === null ? null : [city, country].filter(Boolean).join(", "),
+    },
+  );
+}
+
+// The page's labels, none of which is a chart's name.
+const PAGE_LABELS = [...Object.values(SCREENSHOT_FIELDS).map(([label]) => label), "House system", "City", "Country"];
+// What an unsaved chart's page prints above Date of Birth, seen on 2026-11-02.
+const PAGE_TEXT = /Edit birth data|Add into my database|online calculator/i;
+
+// Whether the line above Date of Birth names the chart: not one of the page's
+// labels or links, and mostly letters, as a rule OCR reads as marks isn't.
+function isChartName(line) {
+  const letters = line.match(/\p{L}/gu)?.length ?? 0;
+  return (
+    letters >= 2 &&
+    letters * 2 >= line.replace(/\s/g, "").length &&
+    !PAGE_LABELS.some((label) => line.startsWith(label)) &&
+    !PAGE_TEXT.test(line)
+  );
+}
+
+// A row's value: the rest of its line after the label, less the marks OCR
+// puts first, as it reads the colon as "-", ";", "3" or nothing, and the
+// country's flag as "E=": leading words of up to two characters with no
+// letter, or up to three with one of OCR's marks, so "St. Louis" and
+// "100 Mile House" stay whole. null when there is no such row or nothing
+// after its label.
+function rowValue(lines, label) {
+  const rest = lines.find((each) => each.startsWith(label))?.slice(label.length) ?? "";
+  // A copied page's colon comes straight before its value: "Country:United States".
+  const words = rest.replace(/^[^\p{L}\d]+/u, "").split(" ").filter(Boolean);
+  while (words.length > 0 && (/^[^\p{L}]{1,2}$/u.test(words[0]) || /^(?=.*[:;=|~_•])\S{1,3}$/.test(words[0]))) words.shift();
+  return words.length === 0 ? null : words.join(" ");
 }
 
 // The value is the earliest rest of the line, after the label, that parses in

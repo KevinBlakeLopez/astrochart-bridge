@@ -5,7 +5,7 @@ import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, ASTRO_SEEK_SAVE_NOTE, SHARE_BUTTO
 import { analyzeEntry } from "../extension/core/index.js";
 import { serialize, skyFor } from "../extension/core/portable.js";
 import { linkFor, readLink, viewForImport } from "../extension/chart-model.js";
-import { chartForEntry, checkField, entryFor, formFor, localEntryFor, viewForEntry, viewForLocalEntry } from "../extension/paste-model.js";
+import { chartForEntry, checkField, entryFor, formFor, formForText, localEntryFor, viewForEntry, viewForLocalEntry } from "../extension/paste-model.js";
 
 // Invented birth data, as a desktop program's labelled text might give it.
 const LABELLED = [
@@ -206,6 +206,22 @@ test("a Country line and a Gender line go to both forms, the country after the t
   assert.equal(view.buttons.find(({ saves }) => saves).saves.gender, "female");
   // A country with no place names no town.
   assert.equal(formOf("Date of Birth: June 15, 1985\nCountry: USA").town, null);
+});
+
+test("text copied from a saved Astro-Seek chart gives its name, and its town with its country once", () => {
+  const copied = [
+    "Example Person",
+    "Date of Birth (local time):17 April 2024 - 08:00  (EDT, DST)",
+    "Universal Time (UT/GMT):17 April 2024 - 12:00",
+    "Local Sidereal Time (LST):20:48:26",
+    "House system:Placidus system",
+    "Latitude, Longitude:40°43'N, 74°0'W",
+    "City:New York",
+    "Country:United States United States (US), NY",
+  ].join("\n");
+  const form = formForText(copied);
+  assert.deepEqual(form.name, { first: "Example Person", last: "" });
+  assert.equal(form.town, "New York, United States United States (US), NY");
 });
 
 test("the text's place goes in astro.com's town field", () => {
