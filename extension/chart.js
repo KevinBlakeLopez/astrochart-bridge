@@ -32,6 +32,14 @@ const base = linkBase(location.href, RECEIVER_URL);
 // The extension's copy has the import page, for Morinus and AAF files, next to it.
 const canImport = location.protocol.endsWith("-extension:");
 
+// The extension's copy can also fill in astro.com's form, with the code the
+// extension's other pages use, which the web's copy doesn't publish. It is
+// loaded now, not on the click, so the click asks for access to www.astro.com
+// at once: a browser grants it only while the click is still being handled.
+const canFill = canImport;
+let fillAstroCom = null;
+if (canFill) import("./astro-com-page.js").then(({ openLink }) => (fillAstroCom = openLink));
+
 // Whether the browser's share sheet takes a link. Firefox on the desktop has
 // no share sheet, and neither has every embedded browser.
 const canShare = base !== null && typeof navigator.share === "function" && (navigator.canShare?.({ url: base }) ?? true);
@@ -99,7 +107,7 @@ function show(result, from, file = null) {
   hideQr();
   // The main action while there is no chart; one among several once there is.
   openFileButton.className = chart === null ? "" : "secondary";
-  const options = { canCopy: base !== null, canShare, canShareFiles: shareableFile !== null, canImport, from };
+  const options = { canCopy: base !== null, canShare, canShareFiles: shareableFile !== null, canImport, canFill, from };
   const view = viewForImport(result, options);
   render(app, view, onButton);
   if (view.importButton && file) app.append(importButton(view.importButton, file));
@@ -138,7 +146,10 @@ function fileForSharing(chart) {
 
 // The click is the confirmation: the notes above the buttons say what each
 // one sends where. Destinations open in a new tab with no opener or referrer.
-async function onButton({ url, does }) {
+async function onButton(button) {
+  const { url, does } = button;
+  // astro.com's form button, in the extension's copy: it fills in the form.
+  if (button.fills && fillAstroCom) return fillAstroCom(app, button);
   if (does === "copy") {
     await copyLink();
     return;

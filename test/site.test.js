@@ -8,15 +8,19 @@ import { buildSite, SITE_FILES } from "../tools/site.mjs";
 const extension = new URL("../extension/", import.meta.url).pathname;
 const read = (file) => readFileSync(join(extension, file), "utf8");
 
-// Every file chart.html loads: its scripts and stylesheets, then every
-// module those scripts import. Comments are dropped first, so a JSDoc
+// Modules chart.js imports only in the extension's copy of the page, which
+// the extension ships: astro.com's form is filled in from there, never on the web.
+const EXTENSION_ONLY = ["astro-com-page.js"];
+
+// Every file chart.html loads on the web: its scripts and stylesheets, then
+// every module those scripts import. Comments are dropped first, so a JSDoc
 // type such as import("./core/index.js") isn't counted as a load.
 function loadedBy(page) {
   const seen = new Set();
   const queue = [...read(page).matchAll(/<(?:script|link)\b[^>]*\b(?:src|href)="([^"]+)"/g)].map((match) => match[1]);
   while (queue.length > 0) {
     const file = normalize(queue.shift());
-    if (seen.has(file)) continue;
+    if (seen.has(file) || EXTENSION_ONLY.includes(file)) continue;
     seen.add(file);
     if (!/\.m?js$/.test(file)) continue;
     const code = read(file).replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
@@ -36,6 +40,14 @@ const LICENSES = ["vendor/lean-qr/LICENSE"];
 test("the site is exactly the files the receiving page loads, and the licence for what it vendors", () => {
   const expected = [...loadedBy("chart.html"), "chart.html", ...LICENSES].sort();
   assert.deepEqual([...SITE_FILES].sort(), [...new Set(expected)].sort());
+});
+
+test("chart.js loads the code that fills in astro.com's form only in the extension's copy", () => {
+  const code = read("chart.js");
+  assert.match(code, /^if \(canFill\) import\("\.\/astro-com-page\.js"\)/m);
+  assert.match(code, /^const canFill = canImport;$/m);
+  assert.match(code, /^const canImport = location\.protocol\.endsWith\("-extension:"\);$/m);
+  for (const file of EXTENSION_ONLY) assert.equal(SITE_FILES.includes(file), false, file);
 });
 
 test("nothing of the extension's own pages is published", () => {

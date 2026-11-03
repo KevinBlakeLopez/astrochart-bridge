@@ -15,7 +15,7 @@ import {
   takeFileForImport,
   viewForImport,
 } from "../extension/chart-model.js";
-import { ASTRO_SEEK_NOTES } from "../extension/popup-model.js";
+import { ASTRO_SEEK_NOTES, viewForAstroCom, viewForAstroComByHand } from "../extension/popup-model.js";
 
 const PRIVACY_NOTE =
   "Opening the sky sends this date, time and place to stellarium-web.org, and its page passes the link on to Google's advertising tags.";
@@ -23,6 +23,7 @@ const RUNNING = "The clock starts running at once; its pause button stops it.";
 const LOS_ANGELES = { timeZone: "America/Los_Angeles" };
 
 const NY = { local: "2024-04-17T08:00:00", utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 };
+const NY_SKY = { utc: NY.utc, lat: NY.lat, lng: NY.lng };
 const NY_SOURCE = { site: "astro-seek", via: "page", zoneLabel: "EDT, DST", utcBasis: "printed" };
 
 // What readLink gives for a chart's link.
@@ -78,15 +79,30 @@ test("New York from an Astro-Seek page, seen from Los Angeles", () => {
     ],
     sky: { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 },
     buttons: BUTTONS,
+    next: { label: "Enter in astro.com…", view: viewForAstroComByHand(NY_SKY, { local: NY.local }) },
   });
 });
 
-test("there is no astro.com step: it needs the extension to keep the values", () => {
+test("on the web, Enter in astro.com… leads to the values to type in; the extension's copy fills in the form", () => {
   for (const site of ["astro-seek", "astro-com", undefined]) {
-    const view = viewForImport(received(NY, { site }), LOS_ANGELES);
-    assert.equal(view.next, undefined, String(site));
-    assert.deepEqual(view.buttons, BUTTONS, String(site));
+    const web = viewForImport(received(NY, { site }), LOS_ANGELES);
+    assert.deepEqual(web.next, { label: "Enter in astro.com…", view: viewForAstroComByHand(NY_SKY, { local: NY.local }) }, String(site));
+    const extension = viewForImport(received(NY, { site }), { ...LOS_ANGELES, canFill: true });
+    assert.deepEqual(extension.next, { label: "Enter in astro.com…", view: viewForAstroCom(NY_SKY, { local: NY.local }) }, String(site));
+    assert.deepEqual(web.buttons, BUTTONS, String(site));
   }
+});
+
+test("the values to type in are the form's, with a plain link to it and nothing kept", () => {
+  const view = viewForAstroComByHand(NY_SKY, { local: NY.local });
+  assert.equal(view.state, "astro-com-by-hand");
+  assert.equal(view.message, "Type these into astro.com's form. This page can't fill it in for you.");
+  assert.deepEqual(view.rows, viewForAstroCom(NY_SKY, { local: NY.local }).rows);
+  assert.deepEqual(view.buttons, [{ label: "Open astro.com's form", url: "https://www.astro.com/cgi/ade.cgi" }]);
+  // Nothing checks the zone on the page, so the note says what to check, and how to enter it in UT instead.
+  assert.match(view.notes[0], /Check that it's 4 h west \(UTC-04:00\)\. If it isn't, choose 00:00 GMT \/ UT under show \/ hide extended settings and enter 17 April 2024, 12:00 instead\./);
+  assert.match(view.notes[1], /^astro\.com asks for a country and town, not coordinates\. Choose the town nearest this place/);
+  assert.equal(view.nameBoxes, undefined);
 });
 
 test("Sydney: the UTC is the day before, and the place is south and east", () => {
