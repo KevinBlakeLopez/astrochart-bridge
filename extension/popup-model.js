@@ -558,6 +558,30 @@ export function nameWarning({ first, last }) {
 // The secondary button on a screen whose chart can be entered in astro.com.
 export const astroComStep = (sky, chart = {}) => ({ label: "Enter in astro.com…", view: viewForAstroCom(sky, chart) });
 
+// The same button on the shared chart page on the web, which has no extension
+// to fill in astro.com's form: it leads to the values to type in.
+export const astroComStepByHand = (sky, chart = {}) => ({ label: "Enter in astro.com…", view: viewForAstroComByHand(sky, chart) });
+
+/**
+ * The values to type into astro.com's form, for a page with no extension to
+ * fill it in, such as the shared chart page on the web: the values, what to
+ * check once the town is chosen, and a plain link to the form. Nothing is kept.
+ *
+ * @param {{ utc: string, lat: number, lng: number }} sky
+ * @param {{ local?: string | null }} [chart]  the chart's local time, as for viewForAstroCom
+ */
+export function viewForAstroComByHand({ utc, lat, lng }, { local = null } = {}) {
+  const values = { utc, lat, lng, local };
+  return {
+    state: "astro-com-by-hand",
+    ...astroComValues(values),
+    message: "Type these into astro.com's form. This page can't fill it in for you.",
+    notes: [...zoneNotes(values, { filled: false }), townNote(null)],
+    sky: { utc, lat, lng },
+    buttons: [{ label: "Open astro.com's form", url: FORM_URL }],
+  };
+}
+
 /**
  * The values to enter in astro.com's birth data form for a decided UTC and
  * place, in the form's own terms, and links to the form and to signing in.

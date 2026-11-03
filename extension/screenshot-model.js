@@ -1,4 +1,4 @@
-import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, SHARE_BUTTON, viewFor, withAstroSeekSave } from "./popup-model.js";
+import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, SHARE_BUTTON, astroComStep, viewFor, withAstroSeekSave } from "./popup-model.js";
 
 // Each refusal analyzeScreenshot can return. They keep their code on screen,
 // like the popup's unreadable pages, so a bug report says which check failed.
@@ -84,5 +84,9 @@ export function viewForScreenshot(result, options) {
   // viewFor already gives an astro.com chart Astro-Seek's notes and buttons.
   const notes = result.site === "astro-com" ? view.notes : [...view.notes, ...ASTRO_SEEK_NOTES];
   const buttons = [...ASTRO_SEEK_BUTTONS, SHARE_BUTTON].map((button) => ({ ...button }));
-  return withAstroSeekSave({ ...view, ...warnings, ...message, notes: [COMPARE_NOTE, ...notes], buttons });
+  // viewFor leads only an Astro-Seek chart on to astro.com, since the popup
+  // is on an astro.com chart's own page. A screenshot can be any chart, so
+  // every chart with a decided sky can be entered there, at its own local time.
+  const next = view.next || !view.sky ? {} : { next: astroComStep(view.sky, { local: result.local }) };
+  return withAstroSeekSave({ ...view, ...warnings, ...message, ...next, notes: [COMPARE_NOTE, ...notes], buttons });
 }

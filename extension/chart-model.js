@@ -1,15 +1,12 @@
 // What the receiving page shows for an AstroChart Bridge link or chart file. It is
 // the popup's ready screen, from viewFor, for a chart that arrived in a link
 // or a file rather than from a page: it can open in Stellarium Web and
-// Astro-Seek, and be passed on. Every decision is made here, so chart.js only
+// Astro-Seek, be entered in astro.com, and be passed on. Every decision is made here, so chart.js only
 // reads the link or file and renders.
 import { fromFragment, parse, serialize, skyFor, toFragment } from "./core/portable.js";
-import { ASTRO_SEEK_NOTES, ASTRO_SEEK_BUTTONS, viewFor } from "./popup-model.js";
+import { ASTRO_SEEK_NOTES, ASTRO_SEEK_BUTTONS, astroComStep, astroComStepByHand, viewFor } from "./popup-model.js";
 import { qrFor } from "./qr.js";
 
-// The receiving page works without the extension, so the popup's
-// "Enter in astro.com…" step, which keeps the values for the tab it opens,
-// isn't offered: nothing here could keep them.
 const COPY_LINK = { label: "Copy link", does: "copy", secondary: true };
 // The same link as Copy link, so it is offered only with it.
 const SHOW_QR = { label: "Show QR code", does: "qr", secondary: true };
@@ -132,15 +129,16 @@ export function readChartFile(bytes, name = "") {
  *
  * @param {ReturnType<typeof readLink>} result
  * @param {{ timeZone?: string, canCopy?: boolean, canShare?: boolean, canShareFiles?: boolean, canImport?: boolean,
- *   from?: "link" | "file" }} [options]
+ *   canFill?: boolean, from?: "link" | "file" }} [options]
  *   timeZone is passed on to viewFor; canCopy is false when linkBase has
  *   nowhere to point; canShare and canShareFiles say whether the browser's
  *   share sheet takes a link and this chart's file; canImport, that this is
- *   the extension's copy, with an import page; from words a refusal
+ *   the extension's copy, with an import page; canFill, that it can fill in
+ *   astro.com's form, as the extension's copy can; from words a refusal
  */
 export function viewForImport(
   result,
-  { canCopy = true, canShare = false, canShareFiles = false, canImport = false, from = "link", ...options } = {},
+  { canCopy = true, canShare = false, canShareFiles = false, canImport = false, canFill = false, from = "link", ...options } = {},
 ) {
   if (result === null) return { ...EMPTY, notes: [], buttons: [] };
   // importButton is drawn by the page: a view's own buttons wait for a sky.
@@ -181,12 +179,17 @@ export function viewForImport(
     DOWNLOAD_FILE,
     ...(canShareFiles ? [SHARE_FILE] : []),
   ];
+  // Enter in astro.com… fills in astro.com's form where the page can, as the
+  // extension's copy can; on the web, it leads to the values to type in. A
+  // link or file carries no name or town, so astro.com's form gets neither.
+  const step = canFill ? astroComStep : astroComStepByHand;
   return {
     ...view,
     rows: origin === "" ? view.rows : [...view.rows, ["From", origin]],
     warnings: Object.hasOwn(VIA_WARNINGS, source.via) ? [VIA_WARNINGS[source.via]] : [],
     notes: [...view.notes, ...ASTRO_SEEK_NOTES, ...(shareLink || canShareFiles ? [SHARE_NOTE] : [])],
     buttons: buttons.map((button) => ({ ...button })),
+    next: step(view.sky, { local: chart.local }),
   };
 }
 

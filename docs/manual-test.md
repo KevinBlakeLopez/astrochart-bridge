@@ -205,7 +205,8 @@ The screenshot page reads the image on this computer with the Tesseract.js files
 - [ ] Open the file in Preview, use **Tools → Adjust Size** to halve its width, and save. Dropping it gives the same result.
 - [ ] A screenshot of only the chart wheel shows "AstroChart Bridge couldn't find the birth data in this screenshot…" and `Code: unreadable-screenshot`.
 - [ ] In light and dark mode the page is readable, like the popup in test 10.
-- [ ] Open a chart drawing on astro.com and paste a screenshot of the whole drawing. The rows show the header's local date and time, its Univ.Time as UTC, and its coordinates. There is no zone label in the Local time row, and the page offers **Open Stellarium Web** and **Open chart in Astro-Seek**.
+- [ ] Open a chart drawing on astro.com and paste a screenshot of the whole drawing. The rows show the header's local date and time, its Univ.Time as UTC, and its coordinates. There is no zone label in the Local time row, and the page offers **Open Stellarium Web**, **Open chart in Astro-Seek** and **Enter in astro.com…**, which shows the header's local date and time with the automatic time zone and its offset, no Town row, and empty name boxes.
+- [ ] If you have Solar Fire, Astro Gold or another program the page reads, paste a screenshot of a chart's details from it. The page offers **Enter in astro.com…** with the chart's local date and time, and **Open astro.com's form** fills in astro.com's form as in test 14.
 
 ## Test 14: entering a chart in astro.com
 
@@ -413,7 +414,9 @@ http://127.0.0.1:8778/chart.html#v1=eyJmb3JtYXQiOiJjaGFydC1icmlkZ2UiLCJ2ZXJzaW9u
 
 ### A: desktop
 
-- [ ] The page shows Local time `17 Apr 2024, 08:00 (EDT, DST)`, Offset `UTC-04:00`, UTC `2024-04-17 12:00`, Place `40°43'N, 74°0'W` and From `Astro-Seek page`, four grey notes, **Open Stellarium Web**, **Open chart in Astro-Seek**, **Copy link**, **Show QR code**, **Download file** and **Open an AstroChart Bridge file**. In a browser with a share sheet (test 22), **Share link…** and possibly **Share file…** are there too. There is no **Enter in astro.com…** or **Share…**.
+- [ ] The page shows Local time `17 Apr 2024, 08:00 (EDT, DST)`, Offset `UTC-04:00`, UTC `2024-04-17 12:00`, Place `40°43'N, 74°0'W` and From `Astro-Seek page`, four grey notes, **Open Stellarium Web**, **Open chart in Astro-Seek**, **Copy link**, **Show QR code**, **Download file** and **Open an AstroChart Bridge file**. In a browser with a share sheet (test 22), **Share link…** and possibly **Share file…** are there too, and **Enter in astro.com…**. There is no **Share…**.
+- [ ] **Enter in astro.com…** shows Birthday `17 April 2024`, Hour, min `08:00`, Time zone `automatic time zone, the form's default`, Offset `UTC-04:00` and Place `40°43'N, 74°0'W`, with no Town row and no name boxes; "Type these into astro.com's form. This page can't fill it in for you."; a grey note to check that astro.com's time zone is 4 h west (UTC-04:00), or else to enter 17 April 2024, 12:00 in 00:00 GMT / UT; a grey note to choose the town nearest this place; **Open astro.com's form**; and **Cancel**, which goes back to the chart.
+- [ ] **Open astro.com's form** opens astro.com's empty birth data form in a new tab. Nothing is filled in, and the Network tab shows no request to `astro-com-page.js`.
 - [ ] The address bar shows `chart.html` with nothing after it, and **Back** doesn't bring the `#v1=…` part back.
 - [ ] Nothing opens by itself. **Open Stellarium Web** opens the same Stellarium address as test 1; **Open chart in Astro-Seek** opens a chart for 17 April 2024 12:00 UT at 40°43'N, 74°0'W.
 - [ ] **Copy link** says "Link copied.", and pasting gives exactly the link above. If the browser refuses, the link appears selected in a field below the message instead.
@@ -439,6 +442,8 @@ Copied links point at `RECEIVER_URL` in `extension/share-config.js`, the receivi
 - [ ] **Copy link** says "Link copied.", and the pasted link starts `https://kevinblakelopez.github.io/astrochart-bridge/chart.html#v1=`. Pasting it after `http://127.0.0.1:8778/chart.html` in place of that address, with the test 19 server running, shows the same chart.
 - [ ] **Download file** saves `chart-2024-04-17.astrochart.json`, in Chrome and in Firefox.
 - [ ] **Open Stellarium Web** on that tab opens the same Stellarium address as test 1.
+- [ ] **Enter in astro.com…** on that tab shows the popup's test 14 screen, without the Town row: "AstroChart Bridge opens astro.com's form and fills it in as it opens…", empty name boxes, and **Open astro.com's form**, **Sign in** and **Create account**. **Open astro.com's form** asks for access to www.astro.com as in test 14 if it hasn't been given, then fills in the form in a tab behind this one, and the page says it filled it in, or that something needs your choice first.
+- [ ] Choose a chart file on that tab with **Open an AstroChart Bridge file** and do the same: the form fills in the same way.
 - [ ] On the test 4 chart, **Share…** is faded until a reading is picked. Pick the second reading (the label EST), then **Share…**: the tab shows Offset `UTC-05:00` and UTC `2021-03-14 07:30`.
 - [ ] On an astro.com account chart (test 14's), **Share…** opens a tab showing From `astro.com page`.
 - [ ] On the screenshot page from test 13, **Share…** opens a tab showing From `Astro-Seek screenshot` and the warning to compare the rows. The screenshot page stays open.

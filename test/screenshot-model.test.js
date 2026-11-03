@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { astroSeekUrl } from "../extension/core/astroseek.js";
-import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, ASTRO_SEEK_SAVE_NOTE, SHARE_BUTTON, viewFor, viewForSky } from "../extension/popup-model.js";
+import { ASTRO_SEEK_BUTTONS, ASTRO_SEEK_NOTES, ASTRO_SEEK_SAVE_NOTE, SHARE_BUTTON, viewFor, viewForAstroCom, viewForSky } from "../extension/popup-model.js";
 import { viewForScreenshot } from "../extension/screenshot-model.js";
 
 const NY = {
@@ -104,6 +104,21 @@ test("a Solar Fire chart with nothing to check its offset says so, after the pop
   assert.deepEqual(view.notes.slice(-2), [ASTRO_SEEK_NOTES[0], ASTRO_SEEK_SAVE_NOTE]);
   const either = viewForScreenshot({ ...streisand, site: "solar-fire-or-astro-gold" }, LA);
   assert.match(either.warnings[0], /^Nothing in this Solar Fire or Astro Gold screenshot/);
+});
+
+test("any program's screenshot can be entered in astro.com, at the local time it prints", () => {
+  for (const site of ["solar-fire", "astro-gold", "astro-com", "kepler"]) {
+    const view = viewForScreenshot({ ...NY, site, zoneLabel: null }, LA);
+    assert.equal(view.next?.label, "Enter in astro.com…", site);
+    assert.deepEqual(view.next.view, viewForAstroCom(view.sky, { local: NY.local }), site);
+  }
+});
+
+test("an Astro-Seek screenshot keeps the step viewFor gives it, and one with no UTC yet has none", () => {
+  assert.deepEqual(viewForScreenshot(NY, LA).next, viewFor(NY, LA).next);
+  const needsOffset = viewForScreenshot({ ...NY, site: "solar-fire", utc: null, utcSource: "needs-offset", offsetMinutes: null }, LA);
+  assert.equal(needsOffset.state, "enter-offset");
+  assert.equal(needsOffset.next, undefined);
 });
 
 const REASONS = [
