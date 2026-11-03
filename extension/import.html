@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>AstroChart Bridge: open an AAF or Morinus file</title>
+    <title data-text="pages.import.title">AstroChart Bridge: open an AAF or Morinus file</title>
     <link rel="stylesheet" href="popup.css">
     <link rel="stylesheet" href="screenshot.css">
     <link rel="stylesheet" href="import.css">
@@ -10,14 +10,14 @@
   </head>
   <body class="page">
     <main>
-      <h1>Open an AAF or Morinus file</h1>
-      <p>Choose or drop an AAF (.aaf) file or a Morinus chart (.hor) anywhere on this page, or paste an AAF file's text below. Astrolog and other astrology programs save charts in AAF.</p>
+      <h1 data-text="pages.import.heading">Open an AAF or Morinus file</h1>
+      <p data-text="pages.import.intro">Choose or drop an AAF (.aaf) file or a Morinus chart (.hor) anywhere on this page, or paste an AAF file's text below. Astrolog and other astrology programs save charts in AAF.</p>
       <!-- No accept filter: macOS file dialogs grey out extensions no app on the
            computer registers, such as .hor and .aaf. import.js decides by content. -->
-      <p><input id="file" type="file" aria-label="Choose an AAF or Morinus file"></p>
-      <textarea id="text" rows="5" spellcheck="false" placeholder="#A93:Name,First name,*,17.4.2024,8:00,Place,Country&#10;#B93:*,40n43,74w00,5hw00,1" aria-label="AAF text"></textarea>
-      <p><button id="read" class="secondary">Read pasted text</button></p>
-      <p class="note">The file is read on this computer and isn't sent anywhere.</p>
+      <p><input id="file" type="file" aria-label="Choose an AAF or Morinus file" data-label="pages.import.choose"></p>
+      <textarea id="text" rows="5" spellcheck="false" placeholder="#A93:Name,First name,*,17.4.2024,8:00,Place,Country&#10;#B93:*,40n43,74w00,5hw00,1" aria-label="AAF text" data-label="pages.import.textLabel"></textarea>
+      <p><button id="read" class="secondary" data-text="pages.import.read">Read pasted text</button></p>
+      <p class="note" data-text="pages.import.privacy">The file is read on this computer and isn't sent anywhere.</p>
       <div id="list"></div>
       <div id="app"></div>
     </main>

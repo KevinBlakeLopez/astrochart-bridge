@@ -10,7 +10,11 @@ import { takeFileForImport } from "./chart-model.js";
 import { renderChart } from "./desktop-page.js";
 import { isHorFile } from "./core/morinus-hor.js";
 import { viewForHorFile } from "./hor-model.js";
+import { localizePage } from "./messages/index.js";
 import { paragraph, render } from "./view.js";
+
+// The browser's language, chosen before anything is drawn.
+localizePage(document, navigator.languages);
 
 const fileInput = document.getElementById("file");
 const textInput = document.getElementById("text");

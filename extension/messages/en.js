@@ -23,6 +23,69 @@ const QR_TOO_LONG = "This link is too long for a QR code that scans reliably.";
 const and = (items) => (items.length < 2 ? items.join("") : `${items.slice(0, -1).join(", ")} and ${items.at(-1)}`);
 
 export default {
+  // The pages' own text: their HTML's data-text and data-label (localizePage),
+  // and what their scripts say themselves.
+  pages: {
+    popup: {
+      title: "AstroChart Bridge",
+      reading: "Reading the page…",
+    },
+    screenshot: {
+      title: "AstroChart Bridge: read a screenshot",
+      heading: "Read a chart screenshot",
+      intro:
+        "Paste (⌘V) or drop a screenshot of an Astro-Seek birth chart page, an astro.com chart drawing, a Solar Fire wheel, Astro Gold's Chart Details, a Morinus chart, a Valens wheel, a Planetdance chart, Jagannatha Hora's birth data, a Kepler or Sirius wheel, a Janus or Win*Star wheel, a TimePassages chart or an Astrolog wheel anywhere on this page, or choose a file. From Astro-Seek it needs everything from Date of Birth to Latitude, Longitude; from astro.com, the drawing's header from the date to Sid. Time; from Solar Fire or Astro Gold, the chart details from the date to the coordinates; from Morinus, its status bar or the middle of its square chart; from Valens, the middle of its wheel; from Planetdance, the lines at the top left of the wheel, down to St:; from Jagannatha Hora, the birth data from Date to Sidereal Time; from Kepler or Sirius, the data block from the name to the Time Zone; from Janus, the middle of the wheel from the date to the coordinates; from Win*Star, the upper right of the wheel from the date to the latitude; from TimePassages, the whole chart, with its corners; from Astrolog, the top of the sidebar from the date to the Julian Day. The whole page is fine.",
+      choose: "Choose a screenshot",
+      privacy: "The screenshot is read on this computer and isn't sent anywhere.",
+      whatWasRead: "What AstroChart Bridge read",
+      reading: "Reading the screenshot…",
+      unreadable: "AstroChart Bridge couldn't read this image.",
+    },
+    paste: {
+      title: "AstroChart Bridge: paste chart text",
+      heading: "Paste chart text",
+      intro:
+        'Paste birth data copied from an astrology program, a report or a note, in labelled lines such as "Date of Birth: 15 June 1985" or "latitude=47.6062".',
+      textLabel: "Chart text",
+      read: "Read the text",
+      fromClipboard: "Paste from clipboard",
+      privacy: "The text is read on this computer and isn't sent or saved anywhere.",
+      clipboardRefused: "Your browser didn't let AstroChart Bridge read the clipboard. Click the box above and paste with ⌘V or Ctrl+V instead.",
+      continue: "Continue",
+      continueToAstroCom: "Continue to astro.com",
+      alsoInText: "Also in the text:",
+      back: "Back to the form",
+    },
+    import: {
+      title: "AstroChart Bridge: open an AAF or Morinus file",
+      heading: "Open an AAF or Morinus file",
+      intro:
+        "Choose or drop an AAF (.aaf) file or a Morinus chart (.hor) anywhere on this page, or paste an AAF file's text below. Astrolog and other astrology programs save charts in AAF.",
+      choose: "Choose an AAF or Morinus file",
+      textLabel: "AAF text",
+      read: "Read pasted text",
+      privacy: "The file is read on this computer and isn't sent anywhere.",
+    },
+    chart: {
+      title: "AstroChart Bridge: open a chart",
+      readingLink: "Reading the link…",
+      linkLabel: "Link to this chart",
+      openFile: "Open an AstroChart Bridge file",
+      fileLabel: "Chart file",
+      privacy:
+        "A chart's link holds the chart itself, and so does its file. Anyone with either can read it, so share them only with people who should see this birth data. This page reads them on this device, keeps nothing, and sends nothing until you open the sky or the chart.",
+      opened: (name) => `Opened ${name}.`,
+      couldntPass: "AstroChart Bridge couldn't pass the file on. Click Open an AAF or Morinus file in the popup and choose it there.",
+      linkCopied: "Link copied.",
+      copyRefused: "This browser didn't let AstroChart Bridge copy the link. Copy it from here instead:",
+      hideQr: "Hide QR code",
+      shareSheetFailed: "AstroChart Bridge couldn't open the share sheet. Use Copy link or Download file instead.",
+    },
+    // astro-com-page.js's, on the pages that stay open while a form fills in.
+    astroComFilled: "AstroChart Bridge filled in astro.com's form in its tab.",
+    astroSeekFilled: "AstroChart Bridge filled in Astro-Seek's form in its tab. Check Gender there, then press Add person.",
+  },
+
   view: {
     code: (code) => `Code: ${code}`,
     cancel: "Cancel",

@@ -1,0 +1,10 @@
+{
+  "extName": {
+    "message": "AstroChart Bridge",
+    "description": "The extension's name, in the browser's extension list, toolbar tooltip and store listings."
+  },
+  "extDescription": {
+    "message": "Open a natal chart's sky in Stellarium, or the chart in Astro-Seek or astro.com, from a chart page, screenshot, pasted text or file.",
+    "description": "The extension's description, also the Chrome Web Store summary, which allows 132 characters."
+  }
+}

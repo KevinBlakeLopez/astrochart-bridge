@@ -6,6 +6,8 @@ It reads a chart from the page you're on, a screenshot, pasted text, an AAF file
 
 It runs in Chrome, Brave, Microsoft Edge, Firefox 140 or later and Safari 26 or later on macOS. In Safari on iPad it has to be wrapped in an app with Xcode; see [docs/safari-ipad.md](docs/safari-ipad.md).
 
+It speaks English and Spanish, following the browser's preferred languages. The charts, screenshots and text it reads are English ones in either language.
+
 ## What it reads
 
 - **Astro-Seek chart pages:** the birth chart, the asteroids chart and the traditional chart.
@@ -62,6 +64,7 @@ npm test
 |---|---|
 | `extension/` | The extension, loaded as is. `manifest.json`, the popup, and the screenshot, paste, import and receiving pages, each with a view model (`*-model.js`) that the tests cover. |
 | `extension/core/` | Reading and converting charts, with no browser APIs: one module per site or program, civil time, sidereal time, AAF and the portable chart format. |
+| `extension/messages/` | The interface's text, one catalog per language (`en.js`, `es.js`), and `index.js`, which chooses one from the browser's languages and fills in each page's `data-text`. `_locales/` holds only the extension's name and description, for the browser and the stores. |
 | `extension/vendor/` | Tesseract.js for reading screenshots and lean-qr for QR codes, each with its licence. |
 | `test/` | `node --test` tests. |
 | `fixtures/` | Astro-Seek page captures, trimmed to their header block, and AAF files written by Astrolog. All use invented birth data. |
