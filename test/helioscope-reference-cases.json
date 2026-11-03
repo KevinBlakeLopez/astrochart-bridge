@@ -1,0 +1,334 @@
+{
+  "about": [
+    "Native Swiss Ephemeris values for the nine reference cases of docs/HELIOSCOPE_V1_FEASIBILITY.md §8, written by tools/make-helioscope-reference.mjs, whose header says how the harness was built.",
+    "Julian Days are UT. Every call used the Moshier ephemeris, an ephemeris path with no files, and an atmosphere and observer of 0 for Swiss Ephemeris to fill in.",
+    "Each window keeps its bounds, its number of samples and how many were above the horizon, and its best sample: the largest margin among those, with what swe_vis_limit_mag returned for it."
+  ],
+  "swissEphemeris": "2.10.03",
+  "cases": [
+    {
+      "label": "mercury-superior-conjunction-2024",
+      "planet": "mercury",
+      "place": "newYork",
+      "lat": 40.7128,
+      "lng": -74.006,
+      "elevation": 10,
+      "utc": "2024-06-14T18:00:00Z",
+      "jd": 2460476.25,
+      "solar": {
+        "sunLongitude": 84.15960511008716,
+        "planetLongitude": 84.23522675939594,
+        "planetLatitude": 0.9576337339663905,
+        "elongation": 0.9606066249508264
+      },
+      "windows": {
+        "evening": {
+          "kind": "evaluated",
+          "start": 2460476.520184499,
+          "end": 2460476.607561332,
+          "samples": 64,
+          "aboveHorizon": 1,
+          "best": {
+            "jd": 2460476.520184499,
+            "ret": 0,
+            "dret": [-17.183578960446084, 0.12287709496379202, 302.8012338939046, -0.8707421386980572, 302.3664623588372, 46.33999723288079, 200.56275697560216, -2.3547819202004208],
+            "serr": ""
+          }
+        },
+        "morning": {
+          "kind": "evaluated",
+          "start": 2460475.8044106103,
+          "end": 2460475.8916730005,
+          "samples": 64,
+          "aboveHorizon": 1,
+          "best": {
+            "jd": 2460475.8916730005,
+            "ret": 0,
+            "dret": [-17.59020412550192, 0.036452754585754935, 57.33053920713212, -0.8801054699214657, 57.66205975368155, -40.64864725127502, 324.5195549326859, -2.3774060229809266],
+            "serr": ""
+          }
+        }
+      }
+    },
+    {
+      "label": "venus-evening-2025-01-10",
+      "planet": "venus",
+      "place": "newYork",
+      "lat": 40.7128,
+      "lng": -74.006,
+      "elevation": 10,
+      "utc": "2025-01-10T22:35:00Z",
+      "jd": 2460686.440972222,
+      "solar": {
+        "sunLongitude": 290.94604119557164,
+        "planetLongitude": 338.11006358515874,
+        "planetLatitude": -0.5958680589774438,
+        "elongation": 47.1668966507747
+      },
+      "windows": {
+        "evening": {
+          "kind": "evaluated",
+          "start": 2460686.408703312,
+          "end": 2460686.476107979,
+          "samples": 50,
+          "aboveHorizon": 50,
+          "best": {
+            "jd": 2460686.468425534,
+            "ret": 1,
+            "dret": [4.48621530818301, 25.04673512494941, 230.82892981396913, -15.965319713230155, 254.72665656406627, 49.712655534250274, 95.46949396457944, -4.52843749980059],
+            "serr": ""
+          }
+        },
+        "morning": {
+          "kind": "below-horizon",
+          "start": 2460685.945921439,
+          "end": 2460686.0133159324,
+          "samples": 50,
+          "aboveHorizon": 0
+        }
+      }
+    },
+    {
+      "label": "venus-inferior-conjunction-2025",
+      "planet": "venus",
+      "place": "newYork",
+      "lat": 40.7128,
+      "lng": -74.006,
+      "elevation": 10,
+      "utc": "2025-03-23T00:00:00Z",
+      "jd": 2460757.5,
+      "solar": {
+        "sunLongitude": 2.605286115079639,
+        "planetLongitude": 2.6812603644288946,
+        "planetLatitude": 8.414469836337275,
+        "elongation": 8.415028058566877
+      },
+      "windows": {
+        "evening": {
+          "kind": "evaluated",
+          "start": 2460757.465830062,
+          "end": 2460757.529746189,
+          "samples": 48,
+          "aboveHorizon": 5,
+          "best": {
+            "jd": 2460757.465830062,
+            "ret": 0,
+            "dret": [-10.60232293413957, 1.7455497472859505, 280.1007446839456, -0.8738013856724659, 272.10189861406593, -77.21710324268427, 340.3925859497973, -4.21959912569531],
+            "serr": ""
+          }
+        },
+        "morning": {
+          "kind": "evaluated",
+          "start": 2460757.890117702,
+          "end": 2460757.953952129,
+          "samples": 47,
+          "aboveHorizon": 19,
+          "best": {
+            "jd": 2460757.940117702,
+            "ret": 0,
+            "dret": [-5.298301614517307, 3.1831462288037597, 81.34139684388498, -4.65124583788234, 84.3784916440643, 18.09466476729499, 160.8615277080794, -4.218751496726661],
+            "serr": ""
+          }
+        }
+      }
+    },
+    {
+      "label": "mars-conjunction-2023",
+      "planet": "mars",
+      "place": "newYork",
+      "lat": 40.7128,
+      "lng": -74.006,
+      "elevation": 10,
+      "utc": "2023-11-18T06:00:00Z",
+      "jd": 2460266.75,
+      "solar": {
+        "sunLongitude": 235.62462017002895,
+        "planetLongitude": 235.62073680415259,
+        "planetLatitude": -0.11603490960992116,
+        "elongation": 0.11605009638181156
+      },
+      "windows": {
+        "evening": {
+          "kind": "below-horizon",
+          "start": 2460266.4005946894,
+          "end": 2460266.4664515434,
+          "samples": 49,
+          "aboveHorizon": 0
+        },
+        "morning": {
+          "kind": "below-horizon",
+          "start": 2460266.924167662,
+          "end": 2460266.990165658,
+          "samples": 49,
+          "aboveHorizon": 0
+        }
+      }
+    },
+    {
+      "label": "jupiter-opposition-2024",
+      "planet": "jupiter",
+      "place": "newYork",
+      "lat": 40.7128,
+      "lng": -74.006,
+      "elevation": 10,
+      "utc": "2024-12-07T18:00:00Z",
+      "jd": 2460652.25,
+      "solar": {
+        "sunLongitude": 256.1304627707692,
+        "planetLongitude": 76.27298515683343,
+        "planetLatitude": -0.6700779426498414,
+        "elongation": 179.3148473778645
+      },
+      "windows": {
+        "evening": {
+          "kind": "evaluated",
+          "start": 2460652.3949253457,
+          "end": 2460652.462875197,
+          "samples": 50,
+          "aboveHorizon": 50,
+          "best": {
+            "jd": 2460652.462875197,
+            "ret": 1,
+            "dret": [5.173690696244884, 17.612660096328817, 75.72051541377738, -17.993903811574324, 255.1284865553934, 36.964524168276824, 192.0906878124764, -2.8094871126385037],
+            "serr": ""
+          }
+        },
+        "morning": {
+          "kind": "evaluated",
+          "start": 2460651.9366688775,
+          "end": 2460652.004624767,
+          "samples": 50,
+          "aboveHorizon": 50,
+          "best": {
+            "jd": 2460651.9366688775,
+            "ret": 1,
+            "dret": [5.973216220945523, 18.072453244444407, 283.9168042884047, -18.00405426111487, 104.79002849198497, -63.068644115346345, 13.667810323409071, -2.8096787882726124],
+            "serr": ""
+          }
+        }
+      }
+    },
+    {
+      "label": "saturn-conjunction-2025",
+      "planet": "saturn",
+      "place": "newYork",
+      "lat": 40.7128,
+      "lng": -74.006,
+      "elevation": 10,
+      "utc": "2025-03-12T12:00:00Z",
+      "jd": 2460747,
+      "solar": {
+        "sunLongitude": 352.1595778333166,
+        "planetLongitude": 352.1043575843108,
+        "planetLatitude": -1.9152275222722992,
+        "elongation": 1.9160470060128674
+      },
+      "windows": {
+        "evening": {
+          "kind": "below-horizon",
+          "start": 2460747.4583929903,
+          "end": 2460747.5215493566,
+          "samples": 47,
+          "aboveHorizon": 0
+        },
+        "morning": {
+          "kind": "below-horizon",
+          "start": 2460746.9035212444,
+          "end": 2460746.9665313787,
+          "samples": 47,
+          "aboveHorizon": 0
+        }
+      }
+    },
+    {
+      "label": "venus-evening-2025-01-10-sydney",
+      "planet": "venus",
+      "place": "sydney",
+      "lat": -33.8688,
+      "lng": 151.2093,
+      "elevation": 0,
+      "utc": "2025-01-10T09:00:00Z",
+      "jd": 2460685.875,
+      "solar": {
+        "sunLongitude": 290.36946556527204,
+        "planetLongitude": 337.53466640704414,
+        "planetLatitude": -0.648570370226725,
+        "elongation": 47.16860559804749
+      },
+      "windows": {
+        "evening": {
+          "kind": "evaluated",
+          "start": 2460685.882004875,
+          "end": 2460685.952229399,
+          "samples": 52,
+          "aboveHorizon": 52,
+          "best": {
+            "jd": 2460685.925060431,
+            "ret": 0,
+            "dret": [2.7278408460999315, 17.673423281430694, 270.52843542284165, -11.7922045973286, 233.22672543147718, 29.08879946238143, 8.430625642188943, -4.522751976933382],
+            "serr": ""
+          }
+        },
+        "morning": {
+          "kind": "below-horizon",
+          "start": 2460686.2184909927,
+          "end": 2460686.2887142426,
+          "samples": 52,
+          "aboveHorizon": 0
+        }
+      }
+    },
+    {
+      "label": "jupiter-opposition-2024-tromso",
+      "planet": "jupiter",
+      "place": "tromso",
+      "lat": 69.6492,
+      "lng": 18.9553,
+      "elevation": 0,
+      "utc": "2024-12-07T18:00:00Z",
+      "jd": 2460652.25,
+      "solar": {
+        "sunLongitude": 256.1304627707692,
+        "planetLongitude": 76.27298515683343,
+        "planetLatitude": -0.6700779426498414,
+        "elongation": 179.3148473778645
+      },
+      "windows": {
+        "evening": {
+          "kind": "no-window",
+          "reason": "no-sunset"
+        },
+        "morning": {
+          "kind": "no-window",
+          "reason": "no-sunrise"
+        }
+      }
+    },
+    {
+      "label": "venus-2025-06-21-tromso",
+      "planet": "venus",
+      "place": "tromso",
+      "lat": 69.6492,
+      "lng": 18.9553,
+      "elevation": 0,
+      "utc": "2025-06-21T00:00:00Z",
+      "jd": 2460847.5,
+      "solar": {
+        "sunLongitude": 89.8924272490955,
+        "planetLongitude": 45.22859646238106,
+        "planetLatitude": -2.6878977719280495,
+        "elongation": 44.727576094515186
+      },
+      "windows": {
+        "evening": {
+          "kind": "no-window",
+          "reason": "no-sunset"
+        },
+        "morning": {
+          "kind": "no-window",
+          "reason": "no-sunrise"
+        }
+      }
+    }
+  ]
+}

@@ -134,7 +134,7 @@ The documentation and the behaviour differ in four places (**Verified**, §8):
 For the chart's UTC and place:
 
 1. The **evening window** runs from the sunset nearest the chart's instant to the end of astronomical twilight, when the Sun's centre reaches −18°. The **morning window** runs from the start of astronomical twilight to the sunrise nearest the chart's instant. Both come from `swe_rise_trans`, which the binary exports.
-2. Each window is sampled every 2 minutes with `swe_vis_limit_mag`.
+2. Each window is sampled every 2 minutes with `swe_vis_limit_mag`, from its start while still inside it, then at its end, so that no sample falls outside the window. The spike rounded the number of samples instead, and could sample up to a minute past the end (§8).
 3. The **best opportunity** is the sample with the largest margin while the planet is above the horizon.
 4. The result reports each window's bounds, the best sample with its raw values, and how many samples were above the horizon.
 
@@ -282,6 +282,13 @@ The Mercury, Mars and Saturn rows separate glare from geometry. Mercury is above
 
 The Venus inferior-conjunction row is the case a rule based only on longitude gets wrong. Venus was 0.08° from the Sun in longitude but 8.4° from it on the sky. Although it was east of the Sun, its best chance came in the morning sky, about a magnitude short of detection.
 
+The proof of concept (§10) samples each window up to its end and no further (§6). Rerun natively that way on 2 November 2026, every case keeps its result, but two best samples change, because the spike's came from samples past the window's end:
+
+- **Mercury, morning:** −15.21 at sunrise itself, where the spike's −14.95 came from a sample 20.5 s after it.
+- **Jupiter, evening:** +7.98 at the end of astronomical twilight, 23:06:32, where the spike's +7.99 came from a sample 9.1 s after it.
+
+Four windows also gain a sample at their end: Venus's at inferior conjunction in the evening, Mars's in the evening and both of Saturn's. `test/helioscope-reference-cases.json` holds the rerun, and the tests run all nine cases through Helioscope against it.
+
 Agreement between the WebAssembly and this native build would show that the port is faithful, and nothing more. Both run the same C code, so neither validates Schaefer's model against what people actually see. That would need records of observations, and is out of scope.
 
 ### Gate 4: the WebAssembly against native
@@ -346,7 +353,7 @@ Firefox and Safari weren't run: on 2 November 2026 the owner chose to skip them,
   - A result that isn't finite.
   - Two atmospheres at one instant, which must not return the cached value (item 5).
 
-The proof of concept (§10) has the Venus case at the engine boundary, Moshier always, a date outside the Moshier range, invalid coordinates, a chart with no location or no decided UTC, a result that isn't finite, and two atmospheres at one instant. It also refuses charts before 15 October 1582 itself. Still to write: the other eight reference cases, the time tests, and the engine failing to load.
+The proof of concept (§10) has the Venus case at the engine boundary, all nine reference cases through the whole calculation, Moshier always, a date outside the Moshier range, invalid coordinates, a chart with no location or no decided UTC, a result that isn't finite, and two atmospheres at one instant. It also refuses charts before 15 October 1582 itself. Still to write: the time tests, and the engine failing to load.
 
 ## 9. Remaining risks
 
@@ -373,4 +380,5 @@ The proof of concept (§10) has the Venus case at the engine boundary, Moshier a
    - `extension/helioscope-engine.js` is the only file that loads the WebAssembly, vendored unchanged with its licence in `extension/vendor/swisseph/`. It wraps `swe_rise_trans`, `swe_calc_ut`, `swe_pheno_ut` and `swe_vis_limit_mag`. It writes every input afresh, refuses impossible input and results that aren't finite, and keeps one atmosphere for each WebAssembly instance because of item 5.
    - `extension/core/helioscope.js` finds the windows, samples them every 2 minutes and classifies the result, with no browser APIs. It takes the engine as an argument.
    - For Venus from New York, the evening window is predicted detectable, with a best margin of +9.01 at 23:14:32 UTC. Results round times to the nearest second; the link in §7 cut the seconds off, so it says 23:14:31.
+   - All nine of §8's reference cases come out as §8 describes them, compared with native values rerun with its sampling rule.
    - No page uses it yet. The high-latitude window rule and a "marginal" class are still the owner's to decide: until then, a chart with no window is indeterminate, and there's no marginal class.
