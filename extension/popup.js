@@ -6,7 +6,7 @@ import { linkFor } from "./chart-model.js";
 import { ASTRO_COM_ACCESS, chooseFilledTown, openAndFill, watchFilledZone } from "./astro-com-open.js";
 import { ASTRO_SEEK_ACCESS, openAndSave } from "./astro-seek-open.js";
 import { fillForm, formValues, isAstroComPage, isBirthDataForm, readFormPage } from "./core/astrocom.js";
-import { townFromUrl } from "./core/astroseek.js";
+import { nameFromUrl, townFromUrl } from "./core/astroseek.js";
 import { analyzePage, classifyUrl, extractorFor } from "./core/index.js";
 import { isStellariumWeb, readEngine, skyFromEngine, townFromPlace } from "./core/stellarium.js";
 import { BUSY, viewForDesktopImport } from "./desktop-model.js";
@@ -17,6 +17,7 @@ import {
   ASTRO_SEEK_SAVE_BUSY,
   OTHER_WAYS,
   chartToShare,
+  nameFromText,
   offersOtherWays,
   viewFor,
   viewForAstroComManual,
@@ -100,8 +101,9 @@ async function main() {
   // Share… needs the result the screen was drawn from: its local time, and
   // how its UTC was decided.
   sharing = result;
-  // An Astro-Seek chart's address names its town, which astro.com's form can take.
-  showChart(withAafExport(viewFor(result, { town: townFromUrl(url) }), result));
+  // An Astro-Seek chart's address names its town, and a saved person's chart
+  // its name, which astro.com's form can take.
+  showChart(withAafExport(viewFor(result, { town: townFromUrl(url), name: nameFromText(nameFromUrl(url)) }), result));
 }
 
 // The popup was opened on this tab, so activeTab lets it read and fill in the

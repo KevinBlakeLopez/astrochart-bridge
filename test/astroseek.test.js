@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { classifyUrl, townFromUrl } from "../extension/core/astroseek.js";
+import { classifyUrl, nameFromUrl, townFromUrl } from "../extension/core/astroseek.js";
 
 const fixtureUrl = (name) =>
   JSON.parse(readFileSync(new URL(`../fixtures/astroseek/${name}.json`, import.meta.url), "utf8")).url;
@@ -80,4 +80,23 @@ test("a chart placed by coordinates, or another site's page, names no town", () 
   assert.equal(townFromUrl("https://horoscopes.astro-seek.com/calculate-birth-chart-horoscope-online/?narozeni_den=17"), null);
   assert.equal(townFromUrl("https://example.com/?narozeni_mesto_hidden=New+York&narozeni_stat_hidden=US"), null);
   assert.equal(townFromUrl("not a url"), null);
+});
+
+// A fixture's address with nick=, written as given, before its #fragment.
+const withNick = (name, nick) => fixtureUrl(name).replace(/(#|$)/, `&nick=${nick}$1`);
+
+test("a saved person's chart gives its saved name, from nick= in its address", () => {
+  // As a chart opened from the account's saved people carries it, with an invented name.
+  assert.equal(nameFromUrl(withNick("ny-2024-04-17", "New%20York%20Test")), "New York Test");
+  assert.equal(nameFromUrl(withNick("ny-2024-04-17", "+New+York+Test+")), "New York Test");
+  // Read as UTF-8, as URL does. How Astro-Seek writes a name with an accent hasn't been seen.
+  assert.equal(nameFromUrl(withNick("ny-2024-04-17", "Jos%C3%A9")), "José");
+});
+
+test("a chart from the calculator, or another site's page, gives no name", () => {
+  assert.equal(nameFromUrl(fixtureUrl("ny-2024-04-17")), null);
+  assert.equal(nameFromUrl(fixtureUrl("manual-ut-2024-04-17-0000")), null);
+  assert.equal(nameFromUrl(withNick("ny-2024-04-17", "%20%20")), null);
+  assert.equal(nameFromUrl("https://example.com/?nick=New+York+Test"), null);
+  assert.equal(nameFromUrl("not a url"), null);
 });
