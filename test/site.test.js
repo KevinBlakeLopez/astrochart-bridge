@@ -59,6 +59,12 @@ test("nothing of the extension's own pages is published", () => {
   }
 });
 
+// Publishing Helioscope with the receiving page would hand Swiss Ephemeris's
+// WebAssembly to every visitor (docs/HELIOSCOPE_V1_FEASIBILITY.md §4).
+test("neither Helioscope nor the Swiss Ephemeris it loads is published", () => {
+  for (const file of SITE_FILES) assert.doesNotMatch(file, /helioscope|vendor\/swisseph/, file);
+});
+
 test("the receiving page's own files are in it", () => {
   for (const file of ["chart.html", "chart.js", "chart-model.js", "core/portable.js", "qr.js", "vendor/lean-qr/index.mjs"]) {
     assert.ok(SITE_FILES.includes(file), file);
