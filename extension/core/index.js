@@ -301,5 +301,5 @@ function analyzeAstroSeekScreenshot(text) {
 
   // The text is an Astro-Seek page's. The screenshot page adds its own Astro-Seek button.
   const { local, zoneLabel, lat, lng } = chart;
-  return { kind: "natal", site: "astro-seek", local, zoneLabel, lat, lng, ...resolveUtc(chart) };
+  return withPrinted({ kind: "natal", site: "astro-seek", local, zoneLabel, lat, lng, ...resolveUtc(chart) }, chart);
 }

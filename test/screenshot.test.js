@@ -3,6 +3,8 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { readScreenshot } from "../extension/core/astroseek.js";
 import { analyzeScreenshot } from "../extension/core/index.js";
+import { viewForAstroCom } from "../extension/popup-model.js";
+import { viewForScreenshot } from "../extension/screenshot-model.js";
 
 // OCR of a whole Astro-Seek screenshot gives each label and its value on one
 // line, then whatever it makes of the chart wheel. These lines copy the shape
@@ -38,11 +40,46 @@ test("a screenshot's lines are read like the page's", () => {
     lat: 40.716667,
     lng: -74,
     siderealSeconds: 74906,
+    // The City and Country rows, with the flag OCR read as "E=" left out.
+    place: "New York, United States (US), NY",
   });
 });
 
-test("a screenshot of the New York chart gives the same result as its page", () => {
-  assert.deepEqual(analyzeScreenshot(ocr(NY_LINES)), PAGE_RESULT);
+test("a screenshot of the New York chart gives the same result as its page, and its town", () => {
+  // The popup takes the page's town from its address instead (townFromUrl).
+  assert.deepEqual(analyzeScreenshot(ocr(NY_LINES)), { ...PAGE_RESULT, town: "New York, United States (US), NY" });
+});
+
+test("a saved chart's name is the line above Date of Birth, unless that line is one of the page's labels", () => {
+  // As a saved person's page prints it, with an invented name.
+  const saved = analyzeScreenshot(ocr(["Example Person", ...NY_LINES]));
+  assert.deepEqual(saved.name, { first: "Example Person", last: "" });
+  assert.equal(analyzeScreenshot(ocr(["Country: E= United States (US), NY", ...NY_LINES.slice(0, 5)])).name, undefined);
+  assert.equal(analyzeScreenshot(ocr(NY_LINES)).name, undefined);
+  // An unsaved chart's page has a double rule there, under its links, as OCR may read either.
+  for (const above of ["Edit birth data and settings Add into my database", "Birth Chart - Free online calculator", "—=—=—=—=—=—", "ee —— —— ——", "|"]) {
+    assert.equal(analyzeScreenshot(ocr([above, ...NY_LINES])).name, undefined, above);
+  }
+  // A saved chart named with a date and words.
+  assert.deepEqual(analyzeScreenshot(ocr(["1999 March Example Event", ...NY_LINES])).name, { first: "1999 March Example Event", last: "" });
+});
+
+test("an Astro-Seek screenshot's name and town reach astro.com's step and Save in Astro-Seek…", () => {
+  const view = viewForScreenshot(analyzeScreenshot(ocr(["Example Person", ...NY_LINES])), { timeZone: "America/Los_Angeles" });
+  const name = { first: "Example Person", last: "" };
+  const town = "New York, United States (US), NY";
+  // Before, the popup's step for an Astro-Seek page, which has the town of its address, was kept: a screenshot has none.
+  assert.deepEqual(view.next.view, viewForAstroCom(view.sky, { local: "2024-04-17T08:00:00", name, town }));
+  assert.deepEqual(view.buttons.find(({ saves }) => saves).saves, { town, name: "Example Person", gender: null });
+});
+
+test("a City row's value keeps its words, less the marks OCR puts before it", () => {
+  const town = (city, country) => analyzeScreenshot(withLine("City", city).replace(NY_LINES[6], country)).town;
+  assert.equal(town("City: St. Louis", "Country: = United States (US), MO"), "St. Louis, United States (US), MO");
+  assert.equal(town("City3 100 Mile House", "Country: | Canada (CA), BC"), "100 Mile House, Canada (CA), BC");
+  // With no Country row, the town alone; with no City row, no town.
+  assert.equal(analyzeScreenshot(withLine("Country", null)).town, "New York");
+  assert.equal(analyzeScreenshot(withLine("City", null)).town, undefined);
 });
 
 // Tesseract.js read a half-size screenshot, scaled back up 2x, like this.
