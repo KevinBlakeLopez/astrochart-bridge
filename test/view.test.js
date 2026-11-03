@@ -41,7 +41,7 @@ function drawn(view) {
 }
 
 test("a chart screen's buttons are drawn under their labels, with the Stellarium Desktop line under its button", () => {
-  const view = withDesktopSend(viewFor(analyze("ny-2024-04-17"), { timeZone: "America/Los_Angeles" }));
+  const view = withDesktopSend(viewFor(analyze("ny-2024-04-17"), { timeZone: "America/Los_Angeles", town: "New York" }));
   assert.deepEqual(drawn(view), [
     "[See the sky]",
     "Open Stellarium Web",
@@ -54,7 +54,7 @@ test("a chart screen's buttons are drawn under their labels, with the Stellarium
 });
 
 test("with Stellarium Desktop the default, its line follows it to the top", () => {
-  const view = withDesktopSend(viewFor(analyze("ny-2024-04-17"), { timeZone: "America/Los_Angeles" }), { preferred: true });
+  const view = withDesktopSend(viewFor(analyze("ny-2024-04-17"), { timeZone: "America/Los_Angeles", town: "New York" }), { preferred: true });
   assert.deepEqual(drawn(view).slice(0, 4), [
     "[See the sky]",
     "Send to Stellarium Desktop",
@@ -91,7 +91,7 @@ test("on a Stellarium Web tab's screen, every button gets the tab's sky, Send to
 });
 
 test("the buttons that wait for the sky still wait for it, whichever group they're in", () => {
-  const view = withDesktopSend(viewFor(analyze("ny-2024-04-17"), { timeZone: "America/Los_Angeles" }));
+  const view = withDesktopSend(viewFor(analyze("ny-2024-04-17"), { timeZone: "America/Los_Angeles", town: "New York" }));
   const container = { replaceChildren: (...parts) => (container.parts = parts) };
   render(container, { ...view, sky: undefined }, () => {});
   const disabled = container.parts.filter(({ tag, disabled }) => tag === "button" && disabled).map(({ textContent }) => textContent);
@@ -107,7 +107,7 @@ function popupScreen(view) {
 }
 
 test("Read a different chart comes last, closed, with the other ways in their groups", () => {
-  const { parts } = popupScreen(viewFor(analyze("ny-2024-04-17"), { timeZone: "America/Los_Angeles" }));
+  const { parts } = popupScreen(viewFor(analyze("ny-2024-04-17"), { timeZone: "America/Los_Angeles", town: "New York" }));
   const box = parts.at(-1);
   assert.equal(box.tag, "details");
   assert.equal(box.className, "more");
@@ -128,7 +128,7 @@ test("Read a different chart comes last, closed, with the other ways in their gr
 });
 
 test("a click in Read a different chart passes on the page it opens, or what it does", () => {
-  const { parts, clicked } = popupScreen(viewFor(analyze("ny-2024-04-17"), { timeZone: "America/Los_Angeles" }));
+  const { parts, clicked } = popupScreen(viewFor(analyze("ny-2024-04-17"), { timeZone: "America/Los_Angeles", town: "New York" }));
   const buttons = parts.at(-1).children.filter(({ tag }) => tag === "button");
   buttons.find(({ textContent }) => textContent === "Read a screenshot").listeners.click();
   buttons.find(({ textContent }) => textContent === "Import from Stellarium Desktop").listeners.click();
@@ -139,7 +139,7 @@ test("a click in Read a different chart passes on the page it opens, or what it 
 });
 
 test("Read a different chart's buttons don't wait for the sky", () => {
-  const view = viewFor(analyze("ny-2024-04-17"), { timeZone: "America/Los_Angeles" });
+  const view = viewFor(analyze("ny-2024-04-17"), { timeZone: "America/Los_Angeles", town: "New York" });
   const { parts } = popupScreen({ ...view, sky: undefined });
   assert.deepEqual(parts.at(-1).children.filter(({ tag, disabled }) => tag === "button" && disabled), []);
 });

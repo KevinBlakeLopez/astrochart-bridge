@@ -32,7 +32,8 @@ test("a Morinus chart opens like an AAF chart, with its name, birthplace and the
   ]);
   assert.deepEqual(view.sky, { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 });
   assert.deepEqual(view.buttons, [
-    ...ASTRO_SEEK_BUTTONS,
+    ASTRO_SEEK_BUTTONS[0],
+    { ...ASTRO_SEEK_BUTTONS[1], keeps: { town: "New York", name: { first: "Test", last: "" } } },
     { label: "Save in Astro-Seek…", saves: { town: "New York", name: "Test" }, secondary: true },
   ]);
   assert.deepEqual(view.notes, [...plain.notes, ZONE_NOTE, ASTRO_SEEK_NOTES[0], ASTRO_SEEK_SAVE_NAMED_NOTE]);

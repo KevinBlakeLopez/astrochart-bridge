@@ -752,6 +752,25 @@ export function guardChartPlace(place) {
   return { guarding: true };
 }
 
+/**
+ * Whether two skies are the same Astro-Seek chart: the same UT date, hour and
+ * minute, and the same whole minutes of latitude and longitude, as Astro-Seek's
+ * form takes them. Seconds aren't compared: an Astro-Seek page prints its time
+ * to the minute. A sky with no UTC is no chart's.
+ *
+ * @param {{ utc: string | null, lat: number, lng: number }} a
+ * @param {{ utc: string | null, lat: number, lng: number }} b
+ */
+export function sameAstroSeekChart(a, b) {
+  const parts = (sky) => {
+    if (!UTC_PARTS.test(sky?.utc ?? "")) return null;
+    const { second, ...rest } = formParts(sky, "sameAstroSeekChart");
+    return JSON.stringify(rest);
+  };
+  const first = parts(a);
+  return first !== null && first === parts(b);
+}
+
 // The birth form's values for a UTC instant and place: the day and month
 // without a leading zero, the year and time as written, and the coordinates
 // as degreesMinutes gives them. Throws, naming the caller, when utc isn't

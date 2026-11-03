@@ -6,12 +6,12 @@ import { linkFor } from "./chart-model.js";
 import { ASTRO_COM_ACCESS, chooseFilledTown, openAndFill, watchFilledZone } from "./astro-com-open.js";
 import { ASTRO_SEEK_ACCESS, openAndSave } from "./astro-seek-open.js";
 import { fillForm, formValues, isAstroComPage, isBirthDataForm, readFormPage } from "./core/astrocom.js";
-import { nameFromUrl, townFromUrl } from "./core/astroseek.js";
+import { nameFromUrl, sameAstroSeekChart, townFromUrl } from "./core/astroseek.js";
 import { analyzePage, classifyUrl, extractorFor } from "./core/index.js";
 import { isStellariumWeb, readEngine, skyFromEngine, townFromPlace } from "./core/stellarium.js";
 import { BUSY, viewForDesktopImport } from "./desktop-model.js";
 import { checkDesktop, renderChart } from "./desktop-page.js";
-import { heldForTab, holdForTab, releaseTab } from "./pending.js";
+import { astroSeekTabs, heldForTab, holdForTab, releaseTab } from "./pending.js";
 import {
   ASTRO_COM_BUSY,
   ASTRO_SEEK_SAVE_BUSY,
@@ -102,8 +102,16 @@ async function main() {
   // how its UTC was decided.
   sharing = result;
   // An Astro-Seek chart's address names its town, and a saved person's chart
-  // its name, which astro.com's form can take.
-  showChart(withAafExport(viewFor(result, { town: townFromUrl(url), name: nameFromText(nameFromUrl(url)) }), result));
+  // its name, which astro.com's form can take. A tab Open chart in Astro-Seek
+  // opened has the chart's town and name kept for it, used while the page
+  // still shows that chart.
+  const kept = await astroSeekTabs.held(held, tab.id);
+  const options = {
+    town: townFromUrl(url),
+    name: nameFromText(nameFromUrl(url)),
+    kept: kept && sameAstroSeekChart(kept, result) ? kept : null,
+  };
+  showChart(withAafExport(viewFor(result, options), result));
 }
 
 // The popup was opened on this tab, so activeTab lets it read and fill in the
@@ -264,12 +272,13 @@ function showImport(view) {
   });
 }
 
-// holds is what an astro.com button keeps for the tab it opens; saves is
-// Save in Astro-Seek…'s town and name, for the sky the screen decided.
-async function openLink({ url, holds, fills, saves }, sky) {
+// holds is what an astro.com button keeps for the tab it opens; keeps is the
+// town and name Open chart in Astro-Seek keeps for its tab, with the sky the
+// screen decided; saves is Save in Astro-Seek…'s town and name, for that sky.
+async function openLink({ url, holds, keeps, fills, saves }, sky) {
   if (saves) return saveInAstroSeek(sky, saves);
   if (fills) return openForm(url, holds);
-  if (!holds) {
+  if (!holds && !keeps) {
     await chrome.tabs.create({ url });
     window.close();
     return;
@@ -277,7 +286,8 @@ async function openLink({ url, holds, fills, saves }, sky) {
   // Opened behind the popup, which closes when the new tab comes to the front,
   // so the values are kept for the tab before it does.
   const tab = await chrome.tabs.create({ url, active: false });
-  await holdForTab(held, tab.id, holds);
+  if (holds) await holdForTab(held, tab.id, holds);
+  else await astroSeekTabs.hold(held, tab.id, { ...sky, ...keeps });
   await chrome.tabs.update(tab.id, { active: true });
   window.close();
 }

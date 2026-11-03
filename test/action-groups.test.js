@@ -20,13 +20,23 @@ const { sky: SKY, elsewhere: ELSEWHERE } = GROUP_LABELS;
 // Each group as its label, then its actions: a button by its label, anything else by its kind.
 const groupsOf = (view) => actionGroups(view).map(({ label, actions }) => [label, ...actions.map(({ kind, button }) => button?.label ?? kind)]);
 
-// A chart screen as the popup draws it: with the AAF file, then Send to Stellarium Desktop.
-const chartScreen = (result, default_) => withDesktopSend(withAafExport(viewFor(result, LA), result), default_);
+// A chart screen as the popup draws it: with the AAF file, then Send to
+// Stellarium Desktop. town is the one an Astro-Seek page's address names.
+const chartScreen = (result, default_, { town = null } = {}) =>
+  withDesktopSend(withAafExport(viewFor(result, { ...LA, town }), result), default_);
+const NEW_YORK = { town: "New York" };
 
 test("an Astro-Seek chart's ways to see the sky come first, and the rest go under Take the chart elsewhere", () => {
-  assert.deepEqual(groupsOf(chartScreen(analyze("ny-2024-04-17"))), [
+  assert.deepEqual(groupsOf(chartScreen(analyze("ny-2024-04-17"), undefined, NEW_YORK)), [
     [SKY, "Open Stellarium Web", "desktop"],
     [ELSEWHERE, "Share…", "download", "next"],
+  ]);
+});
+
+test("an Astro-Seek chart placed by coordinates leads Take the chart elsewhere with Save in Astro-Seek…", () => {
+  assert.deepEqual(groupsOf(chartScreen(analyze("manual-ut-2024-04-17-0000"))), [
+    [SKY, "Open Stellarium Web", "desktop"],
+    [ELSEWHERE, "Save in Astro-Seek…", "Share…", "download", "next"],
   ]);
 });
 
@@ -49,7 +59,7 @@ test("an astro.com chart's Open chart in Astro-Seek goes under Take the chart el
 });
 
 test("with Stellarium Desktop the default, it leads See the sky, and the line about the default ends it", () => {
-  assert.deepEqual(groupsOf(chartScreen(analyze("ny-2024-04-17"), { preferred: true })), [
+  assert.deepEqual(groupsOf(chartScreen(analyze("ny-2024-04-17"), { preferred: true }, NEW_YORK)), [
     [SKY, "desktop", "Open Stellarium Web", "default-choice"],
     [ELSEWHERE, "Share…", "download", "next"],
   ]);
