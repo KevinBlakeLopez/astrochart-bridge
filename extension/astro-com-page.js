@@ -1,27 +1,31 @@
 // What a button does on a page of the extension's own that draws the popup's
 // screens and stays open, the screenshot, paste and import pages: a link opens
-// in a new tab, an astro.com button keeps the values for the tab it opens,
-// and Save in Astro-Seek… opens Astro-Seek's form, as in the popup.
+// in a new tab, an astro.com button or Open chart in Astro-Seek keeps the
+// values for the tab it opens, and Save in Astro-Seek… opens Astro-Seek's
+// form, as in the popup.
 import { ASTRO_COM_ACCESS, openAndFill } from "./astro-com-open.js";
 import { ASTRO_SEEK_ACCESS, openAndSave } from "./astro-seek-open.js";
-import { holdForTab } from "./pending.js";
+import { astroSeekTabs, holdForTab } from "./pending.js";
 import { viewForAstroComManual, viewForAstroComNotFilled, viewForAstroSeekSave } from "./popup-model.js";
 import { paragraph, render } from "./view.js";
 
 /**
  * @param {HTMLElement} container  where the page draws its screens
- * @param {{ url: string, holds?: object, fills?: boolean, saves?: { town: string | null, name: string | null } }} button
+ * @param {{ url: string, holds?: object, keeps?: { town: string | null, name: object | null }, fills?: boolean,
+ *   saves?: { town: string | null, name: string | null } }} button  keeps is the town and name Open chart in
+ *   Astro-Seek keeps for its tab, as in the popup
  * @param {{ utc: string, lat: number, lng: number } | null} [sky]  the sky the screen decided
  */
-export async function openLink(container, { url, holds, fills, saves }, sky = null) {
+export async function openLink(container, { url, holds, keeps, fills, saves }, sky = null) {
   if (saves) return saveInAstroSeek(container, sky, saves);
   if (fills) return openForm(container, url, holds);
-  if (!holds) {
+  if (!holds && !(keeps && sky)) {
     window.open(url, "_blank", "noopener");
     return;
   }
   const tab = await chrome.tabs.create({ url });
-  await holdForTab(chrome.storage.session, tab.id, holds);
+  if (holds) await holdForTab(chrome.storage.session, tab.id, holds);
+  else await astroSeekTabs.hold(chrome.storage.session, tab.id, { ...sky, ...keeps });
 }
 
 // The form button, as in the popup: access is asked for first, while the click

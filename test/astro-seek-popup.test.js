@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { astroSeekSaveUrl } from "../extension/core/astroseek.js";
+import { astroSeekSaveUrl, astroSeekUrl } from "../extension/core/astroseek.js";
 import { fromFragment, toFragment, toPortable } from "../extension/core/portable.js";
 import { viewForImport } from "../extension/chart-model.js";
 import {
@@ -158,4 +158,9 @@ test("clicking it hands the popup its town and name, with the sky the screen dec
   assert.equal(save.className, "secondary");
   save.click();
   assert.deepEqual(clicks, [[{ saves: { town: "New York", name: "Example Person" }, url: undefined }, NY]]);
+
+  // Open chart in Astro-Seek hands over what to keep for its tab, with the same sky.
+  const open = container.parts.find(({ tag, textContent }) => tag === "button" && textContent === "Open chart in Astro-Seek");
+  open.click();
+  assert.deepEqual(clicks[1], [{ keeps: { town: "New York", name: { first: "Example", last: "Person" } }, url: astroSeekUrl(NY) }, NY]);
 });

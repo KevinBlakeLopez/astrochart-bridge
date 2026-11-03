@@ -25,13 +25,14 @@ Those sites then handle what they receive under their own privacy policies.
 
 - **Your default sky**, Stellarium Web or Stellarium Desktop, once you choose one. It's kept in the browser's extension storage on this computer, and isn't synced to your browser account.
 - **A chart it opened astro.com for**: the chart's time, place, town and name, so the form can still be filled in after the popup closes. They're used for 30 minutes at most, and kept in session storage, which the browser empties when it quits.
+- **A chart it opened in Astro-Seek** that has a town or a name: the chart's time, place, town and name, so Save in Astro-Seek… in the popup on that tab can fill in the town and name, used only while the tab still shows that chart. They're kept in session storage until the browser quits.
 
 Nothing else is kept.
 
 ## Permissions
 
 - **activeTab** and **scripting**: to read the chart on the page you're on, only when you click the toolbar button.
-- **storage**: for the two things it keeps, above.
+- **storage**: for the three things it keeps, above.
 - **`http://127.0.0.1/*`**, asked for the first time you use Stellarium Desktop.
 - **`https://www.astro.com/*`**, asked for the first time you enter a chart in astro.com, to fill in the form in the tab it opens.
 - **`https://www.astro-seek.com/*`**, asked for the first time you save a chart in Astro-Seek, to choose the town in the form in the tab it opens, and keep the chart's coordinates and time zone there.

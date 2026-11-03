@@ -93,13 +93,15 @@ const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "
  * screen is made here, so popup.js only renders it.
  *
  * @param {ReturnType<typeof import("./core/index.js").analyzePage>} result
- * @param {{ timeZone?: string, town?: string | null }} [options]  timeZone is the
- *   computer's time zone; when left out, Intl uses the one this code runs in,
- *   which the popup shares with the Stellarium tab. Tests pass it so they give
- *   the same result anywhere. town is the one the chart's page names, for
- *   astro.com's form.
+ * @param {{ timeZone?: string, town?: string | null,
+ *   kept?: { town: string | null, name: { first: string, last: string } | null } | null }} [options]
+ *   timeZone is the computer's time zone; when left out, Intl uses the one
+ *   this code runs in, which the popup shares with the Stellarium tab. Tests
+ *   pass it so they give the same result anywhere. town is the one the chart's
+ *   page names, for astro.com's form. kept is the town and name Open chart in
+ *   Astro-Seek kept for an Astro-Seek tab whose page still shows its chart.
  */
-export function viewFor(result, { timeZone, town = null } = {}) {
+export function viewFor(result, { timeZone, town = null, kept = null } = {}) {
   if (result.kind === "refused") {
     return Object.hasOwn(REFUSALS, result.reason)
       ? { state: "refused", message: REFUSALS[result.reason] }
@@ -166,8 +168,10 @@ export function viewFor(result, { timeZone, town = null } = {}) {
   // to be typed. Save in Astro-Seek… chooses it instead, first under Take the
   // chart elsewhere. A chart with a town saves well from Astro-Seek's own
   // link, in its own time zone. No note: the chart is already on astro-seek.com.
-  const buttons = town === null ? chartButtons([OPEN_SKY_BUTTON, astroSeekSaveButton()]) : ready.buttons;
-  return { ...ready, buttons, next: astroComStep(ready.sky, { town, local }) };
+  // The town and name kept for the tab, if any, go to Astro-Seek's form and
+  // astro.com's alike.
+  const buttons = town === null ? chartButtons([OPEN_SKY_BUTTON, astroSeekSaveButton(kept ?? {})]) : ready.buttons;
+  return { ...ready, buttons, next: astroComStep(ready.sky, { town: town ?? kept?.town ?? null, name: kept?.name ?? null, local }) };
 }
 
 /**
@@ -223,7 +227,10 @@ const ASTRO_SEEK_OPEN_NOTE = ASTRO_SEEK_NOTES[1];
  * pages offer it, not the shared chart page, which is also a website. Like
  * Open chart in Astro-Seek, it waits for the screen to decide the sky. A
  * screen built on one that has them, such as a screenshot of an astro.com
- * chart on the popup's astro.com screen, isn't given them twice.
+ * chart on the popup's astro.com screen, isn't given them twice. A chart
+ * with a town or name has Open chart in Astro-Seek keep them for the tab it
+ * opens (pending.js's astroSeekTabs), for Save in Astro-Seek… in the popup
+ * on that tab: someone may look at the chart first and save it after.
  *
  * @param {object} view  with a button that opens "astro-seek"
  * @param {{ town?: string | null, name?: { first: string, last: string } | null }} [chart]
@@ -232,6 +239,8 @@ const ASTRO_SEEK_OPEN_NOTE = ASTRO_SEEK_NOTES[1];
 export function withAstroSeekSave(view, chart = {}) {
   const button = astroSeekSaveButton(chart);
   const { saves } = button;
+  const keeps = saves.town === null && saves.name === null ? null : { town: saves.town, name: chart.name ?? null };
+  const opener = (each) => (keeps && each.opens === "astro-seek" ? { ...each, keeps } : each);
   const at = view.buttons.findIndex(({ opens }) => opens === "astro-seek") + 1;
   const note = saves.town === null && saves.name === null ? ASTRO_SEEK_SAVE_NOTE : ASTRO_SEEK_SAVE_NAMED_NOTE;
   const notes = view.notes.includes(ASTRO_SEEK_OPEN_NOTE)
@@ -241,7 +250,9 @@ export function withAstroSeekSave(view, chart = {}) {
   return {
     ...view,
     notes: noted ? view.notes : notes,
-    buttons: view.buttons.some(({ saves }) => saves) ? view.buttons : [...view.buttons.slice(0, at), button, ...view.buttons.slice(at)],
+    buttons: view.buttons.some(({ saves }) => saves)
+      ? view.buttons
+      : [...view.buttons.slice(0, at).map(opener), button, ...view.buttons.slice(at)],
   };
 }
 

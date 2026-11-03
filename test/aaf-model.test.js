@@ -40,8 +40,10 @@ test("a chart from AAF opens like an astro.com chart, with its name and birthpla
   ]);
   assert.equal(view.state, "ready");
   assert.deepEqual(view.sky, { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 });
+  // Open chart in Astro-Seek keeps the town and name for its tab, for Save in Astro-Seek… there.
   assert.deepEqual(view.buttons, [
-    ...ASTRO_SEEK_BUTTONS,
+    ASTRO_SEEK_BUTTONS[0],
+    { ...ASTRO_SEEK_BUTTONS[1], keeps: { town: "New York", name: { first: "New York", last: "Test" } } },
     { label: "Save in Astro-Seek…", saves: { town: "New York", name: "New York Test" }, secondary: true },
   ]);
   assert.deepEqual(view.notes, [...plain.notes, ASTRO_SEEK_NOTES[0], ASTRO_SEEK_SAVE_NAMED_NOTE]);
