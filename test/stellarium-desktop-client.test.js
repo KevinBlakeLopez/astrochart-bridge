@@ -49,6 +49,7 @@ async function mockStellarium(options = {}) {
       if (!options.ignoreLocation) {
         state.lat = Math.fround(Number(params.get("latitude")));
         state.lng = Math.fround(Number(params.get("longitude")));
+        // As LocationService::post in Stellarium v25.1 names a place sent with no name.
         state.name = `${state.lat}, ${state.lng}`;
       }
       res.end("ok");
@@ -119,7 +120,15 @@ test("Sydney goes to Stellarium and comes back as the same sky", async (t) => {
   assert.deepEqual(await readSky({ port: stellarium.port }), {
     state: "connected",
     sky: { utc: "2024-01-14T21:00:00Z", lat: -33.86667, lng: 151.2 },
+    // Sent with no name, Stellarium names the place by its coordinates, which name no town.
+    town: null,
   });
+});
+
+test("a place chosen in Stellarium comes back with its name, for the forms' town", async (t) => {
+  const stellarium = await mockStellarium();
+  t.after(stellarium.close);
+  assert.equal((await readSky({ port: stellarium.port })).town, "Paris");
 });
 
 test("readSky's sky opens in the existing Stellarium Web and Astro-Seek links", async (t) => {

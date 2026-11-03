@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { analyzePage } from "../extension/core/index.js";
 import { BUSY, SETUP_STEPS, desktopHint, viewForDesktopImport, viewForDesktopSend, withDesktopSend } from "../extension/desktop-model.js";
-import { viewFor, viewForSky } from "../extension/popup-model.js";
+import { ASTRO_SEEK_SAVE_NAMED_NOTE, viewFor, viewForAstroCom, viewForSky } from "../extension/popup-model.js";
 
 const fixture = (name) =>
   JSON.parse(readFileSync(new URL(`../fixtures/astroseek/${name}.json`, import.meta.url), "utf8"));
@@ -222,6 +222,16 @@ test("import: the sky Stellarium shows, opening in Astro-Seek or Stellarium Web,
   assert.equal(view.next.label, "Enter in astro.com…");
   assert.ok(view.notes.some((note) => note.startsWith("If Stellarium's clock is running")));
   assert.ok(view.notes.some((note) => note.includes("stellarium-web.org")));
+});
+
+test("import: the name of Stellarium's place shows as the town, and goes to both forms", () => {
+  const view = viewForDesktopImport({ state: "connected", sky: NY, town: "New York" });
+  assert.deepEqual(view.rows.at(-1), ["Town", "New York"]);
+  assert.deepEqual(view.next.view, viewForAstroCom(NY, { town: "New York" }));
+  assert.deepEqual(view.buttons.find(({ saves }) => saves).saves, { town: "New York", name: null, gender: null });
+  assert.ok(view.notes.includes(ASTRO_SEEK_SAVE_NAMED_NOTE));
+  // A place with no name of its own has no Town row, and the forms get none.
+  assert.equal(viewForDesktopImport({ state: "connected", sky: NY, town: null }).rows.length, 2);
 });
 
 test("desktopHint: one line under the button for each probe result", () => {

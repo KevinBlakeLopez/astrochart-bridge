@@ -74,8 +74,8 @@ export function readStatus(json) {
 
 /**
  * The sky Stellarium is showing, in the same form every destination takes.
- * Its own place name and time zone are left behind: the destinations take
- * coordinates and UTC.
+ * Its time zone is left behind: the destinations take coordinates and UTC.
+ * Its place name is townFromStatus's.
  *
  * @param {NonNullable<ReturnType<typeof readStatus>>} status
  * @returns {{ kind: "sky", sky: { utc: string, lat: number, lng: number } }
@@ -85,6 +85,25 @@ export function skyFromStatus({ jday, lat, lng, planet }) {
   if (planet !== "Earth") return refused("stellarium-not-earth");
   if (!inRange(jday)) return refused("stellarium-date-out-of-range");
   return { kind: "sky", sky: { utc: utcFromJulianDay(jday), lat: degrees(lat), lng: degrees(lng) } };
+}
+
+/**
+ * The town to give astro.com's and Astro-Seek's forms for the sky Stellarium
+ * is showing: the name of its place, or null. A place chosen from
+ * Stellarium's list keeps its name, such as "New York", but one set by
+ * coordinates alone, as Send to Stellarium Desktop sets it, is named by them:
+ * "40.716667, -74", as LocationService::post in Stellarium v25.1's
+ * RemoteControl plugin names it. A name with no letter in it is such a name,
+ * not a town. A name of the user's own, or an observatory's, goes in like any
+ * other: each form's own list then chooses the match nearest the
+ * coordinates, or asks.
+ *
+ * @param {NonNullable<ReturnType<typeof readStatus>>} status
+ * @returns {string | null}
+ */
+export function townFromStatus({ name }) {
+  const town = name?.trim() ?? "";
+  return /\p{L}/u.test(town) ? town : null;
 }
 
 /**

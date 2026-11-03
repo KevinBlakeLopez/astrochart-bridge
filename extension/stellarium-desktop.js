@@ -2,7 +2,7 @@
 // only on this computer: every request goes to 127.0.0.1. Nothing here runs on
 // its own; the popup calls it when the user clicks. What each request means is
 // decided in core/stellarium-desktop.js.
-import { PORT, checkApplied, isStellariumServer, readStatus, skyFromStatus, transferRequests } from "./core/stellarium-desktop.js";
+import { PORT, checkApplied, isStellariumServer, readStatus, skyFromStatus, townFromStatus, transferRequests } from "./core/stellarium-desktop.js";
 
 // The access the browser has to grant first: the manifest's optional host
 // permission, for any port on this computer.
@@ -16,13 +16,14 @@ const TIMEOUT_MS = 3000;
  * The sky Stellarium is showing now. Sends one GET and changes nothing.
  *
  * @param {{ port?: number, timeoutMs?: number }} [options]  for tests; the popup leaves both out
- * @returns {Promise<{ state: "connected", sky: { utc: string, lat: number, lng: number } } | Failure>}
+ * @returns {Promise<{ state: "connected", sky: { utc: string, lat: number, lng: number }, town: string | null } | Failure>}
  */
 export async function readSky(options = {}) {
   const status = await getStatus(connection(options));
   if (status.state !== "ok") return status;
   const result = skyFromStatus(status.status);
-  return result.kind === "refused" ? { state: "refused", reason: result.reason } : { state: "connected", sky: result.sky };
+  if (result.kind === "refused") return { state: "refused", reason: result.reason };
+  return { state: "connected", sky: result.sky, town: townFromStatus(status.status) };
 }
 
 /**

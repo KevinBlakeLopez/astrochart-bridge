@@ -6,6 +6,7 @@ import {
   julianDay,
   readStatus,
   skyFromStatus,
+  townFromStatus,
   transferRequests,
   utcFromJulianDay,
 } from "../extension/core/stellarium-desktop.js";
@@ -92,6 +93,16 @@ test("readStatus keeps only what AstroChart Bridge uses", () => {
 test("readStatus: a status with no name still reads, with name null", () => {
   const { name, ...location } = STATUS.location;
   assert.equal(readStatus({ ...STATUS, location }).name, null);
+});
+
+test("townFromStatus: a place's name is the town, but not one made of its coordinates", () => {
+  const town = (name) => townFromStatus({ ...readStatus(STATUS), name });
+  assert.equal(town("New York"), "New York");
+  assert.equal(town("  Zürich "), "Zürich");
+  // A name of the user's own goes in too; the forms' lists choose by coordinates, or ask.
+  assert.equal(town("Home"), "Home");
+  // How Stellarium names a place set by coordinates alone, as Send to Stellarium Desktop sets it.
+  for (const name of ["40.716667, -74", "-33.86667, 151.2", "", "  ", null]) assert.equal(town(name), null, name);
 });
 
 test("readStatus: anything not shaped like Stellarium's status is null", () => {
