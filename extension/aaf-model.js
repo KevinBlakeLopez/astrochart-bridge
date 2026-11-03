@@ -72,8 +72,8 @@ export function viewForAafText(text, options) {
  * What to show for one record: the popup's ready screen for an astro.com
  * chart, with the name and birthplace the file gives, or why it can't open.
  * Its step to enter the chart in astro.com takes the name as the file splits
- * it, first and last, and the place without its country as the town, since
- * astro.com's form asks for the country apart.
+ * it, first and last, and the place with its country as the town: the form
+ * gets the place alone, and the country helps choose among its matches.
  *
  * @param {ReturnType<typeof chartFromRecord>} result
  * @param {{ timeZone?: string }} [options]  passed on to viewFor
@@ -89,6 +89,9 @@ export function viewForAafChart(result, options) {
   const view = viewFor(chart, options);
   const rows = view.rows.flatMap((row) => (row[0] === "Place" && chart.place ? [["Birthplace", chart.place], row] : [row]));
   const gender = aafGender(chart.aaf);
+  // The place with its country, which helps choose among a town search's
+  // matches; only the place is typed (searchTown). A country alone names no town.
+  const town = chart.aaf.place === null ? null : joined([chart.aaf.place, chart.aaf.country], ", ");
   return withAafExport(
     withAstroSeekSave(
       {
@@ -97,9 +100,9 @@ export function viewForAafChart(result, options) {
         warnings: warnings.map((code) => WARNINGS[code]?.(chart) ?? code),
         notes: [...view.notes, ...ASTRO_SEEK_NOTES],
         buttons: [...ASTRO_SEEK_BUTTONS],
-        ...(view.sky ? { next: astroComStep(view.sky, { local: chart.local, name: aafName(chart.aaf), town: chart.aaf.place, gender }) } : {}),
+        ...(view.sky ? { next: astroComStep(view.sky, { local: chart.local, name: aafName(chart.aaf), town, gender }) } : {}),
       },
-      { town: chart.aaf.place, name: aafName(chart.aaf), gender },
+      { town, name: aafName(chart.aaf), gender },
     ),
     result,
   );

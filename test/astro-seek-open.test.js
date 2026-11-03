@@ -178,6 +178,16 @@ test("a list that doesn't come in time is no-list, for the box to say so", async
   assert.deepEqual(await chooseFormCity(scripting, 70, VALUES, { timeoutMs: 20, pollMs: 1 }), { kind: "no-list" });
 });
 
+test("a town with its state and country types the town alone into Birth city", async () => {
+  const scripting = fakeScripting();
+  const choice = await chooseFormCity(scripting, 70, { ...VALUES, town: "New York, NY, US" }, { timeoutMs: 20, pollMs: 1 });
+  assert.deepEqual(scripting.calls.slice(0, 2).map(({ func, args }) => [func, args]), [
+    ["typeCity", ["New York"]],
+    ["readCityList", ["New York"]],
+  ]);
+  assert.equal(choice.kind, "pick");
+});
+
 test("Birth city typed in before or while waiting is the person's, so nothing is chosen", async () => {
   const before = fakeScripting({ typed: { typed: false, form: "city-typed" } });
   assert.equal(await chooseFormCity(before, 70, VALUES, { timeoutMs: 20, pollMs: 1 }), null);

@@ -43,8 +43,8 @@ test("a chart from AAF opens like an astro.com chart, with its name and birthpla
   // Open chart in Astro-Seek keeps the town and name for its tab, for Save in Astro-Seek… there.
   assert.deepEqual(view.buttons, [
     ASTRO_SEEK_BUTTONS[0],
-    { ...ASTRO_SEEK_BUTTONS[1], keeps: { town: "New York", name: { first: "New York", last: "Test" }, gender: null } },
-    { label: "Save in Astro-Seek…", saves: { town: "New York", name: "New York Test", gender: null }, secondary: true },
+    { ...ASTRO_SEEK_BUTTONS[1], keeps: { town: "New York, NY (US)", name: { first: "New York", last: "Test" }, gender: null } },
+    { label: "Save in Astro-Seek…", saves: { town: "New York, NY (US)", name: "New York Test", gender: null }, secondary: true },
   ]);
   assert.deepEqual(view.notes, [...plain.notes, ASTRO_SEEK_NOTES[0], ASTRO_SEEK_SAVE_NAMED_NOTE]);
   assert.deepEqual(view.warnings, []);
@@ -209,7 +209,7 @@ test("a chart can be entered in astro.com with its name split as the file splits
   // The place without its country, which astro.com's form asks for apart.
   assert.deepEqual(view.next, {
     label: "Enter in astro.com…",
-    view: viewForAstroCom(view.sky, { local: "2024-04-17T08:00:00", name, town: "New York" }),
+    view: viewForAstroCom(view.sky, { local: "2024-04-17T08:00:00", name, town: "New York, NY (US)" }),
   });
   // Astrolog leaves the last name unknown and puts the whole name first.
   const astrologView = viewForAafText(astrolog, LA).items[0].view;

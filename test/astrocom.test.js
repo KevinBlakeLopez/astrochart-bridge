@@ -12,7 +12,7 @@ const TEST_RESULT = {
   lat: 40.716667,
   lng: -74,
   name: { first: "Test", last: "" },
-  town: "New York",
+  town: "New York, NY (US)",
 };
 
 // The Test record with some fields replaced, by position counting from 1:
@@ -71,7 +71,7 @@ test("fields 1 and 2 are the last and first names, and field 11 the town", () =>
   assert.deepEqual(parseNd(variant({ 1: "Example", 2: "Ada", 11: "Ulm" })), {
     ...TEST_RESULT,
     name: { first: "Ada", last: "Example" },
-    town: "Ulm",
+    town: "Ulm, NY (US)",
   });
   assert.deepEqual(parseNd(variant({ 1: "Example", 2: "" })).name, { first: "", last: "Example" });
 });
@@ -267,7 +267,7 @@ test("reads the captured chart as a local time, offset and place", () => {
     lat: 40.716667,
     lng: -74,
     name: { first: "Test", last: "" },
-    town: "New York",
+    town: "New York, NY (US)",
   });
 });
 
@@ -304,7 +304,7 @@ test("reads a standard-time chart with its offset as written", () => {
     lat: 40.716667,
     lng: -74,
     name: { first: "Test", last: "" },
-    town: "New York",
+    town: "New York, NY (US)",
   });
 });
 
@@ -316,7 +316,7 @@ const utf8 = (text) => String.fromCharCode(...new TextEncoder().encode(text));
 
 test("a name and town in UTF-8 inside the drawing link are read whole", () => {
   const chart = chartFrom([linkNamed({ 1: "Müller", 2: "Zoë", 11: "Zürich" }, utf8)]);
-  assert.deepEqual([chart.name, chart.town], [{ first: "Zoë", last: "Müller" }, "Zürich"]);
+  assert.deepEqual([chart.name, chart.town], [{ first: "Zoë", last: "Müller" }, "Zürich, NY (US)"]);
 });
 
 test("a name or town in bytes that aren't UTF-8, as Latin-1 would give, is left out, and the chart still opens", () => {

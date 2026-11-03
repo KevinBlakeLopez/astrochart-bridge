@@ -183,7 +183,7 @@ test("a saved person's Astro-Seek chart has its name in the astro.com screen's b
   const name = { first: "New York Test", last: "" };
   assert.deepEqual(view.next, {
     label: "Enter in astro.com…",
-    view: viewForAstroCom(NY_SKY, { local: "2024-04-17T08:00:00", town: "New York", name }),
+    view: viewForAstroCom(NY_SKY, { local: "2024-04-17T08:00:00", town: "New York, NY, US", name }),
   });
   assert.deepEqual(view.next.view.nameBoxes.map(({ text }) => text), ["New York Test", ""]);
   assert.deepEqual(view.next.view.buttons[0].holds.name, name);
