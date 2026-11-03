@@ -50,7 +50,7 @@ The extension isn't packaged for any store. Load the `extension` folder as an un
 
 ## Development
 
-There are no dependencies to install. The tests need Node; CI runs them on Node 24.
+There are no dependencies to install. The tests need Node; CI runs them on Node 24 on every push and pull request (`.github/workflows/test.yml`).
 
 ```bash
 npm test

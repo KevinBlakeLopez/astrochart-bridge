@@ -1,0 +1,25 @@
+# Runs the tests on every push, to any branch, and on every pull request, so a
+# failing test shows up before it reaches main. pages.yml runs them again
+# before it deploys.
+#
+# Every action is pinned to the commit of the release named beside it, the
+# same commits as pages.yml. To update one, look up the new release's commit
+# with: gh api repos/<owner>/<action>/git/ref/tags/<tag>
+name: Tests
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      - run: npm test

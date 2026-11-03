@@ -7,6 +7,9 @@ import { placeAgrees, placeParts } from "./places.js";
 // How far a match may be from the chart's coordinates to count as its town.
 export const TOWN_LIMIT_KM = 25;
 
+// A match's distance in words, when no other language's are given.
+const awayInEnglish = (km) => (km < 1 ? "less than 1 km" : `${Math.round(km)} km`);
+
 /**
  * Which of a site's matches for a chart's town to choose, from their names,
  * their coordinates and the chart's. Only matches within TOWN_LIMIT_KM count.
@@ -22,17 +25,19 @@ export const TOWN_LIMIT_KM = 25;
  *   each match's text, in the site's order, with the name, coordinates, and
  *   the pieces between them, such as its state and country, read from it
  * @param {{ town: string, lat: number, lng: number }} chart  town as the chart gives its place
+ * @param {{ away?: (km: number) => string }} [words]  a distance in words, in
+ *   the interface's language; when left out, English, as the tests have it
  * @returns {{ kind: "pick", match: Match } | { kind: "ask", matches: Match[] } | { kind: "none", listed: number }}
  *   where a Match is { text, away }: its text and its distance in words
  */
-export function chooseListedTown(listed, { town, lat, lng }) {
+export function chooseListedTown(listed, { town, lat, lng }, { away = awayInEnglish } = {}) {
   const { town: name, qualifiers } = placeParts(town);
   const near = listed
     .filter(({ place }) => place !== null)
     .map(({ text, place }) => ({ text, name: place.name, pieces: place.pieces ?? [], km: distanceKm(lat, lng, place.lat, place.lng) }))
     .filter(({ km }) => km <= TOWN_LIMIT_KM)
     .sort((a, b) => a.km - b.km);
-  const match = ({ text, km }) => ({ text, away: km < 1 ? "less than 1 km" : `${Math.round(km)} km` });
+  const match = ({ text, km }) => ({ text, away: away(km) });
   const agreeing = near.filter(({ pieces }) => placeAgrees(qualifiers, pieces));
   const pool = agreeing.length > 0 ? agreeing : near;
   const named = pool.filter((each) => sameName(each.name, name));
