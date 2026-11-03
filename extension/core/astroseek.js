@@ -502,10 +502,11 @@ export function astroSeekSaveUrl(sky, { name = null } = {}) {
  *
  * @param {string[]} labels  the matches' labels, in Astro-Seek's order
  * @param {{ town: string, lat: number, lng: number }} chart
+ * @param {Parameters<typeof chooseListedTown>[2]} [words]  as for chooseListedTown
  * @returns {ReturnType<typeof chooseListedTown>}
  */
-export function chooseCity(labels, chart) {
-  return chooseListedTown(labels.map((text) => ({ text, place: cityPlace(text) })), chart);
+export function chooseCity(labels, chart, words) {
+  return chooseListedTown(labels.map((text) => ({ text, place: cityPlace(text) })), chart, words);
 }
 
 // "New York, USA, New York (40n43, 74w0)": the name before the first comma,
@@ -709,10 +710,13 @@ export function chooseGender(value) {
  * @param {ReturnType<typeof chooseCity> | { kind: "no-list" } | { kind: "no-town" }} choice
  * @param {string | null} town  null only with "no-town"
  * @param {number} limitKm  TOWN_LIMIT_KM, for the box's words
- * @param {string | null} [gender]  the Gender option chooseGender set, by its label
+ * @param {string | null} gender  the Gender option chooseGender set, by its label
+ * @param {Record<string, string>} words  the catalog's pageNotes.astroSeek, whose
+ *   {name}s fill is given; the page gets only this function's source
  * @returns {{ shown: boolean }}
  */
-export function showCityChoice(choice, town, limitKm, gender = null) {
+export function showCityChoice(choice, town, limitKm, gender, words) {
+  const fill = (template, values) => template.replace(/\{(\w+)\}/g, (slot, name) => (Object.hasOwn(values, name) ? values[name] : slot));
   const city = document.getElementById("form_jina_osoba")?.elements.namedItem("narozeni_city") ?? null;
   if (!city || (town !== null && city.value !== town)) return { shown: false };
   document.getElementById("astrochart-bridge-city")?.remove();
@@ -735,10 +739,7 @@ export function showCityChoice(choice, town, limitKm, gender = null) {
     element.addEventListener("click", onClick);
     buttons.append(element);
   };
-  const genderNote =
-    gender === null
-      ? "Check Gender, which Astro-Seek starts at Male, then press Add person."
-      : `Gender is ${gender}, from the chart. Check it, then press Add person.`;
+  const genderNote = gender === null ? words.genderStarts : fill(words.genderSet, { gender });
   // Types the town again, as typeCity did, so Astro-Seek lists its matches.
   const listAgain = () => {
     note.remove();
@@ -750,35 +751,31 @@ export function showCityChoice(choice, town, limitKm, gender = null) {
     const items = [...document.querySelectorAll("ul.ui-autocomplete li.ui-menu-item")];
     const item = items.find((element) => element.textContent.trim() === text);
     if (!item) {
-      say(`Astro-Seek's list no longer has "${text}". Choose the city from its list.`, { warn: true });
-      button("List the matches again", listAgain);
+      say(fill(words.gone, { text }), { warn: true });
+      button(words.listAgain, listAgain);
       return;
     }
     // jQuery UI 1.12 puts each match's text in a .ui-menu-item-wrapper, which
     // astro.com's list takes the click on; older versions have none.
     (item.querySelector(".ui-menu-item-wrapper") ?? item).click();
-    say(`chose "${text}" from Astro-Seek's list, ${away} from the chart's coordinates. ${genderNote}`, { warn: false });
-    button("Choose another", listAgain);
+    say(fill(words.chose, { text, away, genderNote }), { warn: false });
+    button(words.chooseAnother, listAgain);
   };
 
   if (choice.kind === "pick") choose(choice.match);
   if (choice.kind === "ask") {
-    say(`more than one of Astro-Seek's matches for "${town}" is within ${limitKm} km of the chart's coordinates. Which is the chart's town?`, { warn: true });
+    say(fill(words.ask, { town, km: limitKm }), { warn: true });
     for (const match of choice.matches) button(`${match.text} (${match.away})`, () => choose(match));
   }
   if (choice.kind === "none") {
-    const which = choice.listed === 1 ? "Astro-Seek's one match" : `none of Astro-Seek's ${choice.listed} matches`;
-    const is = choice.listed === 1 ? "isn't" : "is";
-    say(`${which} for "${town}" ${is} within ${limitKm} km of the chart's coordinates. Choose the city from Astro-Seek's list, or type a nearer one.`, { warn: true });
-    button("List the matches again", listAgain);
+    say(fill(choice.listed === 1 ? words.noneOfOne : words.noneOfMany, { town, km: limitKm, listed: choice.listed }), { warn: true });
+    button(words.listAgain, listAgain);
   }
   if (choice.kind === "no-list") {
-    say(`Astro-Seek didn't list its matches for "${town}" in time. Choose the city from its list.`, { warn: true });
-    button("List the matches again", listAgain);
+    say(fill(words.noList, { town }), { warn: true });
+    button(words.listAgain, listAgain);
   }
-  if (choice.kind === "no-town") {
-    say(`the chart names no town, and Astro-Seek saves a chart only with a Birth city chosen from its list. Type the town and choose it; the chart's coordinates and UT/GMT stay as they are. ${genderNote}`, { warn: true });
-  }
+  if (choice.kind === "no-town") say(fill(words.noTown, { genderNote }), { warn: true });
   if (choice.kind !== "pick") city.blur();
   // Typing in Birth city makes the box's choice stale; the input events above
   // are the script's own, so only the person's are heard.
@@ -797,9 +794,11 @@ export function showCityChoice(choice, town, limitKm, gender = null) {
  * is submitted, or after 30 minutes. Never submits.
  *
  * @param {ReturnType<typeof savePlace>} place
+ * @param {Record<string, string>} words  the catalog's pageNotes.astroSeek, as for showCityChoice
  * @returns {{ guarding: boolean }}
  */
-export function guardChartPlace(place) {
+export function guardChartPlace(place, words) {
+  const fill = (template, values) => template.replace(/\{(\w+)\}/g, (slot, name) => (Object.hasOwn(values, name) ? values[name] : slot));
   const GUARD_MS = 30 * 60_000;
   const form = document.getElementById("form_jina_osoba");
   const fields = form?.elements;
@@ -817,7 +816,7 @@ export function guardChartPlace(place) {
   const note = document.createElement("p");
   note.id = "astrochart-bridge-place";
   note.style.cssText = "clear: both; margin: 0.5em 0; padding: 0.5em 0.75em; border: 2px solid #888; background: #fff; color: #222;";
-  note.textContent = `AstroChart Bridge: Astro-Seek changed the latitude, longitude or time zone, so the chart's are back: ${place.text}, UT/GMT with no daylight saving. Change them here yourself if you mean to.`;
+  note.textContent = fill(words.placeBack, { place: place.text });
 
   const timer = setInterval(() => {
     let putBack = false;

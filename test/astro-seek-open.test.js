@@ -1,5 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import en from "../extension/messages/en.js";
 import { readFile } from "node:fs/promises";
 import { ASTRO_SEEK_ACCESS, chooseFormCity, openAndSave } from "../extension/astro-seek-open.js";
 import {
@@ -99,10 +100,10 @@ test("signed in, the chart's place is guarded before the town is typed, and the 
   assert.deepEqual(await openThenLoad(browser), { outcome: "filled", tabId: 70 });
   assert.deepEqual(funcs(scripting), ["readSavePage", "guardChartPlace", "typeCity", "readCityList", "readCityList", "showCityChoice"]);
   const args = Object.fromEntries(scripting.calls.map(({ func, args }) => [func, args]));
-  assert.deepEqual(args.guardChartPlace, [savePlace(VALUES)]);
+  assert.deepEqual(args.guardChartPlace, [savePlace(VALUES), en.pageNotes.astroSeek]);
   assert.deepEqual(args.typeCity, ["New York"]);
   // A chart with no gender leaves Gender where Astro-Seek starts it, and the box says so.
-  assert.deepEqual(args.showCityChoice, [chooseCity(LABELS, VALUES), "New York", TOWN_LIMIT_KM, null]);
+  assert.deepEqual(args.showCityChoice, [chooseCity(LABELS, VALUES), "New York", TOWN_LIMIT_KM, null, en.pageNotes.astroSeek]);
   assert.equal(args.showCityChoice[0].kind, "pick");
 });
 
@@ -116,7 +117,7 @@ test("a chart with no town is guarded, and its box asks for a town", async () =>
   const scripting = fakeScripting();
   assert.equal((await openThenLoad(browserWith(scripting), { values: { ...VALUES, town: null } })).outcome, "filled");
   assert.deepEqual(funcs(scripting), ["readSavePage", "guardChartPlace", "showCityChoice"]);
-  assert.deepEqual(scripting.calls.at(-1).args, [{ kind: "no-town" }, null, TOWN_LIMIT_KM, null]);
+  assert.deepEqual(scripting.calls.at(-1).args, [{ kind: "no-town" }, null, TOWN_LIMIT_KM, null, en.pageNotes.astroSeek]);
 });
 
 test("a chart's gender sets Gender before the town is typed, and the box names it", async () => {

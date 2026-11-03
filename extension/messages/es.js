@@ -612,6 +612,54 @@ export default {
     recordDate: (day, month, year, bc, julian) => `${day} ${MONTHS[month - 1]} ${year}${bc ? " a. C." : ""}${julian ? " (juliano)" : ""}`,
   },
 
+  towns: {
+    away: (km) => (km < 1 ? "menos de 1 km" : `${Math.round(km)} km`),
+  },
+
+  // Plain strings with {name} slots, as en.js says. astro.com's and
+  // Astro-Seek's own controls keep their English names here too: Gender, Male,
+  // Add person, Birth city, automatic time zone, 00:00 GMT / UT, "4 h west".
+  pageNotes: {
+    astroCom: {
+      useUt: "Usar Tiempo Universal",
+      zoneUnreadable:
+        "la zona horaria de astro.com aquí es \"{line}\", que no se puede comparar con la de esta carta, {zone}. Comprueba que la ciudad sea la correcta. Si lo es, puedes usar el Tiempo Universal de la carta.",
+      zoneAtUt:
+        "esta carta está en Tiempo Universal, pero la automatic time zone de astro.com para esta ciudad es {words}. Comprueba que la ciudad sea la correcta. Si lo es, usa el Tiempo Universal de la carta.",
+      zoneOff:
+        "esta carta está a {zone} del Tiempo Universal, pero la automatic time zone de astro.com para esta ciudad es {words}. Comprueba que la ciudad sea la correcta. Si lo es, usa el Tiempo Universal de la carta.",
+      enteredUt:
+        "AstroChart Bridge escribió {ut} con la zona horaria 00:00 GMT / UT. Es el Tiempo Universal de la propia carta, así que el momento es el de la carta, diga lo que diga el aviso de astro.com sobre las zonas horarias manuales.",
+      gone: "la lista de astro.com ya no tiene \"{text}\". Elige la ciudad de su lista.",
+      listAgain: "Volver a mostrar las coincidencias",
+      chose: "eligió \"{text}\" de la lista de astro.com, a {away} de las coordenadas de la carta.",
+      chooseAnother: "Elegir otra",
+      ask: "más de una de las coincidencias de astro.com para \"{town}\" está a menos de {km} km de las coordenadas de la carta. ¿Cuál es la ciudad de la carta?",
+      noneOfOne:
+        "la única coincidencia de astro.com para \"{town}\" no está a menos de {km} km de las coordenadas de la carta. Elige la ciudad de la lista de astro.com, o escribe una más cercana.",
+      noneOfMany:
+        "ninguna de las {listed} coincidencias de astro.com para \"{town}\" está a menos de {km} km de las coordenadas de la carta. Elige la ciudad de la lista de astro.com, o escribe una más cercana.",
+    },
+    astroSeek: {
+      genderStarts: "Comprueba Gender, que Astro-Seek empieza en Male, y después haz clic en Add person.",
+      genderSet: "Gender es {gender}, según la carta. Compruébalo y después haz clic en Add person.",
+      gone: "la lista de Astro-Seek ya no tiene \"{text}\". Elige la ciudad de su lista.",
+      listAgain: "Volver a mostrar las coincidencias",
+      chose: "eligió \"{text}\" de la lista de Astro-Seek, a {away} de las coordenadas de la carta. {genderNote}",
+      chooseAnother: "Elegir otra",
+      ask: "más de una de las coincidencias de Astro-Seek para \"{town}\" está a menos de {km} km de las coordenadas de la carta. ¿Cuál es la ciudad de la carta?",
+      noneOfOne:
+        "la única coincidencia de Astro-Seek para \"{town}\" no está a menos de {km} km de las coordenadas de la carta. Elige la ciudad de la lista de Astro-Seek, o escribe una más cercana.",
+      noneOfMany:
+        "ninguna de las {listed} coincidencias de Astro-Seek para \"{town}\" está a menos de {km} km de las coordenadas de la carta. Elige la ciudad de la lista de Astro-Seek, o escribe una más cercana.",
+      noList: "Astro-Seek no mostró a tiempo sus coincidencias para \"{town}\". Elige la ciudad de su lista.",
+      noTown:
+        "la carta no nombra ninguna ciudad, y Astro-Seek solo guarda una carta con una Birth city elegida de su lista. Escribe la ciudad y elígela; las coordenadas y el UT/GMT de la carta se quedan como están. {genderNote}",
+      placeBack:
+        "AstroChart Bridge: Astro-Seek cambió la latitud, la longitud o la zona horaria, así que se han vuelto a poner las de la carta: {place}, UT/GMT sin horario de verano. Cámbialas tú aquí si es lo que quieres.",
+    },
+  },
+
   chart: {
     copyLink: "Copiar enlace",
     showQr: "Mostrar código QR",

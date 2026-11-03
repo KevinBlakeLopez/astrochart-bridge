@@ -633,6 +633,60 @@ export default {
     recordDate: (day, month, year, bc, julian) => `${day} ${MONTHS[month - 1]} ${year}${bc ? " BC" : ""}${julian ? " (Julian)" : ""}`,
   },
 
+  // A match's distance from the chart's coordinates, for chooseListedTown.
+  towns: {
+    away: (km) => (km < 1 ? "less than 1 km" : `${Math.round(km)} km`),
+  },
+
+  // The notes AstroChart Bridge puts on astro.com's and Astro-Seek's own
+  // pages. The functions that draw them run in the page, which gets only their
+  // source and arguments, so these are plain strings: each {name} is filled in
+  // there with the value of that name. The sentences after "AstroChart Bridge:"
+  // start in lower case.
+  pageNotes: {
+    astroCom: {
+      useUt: "Enter in Universal Time",
+      // line is astro.com's time zone line as it reads; zone and words are
+      // offsets in its words, such as "4 h west".
+      zoneUnreadable:
+        "astro.com's time zone here is \"{line}\", which can't be checked against this chart's {zone}. Check that the town is right. If it is, you can enter the chart in Universal Time instead.",
+      zoneAtUt:
+        "this chart is at Universal Time, but astro.com's automatic time zone for this town is {words}. Check that the town is right. If it is, enter the chart in Universal Time instead.",
+      zoneOff:
+        "this chart is {zone} of Universal Time, but astro.com's automatic time zone for this town is {words}. Check that the town is right. If it is, enter the chart in Universal Time instead.",
+      enteredUt:
+        "AstroChart Bridge entered {ut} with the 00:00 GMT / UT time zone. That is the chart's own Universal Time, so the moment is the chart's, whatever astro.com's warning about manual time zones says.",
+      gone: "astro.com's list no longer has \"{text}\". Choose the town from its list.",
+      listAgain: "List the matches again",
+      chose: "chose \"{text}\" from astro.com's list, {away} from the chart's coordinates.",
+      chooseAnother: "Choose another",
+      ask: "more than one of astro.com's matches for \"{town}\" is within {km} km of the chart's coordinates. Which is the chart's town?",
+      noneOfOne:
+        "astro.com's one match for \"{town}\" isn't within {km} km of the chart's coordinates. Choose the town from astro.com's list, or type a nearer one.",
+      noneOfMany:
+        "none of astro.com's {listed} matches for \"{town}\" is within {km} km of the chart's coordinates. Choose the town from astro.com's list, or type a nearer one.",
+    },
+    astroSeek: {
+      // gender is Astro-Seek's own option, such as Female.
+      genderStarts: "Check Gender, which Astro-Seek starts at Male, then press Add person.",
+      genderSet: "Gender is {gender}, from the chart. Check it, then press Add person.",
+      gone: "Astro-Seek's list no longer has \"{text}\". Choose the city from its list.",
+      listAgain: "List the matches again",
+      chose: "chose \"{text}\" from Astro-Seek's list, {away} from the chart's coordinates. {genderNote}",
+      chooseAnother: "Choose another",
+      ask: "more than one of Astro-Seek's matches for \"{town}\" is within {km} km of the chart's coordinates. Which is the chart's town?",
+      noneOfOne:
+        "Astro-Seek's one match for \"{town}\" isn't within {km} km of the chart's coordinates. Choose the city from Astro-Seek's list, or type a nearer one.",
+      noneOfMany:
+        "none of Astro-Seek's {listed} matches for \"{town}\" is within {km} km of the chart's coordinates. Choose the city from Astro-Seek's list, or type a nearer one.",
+      noList: "Astro-Seek didn't list its matches for \"{town}\" in time. Choose the city from its list.",
+      noTown:
+        "the chart names no town, and Astro-Seek saves a chart only with a Birth city chosen from its list. Type the town and choose it; the chart's coordinates and UT/GMT stay as they are. {genderNote}",
+      placeBack:
+        "AstroChart Bridge: Astro-Seek changed the latitude, longitude or time zone, so the chart's are back: {place}, UT/GMT with no daylight saving. Change them here yourself if you mean to.",
+    },
+  },
+
   // The receiving page, chart.html, in the extension and on the web.
   chart: {
     copyLink: "Copy link",

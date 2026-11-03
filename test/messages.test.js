@@ -92,6 +92,20 @@ test("localizePage sets the page's lang and fills in its text and labels, leavin
   }
 });
 
+// The {name}s in a page note's template, sorted.
+const slots = (template) => [...template.matchAll(/\{(\w+)\}/g)].map(([, name]) => name).sort();
+
+test("the notes on astro.com's and Astro-Seek's pages travel as plain data, with the same slots in each language", () => {
+  // What executeScript passes to a page: data only, so no functions.
+  assert.deepEqual(JSON.parse(JSON.stringify(es.pageNotes)), es.pageNotes);
+  assert.deepEqual(JSON.parse(JSON.stringify(en.pageNotes)), en.pageNotes);
+  for (const [site, notes] of Object.entries(en.pageNotes)) {
+    for (const [key, template] of Object.entries(notes)) {
+      assert.deepEqual(slots(es.pageNotes[site][key]), slots(template), `${site}.${key}`);
+    }
+  }
+});
+
 test("the popup's refusals are in the chosen language", () => {
   inLanguage("es", () => {
     assert.deepEqual(viewFor(analyze("transit-sydney-2026-11-01")), {

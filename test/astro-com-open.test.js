@@ -1,5 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import en from "../extension/messages/en.js";
 import { readFile } from "node:fs/promises";
 import { ASTRO_COM_ACCESS, chooseFilledTown, openAndFill, tabLoaded } from "../extension/astro-com-open.js";
 import {
@@ -144,7 +145,7 @@ test("a signed-in or unknown browser's blank form is filled in with no stop, and
     { tabId: 40, func: "readFormPage", args: undefined },
     { tabId: 40, func: "fillForm", args: [formValues(VALUES)] },
     { tabId: 40, func: "readTownList", args: ["New York"] },
-    { tabId: 40, func: "showTownChoice", args: [chooseTown(NEW_YORK_LIST, VALUES), "New York", TOWN_LIMIT_KM] },
+    { tabId: 40, func: "showTownChoice", args: [chooseTown(NEW_YORK_LIST, VALUES), "New York", TOWN_LIMIT_KM, en.pageNotes.astroCom] },
   ]);
   assert.equal(await heldForTab(browser.storage, 40), null);
   assert.equal(browser.tabs.listeners(), 0);
@@ -156,9 +157,9 @@ test("a form filled in with a local time has the tab check astro.com's automatic
   assert.deepEqual(await openThenLoad(browser, { values }), { outcome: "filled", tabId: 40 });
   assert.deepEqual(browser.scripting.calls.slice(1), [
     { tabId: 40, func: "fillForm", args: [formValues(values)] },
-    { tabId: 40, func: "watchZone", args: [zoneCheck(values)] },
+    { tabId: 40, func: "watchZone", args: [zoneCheck(values), en.pageNotes.astroCom] },
     { tabId: 40, func: "readTownList", args: ["New York"] },
-    { tabId: 40, func: "showTownChoice", args: [chooseTown(NEW_YORK_LIST, values), "New York", TOWN_LIMIT_KM] },
+    { tabId: 40, func: "showTownChoice", args: [chooseTown(NEW_YORK_LIST, values), "New York", TOWN_LIMIT_KM, en.pageNotes.astroCom] },
   ]);
 });
 

@@ -16,6 +16,7 @@ import {
   zoneCheck,
 } from "./core/astrocom.js";
 import { searchTown } from "./core/towns.js";
+import { text } from "./messages/index.js";
 import { holdForTab, releaseTab } from "./pending.js";
 import { tabLoaded } from "./tabs.js";
 
@@ -87,7 +88,7 @@ export async function openAndFill({ tabs, scripting, storage }, { url, values, t
 export async function watchFilledZone(scripting, tabId, values) {
   const check = zoneCheck(values);
   if (check === null) return;
-  await scripting.executeScript({ target: { tabId }, func: watchZone, args: [check] }).catch(() => {});
+  await scripting.executeScript({ target: { tabId }, func: watchZone, args: [check, text().pageNotes.astroCom] }).catch(() => {});
 }
 
 /**
@@ -112,8 +113,8 @@ export async function chooseFilledTown(scripting, tabId, values, { timeoutMs = T
     for (;;) {
       const [{ result: list }] = await scripting.executeScript({ target: { tabId }, func: readTownList, args: [typed] });
       if (list?.state === "listed") {
-        const choice = chooseTown(list.items, { town, lat, lng });
-        await scripting.executeScript({ target: { tabId }, func: showTownChoice, args: [choice, typed, TOWN_LIMIT_KM] });
+        const choice = chooseTown(list.items, { town, lat, lng }, { away: text().towns.away });
+        await scripting.executeScript({ target: { tabId }, func: showTownChoice, args: [choice, typed, TOWN_LIMIT_KM, text().pageNotes.astroCom] });
         return;
       }
       if (list?.state !== "waiting" || Date.now() >= deadline) return;

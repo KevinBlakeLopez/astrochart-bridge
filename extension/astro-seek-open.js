@@ -18,6 +18,7 @@ import {
   typeCity,
 } from "./core/astroseek.js";
 import { TOWN_LIMIT_KM, searchTown } from "./core/towns.js";
+import { text } from "./messages/index.js";
 import { tabLoaded } from "./tabs.js";
 
 // The manifest's optional host permission, asked for when Save in Astro-Seek… is clicked.
@@ -65,7 +66,7 @@ export async function openAndSave({ tabs, scripting }, { values, timeoutMs = LOA
     if (page?.auth === "signed-out") return { outcome: "signed-out", tabId };
     if (page?.form !== "city-empty") return notFilled(page?.form === "city-typed" ? "city-typed" : "unrecognised");
 
-    const [{ result: guard }] = await scripting.executeScript({ target: { tabId }, func: guardChartPlace, args: [savePlace({ lat, lng })] });
+    const [{ result: guard }] = await scripting.executeScript({ target: { tabId }, func: guardChartPlace, args: [savePlace({ lat, lng }), text().pageNotes.astroSeek] });
     if (!guard?.guarding) return notFilled("unrecognised");
     const option = ASTRO_SEEK_GENDERS[gender] ?? null;
     const [{ result: set }] = option ? await scripting.executeScript({ target: { tabId }, func: chooseGender, args: [option.value] }) : [{}];
@@ -73,7 +74,7 @@ export async function openAndSave({ tabs, scripting }, { values, timeoutMs = LOA
     const choice = town === null ? { kind: "no-town" } : await chooseFormCity(scripting, tabId, { town, lat, lng }, cityWait);
     if (choice !== null) {
       const typed = town === null ? null : searchTown(town);
-      await scripting.executeScript({ target: { tabId }, func: showCityChoice, args: [choice, typed, TOWN_LIMIT_KM, genderLabel] });
+      await scripting.executeScript({ target: { tabId }, func: showCityChoice, args: [choice, typed, TOWN_LIMIT_KM, genderLabel, text().pageNotes.astroSeek] });
     }
   } catch {
     // The tab navigated away, or the browser refused the script.
@@ -102,7 +103,7 @@ export async function chooseFormCity(scripting, tabId, chart, { timeoutMs = CITY
   const deadline = Date.now() + timeoutMs;
   for (;;) {
     const [{ result: list }] = await scripting.executeScript({ target: { tabId }, func: readCityList, args: [town] });
-    if (list?.state === "listed") return chooseCity(list.labels, chart);
+    if (list?.state === "listed") return chooseCity(list.labels, chart, { away: text().towns.away });
     if (list?.state !== "waiting") return null;
     if (Date.now() >= deadline) return { kind: "no-list" };
     await new Promise((resolve) => setTimeout(resolve, pollMs));

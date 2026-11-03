@@ -1,5 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import en from "../extension/messages/en.js";
+import es from "../extension/messages/es.js";
 import { TOWN_LIMIT_KM, chooseTown, readTownList, showTownChoice } from "../extension/core/astrocom.js";
 
 // astro.com's matches as its list showed them on 2026-11-01, abridged.
@@ -148,7 +150,7 @@ test("the list is read once it opens, and only while the town field holds the to
 test("a chosen match is clicked, and the box says which and how far, with Choose another", () => {
   const page = townPage();
   const choice = chooseTown(NEW_YORK_LIST, NEW_YORK);
-  assert.deepEqual(runInPage(showTownChoice, page.document, choice, "New York", TOWN_LIMIT_KM), { shown: true });
+  assert.deepEqual(runInPage(showTownChoice, page.document, choice, "New York", TOWN_LIMIT_KM, en.pageNotes.astroCom), { shown: true });
   assert.deepEqual(page.clicked, [NEW_YORK_LIST[2]]);
   assert.equal(
     page.say(),
@@ -169,7 +171,7 @@ test("a chosen match is clicked, and the box says which and how far, with Choose
 
 test("asked, the box lists the near matches as buttons, and a button chooses its match", () => {
   const page = townPage({ scit: "Manhattan" });
-  runInPage(showTownChoice, page.document, chooseTown(NEW_YORK_LIST, { ...NEW_YORK, town: "Manhattan" }), "Manhattan", 25);
+  runInPage(showTownChoice, page.document, chooseTown(NEW_YORK_LIST, { ...NEW_YORK, town: "Manhattan" }), "Manhattan", 25, en.pageNotes.astroCom);
   assert.deepEqual(page.clicked, []);
   assert.match(page.say(), /more than one of astro.com's matches for "Manhattan" is within 25 km/);
   assert.equal(page.note.style.cssText.includes("#b00020"), true);
@@ -185,7 +187,7 @@ test("asked, the box lists the near matches as buttons, and a button chooses its
 
 test("a match no longer in astro.com's list isn't clicked, and the box says so", () => {
   const page = townPage({ scit: "Manhattan" });
-  runInPage(showTownChoice, page.document, chooseTown(NEW_YORK_LIST, { ...NEW_YORK, town: "Manhattan" }), "Manhattan", 25);
+  runInPage(showTownChoice, page.document, chooseTown(NEW_YORK_LIST, { ...NEW_YORK, town: "Manhattan" }), "Manhattan", 25, en.pageNotes.astroCom);
   page.items = [];
   page.buttons()[0].click();
   assert.deepEqual(page.clicked, []);
@@ -195,7 +197,7 @@ test("a match no longer in astro.com's list isn't clicked, and the box says so",
 
 test("with no near match, the box says so, chooses nothing, and can list the matches again", () => {
   const page = townPage({ scit: "London", items: LONDON_LIST.slice(0, 2) });
-  runInPage(showTownChoice, page.document, { kind: "none", listed: 2 }, "London", 25);
+  runInPage(showTownChoice, page.document, { kind: "none", listed: 2 }, "London", 25, en.pageNotes.astroCom);
   assert.deepEqual(page.clicked, []);
   assert.equal(
     page.say(),
@@ -207,13 +209,32 @@ test("with no near match, the box says so, chooses nothing, and can list the mat
   assert.equal(page.note, null);
   assert.equal(page.scit.focused, true);
   assert.deepEqual(page.scit.events, ["input"]);
-  runInPage(showTownChoice, page.document, { kind: "none", listed: 1 }, "London", 25);
+  runInPage(showTownChoice, page.document, { kind: "none", listed: 1 }, "London", 25, en.pageNotes.astroCom);
   assert.match(page.say(), /astro.com's one match for "London" isn't within 25 km/);
+});
+
+test("in Spanish, the box and its buttons are Spanish, the distance too, and astro.com's matches as they are", () => {
+  const page = townPage();
+  const choice = chooseTown(NEW_YORK_LIST, NEW_YORK, { away: es.towns.away });
+  runInPage(showTownChoice, page.document, choice, "New York", TOWN_LIMIT_KM, es.pageNotes.astroCom);
+  assert.equal(
+    page.say(),
+    `AstroChart Bridge: eligió "${NEW_YORK_LIST[2]}" de la lista de astro.com, a menos de 1 km de las coordenadas de la carta.`,
+  );
+  assert.deepEqual(page.buttons().map((button) => button.textContent), ["Elegir otra"]);
+
+  const none = townPage({ scit: "London", items: LONDON_LIST.slice(0, 2) });
+  runInPage(showTownChoice, none.document, { kind: "none", listed: 2 }, "London", 25, es.pageNotes.astroCom);
+  assert.equal(
+    none.say(),
+    `AstroChart Bridge: ninguna de las 2 coincidencias de astro.com para "London" está a menos de 25 km de las coordenadas de la carta. Elige la ciudad de la lista de astro.com, o escribe una más cercana.`,
+  );
+  assert.deepEqual(none.buttons().map((button) => button.textContent), ["Volver a mostrar las coincidencias"]);
 });
 
 test("the box goes once the person types in the town field, not when the script does", () => {
   const page = townPage();
-  runInPage(showTownChoice, page.document, chooseTown(NEW_YORK_LIST, NEW_YORK), "New York", 25);
+  runInPage(showTownChoice, page.document, chooseTown(NEW_YORK_LIST, NEW_YORK), "New York", 25, en.pageNotes.astroCom);
   page.scit.dispatchEvent({ type: "input", isTrusted: false });
   assert.notEqual(page.note, null);
   page.scit.dispatchEvent({ type: "input", isTrusted: true });
@@ -223,7 +244,7 @@ test("the box goes once the person types in the town field, not when the script 
 test("nothing is shown or chosen once the town field holds anything but the town filled in", () => {
   const page = townPage({ scit: "Brooklyn" });
   const choice = chooseTown(NEW_YORK_LIST, NEW_YORK);
-  assert.deepEqual(runInPage(showTownChoice, page.document, choice, "New York", 25), { shown: false });
+  assert.deepEqual(runInPage(showTownChoice, page.document, choice, "New York", 25, en.pageNotes.astroCom), { shown: false });
   assert.deepEqual(page.clicked, []);
   assert.equal(page.note, null);
 });
