@@ -31,6 +31,9 @@ test("the wheel opens at its offset, which its St: checks", () => {
     utc: "2021-02-03T16:56:37Z",
     utcSource: "declared",
     offsetMinutes: 120,
+    // The first line, and the place line before its coordinates.
+    name: { first: "Startup", last: "" },
+    town: "Helsinki, Finland",
   });
 });
 
@@ -90,6 +93,9 @@ test("the data screen takes its offset from its UT, checked by its sidereal time
     utc: "2021-02-03T16:56:37Z",
     utcSource: "printed",
     offsetMinutes: 120,
+    // Before the date, and between the time and the coordinates, on one line.
+    name: { first: "Startup", last: "" },
+    town: "Helsinki, Finland",
   });
 });
 
@@ -108,8 +114,19 @@ test("the Vedic screen, with no zone, asks for the offset", () => {
     utc: null,
     utcSource: "needs-offset",
     reason: "no-printed-offset",
+    // After "Chart for:", and the place line before its coordinates.
+    name: { first: "Startup", last: "" },
+    town: "Helsinki, Finland",
   });
   assert.match(viewForScreenshot(analyzeScreenshot(ocr(VEDIC))).message, /^Planetdance doesn't print the UTC offset/);
+});
+
+test("a wheel whose first line is out of the screenshot has no name", () => {
+  // 03/02 reads either way round, so the readings are resolved to one first.
+  const { name, town } = analyzeScreenshot(ocr(HELSINKI.slice(1)));
+  assert.deepEqual({ name, town }, { name: undefined, town: "Helsinki, Finland" });
+  // A sidereal line above the date is one this reader knows, not a name.
+  assert.equal(analyzeScreenshot(ocr(["Whole Sign St:3:32:41", ...HELSINKI.slice(1, 3)])).name, undefined);
 });
 
 test("a bi-wheel's cut-off place, or two wheels, are refused", () => {

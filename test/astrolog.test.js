@@ -35,7 +35,22 @@ test("the sidebar opens at its zone, west of Greenwich as +, which its Julian Da
     utc: "1971-07-19T18:01:00Z",
     utcSource: "printed",
     offsetMinutes: -420,
+    // The lines between the header and the date, and between the time and the coordinates.
+    name: { first: SEATTLE[1], last: "" },
+    town: SEATTLE[4],
   });
+});
+
+test("the name and place, each of which DrawInfo can leave out, are read only between their neighbours", () => {
+  const labels = (lines) => {
+    const { name, place } = read(ocr(lines));
+    return { name, place };
+  };
+  // With no name, the header is right above the date; with no place, the coordinates are right under the time.
+  assert.deepEqual(labels(swap(SEATTLE, SEATTLE[1], null)), { name: undefined, place: SEATTLE[4] });
+  assert.deepEqual(labels(swap(SEATTLE, SEATTLE[4], null)), { name: SEATTLE[1], place: undefined });
+  // Without the header, the line above the date isn't taken for a name.
+  assert.deepEqual(labels(SEATTLE.slice(1)), { name: undefined, place: SEATTLE[4] });
 });
 
 test("seconds, milliseconds, day-first dates, 24-hour times and : marks read the same", () => {

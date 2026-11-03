@@ -1,3 +1,4 @@
+import { withLabels } from "./names.js";
 import { angle, linesOf, localIso, monthNumber } from "./printed-chart.js";
 
 const refused = (reason) => ({ kind: "refused", reason });
@@ -82,7 +83,30 @@ export function read(text) {
   const [first, ...rest] = readings;
   // Two charts that differ, as in a transit window over a radix.
   if (rest.some((reading) => JSON.stringify(reading) !== JSON.stringify(first))) return refused("ambiguous-screenshot");
-  return first;
+  return withLabels(first, labelsOf(lines));
+}
+
+// The chart's name and place, which the status bar and the blocks print
+// differently, so they are read apart from the readings that must agree. A
+// block's place is between its time and coordinates, and its name between
+// the coordinates and the chart's type; the status bar's name is before the
+// type on its line, as "Prince Charles | Radix | 1948.november.14. …", or
+// above it when OCR puts each field on a line of its own.
+function labelsOf(lines) {
+  for (const [index, line] of lines.entries()) {
+    if (!BLOCK_TIME.test(line)) continue;
+    const coordsAt = [index + 1, index + 2].find((at) => BLOCK_COORDS.test(lines[at] ?? ""));
+    if (coordsAt === undefined) continue;
+    return {
+      name: TYPE_LINE.test(lines[coordsAt + 2] ?? "") ? lines[coordsAt + 1] : null,
+      place: coordsAt === index + 2 ? lines[index + 1] : null,
+    };
+  }
+  const statusAt = lines.findIndex((line) => STATUS_TIME.test(line));
+  if (statusAt === -1) return {};
+  const status = STATUS_TIME.exec(lines[statusAt]);
+  if (status.groups.type) return { name: status.input.slice(0, status.index).replace(/[\s|]+$/, "") };
+  return { name: TYPE_LINE.test(lines[statusAt - 1] ?? "") ? (lines[statusAt - 2] ?? null) : null };
 }
 
 function statusBar(lines) {

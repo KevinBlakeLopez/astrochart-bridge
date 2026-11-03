@@ -1,4 +1,5 @@
 import { isoUtc } from "./civiltime.js";
+import { withLabels } from "./names.js";
 import { angle, linesOf, localIso, monthNumber, weekdayNumber } from "./printed-chart.js";
 
 const refused = (reason) => ({ kind: "refused", reason });
@@ -91,15 +92,35 @@ export function read(text) {
   // A meridian may be LAT's, which is off LMT by the equation of time, so it
   // is taken only with a Julian Day to check it.
   const offset = when.net === "m" && !utc ? undefined : offsetFor(when, lng);
+  return withLabels(
+    {
+      site: "astrolog",
+      local,
+      lat,
+      lng,
+      zoneLabel: null,
+      weekday: weekdayNumber(date.weekday),
+      ...(offset === undefined ? {} : { offsetMinutes: offset }),
+      ...(utc ? { utc } : {}),
+    },
+    labelsOf(lines),
+  );
+}
+
+// DrawInfo prints the name, if there is one, between its header and the
+// date, and the place, if there is one, between the time and the
+// coordinates. Each is read only with both of its neighbours where they
+// should be, since either line can be missing.
+const HEADER = /^Astrolog \d/;
+
+function labelsOf(lines) {
+  const at = (name) => lines.findIndex((line) => FIELDS[name].test(line));
+  const dateAt = at("date");
+  const whenAt = at("when");
+  const coordsNext = ["coords", "lng"].some((name) => FIELDS[name].test(lines[whenAt + 2] ?? ""));
   return {
-    site: "astrolog",
-    local,
-    lat,
-    lng,
-    zoneLabel: null,
-    weekday: weekdayNumber(date.weekday),
-    ...(offset === undefined ? {} : { offsetMinutes: offset }),
-    ...(utc ? { utc } : {}),
+    name: HEADER.test(lines[dateAt - 2] ?? "") ? (lines[dateAt - 1] ?? null) : null,
+    place: coordsNext ? lines[whenAt + 1] : null,
   };
 }
 

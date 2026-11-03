@@ -1,3 +1,4 @@
+import { withLabels } from "./names.js";
 import { angle, linesOf, localIso, monthNumber } from "./printed-chart.js";
 
 const refused = (reason) => ({ kind: "refused", reason });
@@ -88,7 +89,7 @@ export function read(text) {
     return refused("unreadable-screenshot");
   }
 
-  const record = {
+  const record = withLabels({
     site: programOf(lines),
     local,
     lat,
@@ -96,7 +97,7 @@ export function read(text) {
     zoneLabel: null,
     ...offsetFor(timeType?.type, zone, lng),
     ...(siderealSeconds === undefined ? {} : { siderealSeconds }),
-  };
+  }, labelsOf(lines));
   if (gmtClock === undefined) return record;
   // The G.M.T. falls on the local date, the day before or the day after.
   const localDayMs = Date.parse(`${local.slice(0, 10)}T00:00:00Z`);
@@ -107,6 +108,26 @@ export function read(text) {
 }
 
 // { offsetMinutes } for the time type, or nothing for the user to enter.
+// The chart's name is the line above the date, less the zodiac and house
+// system the Modern style sets beside it: "Frederic Chopin Tropical
+// Placidus". The place is before the coordinates on their line, as the
+// Modern style sets it, or the line above them, as the Bach style does. A
+// line this reader knows is neither, and a line that is only the zodiac and
+// house system names nothing.
+const ZODIAC_AFTER = /(?:^|\s+)(?:Tropical|Sidereal)\b.*$/;
+
+function labelsOf(lines) {
+  const known = (line) => Object.values(FIELDS).some((pattern) => pattern.test(line)) || CHART_LINE.test(line);
+  const label = (line) => (line === undefined || known(line) ? null : line);
+  const dateAt = lines.findIndex((line) => FIELDS.date.test(line));
+  const coordsAt = lines.findIndex((line) => FIELDS.coords.test(line));
+  const before = lines[coordsAt].slice(0, FIELDS.coords.exec(lines[coordsAt]).index).trim();
+  return {
+    name: label(lines[dateAt - 1])?.replace(ZODIAC_AFTER, "") ?? null,
+    place: before === "" ? label(lines[coordsAt - 1]) : before,
+  };
+}
+
 function offsetFor(type, zone, lng) {
   if (type === "Local Mean Time") return { offsetMinutes: Math.round(lng * 4 * 60) / 60 };
   if (type !== "Standard Time" || !zone) return {};
