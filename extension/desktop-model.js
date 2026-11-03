@@ -184,13 +184,16 @@ export function viewForDesktopSend(result, sky, { preferred = false, changed = f
  */
 export function viewForDesktopImport(result) {
   if (result.state !== "connected") return problem(result, { retry: "import-from-desktop", direction: "import", sky: null });
-  const { sky } = result;
+  // The name of Stellarium's place, when it has one, goes to astro.com's and
+  // Astro-Seek's forms as their town (townFromStatus).
+  const { sky, town = null } = result;
   return withAstroSeekSave({
     state: "from-desktop",
     heading: "From Stellarium Desktop",
     rows: [
       ["UTC", utcText(sky.utc)],
       ["Place", placeText(sky.lat, sky.lng)],
+      ...(town === null ? [] : [["Town", town]]),
     ],
     notes: [
       "If Stellarium's clock is running, pause it and import again, so the chart is the moment you chose.",
@@ -202,8 +205,8 @@ export function viewForDesktopImport(result) {
       { label: "Open chart in Astro-Seek", opens: "astro-seek" },
       { label: "Open Stellarium Web", opens: "stellarium", secondary: true },
     ],
-    next: astroComStep(sky),
-  });
+    next: astroComStep(sky, { town }),
+  }, { town });
 }
 
 // A failure's screen, with Try again repeating what was clicked. A state
