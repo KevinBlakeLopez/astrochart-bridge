@@ -7,6 +7,10 @@ import es from "../extension/messages/es.js";
 import { setLanguage } from "../extension/messages/index.js";
 import { actionGroups, viewFor, viewForAstroCom } from "../extension/popup-model.js";
 import { viewForScreenshot } from "../extension/screenshot-model.js";
+import { readLink, viewForImport } from "../extension/chart-model.js";
+import { toFragment, toPortable } from "../extension/core/portable.js";
+import { checkField, formForText } from "../extension/paste-model.js";
+import { viewForHorFile } from "../extension/hor-model.js";
 
 const analyze = (name) => {
   const { url, input } = JSON.parse(readFileSync(new URL(`../fixtures/astroseek/${name}.json`, import.meta.url), "utf8"));
@@ -110,5 +114,53 @@ test("a screenshot's town still goes right after the place row in Spanish", () =
   };
   const labels = () => viewForScreenshot(result, { timeZone: "UTC" }).rows.map(([label]) => label);
   assert.deepEqual(labels().slice(-2), ["Place", "Town"]);
-  inLanguage("es", () => assert.deepEqual(labels().slice(-2), ["Lugar", "Town"]));
+  inLanguage("es", () => assert.deepEqual(labels().slice(-2), ["Lugar", "Ciudad"]));
+});
+
+test("the paste form speaks Spanish, but its boxes keep what the English-only reader reads back", () => {
+  inLanguage("es", () => {
+    const form = formForText("Date of Birth: 15 June 1985\nTime of Birth: 10:30\nLatitude: 47°36'N\nLongitude: 122°19'W\nUTC Offset: -07:00");
+    assert.deepEqual(form.fields.map(({ label }) => label), ["Fecha", "Hora local", "Latitud", "Longitud", "Diferencia con UTC"]);
+    for (const { name, text } of form.fields) assert.notEqual(checkField(name, text).value, null, `${name}: ${text}`);
+    assert.equal(checkField("time", "10:30").message, "10:30 en el lugar de nacimiento");
+    assert.equal(checkField("date", "1985-06-15").message, "15 de junio de 1985");
+    // West is W in the box and under it: readField doesn't read O, and says so.
+    assert.equal(checkField("lng", "-122.3321").message, "122°19'56\"W");
+    assert.deepEqual(checkField("lng", "122°19'O"), {
+      value: null,
+      message: "AstroChart Bridge no puede leer esto. Prueba con -122.3321 o 122°19'W.",
+    });
+  });
+});
+
+test("a Morinus chart keeps its Entered as and Birthplace rows in Spanish", () => {
+  const bytes = new Uint8Array(readFileSync(new URL("../fixtures/morinus/ny-est-plus-dst.p2.hor", import.meta.url)));
+  inLanguage("es", () => {
+    const list = viewForHorFile(bytes, { timeZone: "America/Los_Angeles" });
+    assert.equal(list.message, "1 carta en este archivo.");
+    assert.equal(list.items[0].label, "Test: 17 abr 2024, 08:00, New York");
+    assert.deepEqual(list.items[0].view.rows, [
+      ["Nombre", "Test"],
+      ["Hora local", "17 abr 2024, 08:00"],
+      ["Diferencia horaria", "UTC-04:00"],
+      ["Escrita como", "zona UTC-05:00, con horario de verano"],
+      ["UTC", "2024-04-17 12:00"],
+      ["Lugar de nacimiento", "New York"],
+      ["Lugar", "40°43'N, 74°0'O"],
+    ]);
+  });
+});
+
+test("a shared chart's town goes right after the place row, before the From row, in Spanish", () => {
+  const shared = toPortable(
+    { local: "2024-04-17T08:00:00", utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 },
+    { site: "astro-seek", via: "page" },
+    { name: "Ana", town: "New York" },
+  );
+  const view = () => viewForImport(readLink(`#${toFragment(shared.chart)}`), { timeZone: "UTC" });
+  inLanguage("es", () => {
+    assert.deepEqual(view().rows.map(([label]) => label), ["Nombre", "Hora local", "Diferencia horaria", "UTC", "Lugar", "Ciudad", "Origen"]);
+    assert.deepEqual(view().rows.at(-1), ["Origen", "página de Astro-Seek"]);
+    assert.deepEqual(view().includes.boxes.map(({ label }) => label), ["Nombre: Ana", "Ciudad: New York"]);
+  });
 });

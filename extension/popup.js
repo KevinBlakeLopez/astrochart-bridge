@@ -9,7 +9,7 @@ import { fillForm, formValues, isAstroComPage, isBirthDataForm, readFormPage } f
 import { nameFromUrl, sameAstroSeekChart, townFromUrl } from "./core/astroseek.js";
 import { analyzePage, classifyUrl, extractorFor } from "./core/index.js";
 import { isStellariumWeb, readEngine, skyFromEngine, townFromPlace } from "./core/stellarium.js";
-import { BUSY, viewForDesktopImport } from "./desktop-model.js";
+import { busy, viewForDesktopImport } from "./desktop-model.js";
 import { checkDesktop, renderChart } from "./desktop-page.js";
 import { astroSeekTabs, heldForTab, holdForTab, releaseTab } from "./pending.js";
 import {
@@ -267,7 +267,7 @@ async function importFromDesktop() {
     showImport(viewForDesktopImport({ state: "no-permission" }));
     return;
   }
-  showImport(BUSY.import);
+  showImport(busy().import);
   showImport(viewForDesktopImport(await readSky()));
 }
 
