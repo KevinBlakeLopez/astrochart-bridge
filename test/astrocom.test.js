@@ -250,6 +250,25 @@ test("a key on one side only is fine", () => {
   assert.deepEqual(read([linkWith(pgidFor(CHART_URL.replace("&sday=1", "")))]), { nd: TEST });
 });
 
+// The w2gw layout of the same account chart, as seen signed in on 2026-11-05:
+// its drawing link's chart URL carries the keys btyp, rs, lang, refpl, nd,
+// tit, titn and secc, in that order, and says btyp=w2gw and rs=2 like the
+// page. Only those two values were printed, so the others are CHART_URL's.
+const W2GW_PAGE_URL = "https://www.astro.com/cgi/chart.cgi?btyp=w2gw&rs=2&;&nhor=26";
+const W2GW_CHART_URL =
+  "https://www.astro.com/cgi/chart.cgi?btyp=w2gw&rs=2&lang=e&refpl=go" +
+  `&nd=${TEST}&tit=Free Astrology Chart&titn=Test &secc=${"0".repeat(32)}`;
+const W2GW_LINK = linkWith(pgidFor(W2GW_CHART_URL));
+
+test("a w2gw page reads its own layout's drawing link", () => {
+  assert.deepEqual(read([W2GW_LINK], W2GW_PAGE_URL), { nd: TEST });
+});
+
+test("a drawing link made for the other layout is a mismatch", () => {
+  assert.deepEqual(read([LINK], W2GW_PAGE_URL), refused("page-url-mismatch"));
+  assert.deepEqual(read([W2GW_LINK]), refused("page-url-mismatch"));
+});
+
 test("a page address that isn't a URL is unsupported", () => {
   assert.deepEqual(read([LINK], "not a url"), refused("unsupported"));
 });
@@ -269,6 +288,10 @@ test("reads the captured chart as a local time, offset and place", () => {
     name: { first: "Test", last: "" },
     town: "New York, NY (US)",
   });
+});
+
+test("the w2gw layout reads as the same chart", () => {
+  assert.deepEqual(readChart({ url: W2GW_PAGE_URL, links: [W2GW_LINK] }), chartFrom([LINK]));
 });
 
 test("a drawing link refusal comes back unchanged", () => {
@@ -349,6 +372,9 @@ test("account charts of a seen type are natal", () => {
     // Parameters separated by ";", as astro.com also writes them.
     SEMICOLONS(PAGE_URL),
     `${CHART}?;smon=11;rs=0;sday=2;btyp=2;syr=2026;mth=gw;clang=e;gm=a1;nhor=26`,
+    // The w2gw layout of the same chart, which carries no mth.
+    `${CHART}?btyp=w2gw&rs=2&;&nhor=26`,
+    `${CHART}?btyp=w2gw&rs=2&usechpref=1&nhor=26&nho2=1`,
   ]) {
     assert.deepEqual(classifyUrl(url), { kind: "natal" }, url);
   }
@@ -368,8 +394,6 @@ test("Astro-Databank pages and charts are refused as databank", () => {
 test("other astro.com chart pages are refused as a chart type not supported yet", () => {
   for (const url of [
     // Seen on astro.com, but not with a readable drawing link.
-    `${CHART}?btyp=w2gw&rs=2&;&nhor=26`,
-    `${CHART}?btyp=w2gw&rs=2&usechpref=1&nhor=26&nho2=1`,
     `${CHART}?btyp=vip&nhor=26&nho2=1`,
     `${CHART}?pdf=d&gm=a1&nhor=26&nho2=1&btyp=2&mth=gw&sday=1&smon=11&syr=2026&rs=0`,
     `${CHART}?showgif&lang=e&gif=chart.png&res=100`,
@@ -379,7 +403,12 @@ test("other astro.com chart pages are refused as a chart type not supported yet"
     `${PAGE_URL}&nhor=27`,
     PAGE_URL.replace("mth=gw", "mth=atw"),
     PAGE_URL.replace("&mth=gw", ""),
+    `${PAGE_URL}&mth=gw`,
     `${PAGE_URL}&btyp=3`,
+    // w2gw has been seen only without mth, so any mth is a layout not seen.
+    `${CHART}?btyp=w2gw&mth=gw&rs=2&nhor=26`,
+    `${CHART}?btyp=w2gw&mth=&rs=2&nhor=26`,
+    `${CHART}?btyp=w2gw;rs=2;mth=gw;mth=gw;nhor=26`,
     SEMICOLONS(PAGE_URL).replace("mth=gw", "mth=atw"),
     `${SEMICOLONS(PAGE_URL)};nhor=27`,
   ]) {

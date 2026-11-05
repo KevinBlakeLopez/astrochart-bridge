@@ -134,7 +134,8 @@ Timezone	EDT h4w (is daylight saving time)
 - `nd2=` is the chart in the account's second slot (`nho2`), not the one drawn. A reader must take `nd=`.
 - `gm`, `btyp`, `mth`, `sday`, `smon`, `syr` and `rs` match the page's own URL, which can show that the link belongs to the page.
 - `secc` is unknown. Its length fits a hash, possibly a signature over the rest.
-- **Not yet known:** whether the link exists on the `btyp=w2gw` layout, on other chart types, or for subscribers.
+- **On the `btyp=w2gw` layout,** seen signed in on 2026-11-05 in Firefox, with a console snippet that printed the parameter names and the `btyp`, `mth` and `rs` values only: the page has one drawing link. Its chart URL carries `btyp`, `rs`, `lang`, `refpl`, `nd`, `tit`, `titn` and `secc`, in that order. It says `btyp=w2gw` and `rs=2`, like the page's own URL, and has no `mth`, `gm`, dates or `nd2` (that page's URL had no `nho2`). The `nd=` record itself wasn't printed.
+- **Not yet known:** whether the link exists on other chart types, or for subscribers.
 
 Other links on the same page carry no birth data. `ade.cgi?ract=xx…` (edit birth data) and `bugrep.cgi?…&purl=xx…` carry the chart URL hex-encoded after `xx`. `bugrep.cgi` links also carry an account identifier in `cid=`, and the chart image's path (`/tmpd/c…/`) contains the same identifier. Fixtures must leave both out.
 
@@ -193,7 +194,6 @@ AstroChart Bridge chooses the chart's town among the matches by the chart's coor
 
 ## Open questions
 
-- Does the `btyp=w2gw` account chart page have a `pgid` link?
 - Do subscribers see it?
 - How are half-hour zones written in `nd=`? The form writes them like `h3w30`; no `nd=` record with one has been seen.
 - What do fields 9, 10, 15 to 18, `WG` and `secc` mean?

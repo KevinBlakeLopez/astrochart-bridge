@@ -213,7 +213,7 @@ test("refused: astro.com pages and charts AstroChart Bridge doesn't open name as
       "https://www.astro.com/astro-databank/Stallone,_Sylvester",
       "Astro-Databank charts aren't supported yet. AstroChart Bridge opens charts saved in your astro.com account.",
     ],
-    ["https://www.astro.com/cgi/chart.cgi?btyp=w2gw&rs=2&;&nhor=26", "AstroChart Bridge can't read this kind of astro.com chart yet."],
+    ["https://www.astro.com/cgi/chart.cgi?btyp=vip&nhor=26&nho2=1", "AstroChart Bridge can't read this kind of astro.com chart yet."],
     [
       ASTRO_COM,
       "This astro.com page has no \"Drawing (for subscribers)\" link, which is where AstroChart Bridge reads the birth data.",
@@ -267,7 +267,7 @@ test("refused: every page but a transit or compatibility chart offers the other 
   const offered = [
     analyzePage({ url: "https://example.com/", input: { text: "" } }),
     analyzePage({ url: "https://www.astro.com/astro-databank/Stallone,_Sylvester", input: {} }),
-    analyzePage({ url: "https://www.astro.com/cgi/chart.cgi?btyp=w2gw&rs=2&;&nhor=26", input: {} }),
+    analyzePage({ url: "https://www.astro.com/cgi/chart.cgi?btyp=vip&nhor=26&nho2=1", input: {} }),
     analyzePage({ url: ASTRO_COM, input: { links: [] } }),
     analyzePage({ url: fixture("ny-2024-04-17").url, input: { text: "" } }),
     ...["unreadable-record", "unseen-field-9", "local-mean-time", "calendar-unsupported", "page-url-mismatch"].map(
