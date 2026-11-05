@@ -8,8 +8,14 @@ const refused = (reason) => ({ kind: "refused", reason });
 // astro.com serves every chart, natal or not, from one path and names the
 // chart type in its parameters, so unlike Astro-Seek's pages these are
 // recognised by parameters. A btyp and mth pair is added as natal only once a
-// captured page shows readPgid can read its drawing link.
-const NATAL = [{ btyp: "2", mth: "gw" }];
+// page has been seen whose drawing link readPgid can read. mth: null is a
+// layout whose address carries no mth: btyp=w2gw, the same natal chart laid
+// out differently, whose drawing link also says btyp=w2gw with no mth, as
+// seen signed in on 2026-11-05.
+const NATAL = [
+  { btyp: "2", mth: "gw" },
+  { btyp: "w2gw", mth: null },
+];
 
 /**
  * Decides from the address alone whether a page is an account chart AstroChart
@@ -42,8 +48,11 @@ export function classifyUrl(url) {
   const nhor = only(params, "nhor");
   if (nhor === null || !/^\d+$/.test(nhor) || params.has("pdf")) return refused("unsupported-chart");
   const btyp = only(params, "btyp");
-  const mth = only(params, "mth");
-  return NATAL.some((type) => type.btyp === btyp && type.mth === mth) ? { kind: "natal" } : refused("unsupported-chart");
+  // Read in full rather than with only(), which gives null for a repeated mth
+  // as well as a missing one.
+  const mth = params.getAll("mth");
+  const isType = (type) => type.btyp === btyp && (type.mth === null ? mth.length === 0 : mth.length === 1 && mth[0] === type.mth);
+  return NATAL.some(isType) ? { kind: "natal" } : refused("unsupported-chart");
 }
 
 // astro.com separates a query's parameters with ";" as well as "&", as in
