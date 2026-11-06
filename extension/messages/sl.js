@@ -507,6 +507,7 @@ export default {
     eitherDate: (source) => `${source}. To je lahko kateri koli od obeh datumov.`,
     couldBe: (dates) => `To je lahko ${dates.join(" ali ")}. Napišite ime meseca v angleščini ali najprej leto.`,
     cantRead: (example) => `AstroChart Bridge tega ne zna prebrati. Poskusite na primer ${example}.`,
+    preGregorian: PRE_GREGORIAN,
     houses: (houses) => `Besedilo uporablja hiše ${houses}, horoskop na Astro-Seeku pa se bo odprl s hišami Placidus.`,
     sidereal: "Besedilo uporablja siderični zodiak. AstroChart Bridge ga ne posreduje, zato ga nastavite v horoskopu na Astro-Seeku.",
     or: (items) => items.join(" ali "),

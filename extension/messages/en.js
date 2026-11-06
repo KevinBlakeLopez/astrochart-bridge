@@ -17,6 +17,7 @@ const TOOLBAR_STEP = "click the AstroChart Bridge icon in the toolbar again to f
 const NEWER = "This chart was made by a newer version of AstroChart Bridge, which this page can't read.";
 const NEWER_FILE = "This file was made by a newer version of AstroChart Bridge, which this page can't read.";
 const BEFORE_GREGORIAN = "This chart's date is before 15 October 1582, which AstroChart Bridge can't open yet.";
+const PRE_GREGORIAN = "AstroChart Bridge opens dates from 15 October 1582 on, when the Gregorian calendar began.";
 const QR_TOO_LONG = "This link is too long for a QR code that scans reliably.";
 
 // "a, b and c"
@@ -503,6 +504,8 @@ export default {
     eitherDate: (source) => `${source}. This could be either date.`,
     couldBe: (dates) => `This could be ${dates.join(" or ")}. Write the month's name, or the year first.`,
     cantRead: (example) => `AstroChart Bridge can't read this. Try ${example}.`,
+    // Under a date that reads but is before the Gregorian calendar began.
+    preGregorian: PRE_GREGORIAN,
     houses: (houses) => `The text uses ${houses} houses, but Astro-Seek's chart will open with Placidus houses.`,
     sidereal: "The text uses the sidereal zodiac. AstroChart Bridge doesn't pass it on, so set it in Astro-Seek's chart.",
     // A field written differently on different lines: "10:30 or 10:45".
@@ -526,7 +529,7 @@ export default {
       "no-birth-date": "This chart has no birth date: the file gives *.",
       "no-birth-time": "This chart has no birth time: the file gives *. AstroChart Bridge doesn't guess one.",
       "julian-calendar": "This date is in the Julian calendar, which AstroChart Bridge can't open yet.",
-      "pre-gregorian-date": "AstroChart Bridge opens dates from 15 October 1582 on, when the Gregorian calendar began.",
+      "pre-gregorian-date": PRE_GREGORIAN,
       "no-coordinates": "This chart has no coordinates, so there is no sky to open.",
       "local-mean-time": "This chart uses local mean time, which AstroChart Bridge can't open yet.",
       "meridian-time": "This chart uses a special meridian, such as a capital's local time, which AstroChart Bridge can't open yet.",
@@ -580,7 +583,7 @@ export default {
         "This is a Morinus chart of another kind, such as a solar return or a transit. AstroChart Bridge opens radix and horary charts only.",
       "bce-date": "This chart's date is BC, which AstroChart Bridge can't open yet.",
       "julian-calendar": "This date is in the Julian calendar, which AstroChart Bridge can't open yet.",
-      "pre-gregorian-date": "AstroChart Bridge opens dates from 15 October 1582 on, when the Gregorian calendar began.",
+      "pre-gregorian-date": PRE_GREGORIAN,
       "bad-date": "This chart's date isn't on the calendar, such as 30 February.",
       "local-mean-time": "This chart is in local mean time, which AstroChart Bridge can't open yet.",
       "local-apparent-time": "This chart is in local apparent time, sundial time, which AstroChart Bridge can't open yet.",

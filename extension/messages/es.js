@@ -14,6 +14,7 @@ const MONTH_NAMES = [
 const NEWER = "Esta carta la creó una versión más reciente de AstroChart Bridge, que esta página no puede leer.";
 const NEWER_FILE = "Este archivo lo creó una versión más reciente de AstroChart Bridge, que esta página no puede leer.";
 const BEFORE_GREGORIAN = "La fecha de esta carta es anterior al 15 de octubre de 1582, y AstroChart Bridge todavía no puede abrirla.";
+const PRE_GREGORIAN = "AstroChart Bridge abre fechas a partir del 15 de octubre de 1582, cuando comenzó el calendario gregoriano.";
 const QR_TOO_LONG = "Este enlace es demasiado largo para un código QR que se lea bien.";
 
 // "a, b y c", with e before a word that starts with the sound i, as in "e hija".
@@ -493,6 +494,7 @@ export default {
     eitherDate: (source) => `${source}. Podría ser cualquiera de las dos fechas.`,
     couldBe: (dates) => `Podría ser ${dates.join(" o ")}. Escribe el nombre del mes en inglés, o el año primero.`,
     cantRead: (example) => `AstroChart Bridge no puede leer esto. Prueba con ${example}.`,
+    preGregorian: PRE_GREGORIAN,
     houses: (houses) => `El texto usa casas ${houses}, pero la carta de Astro-Seek se abrirá con casas Placidus.`,
     sidereal: "El texto usa el zodíaco sideral. AstroChart Bridge no lo transmite, así que configúralo en la carta de Astro-Seek.",
     or: (items) => items.join(" o "),
@@ -511,7 +513,7 @@ export default {
       "no-birth-date": "Esta carta no tiene fecha de nacimiento: el archivo da *.",
       "no-birth-time": "Esta carta no tiene hora de nacimiento: el archivo da *. AstroChart Bridge no se inventa una.",
       "julian-calendar": "Esta fecha está en el calendario juliano, que AstroChart Bridge todavía no puede abrir.",
-      "pre-gregorian-date": "AstroChart Bridge abre fechas a partir del 15 de octubre de 1582, cuando comenzó el calendario gregoriano.",
+      "pre-gregorian-date": PRE_GREGORIAN,
       "no-coordinates": "Esta carta no tiene coordenadas, así que no hay cielo que abrir.",
       "local-mean-time": "Esta carta usa la hora media local, que AstroChart Bridge todavía no puede abrir.",
       "meridian-time": "Esta carta usa un meridiano especial, como la hora local de una capital, que AstroChart Bridge todavía no puede abrir.",
@@ -561,7 +563,7 @@ export default {
         "Esta es una carta de Morinus de otro tipo, como una revolución solar o un tránsito. AstroChart Bridge solo abre cartas radicales y horarias.",
       "bce-date": "La fecha de esta carta es a. C., y AstroChart Bridge todavía no puede abrirla.",
       "julian-calendar": "Esta fecha está en el calendario juliano, que AstroChart Bridge todavía no puede abrir.",
-      "pre-gregorian-date": "AstroChart Bridge abre fechas a partir del 15 de octubre de 1582, cuando comenzó el calendario gregoriano.",
+      "pre-gregorian-date": PRE_GREGORIAN,
       "bad-date": "La fecha de esta carta no existe en el calendario, como un 30 de febrero.",
       "local-mean-time": "Esta carta está en hora media local, que AstroChart Bridge todavía no puede abrir.",
       "local-apparent-time": "Esta carta está en hora aparente local, la del reloj de sol, que AstroChart Bridge todavía no puede abrir.",
