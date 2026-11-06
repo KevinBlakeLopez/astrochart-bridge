@@ -23,8 +23,6 @@ The text is read on your computer. Nothing is sent anywhere until you click **Op
 
 A shared chart holds only the local date and time, the UTC offset and the coordinates, and says it came from pasted text and whether the offset was one the text gave or one you typed. The name, place, time zone, house system and zodiac from the text aren't in it. Whoever opens it sees a warning that nothing checked its offset against the birthplace and date.
 
-A chart dated before 15 October 1582 opens the sky but can't be shared yet.
-
 ## What it reads
 
 AstroChart Bridge reads lines that have a label it knows, followed by a colon or an equals sign. It ignores every other line, so planet positions, aspects, transit dates and interpretation text can stay in what you paste.
@@ -143,6 +141,7 @@ Because the offset fixes the instant, a time skipped or repeated when the clocks
 ## What else the form asks about
 
 - **An ambiguous date**, such as `04/05/1985`, leaves the date box empty and offers both readings, 4 May and 5 April. AstroChart Bridge never picks one.
+- **A date before 15 October 1582**, when the Gregorian calendar began, stays in the date box, and the line under it says AstroChart Bridge opens dates from then on. Text doesn't say which calendar an earlier date is in, and records from before then are usually Julian, so **Continue** stays faded until the date is changed.
 - **A missing or unreadable birth time** leaves the time box empty or as written. It is never filled in as noon or midnight.
 - **A place with no coordinates** isn't looked up. Enter the latitude and longitude yourself.
 - **More than one birth date or name** means the text may hold more than one chart, and AstroChart Bridge asks you to paste one at a time.
@@ -153,7 +152,7 @@ Because the offset fixes the instant, a time skipped or repeated when the clocks
 - **One value per line**: a label whose value is on the next line, as in text copied from an Astro-Seek chart page, isn't read. Open the Astro-Seek page itself and use the AstroChart Bridge icon there instead.
 - **Unlabelled lines**: text with no labels, such as `15 Jun 1985` and `10:30 AM PDT` on lines of their own, isn't read yet.
 - **West-positive programs**: some astrology programs write west longitudes or west-of-UTC offsets as positive numbers without a letter. In labelled lines, those are read the usual way round, so check the hemisphere letter under each box. Only the program layouts above are read their own way round.
-- **Calendars**: dates are read in the Gregorian calendar, including dates before a country adopted it.
+- **Calendars**: dates are read in the Gregorian calendar, including dates from before a country adopted it. Dates before 15 October 1582 aren't opened.
 - **Desktop programs**: the program layouts were tested with text written out from each program's screenshots and guides. Of these, only Jagannatha Hora's block is known to be text the program itself gives to copy. How the others' text comes out of a copy command hasn't been checked.
 - **Size**: up to 100,000 characters. Longer text is refused; paste only the part with the birth data.
 

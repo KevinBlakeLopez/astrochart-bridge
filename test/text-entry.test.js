@@ -116,6 +116,14 @@ test("a day past the month's end, or 24:00, throws instead of rolling over", () 
   }
 });
 
+// The form refuses these dates before analyzeEntry sees them.
+test("a date before 15 October 1582 is a bug in the form, and throws", () => {
+  for (const date of ["1582-10-14", "1500-06-01"]) {
+    assert.throws(() => analyzeEntry({ ...ENTRY, date }), /needs a date from 15 October 1582 on$/, date);
+  }
+  assert.equal(analyzeEntry({ ...ENTRY, date: "1582-10-15" }).utc, "1582-10-15T17:30:00Z");
+});
+
 test("the error never repeats the birth data", () => {
   assert.throws(() => analyzeEntry({ ...ENTRY, lat: 91 }), (error) => !/1985|47\.6|122\.3/.test(error.message));
 });
