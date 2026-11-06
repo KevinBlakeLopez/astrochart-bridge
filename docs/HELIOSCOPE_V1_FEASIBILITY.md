@@ -173,7 +173,7 @@ The gap reaches well south of the polar circle. **Verified** natively on 2 Novem
 | Predicted undetectable | Samples above the horizon, with a best margin of 0 or less |
 | Below horizon at the evaluated instants | Every sample in both windows returned −2 |
 | Calculation unavailable or indeterminate | No window, invalid input, an engine error, or a result that isn't finite |
-| Marginal | **Not defined yet** |
+| Marginal | **None, by decision** (below): a result shows its raw margin with its assumptions |
 
 There's no threshold for "marginal", because the evidence says any single number would be arbitrary. For Venus from New York at one instant (§8), the limiting magnitude moved by:
 
@@ -184,6 +184,19 @@ There's no threshold for "marginal", because the evidence says any single number
 It also jumps 1.1 magnitudes within a second at the photopic-to-scotopic switch.
 
 That leaves two options for the owner. One is to show the raw margin with its assumptions and have no "marginal" class. The other is to call a result marginal when it is visible under one documented atmosphere and not under another, citing each scenario's values and running each in a fresh instance (§8, item 5).
+
+**Verified** in the WebAssembly on 6 November 2026, through Helioscope: how often the second option would call a chart marginal. There were six atmospheres, each in its own engine: Swiss Ephemeris's defaults, a 40 km meteorological range, 10 km, 90 % humidity, an observer aged 70, and those last three together. The charts were at local noon, every third day of 2025, 122 for each row:
+
+| Charts | Detectable by default | All six disagree | One factor at a time | Defaults and 40 km | Defaults and 90 % |
+|---|---|---|---|---|---|
+| Venus from New York | 109 | 43 | 37 | 6 | 12 |
+| Venus from London | 107 | 61 | 57 | 5 | 34 |
+| Mercury from New York | 20 | 20 | 20 | 13 | 20 |
+| Mercury from London | 13 | 13 | 13 | 13 | 13 |
+
+The label would mostly say which atmospheres were chosen. Venus charts it called marginal had default margins of up to +7.1 magnitudes, and nearly every detectable Mercury got it. Among the reference cases, only London's light-sky morning changes its prediction across the six: +4.49 by default, −2.07 at 10 km. New York's Venus goes from +9.01 to +4.47, and stays detectable.
+
+**Decision, 6 November 2026:** no "marginal" class. A result shows its raw margin with its assumptions. Reporting each scenario's margin beside a prediction, without a class, stays possible for a page later: each scenario would need its own engine.
 
 ### Assumptions reported with every result
 
@@ -410,4 +423,5 @@ The engine failing to load is tested too, with `swisseph.wasm` missing or not We
    - Its windows follow the chart's UTC instant and place, through the same readers as any chart: across local midnight, at Sydney's date boundary, in the 2021 daylight saving gap once a UTC is chosen, and in 1944 on War Time.
    - When the WebAssembly can't be loaded, `createEngine()` rejects quickly and leaves nothing behind, for a page to catch.
    - On a night the Sun never reaches −18°, its windows run to and from the Sun's lowest point, as the owner decided on 6 November 2026 (§6).
-   - No page uses it yet. A "marginal" class is still the owner's to decide; until then there's none.
+   - There's no "marginal" class, as the owner decided on 6 November 2026 (§6): a result shows its raw margin with its assumptions.
+   - No page uses it yet.
