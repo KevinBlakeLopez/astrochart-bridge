@@ -51,8 +51,10 @@ const MORINUS_DATE = /^(?<year>\d{1,4})\.(?<month>[a-z]+)\.(?<day>\d{2})(?<julia
 const VALENS_DATE = /^(?<month>[A-Z][a-z]+) (?<day>\d{1,2}), (?<year>\d{1,4})$/;
 const TYPE_LINE = new RegExp(`^(?<type>${TYPES})$`);
 
-// The Gregorian calendar began on 15 October 1582. A layout that doesn't say
-// which calendar its date is on could be giving a Julian one before then.
+// The Gregorian calendar began on 15 October 1582. Only the square chart
+// marks a Julian date, so an earlier one elsewhere could be either. The square
+// chart's unmarked one is Gregorian, but is refused too, as resolvePrinted
+// refuses every program's date before then.
 const GREGORIAN_START = "1582-10-15";
 
 /**
@@ -117,7 +119,7 @@ function statusBar(lines) {
   if (coords.length === 0) return [refused("unreadable-screenshot")];
   const { bc, type, ...date } = times[0].groups;
   if (bc === "-") return [refused("calendar-unsupported")];
-  return [chart({ site: "morinus", ...date, type, calendarKnown: false }, coords[0].groups)];
+  return [chart({ site: "morinus", ...date, type }, coords[0].groups)];
 }
 
 function blocks(lines) {
@@ -142,15 +144,14 @@ function blocks(lines) {
     const { year, month, day } = (morinus ?? valens).groups;
     return [
       chart(
-        // Only the square chart marks a Julian date.
-        { site: morinus ? "morinus" : "valens", year, month, day, ...time.groups, type, calendarKnown: Boolean(morinus) },
+        { site: morinus ? "morinus" : "valens", year, month, day, ...time.groups, type },
         BLOCK_COORDS.exec(lines[coordsAt]).groups,
       ),
     ];
   });
 }
 
-function chart({ site, year, month, day, hour, minute, second, tag, type, calendarKnown }, place) {
+function chart({ site, year, month, day, hour, minute, second, tag, type }, place) {
   // A screenshot without its type is taken for a radix, the chart Morinus opens.
   if (type === "Transit") return refused("transit");
   if (type !== undefined && type !== "Radix" && type !== "Horary") return refused("chart-type-unsupported");
@@ -168,7 +169,7 @@ function chart({ site, year, month, day, hour, minute, second, tag, type, calend
   const lat = angle({ deg: Number(place.latDeg), min: Number(place.latMin), negative: place.latSide === "S", limit: 90 });
   const lng = angle({ deg: Number(place.lngDeg), min: Number(place.lngMin), negative: place.lngSide === "W", limit: 180 });
   if (local === null || lat === null || lng === null) return refused("unreadable-screenshot");
-  if (!calendarKnown && local < GREGORIAN_START) return refused("calendar-unsupported");
+  if (local < GREGORIAN_START) return refused("calendar-unsupported");
 
   // A UT time is its own UTC. A ZN time is the clock in a zone Morinus doesn't print.
   return tag === "UT"

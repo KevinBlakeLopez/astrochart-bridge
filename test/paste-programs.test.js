@@ -62,13 +62,13 @@ for (const [program, text] of Object.entries(PROGRAM_TEXTS)) {
   });
 }
 
-// Kepler's reader has no calendar check of its own, so the form's is the one
-// that stops it.
-test("a program's reading dated before 15 October 1582 fills its box but goes no further", () => {
+// The programs' readers refuse such a date, as on the screenshot page, so the
+// form says why and fills nothing from the text. A date typed into the empty
+// box is refused by checkField.
+test("a program's text dated before 15 October 1582 is turned down for its calendar", () => {
   const form = formForText(lines(...PROGRAM_TEXTS.Kepler.map((line) => line.replace("1685", "1500"))));
-  assert.equal(box(form, "date").text, "1500-03-31");
-  const values = Object.fromEntries(form.fields.map((field) => [field.name, checkField(field.name, programChoice(field)).value]));
-  assert.deepEqual(Object.keys(values).filter((name) => values[name] === null), ["date"]);
+  assert.match(form.warnings[0], /dated before the Gregorian calendar began on 15 October 1582.*\(calendar-unsupported\)/);
+  assert.equal(box(form, "date").text, "");
   assert.equal(entryOf(form), null);
 });
 

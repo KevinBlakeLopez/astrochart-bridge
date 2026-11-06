@@ -257,7 +257,10 @@ export function analyzeProgramText(text) {
  * the text against, the checks are whatever the screenshot prints: a sidereal
  * time that must fit the UT and longitude, a weekday that must fall on the
  * date, a zone label or zone that must give the offset, and a local time a
- * real UTC offset away from the UT. Nothing checks the latitude.
+ * real UTC offset away from the UT. Nothing checks the latitude. Every reader
+ * refuses a date before 15 October 1582 ahead of those checks, as
+ * calendar-unsupported: none of these layouts says reliably which calendar
+ * such a date is in.
  *
  * @param {string} text  OCR output
  * @returns {ReturnType<typeof analyzePage> | ReturnType<typeof resolvePrinted>}

@@ -1,7 +1,7 @@
 import { isoUtc } from "./civiltime.js";
 import { chartRecord, readClock, readDate } from "./esotech.js";
 import { withLabels } from "./names.js";
-import { angle, linesOf } from "./printed-chart.js";
+import { angle, GREGORIAN_START, linesOf } from "./printed-chart.js";
 import { localSiderealSeconds } from "./sidereal.js";
 
 const refused = (reason) => ({ kind: "refused", reason });
@@ -64,7 +64,7 @@ export function detect(text) {
  * @returns {Parameters<typeof import("./printed-chart.js").resolvePrinted>[0]
  *   | Parameters<typeof import("./printed-chart.js").resolvePrinted>[0][]
  *   | { kind: "refused", reason: "ambiguous-screenshot" | "unreadable-screenshot" | "chart-type-unsupported"
- *       | "true-local-time-mismatch" | "offset-off-quarter-hour" | "sidereal-mismatch" }}
+ *       | "calendar-unsupported" | "true-local-time-mismatch" | "offset-off-quarter-hour" | "sidereal-mismatch" }}
  */
 export function read(text) {
   const lines = linesOf(text);
@@ -89,6 +89,9 @@ export function read(text) {
     lng === null ? refused("unreadable-screenshot") : { lng },
   ]);
   if (chart.kind === "refused") return chart;
+  // resolvePrinted refuses a date before the Gregorian calendar began, but
+  // ST and TLT are checked here first, and a Julian date would fail them.
+  if (chart.local < GREGORIAN_START) return refused("calendar-unsupported");
   const siderealSeconds = sidereal && clockSeconds([sidereal.hour, sidereal.minute, sidereal.second]);
   const tltSeconds = tlt && clockSeconds([tlt.hour, tlt.minute, "0"]);
   if (siderealSeconds === null || tltSeconds === null) return refused("unreadable-screenshot");

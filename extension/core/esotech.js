@@ -142,8 +142,11 @@ export function chartRecord(site, parts) {
 
 /**
  * "24 Apr 1942", "Jul 4 2015, Sat" → { year, month, day, weekday? }. AstroChart
- * Bridge counts dates on the Gregorian calendar from year 1, so Old Style and
- * BC are refused.
+ * Bridge reads Gregorian dates only, so Old Style and BC are refused. Without
+ * OS or NS, Solar Fire and Astro Gold take a date on or before 14 October 1582
+ * as Julian, as Solar Fire 9's User Guide and Astro Gold's help say, and Solar
+ * Fire can be set never to print either; resolvePrinted refuses every date
+ * before then.
  */
 export function readDate(text) {
   const match = DATE_TEXT.exec(text);

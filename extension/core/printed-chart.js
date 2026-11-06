@@ -11,6 +11,10 @@ const LABEL_OFFSETS = Object.freeze({ ...ZONE_OFFSETS, GMT: 0, UT: 0, UTC: 0 });
 // print it to the minute, rounded or cut short, so it can be a minute out.
 const LMT_TOLERANCE_MINUTES = 1;
 
+// The Gregorian calendar's first day. The fixed-width local time sorts like
+// the dates it writes, so a date before it compares as less.
+export const GREGORIAN_START = "1582-10-15";
+
 /**
  * Decides the UTC instant for the birth data a desktop astrology program
  * printed with its chart, as one of the readers for those programs returns
@@ -27,6 +31,13 @@ const LMT_TOLERANCE_MINUTES = 1;
  * for the user to enter the offset, as an Astro-Seek page without a Universal
  * Time does.
  *
+ * A date before 15 October 1582, when the Gregorian calendar began, is
+ * refused before anything else. No program's layout says reliably which
+ * calendar such a date is in: Solar Fire and Astro Gold take an unmarked one
+ * as Julian, and a date marked Gregorian could still be taken as Julian by
+ * astro.com, Astro-Seek or Stellarium. A Julian date would fail the weekday,
+ * Julian Day and sidereal checks as a misreading, so the calendar goes first.
+ *
  * @param {{ site: string, local: string, lat: number, lng: number, zoneLabel: string | null,
  *   offsetMinutes?: number, utc?: string, siderealSeconds?: number, weekday?: number }} chart
  *   local is the wall-clock time, e.g. "2024-04-17T08:00:00"; offsetMinutes is
@@ -37,9 +48,11 @@ const LMT_TOLERANCE_MINUTES = 1;
  * @returns {{ kind: "natal", site: string, local: string, zoneLabel: string | null, lat: number, lng: number }
  *     & ({ utc: string, utcSource: "declared" | "printed", offsetMinutes: number, warnings?: ["offset-unchecked"] }
  *       | { utc: null, utcSource: "needs-offset", reason: "no-printed-offset" })
- *   | { kind: "refused", reason: "weekday-mismatch" | "zone-offset-mismatch" | "offset-out-of-range" | "sidereal-mismatch" }}
+ *   | { kind: "refused", reason: "calendar-unsupported" | "weekday-mismatch" | "zone-offset-mismatch" | "offset-out-of-range"
+ *       | "sidereal-mismatch" }}
  */
 export function resolvePrinted({ site, local, lat, lng, zoneLabel, offsetMinutes: declared, utc: printedUtc, siderealSeconds, weekday }) {
+  if (local < GREGORIAN_START) return refused("calendar-unsupported");
   if (weekday !== undefined && new Date(`${local.slice(0, 10)}T00:00:00Z`).getUTCDay() !== weekday) {
     return refused("weekday-mismatch");
   }
