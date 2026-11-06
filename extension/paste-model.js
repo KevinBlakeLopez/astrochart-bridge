@@ -245,9 +245,16 @@ function prefill(name, fields) {
   return { text: boxText(name, read.value), source };
 }
 
+// The Gregorian calendar's first day. Pasted text never says which calendar an
+// earlier date is in, and records from before then are usually Julian, so the
+// form refuses one, as every other reader does, rather than read it as
+// Gregorian. The fixed-width form sorts like the dates it writes.
+const GREGORIAN_START = "1582-10-15";
+
 /**
  * What the text in one of the form's boxes means, for the line under it: the
- * value when it reads, else why not. Empty boxes say nothing.
+ * value when it reads, else why not. A date before 15 October 1582 reads but
+ * has no value, so Continue stays off. Empty boxes say nothing.
  *
  * @param {string} name  one of ENTRY_FIELDS
  * @param {string} text
@@ -259,6 +266,7 @@ export function checkField(name, text) {
   const read = readField(name, text);
   if (read.problem === "ambiguous") return { value: null, message: words.couldBe(read.readings.map(dateText)) };
   if (read.value === null) return { value: null, message: words.cantRead(words.fields[name].example) };
+  if (name === "date" && read.value < GREGORIAN_START) return { value: null, message: words.preGregorian };
   return { value: read.value, message: meaning(name, read.value) };
 }
 

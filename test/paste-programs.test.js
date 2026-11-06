@@ -62,6 +62,16 @@ for (const [program, text] of Object.entries(PROGRAM_TEXTS)) {
   });
 }
 
+// Kepler's reader has no calendar check of its own, so the form's is the one
+// that stops it.
+test("a program's reading dated before 15 October 1582 fills its box but goes no further", () => {
+  const form = formForText(lines(...PROGRAM_TEXTS.Kepler.map((line) => line.replace("1685", "1500"))));
+  assert.equal(box(form, "date").text, "1500-03-31");
+  const values = Object.fromEntries(form.fields.map((field) => [field.name, checkField(field.name, programChoice(field)).value]));
+  assert.deepEqual(Object.keys(values).filter((name) => values[name] === null), ["date"]);
+  assert.equal(entryOf(form), null);
+});
+
 test("an offset to the second goes in its box to the second", () => {
   const form = formForText(lines(...PROGRAM_TEXTS["Janus, local mean time"]));
   assert.equal(box(form, "offset").text, "-05:42:58");

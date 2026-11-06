@@ -333,8 +333,23 @@ test("the receiving page opens the shared link as the same sky, from pasted text
   assert.match(view.warnings[0], /read from pasted text and checked by hand/);
 });
 
-test("a date before 15 October 1582 opens the sky but isn't shared", () => {
-  const early = { ...ENTRY, date: "1500-06-15" };
-  assert.equal(viewForEntry(early, LA).state, "ready");
-  assert.deepEqual(chartForEntry(early, [-420]), { kind: "refused", reason: "before-gregorian" });
+// Pasted text never says which calendar an earlier date is in, so the form
+// refuses it as every other reader does, rather than read it as Gregorian.
+test("a date before 15 October 1582 stays in its box, says why, and goes no further", () => {
+  const form = formOf(["Date of Birth: 1 June 1500", "Time of Birth: 12:00", "Latitude: 40.7", "Longitude: -74", "UTC Offset: -04:56"].join("\n"));
+  assert.deepEqual([box(form, "date").text, box(form, "date").source], ["1500-06-01", "Line 1: 1 June 1500"]);
+  const refusal = { value: null, message: "AstroChart Bridge opens dates from 15 October 1582 on, when the Gregorian calendar began." };
+  for (const typed of ["1500-06-01", "1582-10-14", "14 October 1582"]) assert.deepEqual(checkField("date", typed), refusal, typed);
+  assert.deepEqual(checkField("date", "15 October 1582"), { value: "1582-10-15", message: "15 October 1582" });
+  // The date alone keeps Continue off, and Continue to astro.com with it.
+  const values = Object.fromEntries(form.fields.map(({ name, text }) => [name, checkField(name, text).value]));
+  assert.deepEqual(Object.keys(values).filter((name) => values[name] === null), ["date"]);
+  assert.equal(entryFor(values), null);
+  assert.equal(localEntryFor(values, ""), null);
+});
+
+test("an entry dated before 15 October 1582 is a bug in the form, and opens nothing", () => {
+  const early = { ...ENTRY, date: "1582-10-14" };
+  assert.throws(() => viewForEntry(early, LA), /15 October 1582/);
+  assert.throws(() => chartForEntry(early, [-420]), /15 October 1582/);
 });

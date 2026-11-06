@@ -195,6 +195,10 @@ test("the paste form speaks Spanish, but its boxes keep what the English-only re
     for (const { name, text } of form.fields) assert.notEqual(checkField(name, text).value, null, `${name}: ${text}`);
     assert.equal(checkField("time", "10:30").message, "10:30 en el lugar de nacimiento");
     assert.equal(checkField("date", "1985-06-15").message, "15 de junio de 1985");
+    assert.equal(
+      checkField("date", "1500-06-15").message,
+      "AstroChart Bridge abre fechas a partir del 15 de octubre de 1582, cuando comenzó el calendario gregoriano.",
+    );
     // West is W in the box and under it: readField doesn't read O, and says so.
     assert.equal(checkField("lng", "-122.3321").message, "122°19'56\"W");
     assert.deepEqual(checkField("lng", "122°19'O"), {
@@ -321,6 +325,10 @@ test("the paste form speaks Slovenian, but its boxes keep what the English-only 
     for (const { name, text } of form.fields) assert.notEqual(checkField(name, text).value, null, `${name}: ${text}`);
     assert.equal(checkField("time", "10:30").message, "10:30 v kraju rojstva");
     assert.equal(checkField("date", "1985-06-15").message, "15. junij 1985");
+    assert.equal(
+      checkField("date", "1500-06-15").message,
+      "AstroChart Bridge odpira datume od 15. oktobra 1582 naprej, ko se je začel gregorijanski koledar.",
+    );
     assert.equal(checkField("lng", "-122.3321").message, "122°19'56\"W");
     // V for vzhod, east, isn't read, and the form says so rather than misreading it.
     assert.deepEqual(checkField("lng", "14°30'V"), {
