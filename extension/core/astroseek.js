@@ -196,15 +196,22 @@ const SCREENSHOT_FIELDS = {
 };
 // "20:48:26"
 const SIDEREAL_LINE = /^(\d{2}):(\d{2}):(\d{2})$/;
+// The Gregorian calendar's first day. The fixed-width date sorts like the dates it writes.
+const GREGORIAN_START = "1582-10-15";
 
 /**
  * Reads the OCR text of a screenshot of an Astro-Seek natal chart page. There
  * is no URL to check it against, as readChart has, so the printed sidereal time
  * comes back too: analyzeScreenshot checks the UT and longitude with it.
  *
+ * A date before 15 October 1582, when the Gregorian calendar began, is
+ * refused, as in every other screenshot: the page doesn't say which calendar
+ * it is in. It is refused here, before analyzeScreenshot's sidereal check,
+ * which a Julian date would fail as a misreading.
+ *
  * @param {string} text  OCR output, one line of the image per line
  * @returns {{ local: string, zoneLabel: string | null, printedUt: string, lat: number, lng: number, siderealSeconds: number }
- *   | { kind: "refused", reason: "ambiguous-screenshot" | "unreadable-screenshot" }}
+ *   | { kind: "refused", reason: "ambiguous-screenshot" | "unreadable-screenshot" | "calendar-unsupported" }}
  */
 export function readScreenshot(text) {
   const lines = text.split("\n").map((line) => line.replace(/\s+/g, " ").trim());
@@ -221,6 +228,7 @@ export function readScreenshot(text) {
   if (!local || !ut || !coords || !isPlace(coords) || siderealSeconds === null) {
     return refused("unreadable-screenshot");
   }
+  if (isoDate(local) < GREGORIAN_START) return refused("calendar-unsupported");
 
   // A saved person's chart prints its name above Date of Birth, and a chart
   // placed at a city prints City and Country rows below the coordinates, as

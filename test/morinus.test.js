@@ -119,11 +119,14 @@ test("a Julian or BC date is refused", () => {
   assert.deepEqual(read(STATUS_BAR.replace("1948", "-44")), calendar);
 });
 
-// Only the square chart marks a Julian date, so an earlier one elsewhere could be either.
-test("a date before the Gregorian calendar is refused unless the square chart says it isn't Julian", () => {
+// Only the square chart marks a Julian date, so an earlier one elsewhere could
+// be either. The square chart's unmarked one is Gregorian, but it is refused
+// too, as every reader refuses a date before the Gregorian calendar began.
+test("a date before the Gregorian calendar is refused, even where the square chart says it isn't Julian", () => {
   assert.deepEqual(read(STATUS_BAR.replace("1948", "1500")), { kind: "refused", reason: "calendar-unsupported" });
   assert.deepEqual(read(swap(VALENS, "November", "November 14, 1500")), { kind: "refused", reason: "calendar-unsupported" });
-  assert.equal(read(swap(SQUARE, "1948", "1500.november.14")).local, "1500-11-14T21:14:39");
+  assert.deepEqual(read(swap(SQUARE, "1948", "1500.november.14")), { kind: "refused", reason: "calendar-unsupported" });
+  assert.equal(read(swap(SQUARE, "1948", "1582.october.15")).local, "1582-10-15T21:14:39");
 });
 
 test("a transit is refused, a horary opens, and other chart types are refused", () => {
@@ -157,6 +160,7 @@ test("the unreadable message names Morinus and Valens", () => {
   assert.match(viewForScreenshot({ kind: "refused", reason: "unreadable-screenshot" }).message, /Morinus.*Valens/);
 });
 
+// Taken for 1944, it would open; read as the year 44, it is before the Gregorian calendar.
 test("a year before 100 isn't taken for one in the 1900s", () => {
-  assert.equal(read(swap(SQUARE, "1948", "44.november.14")).local, "0044-11-14T21:14:39");
+  assert.deepEqual(read(swap(SQUARE, "1948", "44.november.14")), { kind: "refused", reason: "calendar-unsupported" });
 });
