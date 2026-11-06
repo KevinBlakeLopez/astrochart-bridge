@@ -142,6 +142,8 @@ The windows come from the Sun at the observer's coordinates, so time zones, loca
 
 **Read** in `swecl.c`: sunrise and sunset are the Sun's upper limb at the horizon, refracted for the pressure and temperature `swe_rise_trans` is given, and twilight is the Sun's centre, unrefracted. `swe_azalt` fills in a pressure of 0 from the elevation but takes a temperature of 0 as 0 °C, so the spike's windows, and the proof of concept's, refract sunset at 0 °C.
 
+**Verified** in the WebAssembly on 2 November 2026: `swe_rise_trans`'s answer depends a little on where its search starts. Searched from 24 instants spread over the day before it, each of three sunsets came back as values up to 0.12 ms, 0.64 ms and 1.25 ms apart (Sydney in January 2024, New York in March 2021 and in January 2025). So two charts a few minutes apart can get windows that differ in their last digits. The proof of concept's time tests count bounds less than a second apart as the same.
+
 **Verified gap:** at Tromsø (69.65° N), the Sun doesn't set on 7 December 2024 (polar night) or on 21 June 2025 (midnight sun), so neither window exists. V1 needs a rule for that, such as "indeterminate: no twilight window", or windows defined by the Sun's altitude alone. That's a decision for the owner.
 
 The gap reaches well south of the polar circle. **Verified** natively on 2 November 2026: on 21 June 2025 the Sun sets at Paris (48.86° N) and London (51.51° N) but never reaches −18°, so `swe_rise_trans` finds no end of astronomical twilight, while at Seattle (47.61° N) it finds one. At the June solstice the Sun's lowest point stays above −18° from about 48.6° N, so charts from there have no window either. Until the owner decides, the proof of concept gives them no window and an indeterminate prediction (§10).
@@ -353,7 +355,7 @@ Firefox and Safari weren't run: on 2 November 2026 the owner chose to skip them,
   - A result that isn't finite.
   - Two atmospheres at one instant, which must not return the cached value (item 5).
 
-The proof of concept (§10) has the Venus case at the engine boundary, all nine reference cases through the whole calculation, Moshier always, a date outside the Moshier range, invalid coordinates, a chart with no location or no decided UTC, a result that isn't finite, and two atmospheres at one instant. It also refuses charts before 15 October 1582 itself. Still to write: the time tests, and the engine failing to load.
+The proof of concept (§10) has the Venus case at the engine boundary, all nine reference cases through the whole calculation, the time tests, Moshier always, a date outside the Moshier range, invalid coordinates, a chart with no location or no decided UTC, a result that isn't finite, and two atmospheres at one instant. Helioscope refuses charts before 15 October 1582 itself, and needs to. **Verified** on 2 November 2026: the paste page's `analyzeEntry` takes 1 June 1500 and returns a natal chart, so §2's statement that such charts are refused before any of this runs doesn't hold for the paste page. Still to write: the engine failing to load.
 
 ## 9. Remaining risks
 
@@ -381,4 +383,5 @@ The proof of concept (§10) has the Venus case at the engine boundary, all nine 
    - `extension/core/helioscope.js` finds the windows, samples them every 2 minutes and classifies the result, with no browser APIs. It takes the engine as an argument.
    - For Venus from New York, the evening window is predicted detectable, with a best margin of +9.01 at 23:14:32 UTC. Results round times to the nearest second; the link in §7 cut the seconds off, so it says 23:14:31.
    - All nine of §8's reference cases come out as §8 describes them, compared with native values rerun with its sampling rule.
+   - Its windows follow the chart's UTC instant and place, through the same readers as any chart: across local midnight, at Sydney's date boundary, in the 2021 daylight saving gap once a UTC is chosen, and in 1944 on War Time.
    - No page uses it yet. The high-latitude window rule and a "marginal" class are still the owner's to decide: until then, a chart with no window is indeterminate, and there's no marginal class.
