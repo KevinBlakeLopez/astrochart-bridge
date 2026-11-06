@@ -158,6 +158,16 @@ test("sunEvent: an event that doesn't happen is none, not a failure: London has 
   assert.deepEqual(engine.sunEvent(sunset.jd, london, "astronomical-dusk"), { kind: "none" });
 });
 
+test("sunEvent: the Sun's lower transit, its lowest point, is native's to the bit: London, the night of 21 June 2025", async (t) => {
+  const engine = await fresh(t);
+  const { cases } = JSON.parse(readFileSync(new URL("helioscope-reference-cases.json", import.meta.url), "utf8"));
+  const { lat, lng, elevation, windows } = cases.find((c) => c.label === "venus-2025-06-21-london");
+  const place = { lat, lng, elevation };
+  // Searched from the sunset, and from the day before's sunrise, as the windows are.
+  assert.deepEqual(engine.sunEvent(windows.evening.start, place, "lower-transit"), { kind: "found", jd: windows.evening.end });
+  assert.deepEqual(engine.sunEvent(windows.morning.end - 1, place, "lower-transit"), { kind: "found", jd: windows.morning.start });
+});
+
 test("solarGeometry: the Sun's and Venus's longitudes, Venus's latitude and its elongation are native's", async (t) => {
   const engine = await fresh(t);
   const result = engine.solarGeometry(T, "venus");

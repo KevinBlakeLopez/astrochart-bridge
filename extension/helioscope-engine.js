@@ -26,6 +26,7 @@ const SEFLG_MOSEPH = 4;
 const SE_SUN = 0;
 const SE_CALC_RISE = 1;
 const SE_CALC_SET = 2;
+const SE_CALC_ITRANSIT = 8;
 const SE_BIT_ASTRO_TWILIGHT = 4096;
 
 // What swe_rise_trans returns when the event doesn't happen, and
@@ -43,12 +44,15 @@ const PLANETS = Object.freeze({ mercury: 2, venus: 3, mars: 4, jupiter: 5, satur
 // the standard pressure at the observer's elevation and 0 °C: swe_rise_trans
 // is given a pressure of 0, which swe_azalt fills in, and a temperature of 0,
 // which it doesn't. Astronomical twilight is the Sun's centre at -18°,
-// unrefracted (swecl.c).
+// unrefracted (swecl.c). The lower transit is the Sun crossing the meridian
+// below the pole: its lowest point, to within 15 seconds in the cases measured
+// (docs/HELIOSCOPE_V1_FEASIBILITY.md §6).
 const SUN_EVENTS = Object.freeze({
   sunrise: SE_CALC_RISE,
   sunset: SE_CALC_SET,
   "astronomical-dawn": SE_CALC_RISE | SE_BIT_ASTRO_TWILIGHT,
   "astronomical-dusk": SE_CALC_SET | SE_BIT_ASTRO_TWILIGHT,
+  "lower-transit": SE_CALC_ITRANSIT,
 });
 
 // 0 asks Swiss Ephemeris to fill a value in, as default_heliacal_parameters
@@ -139,10 +143,10 @@ export async function createEngine({ atmosphere = {}, observer = {} } = {}) {
   }
 
   /**
-   * The next sunrise, sunset, or start or end of astronomical twilight after
-   * jd, at place. none when it doesn't happen in the day or so swe_rise_trans
-   * searches: in polar day and night, and on summer nights that never get
-   * that dark.
+   * The next sunrise, sunset, start or end of astronomical twilight, or lower
+   * transit of the Sun after jd, at place. none when it doesn't happen in the
+   * day or so swe_rise_trans searches: in polar day and night, and on summer
+   * nights that never get dark enough for astronomical twilight to end.
    *
    * @param {number} jd  Julian Day (UT)
    * @param {Place} place

@@ -69,8 +69,8 @@ test("visibility, Venus from New York: the evening window runs from sunset to th
   const { best, ...window } = VENUS.windows.evening;
   assert.deepEqual(window, {
     kind: "evaluated",
-    start: { jd: EVENING.start, utc: "2025-01-10T21:48:32Z" },
-    end: { jd: EVENING.end, utc: "2025-01-10T23:25:36Z" },
+    start: { jd: EVENING.start, utc: "2025-01-10T21:48:32Z", event: "sunset" },
+    end: { jd: EVENING.end, utc: "2025-01-10T23:25:36Z", event: "astronomical-dusk" },
     samples: 50,
     aboveHorizon: 50,
   });
@@ -98,8 +98,8 @@ test("visibility, Venus from New York: the best evening sample is native's, at 2
 test("visibility, Venus from New York: in the morning window before sunrise, Venus is below the horizon throughout", () => {
   assert.deepEqual(VENUS.windows.morning, {
     kind: "below-horizon",
-    start: { jd: MORNING.start, utc: "2025-01-10T10:42:08Z" },
-    end: { jd: MORNING.end, utc: "2025-01-10T12:19:10Z" },
+    start: { jd: MORNING.start, utc: "2025-01-10T10:42:08Z", event: "astronomical-dawn" },
+    end: { jd: MORNING.end, utc: "2025-01-10T12:19:10Z", event: "sunrise" },
     samples: 50,
     aboveHorizon: 0,
   });
@@ -134,7 +134,7 @@ test("visibility, Venus from New York: the assumptions go with the result", () =
       completed: { age: 36, snellenRatio: 1, binocular: 1, magnification: 1, aperture: 0, transmission: 0 },
     },
     elevation: { metres: 10, source: "given" },
-    windowRule: "astronomical-twilight",
+    windowRule: "astronomical-twilight-or-lower-transit",
     stepMinutes: 2,
     // Degrees: 17′, 8°30′ and 15°.
     conditionLimits: { cazimi: 17 / 60, combust: 8.5, underTheBeams: 15 },
@@ -183,12 +183,27 @@ test("visibility: only the five naked-eye planets", () => {
   }
 });
 
-test("visibility: in London on 21 June 2025 the Sun sets but never reaches -18°, so there's no window and no prediction (§6's rule, still open)", async () => {
+test("visibility: in London on 21 June 2025 the Sun never reaches -18°, so the windows run to and from its lowest point, its lower transit (§6)", async () => {
   const london = { ...CHART, local: "2025-06-21T22:00:00", lat: 51.5074, lng: -0.1278, utc: "2025-06-21T21:00:00Z", offsetMinutes: 60 };
-  const result = await venusFor(london);
+  const { windows, classification } = await venusFor(london);
+  assert.deepEqual(
+    [windows.evening.start.event, windows.evening.end.event, windows.morning.start.event, windows.morning.end.event],
+    ["sunset", "lower-transit", "lower-transit", "sunrise"],
+  );
+  // That night's two windows meet at the lower transit, found once from the
+  // sunset and once from the day before's sunrise.
+  assert.ok(Math.abs(windows.evening.end.jd - windows.morning.start.jd) < 1 / 86_400);
+  // 00:02:28.7, to the nearest second.
+  assert.equal(windows.evening.end.utc, "2025-06-22T00:02:29Z");
+  assert.notEqual(classification.kind, "indeterminate");
+});
+
+test("visibility: with no sunset or no sunrise at all, there's still no window and no prediction: Tromsø at midsummer", async () => {
+  const tromso = { ...CHART, local: "2025-06-21T02:00:00", lat: 69.6492, lng: 18.9553, utc: "2025-06-21T00:00:00Z", offsetMinutes: 120 };
+  const result = await venusFor(tromso);
   assert.deepEqual(result.windows, {
-    evening: { kind: "no-window", reason: "no-astronomical-dusk" },
-    morning: { kind: "no-window", reason: "no-astronomical-dawn" },
+    evening: { kind: "no-window", reason: "no-sunset" },
+    morning: { kind: "no-window", reason: "no-sunrise" },
   });
   assert.deepEqual(result.classification, { kind: "indeterminate", reason: "no-window" });
   assert.equal(result.solar.kind, "computed");

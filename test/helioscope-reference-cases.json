@@ -1,8 +1,8 @@
 {
   "about": [
-    "Native Swiss Ephemeris values for the nine reference cases of docs/HELIOSCOPE_V1_FEASIBILITY.md §8, written by tools/make-helioscope-reference.mjs, whose header says how the harness was built.",
+    "Native Swiss Ephemeris values for the nine reference cases of docs/HELIOSCOPE_V1_FEASIBILITY.md §8, and for London on 21 June 2025, a night the Sun never reaches -18°. Written by tools/make-helioscope-reference.mjs, whose header says how the harness was built.",
     "Julian Days are UT. Every call used the Moshier ephemeris, an ephemeris path with no files, and an atmosphere and observer of 0 for Swiss Ephemeris to fill in.",
-    "Each window keeps its bounds, its number of samples and how many were above the horizon, and its best sample: the largest margin among those, with what swe_vis_limit_mag returned for it."
+    "Each window keeps its bounds and the Sun event each is, its number of samples and how many were above the horizon, and its best sample: the largest margin among those, with what swe_vis_limit_mag returned for it."
   ],
   "swissEphemeris": "2.10.03",
   "cases": [
@@ -25,7 +25,9 @@
         "evening": {
           "kind": "evaluated",
           "start": 2460476.520184499,
+          "startEvent": "sunset",
           "end": 2460476.607561332,
+          "endEvent": "astronomical-dusk",
           "samples": 64,
           "aboveHorizon": 1,
           "best": {
@@ -38,7 +40,9 @@
         "morning": {
           "kind": "evaluated",
           "start": 2460475.8044106103,
+          "startEvent": "astronomical-dawn",
           "end": 2460475.8916730005,
+          "endEvent": "sunrise",
           "samples": 64,
           "aboveHorizon": 1,
           "best": {
@@ -69,7 +73,9 @@
         "evening": {
           "kind": "evaluated",
           "start": 2460686.408703312,
+          "startEvent": "sunset",
           "end": 2460686.476107979,
+          "endEvent": "astronomical-dusk",
           "samples": 50,
           "aboveHorizon": 50,
           "best": {
@@ -82,7 +88,9 @@
         "morning": {
           "kind": "below-horizon",
           "start": 2460685.945921439,
+          "startEvent": "astronomical-dawn",
           "end": 2460686.0133159324,
+          "endEvent": "sunrise",
           "samples": 50,
           "aboveHorizon": 0
         }
@@ -107,7 +115,9 @@
         "evening": {
           "kind": "evaluated",
           "start": 2460757.465830062,
+          "startEvent": "sunset",
           "end": 2460757.529746189,
+          "endEvent": "astronomical-dusk",
           "samples": 48,
           "aboveHorizon": 5,
           "best": {
@@ -120,7 +130,9 @@
         "morning": {
           "kind": "evaluated",
           "start": 2460757.890117702,
+          "startEvent": "astronomical-dawn",
           "end": 2460757.953952129,
+          "endEvent": "sunrise",
           "samples": 47,
           "aboveHorizon": 19,
           "best": {
@@ -151,14 +163,18 @@
         "evening": {
           "kind": "below-horizon",
           "start": 2460266.4005946894,
+          "startEvent": "sunset",
           "end": 2460266.4664515434,
+          "endEvent": "astronomical-dusk",
           "samples": 49,
           "aboveHorizon": 0
         },
         "morning": {
           "kind": "below-horizon",
           "start": 2460266.924167662,
+          "startEvent": "astronomical-dawn",
           "end": 2460266.990165658,
+          "endEvent": "sunrise",
           "samples": 49,
           "aboveHorizon": 0
         }
@@ -183,7 +199,9 @@
         "evening": {
           "kind": "evaluated",
           "start": 2460652.3949253457,
+          "startEvent": "sunset",
           "end": 2460652.462875197,
+          "endEvent": "astronomical-dusk",
           "samples": 50,
           "aboveHorizon": 50,
           "best": {
@@ -196,7 +214,9 @@
         "morning": {
           "kind": "evaluated",
           "start": 2460651.9366688775,
+          "startEvent": "astronomical-dawn",
           "end": 2460652.004624767,
+          "endEvent": "sunrise",
           "samples": 50,
           "aboveHorizon": 50,
           "best": {
@@ -227,14 +247,18 @@
         "evening": {
           "kind": "below-horizon",
           "start": 2460747.4583929903,
+          "startEvent": "sunset",
           "end": 2460747.5215493566,
+          "endEvent": "astronomical-dusk",
           "samples": 47,
           "aboveHorizon": 0
         },
         "morning": {
           "kind": "below-horizon",
           "start": 2460746.9035212444,
+          "startEvent": "astronomical-dawn",
           "end": 2460746.9665313787,
+          "endEvent": "sunrise",
           "samples": 47,
           "aboveHorizon": 0
         }
@@ -259,7 +283,9 @@
         "evening": {
           "kind": "evaluated",
           "start": 2460685.882004875,
+          "startEvent": "sunset",
           "end": 2460685.952229399,
+          "endEvent": "astronomical-dusk",
           "samples": 52,
           "aboveHorizon": 52,
           "best": {
@@ -272,7 +298,9 @@
         "morning": {
           "kind": "below-horizon",
           "start": 2460686.2184909927,
+          "startEvent": "astronomical-dawn",
           "end": 2460686.2887142426,
+          "endEvent": "sunrise",
           "samples": 52,
           "aboveHorizon": 0
         }
@@ -327,6 +355,48 @@
         "morning": {
           "kind": "no-window",
           "reason": "no-sunrise"
+        }
+      }
+    },
+    {
+      "label": "venus-2025-06-21-london",
+      "planet": "venus",
+      "place": "london",
+      "lat": 51.5074,
+      "lng": -0.1278,
+      "elevation": 0,
+      "utc": "2025-06-21T21:00:00Z",
+      "jd": 2460848.375,
+      "solar": {
+        "sunLongitude": 90.7276791269117,
+        "planetLongitude": 46.158010440057936,
+        "planetLatitude": -2.690210023532452,
+        "elongation": 44.63373518560653
+      },
+      "windows": {
+        "evening": {
+          "kind": "below-horizon",
+          "start": 2460848.348571159,
+          "startEvent": "sunset",
+          "end": 2460848.5017210636,
+          "endEvent": "lower-transit",
+          "samples": 112,
+          "aboveHorizon": 0
+        },
+        "morning": {
+          "kind": "evaluated",
+          "start": 2460848.5017210636,
+          "startEvent": "lower-transit",
+          "end": 2460848.654881233,
+          "endEvent": "sunrise",
+          "samples": 112,
+          "aboveHorizon": 61,
+          "best": {
+            "jd": 2460848.610054397,
+            "ret": 0,
+            "dret": [0.2789518733379581, 8.15888995359262, 77.47818445288266, -7.624284309802092, 35.62112248473886, 13.901958258692057, 76.14021347205204, -4.211639069277483],
+            "serr": ""
+          }
         }
       }
     }

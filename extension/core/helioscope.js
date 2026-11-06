@@ -20,9 +20,11 @@ const CONDITION_LIMITS = Object.freeze({ cazimi: 17 / 60, combust: 8.5, underThe
 // The windows of §6, reported by this name. The evening one runs from the
 // sunset nearest the chart's instant to the end of astronomical twilight, and
 // the morning one from the start of astronomical twilight to the sunrise
-// nearest it. What to do where twilight never ends, as in summer from about
-// 48.6° north, is the owner's decision, still open: for now there's no window.
-const WINDOW_RULE = "astronomical-twilight";
+// nearest it. On a night the Sun never reaches -18°, as in summer from about
+// 48.6° north, they run to and from its lower transit, its lowest point, as
+// the owner decided on 6 November 2026. With no sunset or no sunrise at all,
+// there's no window.
+const WINDOW_RULE = "astronomical-twilight-or-lower-transit";
 const STEP_MINUTES = 2;
 // A twilight more than half a day from its sunset or sunrise belongs to
 // another night.
@@ -193,28 +195,35 @@ function nearest(engine, jd, place, event) {
   return best ?? { kind: "none" };
 }
 
+// The end of astronomical twilight after the sunset or, on a night the Sun
+// never reaches -18°, its lower transit.
 function eveningWindow(engine, jd, place) {
   const sunset = nearest(engine, jd, place, "sunset");
   if (sunset.kind === "none") return { kind: "no-window", reason: "no-sunset" };
   if (sunset.kind === "failed") return sunset;
-  const dusk = engine.sunEvent(sunset.jd, place, "astronomical-dusk");
-  if (dusk.kind === "failed") return dusk;
-  if (dusk.kind === "none" || dusk.jd - sunset.jd >= SAME_NIGHT) return { kind: "no-window", reason: "no-astronomical-dusk" };
-  return { kind: "window", start: sunset.jd, end: dusk.jd };
+  const tonight = (found) => found.kind === "found" && found.jd - sunset.jd < SAME_NIGHT;
+  for (const event of ["astronomical-dusk", "lower-transit"]) {
+    const end = engine.sunEvent(sunset.jd, place, event);
+    if (end.kind === "failed") return end;
+    if (tonight(end)) return { kind: "window", start: { jd: sunset.jd, event: "sunset" }, end: { jd: end.jd, event } };
+  }
+  return { kind: "no-window", reason: "no-astronomical-dusk" };
 }
 
+// The start of astronomical twilight before the sunrise or, on a night the Sun
+// never reaches -18°, its lower transit. The first of either after the day
+// before's sunrise is this morning's, if there's one.
 function morningWindow(engine, jd, place) {
   const sunrise = nearest(engine, jd, place, "sunrise");
   if (sunrise.kind === "none") return { kind: "no-window", reason: "no-sunrise" };
   if (sunrise.kind === "failed") return sunrise;
-  // The first start of astronomical twilight after the day before's sunrise
-  // is this morning's, if there's one.
-  const dawn = engine.sunEvent(sunrise.jd - 1, place, "astronomical-dawn");
-  if (dawn.kind === "failed") return dawn;
-  if (dawn.kind === "none" || dawn.jd >= sunrise.jd || sunrise.jd - dawn.jd >= SAME_NIGHT) {
-    return { kind: "no-window", reason: "no-astronomical-dawn" };
+  const thisMorning = (found) => found.kind === "found" && found.jd < sunrise.jd && sunrise.jd - found.jd < SAME_NIGHT;
+  for (const event of ["astronomical-dawn", "lower-transit"]) {
+    const start = engine.sunEvent(sunrise.jd - 1, place, event);
+    if (start.kind === "failed") return start;
+    if (thisMorning(start)) return { kind: "window", start: { jd: start.jd, event }, end: { jd: sunrise.jd, event: "sunrise" } };
   }
-  return { kind: "window", start: dawn.jd, end: sunrise.jd };
+  return { kind: "no-window", reason: "no-astronomical-dawn" };
 }
 
 // A window's samples, and the best of them: the largest margin while the
@@ -222,7 +231,7 @@ function morningWindow(engine, jd, place) {
 function sampled(window, engine, place, planet) {
   if (window.kind === "failed") return { window: failure(window), completed: null };
   if (window.kind !== "window") return { window, completed: null };
-  const instants = sampleInstants(window.start, window.end);
+  const instants = sampleInstants(window.start.jd, window.end.jd);
   let best = null;
   let aboveHorizon = 0;
   for (const jd of instants) {
@@ -234,7 +243,7 @@ function sampled(window, engine, place, planet) {
     const margin = result.limitingMagnitude - result.objectMagnitude;
     if (best === null || margin > best.margin) best = { jd, margin, result };
   }
-  const bounds = { start: instant(window.start), end: instant(window.end), samples: instants.length, aboveHorizon };
+  const bounds = { start: bound(window.start), end: bound(window.end), samples: instants.length, aboveHorizon };
   if (best === null) return { window: { kind: "below-horizon", ...bounds }, completed: null };
   const { kind, completed, raw, ...values } = best.result;
   return {
@@ -263,14 +272,18 @@ const failure = ({ reason, serr, raw }) => ({ kind: "failed", reason, serr: serr
 
 const instant = (jd) => ({ jd, utc: utcFromJulianDay(jd) });
 
+// A window's start or end, and which Sun event it is.
+const bound = ({ jd, event }) => ({ ...instant(jd), event });
+
 const onGlobe = (lat, lng) =>
   Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180;
 
 /**
  * @typedef {{ jd: number, utc: string }} Instant  utc to the nearest second
- * @typedef {{ kind: "evaluated", start: Instant, end: Instant, samples: number, aboveHorizon: number,
+ * @typedef {Instant & { event: "sunset" | "astronomical-dusk" | "lower-transit" | "astronomical-dawn" | "sunrise" }} Bound
+ * @typedef {{ kind: "evaluated", start: Bound, end: Bound, samples: number, aboveHorizon: number,
  *     best: Instant & { margin: number } & object }
- *   | { kind: "below-horizon", start: Instant, end: Instant, samples: number, aboveHorizon: 0 }
+ *   | { kind: "below-horizon", start: Bound, end: Bound, samples: number, aboveHorizon: 0 }
  *   | { kind: "no-window", reason: "no-sunset" | "no-astronomical-dusk" | "no-sunrise" | "no-astronomical-dawn" }
  *   | { kind: "failed", reason: string, serr: string }} Window
  *   best holds the engine's values for that sample, with raw, Swiss Ephemeris's own

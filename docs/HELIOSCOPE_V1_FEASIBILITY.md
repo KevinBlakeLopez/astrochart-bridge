@@ -146,7 +146,24 @@ The windows come from the Sun at the observer's coordinates, so time zones, loca
 
 **Verified gap:** at Tromsø (69.65° N), the Sun doesn't set on 7 December 2024 (polar night) or on 21 June 2025 (midnight sun), so neither window exists. V1 needs a rule for that, such as "indeterminate: no twilight window", or windows defined by the Sun's altitude alone. That's a decision for the owner.
 
-The gap reaches well south of the polar circle. **Verified** natively on 2 November 2026: on 21 June 2025 the Sun sets at Paris (48.86° N) and London (51.51° N) but never reaches −18°, so `swe_rise_trans` finds no end of astronomical twilight, while at Seattle (47.61° N) it finds one. At the June solstice the Sun's lowest point stays above −18° from about 48.6° N, so charts from there have no window either. Until the owner decides, the proof of concept gives them no window and an indeterminate prediction (§10).
+The gap reaches well south of the polar circle. **Verified** natively on 2 November 2026: on 21 June 2025 the Sun sets at Paris (48.86° N) and London (51.51° N) but never reaches −18°, so `swe_rise_trans` finds no end of astronomical twilight, while at Seattle (47.61° N) it finds one. At the June solstice the Sun's lowest point stays above −18° from about 48.6° N, so charts from there have no window either. **Verified** in the WebAssembly on 6 November 2026, through Helioscope's own window search for a chart at each day's local noon, the days of 2025 with no evening window under that rule:
+
+| City | Latitude | Days | When |
+|---|---|---|---|
+| Seattle | 47.6° N | 0 | |
+| Paris | 48.9° N | 19 | 11 to 29 June |
+| London | 51.5° N | 59 | 22 May to 19 July |
+| Berlin | 52.5° N | 69 | 17 May to 24 July |
+| Edinburgh | 56.0° N | 96 | 4 May to 7 August |
+| Oslo | 59.9° N | 122 | 21 April to 20 August |
+| Reykjavik | 64.1° N | 146 | 9 April to 1 September |
+| Tromsø | 69.6° N | 219 | Through the year. On 112 of them no sunset is near the chart's instant at all |
+
+**Decision, 6 November 2026:** on a night the Sun sets but never reaches −18°, the evening window runs from sunset to the Sun's lowest point, and the morning window from there to sunrise. With no sunset or no sunrise at all, as in polar day and night, there's still no window, and the prediction is indeterminate. There's no latitude limit. In the lightest of those nights, such as Oslo's at −6.6° or Reykjavik's at −2.4°, a prediction rests on the model in bright twilight, where it is least tested.
+
+- **The lowest point** is the Sun's lower meridian transit, from `swe_rise_trans`. **Verified** natively that day: at London and Oslo on 21 June 2025 the lowest true altitude fell at the transit, to the 15-second step of the scan. At Edinburgh on 10 May it fell 15 s before the transit, and 0.09″ lower. The WebAssembly's transits were bit-identical to native.
+- **Each window's start and end** say which Sun event they are, so a page can say when the sky never got fully dark. The rule is reported as `astronomical-twilight-or-lower-transit`.
+- **The result, Verified** the same way: no day is left without an evening window at Paris, London, Berlin, Edinburgh, Oslo or Reykjavik. Their windows end at the lower transit on the 19, 59, 69, 96, 122 and 146 nights twilight never ends. Tromsø's end there on 107 nights, and its 112 days with no sunset still get no window.
 
 ### Classification
 
@@ -289,7 +306,7 @@ The proof of concept (§10) samples each window up to its end and no further (§
 - **Mercury, morning:** −15.21 at sunrise itself, where the spike's −14.95 came from a sample 20.5 s after it.
 - **Jupiter, evening:** +7.98 at the end of astronomical twilight, 23:06:32, where the spike's +7.99 came from a sample 9.1 s after it.
 
-Four windows also gain a sample at their end: Venus's at inferior conjunction in the evening, Mars's in the evening and both of Saturn's. `test/helioscope-reference-cases.json` holds the rerun, and the tests run all nine cases through Helioscope against it.
+Four windows also gain a sample at their end: Venus's at inferior conjunction in the evening, Mars's in the evening and both of Saturn's. `test/helioscope-reference-cases.json` holds the rerun, and the tests run all nine cases through Helioscope against it. It also holds London on 21 June 2025, for the rule in §6 for nights that never get fully dark: Venus is below the horizon through the evening window, and detectable in the morning one, best at +4.49, at 02:38 UTC with the Sun at −7.6°.
 
 Agreement between the WebAssembly and this native build would show that the port is faithful, and nothing more. Both run the same C code, so neither validates Schaefer's model against what people actually see. That would need records of observations, and is out of scope.
 
@@ -355,7 +372,7 @@ Firefox and Safari weren't run: on 2 November 2026 the owner chose to skip them,
   - A result that isn't finite.
   - Two atmospheres at one instant, which must not return the cached value (item 5).
 
-The proof of concept (§10) has the Venus case at the engine boundary, all nine reference cases through the whole calculation, the time tests, Moshier always, a date outside the Moshier range, invalid coordinates, a chart with no location or no decided UTC, a result that isn't finite, and two atmospheres at one instant. Helioscope refuses charts before 15 October 1582 itself, as a second guard. **Verified** on 2 November 2026, the paste page's `analyzeEntry` took 1 June 1500 and returned a natal chart, so §2's statement that such charts are refused before any of this runs didn't hold for the paste page. Since 6 November 2026 it does: the paste form refuses such a date, as its tests check, and `analyzeEntry` throws on one (**Verified**).
+The proof of concept (§10) has the Venus case at the engine boundary, all nine reference cases and London on a night that never gets fully dark through the whole calculation, the time tests, Moshier always, a date outside the Moshier range, invalid coordinates, a chart with no location or no decided UTC, a result that isn't finite, and two atmospheres at one instant. Helioscope refuses charts before 15 October 1582 itself, as a second guard. **Verified** on 2 November 2026, the paste page's `analyzeEntry` took 1 June 1500 and returned a natal chart, so §2's statement that such charts are refused before any of this runs didn't hold for the paste page. Since 6 November 2026 it does: the paste form refuses such a date, as its tests check, and `analyzeEntry` throws on one (**Verified**).
 
 The engine failing to load is tested too, with `swisseph.wasm` missing or not WebAssembly, so every item above now has a test. **Verified** in Node on 6 November 2026, in a copy of the engine and its package with `swisseph.wasm` missing, not WebAssembly or truncated:
 
@@ -371,7 +388,7 @@ The engine failing to load is tested too, with `swisseph.wasm` missing or not We
 - **Model validity:** in the cases tried, the margin moved by 0.5 to 2.4 magnitudes with assumptions nobody records for a birth, and it has a discontinuity of 1.1 magnitudes. A "detectable" with a small margin is weak evidence.
 - **Hidden state:** the extinction memo (item 5) and the global observer (item 3). Any sweep over atmospheres needs a fresh instance for each scenario, or calls at different instants.
 - **Magnitudes:** Swiss Ephemeris uses Mallama and Hilton's 2018 formulas. **Read:** Mercury's is applied at every phase angle without a range check (`swecl.c:3923-3926`), and only Venus gets a warning, beyond 179°. Near superior conjunction, the object's magnitude is extrapolated.
-- **High latitudes:** the window rule needs a decision (§6), and from about 48.6° N it applies every June, not only beyond the polar circle. `swe_heliacal_ut()` is documented only for 60° S to 60° N.
+- **High latitudes:** decided on 6 November 2026 (§6). Nights that never get fully dark, from about 48.6° N every June, have windows to and from the Sun's lowest point, and their predictions rest on the model in bright twilight. Polar day and night still get none. `swe_heliacal_ut()` is documented only for 60° S to 60° N.
 - **Elevation** isn't in the chart model, so V1 assumes 0 m unless the user gives one.
 - **Packaging:** the store zips and the Safari project take all of `extension/`. Once `extension/vendor/swisseph/` is on `main`, the next builds carry Swiss Ephemeris whether or not a page uses it, with the App Store risk of §4.
 - **Upstream:**
@@ -392,4 +409,5 @@ The engine failing to load is tested too, with `swisseph.wasm` missing or not We
    - All nine of §8's reference cases come out as §8 describes them, compared with native values rerun with its sampling rule.
    - Its windows follow the chart's UTC instant and place, through the same readers as any chart: across local midnight, at Sydney's date boundary, in the 2021 daylight saving gap once a UTC is chosen, and in 1944 on War Time.
    - When the WebAssembly can't be loaded, `createEngine()` rejects quickly and leaves nothing behind, for a page to catch.
-   - No page uses it yet. The high-latitude window rule and a "marginal" class are still the owner's to decide: until then, a chart with no window is indeterminate, and there's no marginal class.
+   - On a night the Sun never reaches −18°, its windows run to and from the Sun's lowest point, as the owner decided on 6 November 2026 (§6).
+   - No page uses it yet. A "marginal" class is still the owner's to decide; until then there's none.

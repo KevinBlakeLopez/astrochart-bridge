@@ -5,8 +5,9 @@
 // - test/helioscope-venus-new-york.json: every sample of both windows for
 //   Venus from New York around the evening of 10 January 2025, the proof of
 //   concept's case, and the other calls the engine's tests make.
-// - test/helioscope-reference-cases.json: §8's nine reference cases, each with
-//   its windows and the best sample of each.
+// - test/helioscope-reference-cases.json: §8's nine reference cases, and London
+//   on a night the Sun never reaches -18°, each with its windows and the best
+//   sample of each.
 //
 // Run it by hand, after changing a case; the tests never run it.
 //
@@ -38,16 +39,18 @@ if (!harness) {
 const VENUS_OUT = new URL("../test/helioscope-venus-new-york.json", import.meta.url);
 const CASES_OUT = new URL("../test/helioscope-reference-cases.json", import.meta.url);
 
-// The places of §8's reference cases, in degrees and metres.
+// The places of the reference cases, in degrees and metres.
 const PLACES = {
   newYork: { lat: 40.7128, lng: -74.006, elevation: 10 },
   sydney: { lat: -33.8688, lng: 151.2093, elevation: 0 },
   tromso: { lat: 69.6492, lng: 18.9553, elevation: 0 },
+  london: { lat: 51.5074, lng: -0.1278, elevation: 0 },
 };
 
-// §8's reference cases. The instants for the conjunctions and the opposition
-// are the spike's: a scan picked the quarter-day nearest the smallest longitude
-// gap, or nearest 180°.
+// §8's nine reference cases, then London on a night the Sun never reaches
+// -18°. The instants for the conjunctions and the opposition are the spike's:
+// a scan picked the quarter-day nearest the smallest longitude gap, or nearest
+// 180°.
 const CASES = [
   { label: "mercury-superior-conjunction-2024", planet: "mercury", place: "newYork", utc: "2024-06-14T18:00:00Z" },
   { label: "venus-evening-2025-01-10", planet: "venus", place: "newYork", utc: "2025-01-10T22:35:00Z" },
@@ -58,6 +61,7 @@ const CASES = [
   { label: "venus-evening-2025-01-10-sydney", planet: "venus", place: "sydney", utc: "2025-01-10T09:00:00Z" },
   { label: "jupiter-opposition-2024-tromso", planet: "jupiter", place: "tromso", utc: "2024-12-07T18:00:00Z" },
   { label: "venus-2025-06-21-tromso", planet: "venus", place: "tromso", utc: "2025-06-21T00:00:00Z" },
+  { label: "venus-2025-06-21-london", planet: "venus", place: "london", utc: "2025-06-21T21:00:00Z" },
 ];
 
 // swephexp.h
@@ -70,6 +74,8 @@ const RSMI = {
   sunset: 2,
   "astronomical-dawn": 1 | SE_BIT_ASTRO_TWILIGHT,
   "astronomical-dusk": 2 | SE_BIT_ASTRO_TWILIGHT,
+  // SE_CALC_ITRANSIT: the Sun's lower meridian transit, its lowest point.
+  "lower-transit": 8,
 };
 
 const julianDay = (utc) => Date.parse(utc) / 86_400_000 + 2440587.5;
@@ -105,7 +111,8 @@ const margin = (sample) => sample.dret[0] - sample.dret[7];
 // swe_rise_trans finds the next event after the time it's given, so the
 // nearest is chosen from searches 1.5 and 0.5 days before and 0.5 days after.
 // A twilight more than half a day from its sunset or sunrise belongs to
-// another night.
+// another night. On a night the Sun never reaches -18°, the evening window
+// runs to its lower transit instead, and the morning window from it.
 function windows(t, place) {
   const from = [t - 1.5, t - 0.5, t + 0.5];
   const searches = [...from.map((at) => ({ from: at, event: "sunset" })), ...from.map((at) => ({ from: at, event: "sunrise" }))];
@@ -122,16 +129,34 @@ function windows(t, place) {
   ];
   const rows = twilight.length === 0 ? [] : session(twilight.map((search) => rise(search.from, place, search.event)));
   twilight.forEach((search, i) => sunEvents.push({ ...search, ret: rows[i].ret, jd: rows[i].tret }));
-  const end = (event) => sunEvents.find((e) => e.event === event) ?? { ret: -2 };
-  const dusk = end("astronomical-dusk");
-  const dawn = end("astronomical-dawn");
+  const searched = (event, from) => sunEvents.find((e) => e.event === event && e.from === from) ?? { ret: -2 };
+  const afterSunset = (e) => e.ret === 0 && e.jd - sunset < 0.5;
+  const beforeSunrise = (e) => e.ret === 0 && e.jd < sunrise && sunrise - e.jd < 0.5;
+  const dusk = sunset === null ? null : searched("astronomical-dusk", sunset);
+  const dawn = sunrise === null ? null : searched("astronomical-dawn", sunrise - 1);
 
-  let evening = { kind: "window", start: sunset, end: dusk.jd };
-  if (sunset === null) evening = { kind: "no-window", reason: "no-sunset" };
-  else if (dusk.ret !== 0 || dusk.jd - sunset >= 0.5) evening = { kind: "no-window", reason: "no-astronomical-dusk" };
-  let morning = { kind: "window", start: dawn.jd, end: sunrise };
-  if (sunrise === null) morning = { kind: "no-window", reason: "no-sunrise" };
-  else if (dawn.ret !== 0 || dawn.jd >= sunrise || sunrise - dawn.jd >= 0.5) morning = { kind: "no-window", reason: "no-astronomical-dawn" };
+  // Lower transits, only for the nights that need one.
+  const lowest = [
+    ...(dusk && !afterSunset(dusk) ? [{ from: sunset, event: "lower-transit" }] : []),
+    ...(dawn && !beforeSunrise(dawn) ? [{ from: sunrise - 1, event: "lower-transit" }] : []),
+  ];
+  const lowRows = lowest.length === 0 ? [] : session(lowest.map((search) => rise(search.from, place, search.event)));
+  lowest.forEach((search, i) => sunEvents.push({ ...search, ret: lowRows[i].ret, jd: lowRows[i].tret }));
+
+  let evening = { kind: "no-window", reason: "no-sunset" };
+  if (sunset !== null) {
+    const transit = searched("lower-transit", sunset);
+    if (afterSunset(dusk)) evening = { kind: "window", start: sunset, startEvent: "sunset", end: dusk.jd, endEvent: "astronomical-dusk" };
+    else if (afterSunset(transit)) evening = { kind: "window", start: sunset, startEvent: "sunset", end: transit.jd, endEvent: "lower-transit" };
+    else evening = { kind: "no-window", reason: "no-astronomical-dusk" };
+  }
+  let morning = { kind: "no-window", reason: "no-sunrise" };
+  if (sunrise !== null) {
+    const transit = searched("lower-transit", sunrise - 1);
+    if (beforeSunrise(dawn)) morning = { kind: "window", start: dawn.jd, startEvent: "astronomical-dawn", end: sunrise, endEvent: "sunrise" };
+    else if (beforeSunrise(transit)) morning = { kind: "window", start: transit.jd, startEvent: "lower-transit", end: sunrise, endEvent: "sunrise" };
+    else morning = { kind: "no-window", reason: "no-astronomical-dawn" };
+  }
   return { sunEvents, evening, morning };
 }
 
@@ -161,7 +186,8 @@ function summary(window, place, planet) {
   if (window.kind === "no-window") return window;
   const { start, end, samples } = sampled(window, place, planet);
   const above = samples.filter((s) => s.ret >= 0);
-  const counts = { start, end, samples: samples.length, aboveHorizon: above.length };
+  const { startEvent, endEvent } = window;
+  const counts = { start, startEvent, end, endEvent, samples: samples.length, aboveHorizon: above.length };
   if (above.length === 0) return { kind: "below-horizon", ...counts };
   return { kind: "evaluated", ...counts, best: above.reduce((a, b) => (margin(b) > margin(a) ? b : a)) };
 }
@@ -218,13 +244,13 @@ function venusFromNewYork() {
   };
 }
 
-// §8's nine cases, each window summarized.
+// The reference cases, each window summarized.
 function referenceCases() {
   return {
     about: [
-      "Native Swiss Ephemeris values for the nine reference cases of docs/HELIOSCOPE_V1_FEASIBILITY.md §8, written by tools/make-helioscope-reference.mjs, whose header says how the harness was built.",
+      "Native Swiss Ephemeris values for the nine reference cases of docs/HELIOSCOPE_V1_FEASIBILITY.md §8, and for London on 21 June 2025, a night the Sun never reaches -18°. Written by tools/make-helioscope-reference.mjs, whose header says how the harness was built.",
       "Julian Days are UT. Every call used the Moshier ephemeris, an ephemeris path with no files, and an atmosphere and observer of 0 for Swiss Ephemeris to fill in.",
-      "Each window keeps its bounds, its number of samples and how many were above the horizon, and its best sample: the largest margin among those, with what swe_vis_limit_mag returned for it.",
+      "Each window keeps its bounds and the Sun event each is, its number of samples and how many were above the horizon, and its best sample: the largest margin among those, with what swe_vis_limit_mag returned for it.",
     ],
     swissEphemeris: version,
     cases: CASES.map(({ label, planet, place: name, utc }) => {

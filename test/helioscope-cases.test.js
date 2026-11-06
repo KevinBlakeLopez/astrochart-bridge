@@ -5,9 +5,9 @@ import { visibility } from "../extension/core/helioscope.js";
 import { createEngine } from "../extension/helioscope-engine.js";
 
 // Native Swiss Ephemeris for the nine reference cases of
-// docs/HELIOSCOPE_V1_FEASIBILITY.md §8, written by
-// tools/make-helioscope-reference.mjs, and gate 4's tolerances, as in
-// helioscope-engine.test.js.
+// docs/HELIOSCOPE_V1_FEASIBILITY.md §8, and for London on a night the Sun
+// never reaches -18°, written by tools/make-helioscope-reference.mjs, and gate
+// 4's tolerances, as in helioscope-engine.test.js.
 const { cases: CASES } = JSON.parse(readFileSync(new URL("helioscope-reference-cases.json", import.meta.url), "utf8"));
 const MAGNITUDES = 1e-8;
 const DEGREES = 2e-7;
@@ -59,6 +59,13 @@ const EXPECTED = {
     condition: "clear",
     apparition: "morning",
   },
+  // The Sun sets but never reaches -18°, so both windows meet at its lowest
+  // point, and Venus, a morning planet, shows in the morning one.
+  "venus-2025-06-21-london": {
+    classification: { kind: "detectable", window: "morning" },
+    condition: "clear",
+    apparition: "morning",
+  },
 };
 
 function near(actual, expected, tolerance, label) {
@@ -86,8 +93,24 @@ function assertWindow(actual, native, label) {
   }
   const { best, ...window } = actual;
   assert.deepEqual(
-    { kind: window.kind, start: window.start.jd, end: window.end.jd, samples: window.samples, aboveHorizon: window.aboveHorizon },
-    { kind: native.kind, start: native.start, end: native.end, samples: native.samples, aboveHorizon: native.aboveHorizon },
+    {
+      kind: window.kind,
+      start: window.start.jd,
+      startEvent: window.start.event,
+      end: window.end.jd,
+      endEvent: window.end.event,
+      samples: window.samples,
+      aboveHorizon: window.aboveHorizon,
+    },
+    {
+      kind: native.kind,
+      start: native.start,
+      startEvent: native.startEvent,
+      end: native.end,
+      endEvent: native.endEvent,
+      samples: native.samples,
+      aboveHorizon: native.aboveHorizon,
+    },
     label,
   );
   if (native.kind !== "evaluated") return;
