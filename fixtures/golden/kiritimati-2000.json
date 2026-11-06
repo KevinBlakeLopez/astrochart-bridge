@@ -1,0 +1,26 @@
+{
+  "id": "kiritimati-2000",
+  "kind": "invented",
+  "covers": [
+    "largest-offset",
+    "utc-previous-year",
+    "west-longitude-east-offset"
+  ],
+  "note": "+14:00, the largest offset in use: New Year's Day locally is still 1999 in UTC.",
+  "record": {
+    "local": "2000-01-01T00:30:00",
+    "zone": "Pacific/Kiritimati",
+    "lat": 1.87,
+    "lng": -157.43
+  },
+  "expected": {
+    "local": "2000-01-01T00:30:00",
+    "lat": 1.87,
+    "lng": -157.43,
+    "localTime": "normal",
+    "offsetSeconds": 50400,
+    "utc": "1999-12-31T10:30:00Z",
+    "julianDay": 2451543.9375
+  },
+  "oracle": "IANA tzdata 2026e through Python zoneinfo; Julian Day by Meeus, chapter 7"
+}

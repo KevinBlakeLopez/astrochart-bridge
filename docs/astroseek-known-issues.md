@@ -22,3 +22,11 @@ https://horoscopes.astro-seek.com/calculate-asteroids/?narozeni_den=17&narozeni_
 ```
 
 Other specialised charts (draconic, harmonic, heliocentric and similar) may have similar problems. None has been checked yet.
+
+## Birth chart: a longitude of 180° is drawn at 0°
+
+- **Page:** `/calculate-birth-chart-horoscope-online/`, with the place entered as coordinates.
+- **Symptom:** sent 16°30'S at 180°0'E or at 180°0'W, Astro-Seek prints the place as 0°0'E or 0°0'W and draws the chart at Greenwich (`fixtures/astroseek/date-line-180-east.json` and `date-line-180-west.json`, captured 6 November 2026).
+- **Status:** worked around. Sent 179°59'W for the same chart, it prints and draws 179°59'W (`fixtures/astroseek/golden-fiji-180-west.json`). Not checked: 179°59'E, a place typed as a city rather than coordinates, and whether Astro-Seek's own form allows 180 at all.
+- **Workaround in AstroChart Bridge:** `astroSeekUrl` and `astroSeekSaveUrl` send a longitude that rounds to 180°0' as 179°59' on the same side, 1' away, and every screen with an Astro-Seek button warns that it does (`test/date-line.test.js`). The extension also refuses to read back an Astro-Seek page whose place doesn't match its address, so a page drawn at 0° is never read as the chart.
+- **When picked up:** report it through the Contact link in the site footer, with the two date-line captures' addresses.

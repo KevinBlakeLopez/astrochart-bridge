@@ -1,0 +1,37 @@
+{
+  "id": "pele",
+  "kind": "public-record",
+  "person": "Pelé",
+  "page": "https://www.astro.com/astro-databank/Pelé",
+  "covers": [
+    "southern-hemisphere",
+    "arcsecond-coordinates",
+    "west-longitude"
+  ],
+  "note": "The zone is the IANA zone chosen for the birthplace, the second opinion on the record's offset.",
+  "record": {
+    "zone": "America/Sao_Paulo"
+  },
+  "astroDatabank": {
+    "url": "https://www.astro.com/astro-databank/Pelé",
+    "title": "Pelé, birth date 21 October 1940, with biography",
+    "born": "born on\t21 October 1940 at 03:00 (= 03:00 AM )",
+    "place": "Place\tTrês Corações (Minas Gerais), Brazil, 21s4149, 45w1512",
+    "timezone": "Timezone\tBZT h3w (is standard time)",
+    "dataSource": "BC/BR in hand",
+    "rodden": "Rodden Rating AA"
+  },
+  "expected": {
+    "local": "1940-10-21T03:00:00",
+    "lat": -21.696944,
+    "lng": -45.253333,
+    "localTime": "normal",
+    "offsetSeconds": -10800,
+    "utc": "1940-10-21T06:00:00Z",
+    "julianDay": 2429923.75,
+    "rodden": "AA",
+    "zoneOffsetSeconds": -10800,
+    "disputed": false
+  },
+  "oracle": "IANA tzdata 2026e through Python zoneinfo; Julian Day by Meeus, chapter 7"
+}

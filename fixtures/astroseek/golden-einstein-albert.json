@@ -1,0 +1,31 @@
+{
+  "url": "https://horoscopes.astro-seek.com/calculate-birth-chart-horoscope-online/?input_natal=1&send_calculation=1&narozeni_den=14&narozeni_mesic=3&narozeni_rok=1879&narozeni_hodina=10&narozeni_minuta=50&narozeni_sekunda=00&narozeni_city=&narozeni_mesto_hidden=Manually+place%3A+%C2%B0%27N%2C+%C2%B0%27E&narozeni_stat_hidden=&narozeni_podstat_kratky_hidden=&narozeni_tzid_id=&narozeni_sirka_stupne=48&narozeni_sirka_minuty=24&narozeni_sirka_smer=0&narozeni_delka_stupne=10&narozeni_delka_minuty=0&narozeni_delka_smer=0&narozeni_timezone_form=0&narozeni_timezone_dst_form=0&house_system=placidus&hid_fortune=1&hid_vertex=1&hid_chiron=1&hid_chiron_check=on&hid_lilith=1&hid_lilith_check=on&hid_uzel=1&hid_uzel_check=on&tolerance=1&aya=&tolerance_paral=0",
+  "input": {
+    "text": "Date of Birth (local time):\n14 Mar 1879 - 10:50  (Manually: GMT+00:00)\nUniversal Time (UT/GMT):\n14 Mar 1879 - 10:50  \nLocal Sidereal Time (LST):\n22:56:44\nHouse system:\nPlacidus system\nLatitude, Longitude:\n48°24'N, 10°0'E"
+  },
+  "capturedAt": "2026-11-06T15:02:54.481Z",
+  "capture": {
+    "lines": 700,
+    "headerLine": 17,
+    "labelCounts": {
+      "Date of Birth (local time):": 1,
+      "Universal Time (UT/GMT):": 1,
+      "Latitude, Longitude:": 1
+    }
+  },
+  "golden": "einstein-albert",
+  "expected": {
+    "kind": "natal",
+    "site": "astro-seek",
+    "local": "1879-03-14T10:50:00",
+    "zoneLabel": "Manually: GMT+00:00",
+    "lat": 48.4,
+    "lng": 10,
+    "utc": "1879-03-14T10:50:00Z",
+    "utcSource": "printed",
+    "offsetMinutes": 0,
+    "warnings": [
+      "zone-label-unknown"
+    ]
+  }
+}

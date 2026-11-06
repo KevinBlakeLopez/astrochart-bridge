@@ -1,0 +1,25 @@
+{
+  "id": "fiji-180-west",
+  "kind": "invented",
+  "covers": [
+    "date-line",
+    "longitude-minus-180"
+  ],
+  "note": "On the 180th meridian, written as -180.",
+  "record": {
+    "local": "2010-06-01T13:00:00",
+    "zone": "Pacific/Fiji",
+    "lat": -16.5,
+    "lng": -180
+  },
+  "expected": {
+    "local": "2010-06-01T13:00:00",
+    "lat": -16.5,
+    "lng": -180,
+    "localTime": "normal",
+    "offsetSeconds": 43200,
+    "utc": "2010-06-01T01:00:00Z",
+    "julianDay": 2455348.5416666665
+  },
+  "oracle": "IANA tzdata 2026e through Python zoneinfo; Julian Day by Meeus, chapter 7"
+}

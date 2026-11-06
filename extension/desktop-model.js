@@ -4,7 +4,7 @@
 // reach Stellarium explains how to set it up instead. The text is the chosen
 // language's (messages/), read as each screen is built.
 import { text } from "./messages/index.js";
-import { astroComStep, astroSeekNotes, placeText, privacyNote, utcText, withAstroSeekSave } from "./popup-model.js";
+import { astroComStep, astroSeekNotes, astroSeekWarnings, placeText, privacyNote, utcText, withAstroSeekSave } from "./popup-model.js";
 
 // Every screen with a sky to open: a chart page's, once its UTC can be
 // decided, and a Stellarium Web tab's. view.js keeps the button off until the
@@ -127,6 +127,7 @@ export function viewForDesktopImport(result) {
       [words.popup.rows.place, placeText(sky.lat, sky.lng)],
       ...(town === null ? [] : [[words.popup.rows.town, town]]),
     ],
+    ...(astroSeekWarnings(sky.lng).length === 0 ? {} : { warnings: astroSeekWarnings(sky.lng) }),
     notes: [words.desktop.pauseNote, ...astroSeekNotes(), privacyNote()],
     sky,
     buttons: [

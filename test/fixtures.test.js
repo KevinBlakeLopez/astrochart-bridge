@@ -5,7 +5,10 @@ import { analyzePage } from "../extension/core/index.js";
 
 const root = new URL("../fixtures/", import.meta.url);
 const read = (path) => JSON.parse(readFileSync(new URL(path, root), "utf8"));
-const sites = readdirSync(root, { withFileTypes: true }).filter((entry) => entry.isDirectory()).map((entry) => entry.name);
+// golden/ holds charts, not site captures: test/golden.test.js reads them.
+const sites = readdirSync(root, { withFileTypes: true })
+  .filter((entry) => entry.isDirectory() && entry.name !== "golden")
+  .map((entry) => entry.name);
 
 // Every fixture in every site's folder is tested, so a new capture is checked
 // as soon as it is added. One whose expected block is still null fails

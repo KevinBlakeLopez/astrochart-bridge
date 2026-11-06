@@ -1,0 +1,31 @@
+{
+  "url": "https://horoscopes.astro-seek.com/calculate-birth-chart-horoscope-online/?input_natal=1&send_calculation=1&narozeni_den=1&narozeni_mesic=6&narozeni_rok=1926&narozeni_hodina=17&narozeni_minuta=30&narozeni_sekunda=00&narozeni_city=&narozeni_mesto_hidden=Manually+place%3A+%C2%B0%27N%2C+%C2%B0%27E&narozeni_stat_hidden=&narozeni_podstat_kratky_hidden=&narozeni_tzid_id=&narozeni_sirka_stupne=34&narozeni_sirka_minuty=3&narozeni_sirka_smer=0&narozeni_delka_stupne=118&narozeni_delka_minuty=15&narozeni_delka_smer=1&narozeni_timezone_form=0&narozeni_timezone_dst_form=0&house_system=placidus&hid_fortune=1&hid_vertex=1&hid_chiron=1&hid_chiron_check=on&hid_lilith=1&hid_lilith_check=on&hid_uzel=1&hid_uzel_check=on&tolerance=1&aya=&tolerance_paral=0",
+  "input": {
+    "text": "Date of Birth (local time):\n1 Jun 1926 - 17:30  (Manually: GMT+00:00)\nUniversal Time (UT/GMT):\n1 Jun 1926 - 17:30  \nLocal Sidereal Time (LST):\n02:14:45\nHouse system:\nPlacidus system\nLatitude, Longitude:\n34°3'N, 118°15'W"
+  },
+  "capturedAt": "2026-11-06T15:02:19.349Z",
+  "capture": {
+    "lines": 673,
+    "headerLine": 17,
+    "labelCounts": {
+      "Date of Birth (local time):": 1,
+      "Universal Time (UT/GMT):": 1,
+      "Latitude, Longitude:": 1
+    }
+  },
+  "golden": "monroe-marilyn",
+  "expected": {
+    "kind": "natal",
+    "site": "astro-seek",
+    "local": "1926-06-01T17:30:00",
+    "zoneLabel": "Manually: GMT+00:00",
+    "lat": 34.05,
+    "lng": -118.25,
+    "utc": "1926-06-01T17:30:00Z",
+    "utcSource": "printed",
+    "offsetMinutes": 0,
+    "warnings": [
+      "zone-label-unknown"
+    ]
+  }
+}

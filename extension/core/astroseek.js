@@ -177,7 +177,8 @@ export function readChart({ url, text }) {
   return {
     local: `${isoDate(birth)}T${pad(birth.hour)}:${pad(birth.minute)}:${pad(birth.second)}`,
     zoneLabel: local.label,
-    // Natal pages print UT without seconds, so those read as :00.
+    // Natal pages print seconds only when they aren't :00 ("06:30:45" but
+    // "09:00"), so a time without them reads as :00.
     printedUt: ut && `${isoDate(ut)}T${pad(ut.hour)}:${pad(ut.minute)}:${pad(ut.second ?? 0)}Z`,
     lat: degrees(birth.latDeg, birth.latMin, birth.latSouth),
     lng: degrees(birth.lngDeg, birth.lngMin, birth.lngWest),
@@ -875,9 +876,27 @@ function formParts({ utc, lat, lng }, caller) {
     minute,
     second,
     latitude: degreesMinutes(lat),
-    longitude: degreesMinutes(lng),
+    longitude: astroSeekLongitude(lng),
   };
 }
+
+// Astro-Seek draws a longitude of 180°0', east or west, at 0°0': seen on
+// 2026-11-06 for 16°30'S at both 180°0'E and 180°0'W
+// (fixtures/astroseek/golden-fiji-180-*.json). A longitude that rounds to
+// 180°0' goes in as 179°59' on the same side instead, 1' away;
+// onAstroSeekDateLine says when, so the screen can say so.
+function astroSeekLongitude(lng) {
+  const form = degreesMinutes(lng);
+  return form.deg === 180 ? { ...form, deg: 179, min: 59 } : form;
+}
+
+/**
+ * Whether Astro-Seek's form gets this longitude 1' off: one that rounds to
+ * 180°0', which goes in as 179°59' on the same side.
+ *
+ * @param {number} lng
+ */
+export const onAstroSeekDateLine = (lng) => degreesMinutes(lng).deg === 180;
 
 // 40.716667 → { deg: 40, min: 43, negative: 0 }, the form's whole minutes and
 // direction code (0 for N or E, 1 for S or W). Rounding the total in minutes

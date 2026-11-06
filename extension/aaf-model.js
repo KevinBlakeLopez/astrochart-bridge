@@ -4,7 +4,7 @@
 import { chartFromRecord, exportRecord, parseAaf, writeAaf } from "./core/aaf.js";
 // Imported as messages, since an AAF file is read as text here.
 import { text as messages } from "./messages/index.js";
-import { astroComStep, astroSeekButtons, astroSeekNotes, genderRows, viewFor, withAstroSeekSave } from "./popup-model.js";
+import { astroComStep, astroSeekButtons, astroSeekNotes, astroSeekWarnings, genderRows, viewFor, withAstroSeekSave } from "./popup-model.js";
 
 // The words are the catalog's (messages/), read as each screen is built. Each
 // refusal keeps its code on screen, like the screenshot page's refusals, so a
@@ -67,7 +67,7 @@ export function viewForAafChart(result, options) {
       {
         ...view,
         rows: [...(chart.name ? [[words.popup.rows.name, chart.name]] : []), ...genderRows(gender), ...rows],
-        warnings: warnings.map((code) => WARNINGS[code]?.(chart) ?? code),
+        warnings: [...warnings.map((code) => WARNINGS[code]?.(chart) ?? code), ...astroSeekWarnings(chart.lng)],
         notes: [...view.notes, ...astroSeekNotes()],
         buttons: [...astroSeekButtons()],
         ...(view.sky ? { next: astroComStep(view.sky, { local: chart.local, name: aafName(chart.aaf), town, gender }) } : {}),

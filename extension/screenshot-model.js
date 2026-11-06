@@ -1,5 +1,5 @@
 import { text } from "./messages/index.js";
-import { astroComStep, astroSeekButtons, astroSeekNotes, genderRows, shareButton, viewFor, withAstroSeekSave } from "./popup-model.js";
+import { astroComStep, astroSeekButtons, astroSeekNotes, astroSeekWarnings, genderRows, shareButton, viewFor, withAstroSeekSave } from "./popup-model.js";
 
 // Each refusal analyzeScreenshot can return keeps its code on screen, like the
 // popup's unreadable pages, so a bug report says which check failed. The
@@ -55,7 +55,9 @@ export function viewForScreenshot(result, options) {
   const own = (result.warnings ?? []).filter(isOwn);
   const view = viewFor(own.length === 0 ? result : { ...result, warnings: result.warnings.filter((code) => !isOwn(code)) }, options);
   if (view.state === "refused") return view;
-  const warnings = own.length === 0 ? {} : { warnings: [...view.warnings, ...own.map((code) => WARNINGS[code](result))] };
+  // viewFor already warns an astro.com chart that Astro-Seek gets it 1' off.
+  const added = [...own.map((code) => WARNINGS[code](result)), ...(result.site === "astro-com" ? [] : astroSeekWarnings(result.lng))];
+  const warnings = added.length === 0 ? {} : { warnings: [...(view.warnings ?? []), ...added] };
   // viewFor's prompt names Astro-Seek, so a program's chart names the program.
   const programs = programNames();
   const message =

@@ -212,6 +212,7 @@ export default {
       "Astro-Seek bo ta horoskop narisal v UT/GMT na teh koordinatah, zaokroženo na minuto, in brez mesta.",
       "Odpiranje horoskopa pošlje ta datum, čas in kraj na astro-seek.com.",
     ],
+    astroSeekDateLine: "Astro-Seek ne sprejme zemljepisne dolžine 180°, zato dobi 179°59' na isti strani, 1 ločno minuto stran.",
     astroSeekSaveNote: "Odpiranje ali shranjevanje pošlje ta datum, čas in kraj na astro-seek.com.",
     astroSeekSaveNamedNote:
       "Odpiranje ali shranjevanje pošlje ta datum, čas in kraj na astro-seek.com; shranjevanje pošlje še ime in mesto horoskopa, če ju ima.",

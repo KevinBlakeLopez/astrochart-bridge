@@ -1,0 +1,27 @@
+{
+  "id": "sao-paulo-2000-02-29",
+  "kind": "invented",
+  "covers": [
+    "leap-day-century",
+    "utc-next-month",
+    "southern-hemisphere",
+    "west-longitude"
+  ],
+  "note": "29 February 2000, a century leap day, late enough to be 1 March in UTC, in standard time.",
+  "record": {
+    "local": "2000-02-29T23:30:00",
+    "zone": "America/Sao_Paulo",
+    "lat": -23.5505,
+    "lng": -46.6333
+  },
+  "expected": {
+    "local": "2000-02-29T23:30:00",
+    "lat": -23.5505,
+    "lng": -46.6333,
+    "localTime": "normal",
+    "offsetSeconds": -10800,
+    "utc": "2000-03-01T02:30:00Z",
+    "julianDay": 2451604.6041666665
+  },
+  "oracle": "IANA tzdata 2026e through Python zoneinfo; Julian Day by Meeus, chapter 7"
+}

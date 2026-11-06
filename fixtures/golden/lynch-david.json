@@ -1,0 +1,36 @@
+{
+  "id": "lynch-david",
+  "kind": "public-record",
+  "person": "David Lynch",
+  "page": "https://www.astro.com/astro-databank/Lynch,_David",
+  "covers": [
+    "us-mountain-time",
+    "standard-time"
+  ],
+  "note": "The zone is the IANA zone chosen for the birthplace, the second opinion on the record's offset.",
+  "record": {
+    "zone": "America/Denver"
+  },
+  "astroDatabank": {
+    "url": "https://www.astro.com/astro-databank/Lynch,_David",
+    "title": "David Lynch, birth date 20 January 1946, with biography",
+    "born": "born on\t20 January 1946 at 03:00 (= 03:00 AM )",
+    "place": "Place\tMissoula, Montana, 46n52, 114w0",
+    "timezone": "Timezone\tMST h7w (is standard time)",
+    "dataSource": "BC/BR in hand",
+    "rodden": "Rodden Rating AA"
+  },
+  "expected": {
+    "local": "1946-01-20T03:00:00",
+    "lat": 46.866667,
+    "lng": -114,
+    "localTime": "normal",
+    "offsetSeconds": -25200,
+    "utc": "1946-01-20T10:00:00Z",
+    "julianDay": 2431840.9166666665,
+    "rodden": "AA",
+    "zoneOffsetSeconds": -25200,
+    "disputed": false
+  },
+  "oracle": "IANA tzdata 2026e through Python zoneinfo; Julian Day by Meeus, chapter 7"
+}

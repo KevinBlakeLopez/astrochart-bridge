@@ -1,0 +1,26 @@
+{
+  "id": "ny-2021-11-07-0130-edt",
+  "kind": "invented",
+  "covers": [
+    "ambiguous-local-time",
+    "daylight-saving"
+  ],
+  "note": "The first 01:30 of the night the clocks went back, still EDT.",
+  "record": {
+    "local": "2021-11-07T01:30:00",
+    "zone": "America/New_York",
+    "fold": 0,
+    "lat": 40.716667,
+    "lng": -74
+  },
+  "expected": {
+    "local": "2021-11-07T01:30:00",
+    "lat": 40.716667,
+    "lng": -74,
+    "localTime": "ambiguous",
+    "offsetSeconds": -14400,
+    "utc": "2021-11-07T05:30:00Z",
+    "julianDay": 2459525.7291666665
+  },
+  "oracle": "IANA tzdata 2026e through Python zoneinfo; Julian Day by Meeus, chapter 7"
+}

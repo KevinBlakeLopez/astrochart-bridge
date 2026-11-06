@@ -1,0 +1,26 @@
+{
+  "id": "ny-1944-war-time",
+  "kind": "invented",
+  "covers": [
+    "historical-offset",
+    "war-time",
+    "daylight-saving"
+  ],
+  "note": "Eastern War Time, daylight saving kept all year: -04:00 in January. fixtures/astroseek/ny-1944-01-10.json is a chart on Astro-Seek that day.",
+  "record": {
+    "local": "1944-01-10T12:00:00",
+    "zone": "America/New_York",
+    "lat": 40.716667,
+    "lng": -74
+  },
+  "expected": {
+    "local": "1944-01-10T12:00:00",
+    "lat": 40.716667,
+    "lng": -74,
+    "localTime": "normal",
+    "offsetSeconds": -14400,
+    "utc": "1944-01-10T16:00:00Z",
+    "julianDay": 2431100.1666666665
+  },
+  "oracle": "IANA tzdata 2026e through Python zoneinfo; Julian Day by Meeus, chapter 7"
+}

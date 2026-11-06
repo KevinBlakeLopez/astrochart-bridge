@@ -1,0 +1,36 @@
+{
+  "id": "gandhi-indira",
+  "kind": "public-record",
+  "person": "Indira Gandhi",
+  "page": "https://www.astro.com/astro-databank/Gandhi,_Indira",
+  "covers": [
+    "half-hour-offset",
+    "historical-offset"
+  ],
+  "note": "The zone is the IANA zone chosen for the birthplace, the second opinion on the record's offset.",
+  "record": {
+    "zone": "Asia/Kolkata"
+  },
+  "astroDatabank": {
+    "url": "https://www.astro.com/astro-databank/Gandhi,_Indira",
+    "title": "Indira Gandhi, birth date 19 November 1917, with biography",
+    "born": "born on\t19 November 1917 at 23:11 (= 11:11 PM )",
+    "place": "Place\tAllahabad, India, 25n27, 81e51",
+    "timezone": "Timezone\tIST h5e30 (is standard time)",
+    "dataSource": "From memory",
+    "rodden": "Rodden Rating A"
+  },
+  "expected": {
+    "local": "1917-11-19T23:11:00",
+    "lat": 25.45,
+    "lng": 81.85,
+    "localTime": "normal",
+    "offsetSeconds": 19800,
+    "utc": "1917-11-19T17:41:00Z",
+    "julianDay": 2421552.2368055554,
+    "rodden": "A",
+    "zoneOffsetSeconds": 19800,
+    "disputed": false
+  },
+  "oracle": "IANA tzdata 2026e through Python zoneinfo; Julian Day by Meeus, chapter 7"
+}

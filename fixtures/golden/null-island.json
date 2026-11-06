@@ -1,0 +1,25 @@
+{
+  "id": "null-island",
+  "kind": "invented",
+  "covers": [
+    "zero-coordinates",
+    "zero-offset"
+  ],
+  "note": "0° north, 0° east, in UTC.",
+  "record": {
+    "local": "2024-03-20T03:06:00",
+    "zone": "Etc/UTC",
+    "lat": 0,
+    "lng": 0
+  },
+  "expected": {
+    "local": "2024-03-20T03:06:00",
+    "lat": 0,
+    "lng": 0,
+    "localTime": "normal",
+    "offsetSeconds": 0,
+    "utc": "2024-03-20T03:06:00Z",
+    "julianDay": 2460389.629166667
+  },
+  "oracle": "IANA tzdata 2026e through Python zoneinfo; Julian Day by Meeus, chapter 7"
+}

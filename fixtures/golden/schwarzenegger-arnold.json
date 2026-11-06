@@ -1,0 +1,36 @@
+{
+  "id": "schwarzenegger-arnold",
+  "kind": "public-record",
+  "person": "Arnold Schwarzenegger",
+  "page": "https://www.astro.com/astro-databank/Schwarzenegger,_Arnold",
+  "covers": [
+    "daylight-saving",
+    "central-europe"
+  ],
+  "note": "The zone is the IANA zone chosen for the birthplace, the second opinion on the record's offset.",
+  "record": {
+    "zone": "Europe/Vienna"
+  },
+  "astroDatabank": {
+    "url": "https://www.astro.com/astro-databank/Schwarzenegger,_Arnold",
+    "title": "Arnold Schwarzenegger, birth date 30 July 1947, with biography",
+    "born": "born on\t30 July 1947 at 04:10 (= 04:10 AM )",
+    "place": "Place\tGraz, Austria, 47n05, 15e27",
+    "timezone": "Timezone\tMEDT h2e (is daylight saving time)",
+    "dataSource": "From memory",
+    "rodden": "Rodden Rating A"
+  },
+  "expected": {
+    "local": "1947-07-30T04:10:00",
+    "lat": 47.083333,
+    "lng": 15.45,
+    "localTime": "normal",
+    "offsetSeconds": 7200,
+    "utc": "1947-07-30T02:10:00Z",
+    "julianDay": 2432396.590277778,
+    "rodden": "A",
+    "zoneOffsetSeconds": 7200,
+    "disputed": false
+  },
+  "oracle": "IANA tzdata 2026e through Python zoneinfo; Julian Day by Meeus, chapter 7"
+}

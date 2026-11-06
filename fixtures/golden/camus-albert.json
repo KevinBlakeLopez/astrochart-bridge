@@ -1,0 +1,37 @@
+{
+  "id": "camus-albert",
+  "kind": "public-record",
+  "person": "Albert Camus",
+  "page": "https://www.astro.com/astro-databank/Camus,_Albert",
+  "covers": [
+    "africa",
+    "historical-offset",
+    "zero-offset-east-longitude"
+  ],
+  "note": "The zone is the IANA zone chosen for the birthplace, the second opinion on the record's offset.",
+  "record": {
+    "zone": "Africa/Algiers"
+  },
+  "astroDatabank": {
+    "url": "https://www.astro.com/astro-databank/Camus,_Albert",
+    "title": "Albert Camus, birth date 7 November 1913, with biography",
+    "born": "born on\t7 November 1913 at 02:00 (= 02:00 AM )",
+    "place": "Place\tMondovi, Algeria, 35n40, 7e49",
+    "timezone": "Timezone\tGMT h0e (is standard time)",
+    "dataSource": "Quoted BC/BR",
+    "rodden": "Rodden Rating AA"
+  },
+  "expected": {
+    "local": "1913-11-07T02:00:00",
+    "lat": 35.666667,
+    "lng": 7.816667,
+    "localTime": "normal",
+    "offsetSeconds": 0,
+    "utc": "1913-11-07T02:00:00Z",
+    "julianDay": 2420078.5833333335,
+    "rodden": "AA",
+    "zoneOffsetSeconds": 0,
+    "disputed": false
+  },
+  "oracle": "IANA tzdata 2026e through Python zoneinfo; Julian Day by Meeus, chapter 7"
+}

@@ -1,0 +1,27 @@
+{
+  "id": "south-pole-2020",
+  "kind": "invented",
+  "covers": [
+    "pole",
+    "utc-previous-year",
+    "daylight-saving",
+    "southern-hemisphere"
+  ],
+  "note": "The South Pole, which keeps New Zealand time: New Year's Day locally is 1999's last day in UTC.",
+  "record": {
+    "local": "2020-01-01T12:00:00",
+    "zone": "Antarctica/McMurdo",
+    "lat": -90,
+    "lng": 0
+  },
+  "expected": {
+    "local": "2020-01-01T12:00:00",
+    "lat": -90,
+    "lng": 0,
+    "localTime": "normal",
+    "offsetSeconds": 46800,
+    "utc": "2019-12-31T23:00:00Z",
+    "julianDay": 2458849.4583333335
+  },
+  "oracle": "IANA tzdata 2026e through Python zoneinfo; Julian Day by Meeus, chapter 7"
+}

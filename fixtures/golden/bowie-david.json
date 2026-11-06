@@ -1,0 +1,37 @@
+{
+  "id": "bowie-david",
+  "kind": "public-record",
+  "person": "David Bowie",
+  "page": "https://www.astro.com/astro-databank/Bowie,_David",
+  "covers": [
+    "near-prime-meridian",
+    "west-longitude",
+    "standard-time"
+  ],
+  "note": "The zone is the IANA zone chosen for the birthplace, the second opinion on the record's offset.",
+  "record": {
+    "zone": "Europe/London"
+  },
+  "astroDatabank": {
+    "url": "https://www.astro.com/astro-databank/Bowie,_David",
+    "title": "David Bowie, birth date 8 January 1947, with biography",
+    "born": "born on\t8 January 1947 at 09:00 (= 09:00 AM )",
+    "place": "Place\tBrixton (London), England, 51n29, 0w06",
+    "timezone": "Timezone\tGMT h0e (is standard time)",
+    "dataSource": "From memory",
+    "rodden": "Rodden Rating A"
+  },
+  "expected": {
+    "local": "1947-01-08T09:00:00",
+    "lat": 51.483333,
+    "lng": -0.1,
+    "localTime": "normal",
+    "offsetSeconds": 0,
+    "utc": "1947-01-08T09:00:00Z",
+    "julianDay": 2432193.875,
+    "rodden": "A",
+    "zoneOffsetSeconds": 0,
+    "disputed": false
+  },
+  "oracle": "IANA tzdata 2026e through Python zoneinfo; Julian Day by Meeus, chapter 7"
+}

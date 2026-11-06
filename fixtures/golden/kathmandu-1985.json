@@ -1,0 +1,25 @@
+{
+  "id": "kathmandu-1985",
+  "kind": "invented",
+  "covers": [
+    "half-hour-offset",
+    "historical-offset"
+  ],
+  "note": "Nepal at +05:30, before its change to +05:45.",
+  "record": {
+    "local": "1985-05-01T06:00:00",
+    "zone": "Asia/Kathmandu",
+    "lat": 27.7172,
+    "lng": 85.324
+  },
+  "expected": {
+    "local": "1985-05-01T06:00:00",
+    "lat": 27.7172,
+    "lng": 85.324,
+    "localTime": "normal",
+    "offsetSeconds": 19800,
+    "utc": "1985-05-01T00:30:00Z",
+    "julianDay": 2446186.5208333335
+  },
+  "oracle": "IANA tzdata 2026e through Python zoneinfo; Julian Day by Meeus, chapter 7"
+}

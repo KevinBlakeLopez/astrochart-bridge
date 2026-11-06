@@ -1,0 +1,25 @@
+{
+  "id": "ny-2021-11-07-0130-est",
+  "kind": "invented",
+  "covers": [
+    "ambiguous-local-time"
+  ],
+  "note": "The second 01:30 of the same night, EST.",
+  "record": {
+    "local": "2021-11-07T01:30:00",
+    "zone": "America/New_York",
+    "fold": 1,
+    "lat": 40.716667,
+    "lng": -74
+  },
+  "expected": {
+    "local": "2021-11-07T01:30:00",
+    "lat": 40.716667,
+    "lng": -74,
+    "localTime": "ambiguous",
+    "offsetSeconds": -18000,
+    "utc": "2021-11-07T06:30:00Z",
+    "julianDay": 2459525.7708333335
+  },
+  "oracle": "IANA tzdata 2026e through Python zoneinfo; Julian Day by Meeus, chapter 7"
+}

@@ -1,0 +1,24 @@
+{
+  "id": "utc-9999-12-31",
+  "kind": "invented",
+  "covers": [
+    "last-year"
+  ],
+  "note": "The last year a four-digit date can hold.",
+  "record": {
+    "local": "9999-12-31T12:00:00",
+    "zone": "Etc/UTC",
+    "lat": 51.477811,
+    "lng": -0.001475
+  },
+  "expected": {
+    "local": "9999-12-31T12:00:00",
+    "lat": 51.477811,
+    "lng": -0.001475,
+    "localTime": "normal",
+    "offsetSeconds": 0,
+    "utc": "9999-12-31T12:00:00Z",
+    "julianDay": 5373484.0
+  },
+  "oracle": "IANA tzdata 2026e through Python zoneinfo; Julian Day by Meeus, chapter 7"
+}
