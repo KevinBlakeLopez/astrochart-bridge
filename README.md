@@ -67,8 +67,8 @@ npm test
 | `extension/messages/` | The interface's text, one catalog per language (`en.js`, `es.js`), and `index.js`, which chooses one from the browser's languages and fills in each page's `data-text`. `_locales/` holds only the extension's name and description, for the browser and the stores. |
 | `extension/vendor/` | Tesseract.js for reading screenshots and lean-qr for QR codes, each with its licence. |
 | `test/` | `node --test` tests. |
-| `fixtures/` | Astro-Seek page captures, trimmed to their header block, and AAF files written by Astrolog. All use invented birth data. |
-| `tools/` | `package-safari.sh` makes the Xcode project for Safari; `package-stores.sh` packs a commit for the Chrome Web Store and Firefox Add-ons; `site.mjs` builds the receiving page's site; `make-icons.mjs` draws the icons; `trim-fixture.mjs` trims a new Astro-Seek capture before it's committed. |
+| `fixtures/` | Astro-Seek page captures, trimmed to their header block, and AAF files written by Astrolog, with invented birth data; in `golden/`, the reference charts every route out is tested against: invented ones, and well-known people's public birth records from Astro-Databank. The Astro-Seek captures named `golden-*` are of those charts. See [docs/golden-charts.md](docs/golden-charts.md). |
+| `tools/` | `package-safari.sh` makes the Xcode project for Safari; `package-stores.sh` packs a commit for the Chrome Web Store and Firefox Add-ons; `site.mjs` builds the receiving page's site; `make-icons.mjs` draws the icons; `trim-fixture.mjs` trims a new Astro-Seek capture before it's committed; `make-golden.py` works out the golden charts' expected values. |
 | `docs/` | Feature guides, the manual test checklist and notes on known issues. |
 
 ### Receiving page
@@ -85,6 +85,7 @@ Pushes to `main` run `.github/workflows/pages.yml`, which runs the tests and pub
 - [docs/store-listing.md](docs/store-listing.md): submitting to the Chrome Web Store and Firefox Add-ons
 - [docs/privacy.md](docs/privacy.md): what AstroChart Bridge reads, sends and keeps
 - [docs/manual-test.md](docs/manual-test.md): the manual test checklist
+- [docs/golden-charts.md](docs/golden-charts.md): the reference charts, and adding or swapping one
 - [docs/astroseek-known-issues.md](docs/astroseek-known-issues.md): Astro-Seek behaviour worked around or to report
 - [docs/saved-charts-ideas.md](docs/saved-charts-ideas.md): ideas, not planned, for an account's saved charts
 

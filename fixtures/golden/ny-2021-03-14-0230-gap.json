@@ -1,0 +1,25 @@
+{
+  "id": "ny-2021-03-14-0230-gap",
+  "kind": "invented",
+  "covers": [
+    "nonexistent-local-time"
+  ],
+  "note": "02:30 never happened: the clocks went from 02:00 to 03:00. fold 0 reads it at EST, the offset before the change. fixtures/astroseek/ny-2021-03-14-gap.json is this chart on Astro-Seek.",
+  "record": {
+    "local": "2021-03-14T02:30:00",
+    "zone": "America/New_York",
+    "fold": 0,
+    "lat": 40.716667,
+    "lng": -74
+  },
+  "expected": {
+    "local": "2021-03-14T02:30:00",
+    "lat": 40.716667,
+    "lng": -74,
+    "localTime": "nonexistent",
+    "offsetSeconds": -18000,
+    "utc": "2021-03-14T07:30:00Z",
+    "julianDay": 2459287.8125
+  },
+  "oracle": "IANA tzdata 2026e through Python zoneinfo; Julian Day by Meeus, chapter 7"
+}

@@ -4,7 +4,7 @@
 // Astro-Seek, be entered in astro.com, and be passed on. Every decision is made here, so chart.js only
 // reads the link or file and renders.
 import { fromFragment, keepLabels, parse, serialize, skyFor, toFragment } from "./core/portable.js";
-import { astroComStep, astroComStepByHand, astroSeekButtons, astroSeekNotes, nameFromText, viewFor } from "./popup-model.js";
+import { astroComStep, astroComStepByHand, astroSeekButtons, astroSeekNotes, astroSeekWarnings, nameFromText, viewFor } from "./popup-model.js";
 import { text } from "./messages/index.js";
 import { qrFor } from "./qr.js";
 
@@ -172,7 +172,10 @@ export function viewForImport(
   return {
     ...view,
     rows,
-    warnings: Object.hasOwn(words.viaWarnings, source.via) ? [words.viaWarnings[source.via]] : [],
+    warnings: [
+      ...(Object.hasOwn(words.viaWarnings, source.via) ? [words.viaWarnings[source.via]] : []),
+      ...astroSeekWarnings(chart.longitude),
+    ],
     notes: [...view.notes, ...astroSeekNotes(), ...(shareLink || canShareFiles ? [words.shareNote] : []), ...includesNotes],
     buttons,
     ...includes,

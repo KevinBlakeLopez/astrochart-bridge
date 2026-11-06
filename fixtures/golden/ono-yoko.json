@@ -1,0 +1,36 @@
+{
+  "id": "ono-yoko",
+  "kind": "public-record",
+  "person": "Yoko Ono",
+  "page": "https://www.astro.com/astro-databank/Ono,_Yoko",
+  "covers": [
+    "east-asia",
+    "standard-time"
+  ],
+  "note": "The zone is the IANA zone chosen for the birthplace, the second opinion on the record's offset.",
+  "record": {
+    "zone": "Asia/Tokyo"
+  },
+  "astroDatabank": {
+    "url": "https://www.astro.com/astro-databank/Ono,_Yoko",
+    "title": "Yoko Ono, birth date 18 February 1933, with biography",
+    "born": "born on\t18 February 1933 at 20:30 (= 8:30 PM )",
+    "place": "Place\tTokyo, Japan, 35n42, 139e46",
+    "timezone": "Timezone\tJST h9e (is standard time)",
+    "dataSource": "From memory",
+    "rodden": "Rodden Rating A"
+  },
+  "expected": {
+    "local": "1933-02-18T20:30:00",
+    "lat": 35.7,
+    "lng": 139.766667,
+    "localTime": "normal",
+    "offsetSeconds": 32400,
+    "utc": "1933-02-18T11:30:00Z",
+    "julianDay": 2427121.9791666665,
+    "rodden": "A",
+    "zoneOffsetSeconds": 32400,
+    "disputed": false
+  },
+  "oracle": "IANA tzdata 2026e through Python zoneinfo; Julian Day by Meeus, chapter 7"
+}

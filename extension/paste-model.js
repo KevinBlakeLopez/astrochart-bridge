@@ -5,6 +5,7 @@ import {
   astroComStep,
   astroSeekButtons,
   astroSeekNotes,
+  astroSeekWarnings,
   genderRows,
   labelsToShare,
   nameFromText,
@@ -319,7 +320,7 @@ export function viewForEntry(entry, { warnings = [], timeZone, name = null, town
     {
       ...view,
       ...(view.rows ? { rows: [...genderRows(gender), ...view.rows] } : {}),
-      warnings: [...view.warnings, ...warnings],
+      warnings: [...view.warnings, ...warnings, ...astroSeekWarnings(result.lng)],
       notes: [messages().paste.offsetNote, ...view.notes, ...astroSeekNotes()],
       buttons: [...astroSeekButtons(), shareButton()],
       next: astroComStep(view.sky, { local: result.local, name, town, gender }),

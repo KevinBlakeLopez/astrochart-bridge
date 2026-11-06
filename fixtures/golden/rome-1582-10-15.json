@@ -1,0 +1,26 @@
+{
+  "id": "rome-1582-10-15",
+  "kind": "invented",
+  "covers": [
+    "gregorian-first-day",
+    "local-mean-time",
+    "offset-seconds"
+  ],
+  "note": "Rome on the Gregorian calendar's first day, at the database's local mean time.",
+  "record": {
+    "local": "1582-10-15T12:00:00",
+    "zone": "Europe/Rome",
+    "lat": 41.9028,
+    "lng": 12.4964
+  },
+  "expected": {
+    "local": "1582-10-15T12:00:00",
+    "lat": 41.9028,
+    "lng": 12.4964,
+    "localTime": "normal",
+    "offsetSeconds": 2996,
+    "utc": "1582-10-15T11:10:04Z",
+    "julianDay": 2299160.965324074
+  },
+  "oracle": "IANA tzdata 2026e through Python zoneinfo; Julian Day by Meeus, chapter 7"
+}

@@ -1,5 +1,5 @@
 import { formTime, localOffset, zoneWords } from "./core/astrocom.js";
-import { astroSeekSaveUrl } from "./core/astroseek.js";
+import { astroSeekSaveUrl, onAstroSeekDateLine } from "./core/astroseek.js";
 import { parseOffset, utcFromOffset } from "./core/civiltime.js";
 import { nameFromText } from "./core/names.js";
 import { searchTown } from "./core/towns.js";
@@ -136,7 +136,12 @@ export function viewFor(result, { timeZone, town = null, name = null, kept = nul
   // its chart there, and leads to the values to enter in astro.com instead.
   if (result.site === "astro-com") {
     return withAstroSeekSave(
-      { ...ready, notes: [...ready.notes, ...astroSeekNotes()], buttons: chartButtons(astroSeekButtons()) },
+      {
+        ...ready,
+        warnings: [...ready.warnings, ...astroSeekWarnings(lng)],
+        notes: [...ready.notes, ...astroSeekNotes()],
+        buttons: chartButtons(astroSeekButtons()),
+      },
       townAndName(result),
     );
   }
@@ -185,6 +190,10 @@ export function offsetPreview(view, text) {
 
 // Shown wherever a button opens an Astro-Seek chart: here and on the screenshot page.
 export const astroSeekNotes = () => [...text().popup.astroSeekNotes];
+
+// Shown with them as a warning when Astro-Seek gets the chart 1' off: at a
+// longitude that rounds to 180°, which goes in as 179°59'.
+export const astroSeekWarnings = (lng) => (onAstroSeekDateLine(lng) ? [text().popup.astroSeekDateLine] : []);
 
 // The buttons of a screen whose chart can also open in Astro-Seek. Both open the
 // same decided UTC and place: Astro-Seek's chart in UT/GMT, as from a Stellarium tab.
@@ -449,6 +458,7 @@ export function viewForSky(sky, { timeZone, town = null } = {}) {
       [words.rows.utc, utcText(sky.utc)],
       [words.rows.place, placeText(sky.lat, sky.lng)],
     ],
+    ...(onAstroSeekDateLine(sky.lng) ? { warnings: astroSeekWarnings(sky.lng) } : {}),
     notes: astroSeekNotes(),
     sky,
     buttons: [{ label: words.buttons.openInAstroSeek, opens: "astro-seek" }],

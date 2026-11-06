@@ -4,7 +4,7 @@
 import { chartFromHor, parseHor } from "./core/morinus-hor.js";
 import { withAafExport } from "./aaf-model.js";
 import { text } from "./messages/index.js";
-import { astroComStep, astroSeekButtons, astroSeekNotes, genderRows, nameFromText, offsetText, viewFor, withAstroSeekSave } from "./popup-model.js";
+import { astroComStep, astroSeekButtons, astroSeekNotes, astroSeekWarnings, genderRows, nameFromText, offsetText, viewFor, withAstroSeekSave } from "./popup-model.js";
 
 // The words are the catalog's (messages/), read as each screen is built. Each
 // refusal keeps its code on screen, like the AAF import's refusals, so a bug
@@ -79,7 +79,10 @@ export function viewForHorChart(result, options) {
       {
         ...view,
         rows: [...first, ...rows],
-        warnings: warnings.map((code) => (Object.hasOwn(words.hor.warnings, code) ? words.hor.warnings[code] : code)),
+        warnings: [
+          ...warnings.map((code) => (Object.hasOwn(words.hor.warnings, code) ? words.hor.warnings[code] : code)),
+          ...astroSeekWarnings(chart.lng),
+        ],
         notes: [...view.notes, ...(morinus.timeBasis === "zone" ? [words.hor.zoneNote] : []), ...astroSeekNotes()],
         buttons: [...astroSeekButtons()],
         ...(view.sky ? { next: astroComStep(view.sky, { local: chart.local, name: nameFromText(chart.name), town: chart.place, gender }) } : {}),

@@ -1,0 +1,25 @@
+{
+  "id": "baker-island-1999",
+  "kind": "invented",
+  "covers": [
+    "smallest-offset",
+    "utc-next-year"
+  ],
+  "note": "-12:00, the smallest offset (Etc/GMT+12, whose name has POSIX's reversed sign): New Year's Eve locally is 2000 in UTC.",
+  "record": {
+    "local": "1999-12-31T23:30:00",
+    "zone": "Etc/GMT+12",
+    "lat": 0.1936,
+    "lng": -176.4769
+  },
+  "expected": {
+    "local": "1999-12-31T23:30:00",
+    "lat": 0.1936,
+    "lng": -176.4769,
+    "localTime": "normal",
+    "offsetSeconds": -43200,
+    "utc": "2000-01-01T11:30:00Z",
+    "julianDay": 2451544.9791666665
+  },
+  "oracle": "IANA tzdata 2026e through Python zoneinfo; Julian Day by Meeus, chapter 7"
+}

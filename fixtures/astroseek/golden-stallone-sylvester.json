@@ -1,0 +1,31 @@
+{
+  "url": "https://horoscopes.astro-seek.com/calculate-birth-chart-horoscope-online/?input_natal=1&send_calculation=1&narozeni_den=6&narozeni_mesic=7&narozeni_rok=1946&narozeni_hodina=23&narozeni_minuta=20&narozeni_sekunda=00&narozeni_city=&narozeni_mesto_hidden=Manually+place%3A+%C2%B0%27N%2C+%C2%B0%27E&narozeni_stat_hidden=&narozeni_podstat_kratky_hidden=&narozeni_tzid_id=&narozeni_sirka_stupne=40&narozeni_sirka_minuty=43&narozeni_sirka_smer=0&narozeni_delka_stupne=74&narozeni_delka_minuty=0&narozeni_delka_smer=1&narozeni_timezone_form=0&narozeni_timezone_dst_form=0&house_system=placidus&hid_fortune=1&hid_vertex=1&hid_chiron=1&hid_chiron_check=on&hid_lilith=1&hid_lilith_check=on&hid_uzel=1&hid_uzel_check=on&tolerance=1&aya=&tolerance_paral=0",
+  "input": {
+    "text": "Date of Birth (local time):\n6 Jul 1946 - 23:20  (Manually: GMT+00:00)\nUniversal Time (UT/GMT):\n6 Jul 1946 - 23:20  \nLocal Sidereal Time (LST):\n13:21:19\nHouse system:\nPlacidus system\nLatitude, Longitude:\n40°43'N, 74°0'W"
+  },
+  "capturedAt": "2026-11-06T15:01:06.429Z",
+  "capture": {
+    "lines": 735,
+    "headerLine": 17,
+    "labelCounts": {
+      "Date of Birth (local time):": 1,
+      "Universal Time (UT/GMT):": 1,
+      "Latitude, Longitude:": 1
+    }
+  },
+  "golden": "stallone-sylvester",
+  "expected": {
+    "kind": "natal",
+    "site": "astro-seek",
+    "local": "1946-07-06T23:20:00",
+    "zoneLabel": "Manually: GMT+00:00",
+    "lat": 40.716667,
+    "lng": -74,
+    "utc": "1946-07-06T23:20:00Z",
+    "utcSource": "printed",
+    "offsetMinutes": 0,
+    "warnings": [
+      "zone-label-unknown"
+    ]
+  }
+}

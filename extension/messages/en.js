@@ -194,6 +194,7 @@ export default {
       "Astro-Seek will draw this chart in UT/GMT at these coordinates, rounded to the minute, with no city.",
       "Opening the chart sends this date, time and place to astro-seek.com.",
     ],
+    astroSeekDateLine: "Astro-Seek can't take a longitude of 180°, so it gets 179°59' on the same side, 1 arcminute away.",
     astroSeekSaveNote: "Opening or saving sends this date, time and place to astro-seek.com.",
     astroSeekSaveNamedNote:
       "Opening or saving sends this date, time and place to astro-seek.com; saving also sends the chart's name and town, if it has them.",

@@ -1,0 +1,27 @@
+{
+  "id": "chatham-2015",
+  "kind": "invented",
+  "covers": [
+    "quarter-hour-offset",
+    "daylight-saving",
+    "southern-hemisphere",
+    "west-longitude-east-offset"
+  ],
+  "note": "The Chatham Islands in summer, +13:45, at a west longitude.",
+  "record": {
+    "local": "2015-01-15T12:00:00",
+    "zone": "Pacific/Chatham",
+    "lat": -43.95,
+    "lng": -176.55
+  },
+  "expected": {
+    "local": "2015-01-15T12:00:00",
+    "lat": -43.95,
+    "lng": -176.55,
+    "localTime": "normal",
+    "offsetSeconds": 49500,
+    "utc": "2015-01-14T22:15:00Z",
+    "julianDay": 2457037.4270833335
+  },
+  "oracle": "IANA tzdata 2026e through Python zoneinfo; Julian Day by Meeus, chapter 7"
+}

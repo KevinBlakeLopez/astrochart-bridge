@@ -1,0 +1,25 @@
+{
+  "id": "ny-1900-02-28",
+  "kind": "invented",
+  "covers": [
+    "non-leap-century",
+    "utc-next-month"
+  ],
+  "note": "1900 had no 29 February, so 28 February late is 1 March in UTC.",
+  "record": {
+    "local": "1900-02-28T22:00:00",
+    "zone": "America/New_York",
+    "lat": 40.716667,
+    "lng": -74
+  },
+  "expected": {
+    "local": "1900-02-28T22:00:00",
+    "lat": 40.716667,
+    "lng": -74,
+    "localTime": "normal",
+    "offsetSeconds": -18000,
+    "utc": "1900-03-01T03:00:00Z",
+    "julianDay": 2415079.625
+  },
+  "oracle": "IANA tzdata 2026e through Python zoneinfo; Julian Day by Meeus, chapter 7"
+}

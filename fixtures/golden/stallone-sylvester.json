@@ -1,0 +1,36 @@
+{
+  "id": "stallone-sylvester",
+  "kind": "public-record",
+  "person": "Sylvester Stallone",
+  "page": "https://www.astro.com/astro-databank/Stallone,_Sylvester",
+  "covers": [
+    "daylight-saving",
+    "us-eastern-time"
+  ],
+  "note": "The zone is the IANA zone chosen for the birthplace, the second opinion on the record's offset.",
+  "record": {
+    "zone": "America/New_York"
+  },
+  "astroDatabank": {
+    "url": "https://www.astro.com/astro-databank/Stallone,_Sylvester",
+    "title": "Sylvester Stallone, birth date 6 July 1946, with biography",
+    "born": "born on\t6 July 1946 at 19:20 (= 7:20 PM )",
+    "place": "Place\tNew York, New York, 40n43, 74w0",
+    "timezone": "Timezone\tEDT h4w (is daylight saving time)",
+    "dataSource": "From memory",
+    "rodden": "Rodden Rating A"
+  },
+  "expected": {
+    "local": "1946-07-06T19:20:00",
+    "lat": 40.716667,
+    "lng": -74,
+    "localTime": "normal",
+    "offsetSeconds": -14400,
+    "utc": "1946-07-06T23:20:00Z",
+    "julianDay": 2432008.472222222,
+    "rodden": "A",
+    "zoneOffsetSeconds": -14400,
+    "disputed": false
+  },
+  "oracle": "IANA tzdata 2026e through Python zoneinfo; Julian Day by Meeus, chapter 7"
+}

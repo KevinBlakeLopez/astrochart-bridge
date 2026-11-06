@@ -1,0 +1,25 @@
+{
+  "id": "ny-2021-03-20-seconds",
+  "kind": "invented",
+  "covers": [
+    "birth-seconds",
+    "daylight-saving"
+  ],
+  "note": "A birth time with seconds.",
+  "record": {
+    "local": "2021-03-20T02:30:45",
+    "zone": "America/New_York",
+    "lat": 40.716667,
+    "lng": -74
+  },
+  "expected": {
+    "local": "2021-03-20T02:30:45",
+    "lat": 40.716667,
+    "lng": -74,
+    "localTime": "normal",
+    "offsetSeconds": -14400,
+    "utc": "2021-03-20T06:30:45Z",
+    "julianDay": 2459293.771354167
+  },
+  "oracle": "IANA tzdata 2026e through Python zoneinfo; Julian Day by Meeus, chapter 7"
+}

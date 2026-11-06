@@ -1,0 +1,36 @@
+{
+  "id": "obama-barack",
+  "kind": "public-record",
+  "person": "Barack Obama",
+  "page": "https://www.astro.com/astro-databank/Obama,_Barack",
+  "covers": [
+    "minus-ten-offset",
+    "utc-next-day"
+  ],
+  "note": "The zone is the IANA zone chosen for the birthplace, the second opinion on the record's offset.",
+  "record": {
+    "zone": "Pacific/Honolulu"
+  },
+  "astroDatabank": {
+    "url": "https://www.astro.com/astro-databank/Obama,_Barack",
+    "title": "Barack Obama, birth date 4 August 1961, with biography",
+    "born": "born on\t4 August 1961 at 19:24 (= 7:24 PM )",
+    "place": "Place\tHonolulu, Hawaii, 21n18, 157w52",
+    "timezone": "Timezone\tAHST h10w (is standard time)",
+    "dataSource": "BC/BR in hand",
+    "rodden": "Rodden Rating AA"
+  },
+  "expected": {
+    "local": "1961-08-04T19:24:00",
+    "lat": 21.3,
+    "lng": -157.866667,
+    "localTime": "normal",
+    "offsetSeconds": -36000,
+    "utc": "1961-08-05T05:24:00Z",
+    "julianDay": 2437516.725,
+    "rodden": "AA",
+    "zoneOffsetSeconds": -36000,
+    "disputed": false
+  },
+  "oracle": "IANA tzdata 2026e through Python zoneinfo; Julian Day by Meeus, chapter 7"
+}

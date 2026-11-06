@@ -1,0 +1,25 @@
+{
+  "id": "london-1800-lmt",
+  "kind": "invented",
+  "covers": [
+    "local-mean-time",
+    "offset-seconds"
+  ],
+  "note": "Before standard time: the database's local mean time for London, to the second. It is the database's offset, not one worked out from this longitude.",
+  "record": {
+    "local": "1800-06-01T12:00:00",
+    "zone": "Europe/London",
+    "lat": 51.5074,
+    "lng": -0.1278
+  },
+  "expected": {
+    "local": "1800-06-01T12:00:00",
+    "lat": 51.5074,
+    "lng": -0.1278,
+    "localTime": "normal",
+    "offsetSeconds": -75,
+    "utc": "1800-06-01T12:01:15Z",
+    "julianDay": 2378648.0008680555
+  },
+  "oracle": "IANA tzdata 2026e through Python zoneinfo; Julian Day by Meeus, chapter 7"
+}

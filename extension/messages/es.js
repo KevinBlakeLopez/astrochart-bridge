@@ -196,6 +196,7 @@ export default {
       "Astro-Seek dibujará esta carta en UT/GMT en estas coordenadas, redondeada al minuto y sin ciudad.",
       "Abrir la carta envía esta fecha, hora y lugar a astro-seek.com.",
     ],
+    astroSeekDateLine: "Astro-Seek no admite una longitud de 180°, así que recibe 179°59' del mismo lado, a 1 minuto de arco.",
     astroSeekSaveNote: "Abrir o guardar envía esta fecha, hora y lugar a astro-seek.com.",
     astroSeekSaveNamedNote:
       "Abrir o guardar envía esta fecha, hora y lugar a astro-seek.com; guardar también envía el nombre y la ciudad de la carta, si los tiene.",

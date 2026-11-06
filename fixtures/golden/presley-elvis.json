@@ -1,0 +1,36 @@
+{
+  "id": "presley-elvis",
+  "kind": "public-record",
+  "person": "Elvis Presley",
+  "page": "https://www.astro.com/astro-databank/Presley,_Elvis",
+  "covers": [
+    "us-central-time",
+    "standard-time"
+  ],
+  "note": "The zone is the IANA zone chosen for the birthplace, the second opinion on the record's offset.",
+  "record": {
+    "zone": "America/Chicago"
+  },
+  "astroDatabank": {
+    "url": "https://www.astro.com/astro-databank/Presley,_Elvis",
+    "title": "Elvis Presley, birth date 8 January 1935, with biography",
+    "born": "born on\t8 January 1935 at 04:35 (= 04:35 AM )",
+    "place": "Place\tTupelo, Mississippi, 34n15, 88w42",
+    "timezone": "Timezone\tCST h6w (is standard time)",
+    "dataSource": "BC/BR in hand",
+    "rodden": "Rodden Rating AA"
+  },
+  "expected": {
+    "local": "1935-01-08T04:35:00",
+    "lat": 34.25,
+    "lng": -88.7,
+    "localTime": "normal",
+    "offsetSeconds": -21600,
+    "utc": "1935-01-08T10:35:00Z",
+    "julianDay": 2427810.940972222,
+    "rodden": "AA",
+    "zoneOffsetSeconds": -21600,
+    "disputed": false
+  },
+  "oracle": "IANA tzdata 2026e through Python zoneinfo; Julian Day by Meeus, chapter 7"
+}

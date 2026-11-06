@@ -1,0 +1,25 @@
+{
+  "id": "longyearbyen-2024",
+  "kind": "invented",
+  "covers": [
+    "high-latitude",
+    "daylight-saving"
+  ],
+  "note": "Svalbard at midsummer, 78° north.",
+  "record": {
+    "local": "2024-06-21T12:00:00",
+    "zone": "Arctic/Longyearbyen",
+    "lat": 78.2232,
+    "lng": 15.6267
+  },
+  "expected": {
+    "local": "2024-06-21T12:00:00",
+    "lat": 78.2232,
+    "lng": 15.6267,
+    "localTime": "normal",
+    "offsetSeconds": 7200,
+    "utc": "2024-06-21T10:00:00Z",
+    "julianDay": 2460482.9166666665
+  },
+  "oracle": "IANA tzdata 2026e through Python zoneinfo; Julian Day by Meeus, chapter 7"
+}

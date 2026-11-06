@@ -1,0 +1,36 @@
+{
+  "id": "einstein-albert",
+  "kind": "public-record",
+  "person": "Albert Einstein",
+  "page": "https://www.astro.com/astro-databank/Einstein,_Albert",
+  "covers": [
+    "local-mean-time",
+    "disputed-offset"
+  ],
+  "note": "The zone is the IANA zone chosen for the birthplace, the second opinion on the record's offset.",
+  "record": {
+    "zone": "Europe/Berlin"
+  },
+  "astroDatabank": {
+    "url": "https://www.astro.com/astro-databank/Einstein,_Albert",
+    "title": "Albert Einstein, birth date 14 March 1879, with biography",
+    "born": "born on\t14 March 1879 at 11:30 (= 11:30 AM )",
+    "place": "Place\tUlm, Germany, 48n24, 10e0",
+    "timezone": "Timezone\tLMT m10e0 (is local mean time)",
+    "dataSource": "BC/BR in hand",
+    "rodden": "Rodden Rating AA"
+  },
+  "expected": {
+    "local": "1879-03-14T11:30:00",
+    "lat": 48.4,
+    "lng": 10,
+    "localTime": "normal",
+    "offsetSeconds": 2400,
+    "utc": "1879-03-14T10:50:00Z",
+    "julianDay": 2407422.951388889,
+    "rodden": "AA",
+    "zoneOffsetSeconds": 3208,
+    "disputed": true
+  },
+  "oracle": "IANA tzdata 2026e through Python zoneinfo; Julian Day by Meeus, chapter 7"
+}
