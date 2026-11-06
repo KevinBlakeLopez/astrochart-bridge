@@ -13,9 +13,11 @@ import { julianDay, utcFromJulianDay } from "./stellarium-desktop.js";
 export const PLANETS = Object.freeze(["mercury", "venus", "mars", "jupiter", "saturn"]);
 
 // Degrees: 17′, 8°30′ and 15°, the values most often cited. The traditions
-// differ, and 17° for under the beams is cited too, so which to use is the
-// owner's decision, still open. Each result records the limits it used.
+// differ for under the beams, so a caller can choose 17°, the other value
+// most often cited, as the owner decided on 6 November 2026. Each result
+// records the limits it used.
 const CONDITION_LIMITS = Object.freeze({ cazimi: 17 / 60, combust: 8.5, underTheBeams: 15 });
+export const UNDER_THE_BEAMS_LIMITS = Object.freeze([15, 17]);
 
 // The windows of §6, reported by this name. The evening one runs from the
 // sunset nearest the chart's instant to the end of astronomical twilight, and
@@ -49,17 +51,23 @@ const refused = (reason) => ({ kind: "refused", reason });
  * engine's atmosphere and observer; the engine isn't disposed.
  *
  * Only natal charts with a decided UTC are taken. Charts carry no elevation,
- * so it's 0 m unless options gives one.
+ * so it's 0 m unless options gives one. Under the beams means within 15° of
+ * the Sun unless options chooses 17°.
  *
  * @param {object} chart  a normalized chart, as analyzePage or analyzeEntry gives it
  * @param {(typeof PLANETS)[number]} planet
  * @param {import("../helioscope-engine.js").Engine} engine  from createEngine
- * @param {{ elevation?: number }} [options]  the observer's elevation, in metres
+ * @param {{ elevation?: number, underTheBeams?: (typeof UNDER_THE_BEAMS_LIMITS)[number] }} [options]
+ *   the observer's elevation in metres, and the limit for under the beams in degrees
  * @returns {{ kind: "refused", reason: "not-natal" | "needs-offset" | "needs-choice" | "invalid-coordinates"
  *   | "date-out-of-range" | "invalid-elevation" } | Visibility}
  */
-export function visibility(chart, planet, engine, { elevation } = {}) {
+export function visibility(chart, planet, engine, { elevation, underTheBeams = CONDITION_LIMITS.underTheBeams } = {}) {
   if (!PLANETS.includes(planet)) throw new Error(`visibility needs a naked-eye planet: ${PLANETS.join(", ")}; got ${planet}`);
+  if (!UNDER_THE_BEAMS_LIMITS.includes(underTheBeams)) {
+    throw new Error(`visibility takes under the beams as ${UNDER_THE_BEAMS_LIMITS.join("° or ")}°; got ${underTheBeams}`);
+  }
+  const limits = Object.freeze({ ...CONDITION_LIMITS, underTheBeams });
   if (chart?.kind !== "natal") return refused("not-natal");
   if (typeof chart.utc !== "string") return refused(chart.utcSource === "needs-choice" ? "needs-choice" : "needs-offset");
   if (!onGlobe(chart.lat, chart.lng)) return refused("invalid-coordinates");
@@ -80,7 +88,7 @@ export function visibility(chart, planet, engine, { elevation } = {}) {
     planet,
     at: { jd, utc: chart.utc },
     place,
-    solar: solar(engine.solarGeometry(jd, planet)),
+    solar: solar(engine.solarGeometry(jd, planet), underTheBeams),
     windows: { evening: evening.window, morning: morning.window },
     classification: classify(evening.window, morning.window),
     assumptions: {
@@ -90,7 +98,7 @@ export function visibility(chart, planet, engine, { elevation } = {}) {
       elevation: { metres, source: elevation === undefined ? "default" : "given" },
       windowRule: WINDOW_RULE,
       stepMinutes: STEP_MINUTES,
-      conditionLimits: CONDITION_LIMITS,
+      conditionLimits: limits,
     },
   };
 }
@@ -154,16 +162,17 @@ export function longitudeGap(planetLongitude, sunLongitude) {
 
 /**
  * The traditional solar condition for a longitude gap, on either side of the
- * Sun, by CONDITION_LIMITS.
+ * Sun, by CONDITION_LIMITS, with under the beams to the limit given.
  *
  * @param {number} gap  degrees, as longitudeGap gives it
+ * @param {(typeof UNDER_THE_BEAMS_LIMITS)[number]} [underTheBeams]  degrees
  * @returns {"cazimi" | "combust" | "under-the-beams" | "clear"}
  */
-export function traditionalCondition(gap) {
+export function traditionalCondition(gap, underTheBeams = CONDITION_LIMITS.underTheBeams) {
   const distance = Math.abs(gap);
   if (distance <= CONDITION_LIMITS.cazimi) return "cazimi";
   if (distance <= CONDITION_LIMITS.combust) return "combust";
-  if (distance <= CONDITION_LIMITS.underTheBeams) return "under-the-beams";
+  if (distance <= underTheBeams) return "under-the-beams";
   return "clear";
 }
 
@@ -252,7 +261,7 @@ function sampled(window, engine, place, planet) {
   };
 }
 
-function solar(geometry) {
+function solar(geometry, underTheBeams) {
   if (geometry.kind !== "computed") return failure(geometry);
   const { sunLongitude, planetLongitude, planetLatitude, elongation } = geometry;
   const gap = longitudeGap(planetLongitude, sunLongitude);
@@ -263,7 +272,7 @@ function solar(geometry) {
     planetLatitude,
     longitudeGap: gap,
     elongation,
-    condition: traditionalCondition(gap),
+    condition: traditionalCondition(gap, underTheBeams),
     apparition: apparition(gap),
   };
 }

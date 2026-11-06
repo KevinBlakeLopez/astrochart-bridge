@@ -129,6 +129,20 @@ The documentation and the behaviour differ in four places (**Verified**, §8):
 | Apparition | The side of the Sun: east is the evening sky, west the morning sky | Needs explicit rules near conjunction and opposition: Jupiter at opposition came out "west", at Δλ −179.86°. It also needs one for an inferior conjunction at a large latitude, when a planet can be in both skies (§8) |
 | Predicted visibility | `swe_vis_limit_mag` across the observation windows | Never taken from the natal instant: a planet below the horizon at birth says nothing about glare |
 
+**Verified** in the WebAssembly on 6 November 2026, through Helioscope: for a chart at local noon in New York on every day of 2015 to 2034, the share predicted detectable among charts with the planet 12° to 20° from the Sun in longitude. There were 4,844 charts, from 40 to 426 in each cell.
+
+| Planet | 12–13° | 13–14° | 14–15° | 15–16° | 16–17° | 17–18° | 18–19° | 19–20° |
+|---|---|---|---|---|---|---|---|---|
+| Mercury | 3 % | 15 % | 21 % | 24 % | 39 % | 52 % | 54 % | 38 % |
+| Venus | 47 % | 52 % | 56 % | 61 % | 73 % | 85 % | 86 % | 87 % |
+| Mars | 0 % | 0 % | 0 % | 0 % | 0 % | 0 % | 0 % | 4 % |
+| Jupiter | 15 % | 29 % | 45 % | 43 % | 50 % | 57 % | 55 % | 61 % |
+| Saturn | 0 % | 0 % | 0 % | 0 % | 0 % | 0 % | 14 % | 35 % |
+
+Between 15° and 17° Venus is usually detectable, and Mars and Saturn never are, so no single limit for under the beams means hidden by the Sun for every planet. The choice is between conventions, and Helioscope's prediction answers the question of visibility separately.
+
+**Decision, 6 November 2026:** under the beams is within 15° of the Sun unless the caller chooses 17°. `visibility()` takes `underTheBeams` as 15 or 17, nothing else, and each result records the limits it used. Cazimi stays within 17′ and combust within 8°30′.
+
 ### Observation windows
 
 For the chart's UTC and place:
@@ -424,4 +438,5 @@ The engine failing to load is tested too, with `swisseph.wasm` missing or not We
    - When the WebAssembly can't be loaded, `createEngine()` rejects quickly and leaves nothing behind, for a page to catch.
    - On a night the Sun never reaches −18°, its windows run to and from the Sun's lowest point, as the owner decided on 6 November 2026 (§6).
    - There's no "marginal" class, as the owner decided on 6 November 2026 (§6): a result shows its raw margin with its assumptions.
+   - Under the beams is within 15° of the Sun unless 17° is chosen, as the owner decided the same day (§6).
    - No page uses it yet.

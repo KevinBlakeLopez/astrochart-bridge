@@ -7,6 +7,7 @@ import {
   longitudeGap,
   sampleInstants,
   traditionalCondition,
+  UNDER_THE_BEAMS_LIMITS,
   visibility,
 } from "../extension/core/helioscope.js";
 import { createEngine } from "../extension/helioscope-engine.js";
@@ -177,6 +178,31 @@ test("visibility: a chart Helioscope can't evaluate is refused before anything i
   }
 });
 
+test("visibility: under the beams is 15° unless 17° is chosen: Venus 16.08° west of the Sun on 1 November 2025", async () => {
+  const chart = { ...CHART, local: "2025-11-01T13:00:00", utc: "2025-11-01T17:00:00Z", offsetMinutes: -240 };
+  const engine = await createEngine();
+  try {
+    const fifteen = visibility(chart, "venus", engine);
+    const seventeen = visibility(chart, "venus", engine, { underTheBeams: 17 });
+    assert.equal(fifteen.solar.condition, "clear");
+    assert.equal(seventeen.solar.condition, "under-the-beams");
+    assert.equal(fifteen.assumptions.conditionLimits.underTheBeams, 15);
+    assert.equal(seventeen.assumptions.conditionLimits.underTheBeams, 17);
+    // The traditional condition is kept apart from the prediction, which doesn't change.
+    assert.deepEqual(seventeen.windows, fifteen.windows);
+    assert.deepEqual(seventeen.classification, fifteen.classification);
+  } finally {
+    engine.dispose();
+  }
+});
+
+test("visibility: under the beams is 15° or 17°, the two limits most often cited, and nothing else", () => {
+  assert.deepEqual(UNDER_THE_BEAMS_LIMITS, [15, 17]);
+  for (const underTheBeams of [16, 15.0001, "15", null]) {
+    assert.throws(() => visibility(CHART, "venus", UNUSED, { underTheBeams }), /under the beams/, String(underTheBeams));
+  }
+});
+
 test("visibility: only the five naked-eye planets", () => {
   for (const planet of ["sun", "moon", "uranus", "Venus"]) {
     assert.throws(() => visibility(CHART, planet, UNUSED), /planet/, planet);
@@ -270,6 +296,17 @@ test("traditionalCondition: cazimi within 17′, combust within 8°30′, under 
     [180, "clear"],
   ];
   for (const [gap, condition] of cases) assert.equal(traditionalCondition(gap), condition, String(gap));
+});
+
+test("traditionalCondition: under the beams within 17°, when that's the limit chosen", () => {
+  const cases = [
+    [17 / 60, "cazimi"],
+    [8.5, "combust"],
+    [15.01, "under-the-beams"],
+    [-17, "under-the-beams"],
+    [17.01, "clear"],
+  ];
+  for (const [gap, condition] of cases) assert.equal(traditionalCondition(gap, 17), condition, String(gap));
 });
 
 test("apparition: east of the Sun is the evening sky, west the morning, and neither at conjunction or opposition", () => {
