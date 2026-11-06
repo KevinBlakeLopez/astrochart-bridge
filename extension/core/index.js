@@ -126,14 +126,19 @@ export function analyzePage({ url, input }) {
 const ENTRY_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const ENTRY_TIME = /^\d{2}:\d{2}:\d{2}$/;
 
+// The Gregorian calendar's first day. The fixed-width form sorts like the
+// dates it writes.
+const GREGORIAN_START = "1582-10-15";
+
 /**
  * The same as analyzePage, for birth data the user confirmed on the paste
  * page's review form, as readText and readField give its values. Like an
  * astro.com chart, it states its offset, so the UTC follows from it.
  *
  * The form enables its button only once all five values are read, so a missing
- * or malformed one is a bug in the form and throws, like stellariumUrl. The
- * message names the field but not its value, which is birth data.
+ * or malformed one is a bug in the form and throws, like stellariumUrl. So is
+ * a date before 15 October 1582, which the form refuses. The message names the
+ * field but not its value, which is birth data.
  *
  * @param {{ date: string, time: string, lat: number, lng: number, offsetMinutes: number }} entry
  *   date like "1985-06-15", time like "10:30:00", offsetMinutes east of UTC
@@ -163,6 +168,7 @@ export function analyzeEntry({ date, time, lat, lng, offsetMinutes }) {
   if (Number.isNaN(ms) || new Date(ms).toISOString().slice(0, 19) !== local) {
     throw new Error("analyzeEntry needs a valid date and time");
   }
+  if (date < GREGORIAN_START) throw new Error("analyzeEntry needs a date from 15 October 1582 on");
 
   // The zone as written, such as "PDT (UTC-7)", stays on the form: as a zone
   // label it would print inside the Local time row.
