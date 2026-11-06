@@ -355,7 +355,14 @@ Firefox and Safari weren't run: on 2 November 2026 the owner chose to skip them,
   - A result that isn't finite.
   - Two atmospheres at one instant, which must not return the cached value (item 5).
 
-The proof of concept (§10) has the Venus case at the engine boundary, all nine reference cases through the whole calculation, the time tests, Moshier always, a date outside the Moshier range, invalid coordinates, a chart with no location or no decided UTC, a result that isn't finite, and two atmospheres at one instant. Helioscope refuses charts before 15 October 1582 itself, and needs to. **Verified** on 2 November 2026: the paste page's `analyzeEntry` takes 1 June 1500 and returns a natal chart, so §2's statement that such charts are refused before any of this runs doesn't hold for the paste page. Still to write: the engine failing to load.
+The proof of concept (§10) has the Venus case at the engine boundary, all nine reference cases through the whole calculation, the time tests, Moshier always, a date outside the Moshier range, invalid coordinates, a chart with no location or no decided UTC, a result that isn't finite, and two atmospheres at one instant. Helioscope refuses charts before 15 October 1582 itself, and needs to. **Verified** on 2 November 2026: the paste page's `analyzeEntry` takes 1 June 1500 and returns a natal chart, so §2's statement that such charts are refused before any of this runs doesn't hold for the paste page.
+
+The engine failing to load is tested too, with `swisseph.wasm` missing or not WebAssembly, so every item above now has a test. **Verified** in Node on 6 November 2026, in a copy of the engine and its package with `swisseph.wasm` missing, not WebAssembly or truncated:
+
+- `createEngine()` rejected with a `WebAssembly.RuntimeError` within about 2 ms, and no rejection went unhandled.
+- Before rejecting, the glue wrote two lines to stderr: "failed to asynchronously prepare wasm", then "Aborted(…)". For a missing file the message includes its path.
+
+**Read** in the glue: a browser tries streaming compilation first, so its console would show up to four lines before the same rejection. Checking that, and deciding what a page shows when it happens, wait until Helioscope has a page.
 
 ## 9. Remaining risks
 
@@ -384,4 +391,5 @@ The proof of concept (§10) has the Venus case at the engine boundary, all nine 
    - For Venus from New York, the evening window is predicted detectable, with a best margin of +9.01 at 23:14:32 UTC. Results round times to the nearest second; the link in §7 cut the seconds off, so it says 23:14:31.
    - All nine of §8's reference cases come out as §8 describes them, compared with native values rerun with its sampling rule.
    - Its windows follow the chart's UTC instant and place, through the same readers as any chart: across local midnight, at Sydney's date boundary, in the 2021 daylight saving gap once a UTC is chosen, and in 1944 on War Time.
+   - When the WebAssembly can't be loaded, `createEngine()` rejects quickly and leaves nothing behind, for a page to catch.
    - No page uses it yet. The high-latitude window rule and a "marginal" class are still the owner's to decide: until then, a chart with no window is indeterminate, and there's no marginal class.
