@@ -178,9 +178,10 @@ export function traditionalCondition(gap, underTheBeams = CONDITION_LIMITS.under
 
 /**
  * The sky of the planet's apparition, from its side of the Sun: east is the
- * evening sky, west the morning. null at conjunction and opposition, which
- * are on neither side. Near them, and at an inferior conjunction far from the
- * ecliptic, a planet can be in both skies; the windows show which.
+ * evening sky, west the morning, the traditional occidental and oriental.
+ * null at conjunction and opposition, which are on neither side. Near them,
+ * and at an inferior conjunction far from the ecliptic, a planet can be in
+ * both skies; the windows show which.
  *
  * @param {number} gap  degrees, as longitudeGap gives it
  * @returns {"evening" | "morning" | null}

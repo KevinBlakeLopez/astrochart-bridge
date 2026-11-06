@@ -143,6 +143,20 @@ Between 15° and 17° Venus is usually detectable, and Mars and Saturn never are
 
 **Decision, 6 November 2026:** under the beams is within 15° of the Sun unless the caller chooses 17°. `visibility()` takes `underTheBeams` as 15 or 17, nothing else, and each result records the limits it used. Cazimi stays within 17′ and combust within 8°30′.
 
+The side of the Sun, which the apparition follows, is the traditional distinction between oriental and occidental: west of the Sun, a planet rises before it. **Verified** in the WebAssembly on 6 November 2026, through Helioscope, for a chart at local noon in New York on every third day of 2015 to 2034. The table counts charts predicted detectable, how many of those had the side of the Sun differ from the window the planet was best in, and how many were detectable in both windows:
+
+| Planet | Within 30° of the Sun | 30° to 150° | Beyond 150° |
+|---|---|---|---|
+| Mercury | 406 detectable, 0 differ | None detectable | None detectable |
+| Venus | 656, 0 differ | 1,264, 0 differ | None detectable |
+| Mars | 108, 0 differ | 1,535, 0 differ, 11 in both windows | 141, 13 differ, 111 in both windows |
+| Jupiter | 185, 0 differ | 1,625, 1 differs, 38 in both windows | 343, 57 differ, 283 in both windows |
+| Saturn | 95, 0 differ | 1,603, 0 differ, 5 in both windows | 363, 62 differ, 273 in both windows |
+
+The two part company only near opposition, where an outer planet is up all night. Jupiter at −179.86° is still oriental, and Helioscope finds it detectable in both windows. Venus at its 2025 inferior conjunction, which can be in both skies at its large latitude, is undetectable in both from New York.
+
+**Decision, 6 November 2026:** the apparition stays the side of the Sun: evening east of it, morning west of it, and none at exactly 0° or 180°. Where the planet can be seen is the windows' answer, each with its own result.
+
 ### Observation windows
 
 For the chart's UTC and place:
@@ -439,4 +453,5 @@ The engine failing to load is tested too, with `swisseph.wasm` missing or not We
    - On a night the Sun never reaches −18°, its windows run to and from the Sun's lowest point, as the owner decided on 6 November 2026 (§6).
    - There's no "marginal" class, as the owner decided on 6 November 2026 (§6): a result shows its raw margin with its assumptions.
    - Under the beams is within 15° of the Sun unless 17° is chosen, as the owner decided the same day (§6).
+   - The apparition is the side of the Sun, the traditional oriental or occidental, as the owner decided the same day (§6). The windows say where the planet can be seen.
    - No page uses it yet.
