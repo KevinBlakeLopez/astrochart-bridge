@@ -97,8 +97,9 @@ export default {
 
   popup: {
     // A refusal's code says which site it came from (transit and synastry only
-    // from Astro-Seek; databank and the four after it only from astro.com), so
-    // each message can name its site without being told it.
+    // from Astro-Seek; databank and the three after it only from astro.com), so
+    // each message can name its site without being told it. calendar-unsupported
+    // comes from both, so its message names neither.
     refusals: {
       transit: "This is a transit chart. AstroChart Bridge opens natal charts only.",
       synastry: "This is a synastry or compatibility chart. AstroChart Bridge opens natal charts only.",
@@ -109,7 +110,7 @@ export default {
         "This astro.com page has no \"Drawing (for subscribers)\" link, which is where AstroChart Bridge reads the birth data.",
       "local-mean-time": "This chart uses local mean time, which AstroChart Bridge can't open yet.",
       "calendar-unsupported":
-        "This astro.com chart is dated before the Gregorian calendar began on 15 October 1582. AstroChart Bridge reads Gregorian dates only.",
+        "This chart is dated before the Gregorian calendar began on 15 October 1582. AstroChart Bridge reads Gregorian dates only.",
       "page-url-mismatch": "The page doesn't match its address. Reload the chart and try again.",
       "stellarium-unreadable": "AstroChart Bridge couldn't read the sky from this Stellarium Web tab.",
     },

@@ -228,11 +228,16 @@ test("refused: astro.com pages and charts AstroChart Bridge doesn't open name as
   });
 });
 
-test("refused: an astro.com chart dated before 1582 says why", () => {
-  assert.deepEqual(viewFor({ kind: "refused", reason: "calendar-unsupported" }), {
-    state: "refused",
-    message: "This astro.com chart is dated before the Gregorian calendar began on 15 October 1582. AstroChart Bridge reads Gregorian dates only.",
+test("refused: a chart dated before 1582 says why, on astro.com or Astro-Seek", () => {
+  const message = "This chart is dated before the Gregorian calendar began on 15 October 1582. AstroChart Bridge reads Gregorian dates only.";
+  assert.deepEqual(viewFor({ kind: "refused", reason: "calendar-unsupported" }), { state: "refused", message });
+  // The New York chart moved to 1 June 1500, in its address and on its page.
+  const { url, input } = fixture("ny-2024-04-17");
+  const early = analyzePage({
+    url: url.replace("narozeni_den=17&narozeni_mesic=4&narozeni_rok=2024", "narozeni_den=1&narozeni_mesic=6&narozeni_rok=1500"),
+    input: { text: input.text.replaceAll("17 April 2024", "1 June 1500") },
   });
+  assert.deepEqual(viewFor(early), { state: "refused", message });
 });
 
 test("refused: astro.com records AstroChart Bridge couldn't read show their code", () => {

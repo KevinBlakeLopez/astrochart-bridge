@@ -128,7 +128,7 @@ export default {
         "Ta stran astro.com nima povezave »Drawing (for subscribers)«, iz katere AstroChart Bridge bere rojstne podatke.",
       "local-mean-time": "Ta horoskop uporablja lokalni srednji čas, ki ga AstroChart Bridge še ne zna odpreti.",
       "calendar-unsupported":
-        "Ta horoskop z astro.com ima datum pred začetkom gregorijanskega koledarja 15. oktobra 1582. AstroChart Bridge bere samo gregorijanske datume.",
+        "Ta horoskop ima datum pred začetkom gregorijanskega koledarja 15. oktobra 1582. AstroChart Bridge bere samo gregorijanske datume.",
       "page-url-mismatch": "Stran se ne ujema s svojim naslovom. Znova naložite horoskop in poskusite ponovno.",
       "stellarium-unreadable": "AstroChart Bridge ne more prebrati neba iz tega zavihka Stellarium Web.",
     },

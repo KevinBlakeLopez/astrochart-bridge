@@ -136,14 +136,21 @@ const URL_FIELDS = {
   lngWest: ["delka_smer", 0, 1],
 };
 
+// The Gregorian calendar's first day. The fixed-width date sorts like the dates it writes.
+const GREGORIAN_START = "1582-10-15";
+
 /**
  * Reads a page that classifyUrl accepted as natal. Date, time and coordinates
  * come from the URL, and the page must agree with them. Universal Time and the
  * zone label exist only on the page.
  *
+ * A date before 15 October 1582, when the Gregorian calendar began, is refused
+ * once the page agrees with the URL: neither says which calendar it is in.
+ *
  * @param {{ url: string, text: string }} page  text is document.body.innerText
  * @returns {{ local: string, zoneLabel: string | null, printedUt: string | null, lat: number, lng: number }
- *   | { kind: "refused", reason: "incomplete-url" | "ambiguous-page" | "unreadable-page" | "page-url-mismatch" }}
+ *   | { kind: "refused", reason: "incomplete-url" | "ambiguous-page" | "unreadable-page" | "page-url-mismatch"
+ *       | "calendar-unsupported" }}
  */
 export function readChart({ url, text }) {
   const birth = readUrl(url);
@@ -173,6 +180,7 @@ export function readChart({ url, text }) {
   ) {
     return refused("page-url-mismatch");
   }
+  if (isoDate(birth) < GREGORIAN_START) return refused("calendar-unsupported");
 
   return {
     local: `${isoDate(birth)}T${pad(birth.hour)}:${pad(birth.minute)}:${pad(birth.second)}`,
@@ -196,8 +204,6 @@ const SCREENSHOT_FIELDS = {
 };
 // "20:48:26"
 const SIDEREAL_LINE = /^(\d{2}):(\d{2}):(\d{2})$/;
-// The Gregorian calendar's first day. The fixed-width date sorts like the dates it writes.
-const GREGORIAN_START = "1582-10-15";
 
 /**
  * Reads the OCR text of a screenshot of an Astro-Seek natal chart page. There

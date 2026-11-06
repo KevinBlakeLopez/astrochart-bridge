@@ -114,7 +114,7 @@ export default {
         "Esta página de astro.com no tiene el enlace \"Drawing (for subscribers)\", que es de donde AstroChart Bridge lee los datos de nacimiento.",
       "local-mean-time": "Esta carta usa la hora media local, que AstroChart Bridge todavía no puede abrir.",
       "calendar-unsupported":
-        "Esta carta de astro.com tiene una fecha anterior al comienzo del calendario gregoriano, el 15 de octubre de 1582. AstroChart Bridge solo lee fechas gregorianas.",
+        "Esta carta tiene una fecha anterior al comienzo del calendario gregoriano, el 15 de octubre de 1582. AstroChart Bridge solo lee fechas gregorianas.",
       "page-url-mismatch": "La página no coincide con su dirección. Vuelve a cargar la carta e inténtalo de nuevo.",
       "stellarium-unreadable": "AstroChart Bridge no pudo leer el cielo de esta pestaña de Stellarium Web.",
     },

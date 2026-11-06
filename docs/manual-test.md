@@ -77,6 +77,7 @@ https://horoscopes.astro-seek.com/calculate-birth-chart-horoscope-online/?input_
 - [ ] After **Open Stellarium Web**, Stellarium's clock (bottom right) shows the time the note named, give or take the seconds it has been running.
 - [ ] Clicking **Open Stellarium Web** opens a Stellarium Web tab and closes the popup. The new tab's address contains `date=2024-04-17T12%3A00%3A00Z&lat=40.716667&lng=-74`.
 - [ ] At the bottom, **Read a different chart** is closed. Opened, it has test 8's five buttons under the same two labels, with no grey line under **Import from Stellarium Desktop**. **Read a screenshot** opens the screenshot page in a new tab and closes the popup.
+- [ ] Change the URL's `narozeni_rok=2024` to `narozeni_rok=1500` and load it. The popup says "This chart is dated before the Gregorian calendar began on 15 October 1582…" and has no **Open Stellarium Web** button.
 
 ## Test 2: Sydney
 

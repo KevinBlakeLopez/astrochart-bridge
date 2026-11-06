@@ -75,6 +75,22 @@ test("page coordinates that disagree with the URL are a mismatch", () => {
   assert.deepEqual(readChart({ url: NY.url, text: TEXT.replace("40°43'N", "40°43'S") }), refused("page-url-mismatch"));
 });
 
+// The page doesn't say which calendar an earlier date is in. Here the URL and
+// the page give the same date.
+test("a date before 15 October 1582 is refused for its calendar, and that day opens", () => {
+  const dated = (day, month, year, words) => ({
+    url: withParams({ narozeni_den: day, narozeni_mesic: month, narozeni_rok: year }),
+    text: TEXT.replaceAll("17 April 2024", words),
+  });
+  assert.deepEqual(readChart(dated("1", "6", "1500", "1 June 1500")), refused("calendar-unsupported"));
+  assert.deepEqual(readChart(dated("14", "10", "1582", "14 October 1582")), refused("calendar-unsupported"));
+  assert.deepEqual(readChart(dated("15", "10", "1582", "15 October 1582")), {
+    ...NY_RESULT,
+    local: "1582-10-15T08:00:00",
+    printedUt: "1582-10-15T12:00:00Z",
+  });
+});
+
 test("a second Universal Time line makes the page ambiguous", () => {
   assert.deepEqual(readChart({ url: NY.url, text: `${TEXT}\n${UT_BLOCK}` }), refused("ambiguous-page"));
 });
