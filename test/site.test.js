@@ -2,7 +2,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { mkdtempSync, readFileSync, readdirSync, rmSync, statSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join, normalize, relative } from "node:path";
+import { join, relative } from "node:path";
+import { loadedBy } from "../tools/loaded-by.mjs";
 import { buildSite, SITE_FILES } from "../tools/site.mjs";
 
 const extension = new URL("../extension/", import.meta.url).pathname;
@@ -13,33 +14,12 @@ const read = (file) => readFileSync(join(extension, file), "utf8");
 // web, and only there is the choice of a shared chart's name and town kept.
 const EXTENSION_ONLY = ["astro-com-page.js", "preference.js"];
 
-// Every file chart.html loads on the web: its scripts and stylesheets, then
-// every module those scripts import. Comments are dropped first, so a JSDoc
-// type such as import("./core/index.js") isn't counted as a load.
-function loadedBy(page) {
-  const seen = new Set();
-  const queue = [...read(page).matchAll(/<(?:script|link)\b[^>]*\b(?:src|href)="([^"]+)"/g)].map((match) => match[1]);
-  while (queue.length > 0) {
-    const file = normalize(queue.shift());
-    if (seen.has(file) || EXTENSION_ONLY.includes(file)) continue;
-    seen.add(file);
-    if (!/\.m?js$/.test(file)) continue;
-    const code = read(file).replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
-    for (const [, from] of code.matchAll(/\b(?:import|export)\b[^;"']*?\bfrom\s*["']([^"']+)["']/g)) {
-      queue.push(join(dirname(file), from));
-    }
-    for (const [, imported] of code.matchAll(/\bimport\s*\(\s*["']([^"']+)["']\s*\)/g)) {
-      queue.push(join(dirname(file), imported));
-    }
-  }
-  return seen;
-}
-
 // Files a page doesn't load but must travel with what it loads.
 const LICENSES = ["vendor/lean-qr/LICENSE"];
 
 test("the site is exactly the files the receiving page loads, and the licence for what it vendors", () => {
-  const expected = [...loadedBy("chart.html"), "chart.html", ...LICENSES].sort();
+  // Everything chart.html loads on the web, and so not its extension-only modules.
+  const expected = [...loadedBy("chart.html", { skip: EXTENSION_ONLY }), ...LICENSES].sort();
   assert.deepEqual([...SITE_FILES].sort(), [...new Set(expected)].sort());
 });
 
@@ -57,6 +37,12 @@ test("nothing of the extension's own pages is published", () => {
   for (const file of SITE_FILES) {
     assert.doesNotMatch(file, /^(popup\.(html|js)|screenshot|manifest\.json|vendor\/tesseract)/, file);
   }
+});
+
+// Publishing Helioscope with the receiving page would hand Swiss Ephemeris's
+// WebAssembly to every visitor (docs/HELIOSCOPE_V1_FEASIBILITY.md §4).
+test("neither Helioscope nor the Swiss Ephemeris it loads is published", () => {
+  for (const file of SITE_FILES) assert.doesNotMatch(file, /helioscope|vendor\/swisseph/, file);
 });
 
 test("the receiving page's own files are in it", () => {

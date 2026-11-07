@@ -65,7 +65,7 @@ npm test
 | `extension/` | The extension, loaded as is. `manifest.json`, the popup, and the screenshot, paste, import and receiving pages, each with a view model (`*-model.js`) that the tests cover. |
 | `extension/core/` | Reading and converting charts, with no browser APIs: one module per site or program, civil time, sidereal time, AAF and the portable chart format. |
 | `extension/messages/` | The interface's text, one catalog per language (`en.js`, `es.js`, `sl.js`), and `index.js`, which chooses one from the browser's languages and fills in each page's `data-text`. `_locales/` holds only the extension's name and description, for the browser and the stores. |
-| `extension/vendor/` | Tesseract.js for reading screenshots and lean-qr for QR codes, each with its licence. |
+| `extension/vendor/` | Tesseract.js for reading screenshots, lean-qr for QR codes, and Swiss Ephemeris for Helioscope's planetary visibility, which no page uses yet, each with its licence. |
 | `test/` | `node --test` tests. |
 | `fixtures/` | Astro-Seek page captures, trimmed to their header block, and AAF files written by Astrolog, with invented birth data; in `golden/`, the reference charts every route out is tested against: invented ones, and well-known people's public birth records from Astro-Databank. The Astro-Seek captures named `golden-*` are of those charts. See [docs/golden-charts.md](docs/golden-charts.md). |
 | `tools/` | `package-safari.sh` makes the Xcode project for Safari; `package-stores.sh` packs a commit for the Chrome Web Store and Firefox Add-ons; `site.mjs` builds the receiving page's site; `make-icons.mjs` draws the icons; `trim-fixture.mjs` trims a new Astro-Seek capture before it's committed; `make-golden.py` works out the golden charts' expected values. |
@@ -95,4 +95,4 @@ Copyright © 2026 Kevin Blake Lopez.
 
 AstroChart Bridge is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. The full text is in [LICENSE](LICENSE).
 
-The files in `extension/vendor/` keep their own licences, which sit beside them: Apache-2.0 for Tesseract.js and MIT for lean-qr. The captures in `fixtures/astroseek/` are text from Astro-Seek's pages, kept as test input.
+The files in `extension/vendor/` keep their own licences, which sit beside them: Apache-2.0 for Tesseract.js, MIT for lean-qr, and AGPL-3.0-or-later for Swiss Ephemeris as swisseph-wasm compiled it. The captures in `fixtures/astroseek/` are text from Astro-Seek's pages, kept as test input.

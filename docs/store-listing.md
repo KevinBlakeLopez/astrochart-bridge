@@ -17,7 +17,7 @@ npm run package:stores
 
 `tools/package-stores.sh` packs `main`. To pack another commit, pass it: `npm run package:stores -- <commit>`. It writes two files to `build/stores/`:
 
-- `astrochart-bridge-<version>.zip`, the extension with `manifest.json` at its top, which both stores take.
+- `astrochart-bridge-<version>.zip`, the extension with `manifest.json` at its top, which both stores take. It leaves out the paths in `tools/store-leave-out.txt`: Helioscope's, which no page uses yet.
 - `astrochart-bridge-<version>-source.zip`, the whole repository at that commit, in case an AMO reviewer asks for the source.
 
 It packs a commit rather than the working tree, so a store gets what was committed and tested. Every upload needs a version the store hasn't had, so raise `version` in `manifest.json` before packing an update.
@@ -185,7 +185,7 @@ Leave **Location** unticked: a birthplace's coordinates aren't the user's locati
 
 **Notes to reviewer:**
 
-> There's no build step: the zip is the repository's extension/ folder as committed, loaded as is. The minified files are unmodified files from these npm releases, as listed in extension/vendor/tesseract/README.md and extension/vendor/lean-qr/README.md:
+> There's no build step: the zip is the repository's extension/ folder as committed, loaded as is, less the files of a feature no page uses yet, which tools/store-leave-out.txt lists. The minified files are unmodified files from these npm releases, as listed in extension/vendor/tesseract/README.md and extension/vendor/lean-qr/README.md:
 > - tesseract.js 5.1.1, dist/tesseract.esm.min.js and dist/worker.min.js, with their .map files: https://www.npmjs.com/package/tesseract.js/v/5.1.1
 > - tesseract.js-core 5.1.1, tesseract-core-simd-lstm.wasm.js: https://www.npmjs.com/package/tesseract.js-core/v/5.1.1
 > - @tesseract.js-data/eng 1.0.0, 4.0.0_best_int/eng.traineddata.gz: https://www.npmjs.com/package/@tesseract.js-data/eng/v/1.0.0
