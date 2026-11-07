@@ -1,0 +1,8 @@
+# Paths in extension/ that tools/package-stores.sh leaves out of the zip the
+# Chrome Web Store and Firefox Add-ons take. Helioscope's stay here until a
+# page uses it (docs/HELIOSCOPE_V1_FEASIBILITY.md §9), and
+# test/store-packages.test.js checks that no page loads any of them. The
+# source zip keeps everything.
+helioscope-engine.js
+core/helioscope.js
+vendor/swisseph

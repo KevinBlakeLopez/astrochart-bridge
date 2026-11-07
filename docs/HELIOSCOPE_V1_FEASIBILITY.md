@@ -431,7 +431,11 @@ The engine failing to load is tested too, with `swisseph.wasm` missing or not We
 - **Magnitudes:** Swiss Ephemeris uses Mallama and Hilton's 2018 formulas. **Read:** Mercury's is applied at every phase angle without a range check (`swecl.c:3923-3926`), and only Venus gets a warning, beyond 179°. Near superior conjunction, the object's magnitude is extrapolated.
 - **High latitudes:** decided on 6 November 2026 (§6). Nights that never get fully dark, from about 48.6° N every June, have windows to and from the Sun's lowest point, and their predictions rest on the model in bright twilight. Polar day and night still get none. `swe_heliacal_ut()` is documented only for 60° S to 60° N.
 - **Elevation** isn't in the chart model, so V1 assumes 0 m unless the user gives one.
-- **Packaging:** the store zips and the Safari project take all of `extension/`. Once `extension/vendor/swisseph/` is on `main`, the next builds carry Swiss Ephemeris whether or not a page uses it, with the App Store risk of §4.
+- **Packaging:** the store zips and the Safari project take all of `extension/`, so once `extension/vendor/swisseph/` is on `main`, the next builds would carry Swiss Ephemeris whether or not a page uses it, with the App Store risk of §4. **Decision, 7 November 2026:** until a page uses Helioscope, it stays out of what the stores get.
+  - `tools/package-stores.sh` leaves the paths in `tools/store-leave-out.txt` out of the Chrome and Firefox zip: `helioscope-engine.js`, `core/helioscope.js` and `vendor/swisseph/`. **Verified** that day under `sh`: the zip held 98 files instead of 199, none of them Helioscope's. The source zip keeps everything.
+  - `test/store-packages.test.js` checks that none of the extension's pages loads anything on that list, and that everything Helioscope loads is on it or used by a page too. When a page starts using Helioscope, the first check fails and the list comes off on purpose.
+  - `docs/safari-ipad.md` asks for the same files to be left out of TestFlight and App Store builds. Local Safari builds keep them.
+  - When Helioscope ships, the store listings need `@kuntay/swisseph` 0.2.2 among the reviewer notes' links, and its unused jsDelivr address in the remote-code answers, as Tesseract's has. The App Store question of §4 comes back then too.
 - **Upstream:**
   - swisseph-wasm has one maintainer.
   - Its CI builds with the unpinned `emscripten/emsdk:latest` image (`tools/build-wasm.mjs:32`), so binaries can differ by build date.
@@ -454,4 +458,4 @@ The engine failing to load is tested too, with `swisseph.wasm` missing or not We
    - There's no "marginal" class, as the owner decided on 6 November 2026 (§6): a result shows its raw margin with its assumptions.
    - Under the beams is within 15° of the Sun unless 17° is chosen, as the owner decided the same day (§6).
    - The apparition is the side of the Sun, the traditional oriental or occidental, as the owner decided the same day (§6). The windows say where the planet can be seen.
-   - No page uses it yet.
+   - No page uses it yet, so the store zips leave it out, as the owner decided on 7 November 2026 (§9).
