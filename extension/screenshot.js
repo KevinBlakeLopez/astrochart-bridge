@@ -8,7 +8,7 @@ import { openLink as openPageLink } from "./astro-com-page.js";
 import { analyzeScreenshot } from "./core/index.js";
 import { linkFor } from "./chart-model.js";
 import { renderChart } from "./desktop-page.js";
-import { chartToShare, viewForShareRefusal } from "./popup-model.js";
+import { chartToShare, viewForHelioscopeRefusal, viewForShareRefusal } from "./popup-model.js";
 import { viewForScreenshot } from "./screenshot-model.js";
 import { localizePage, text } from "./messages/index.js";
 import { paragraph, render } from "./view.js";
@@ -99,19 +99,26 @@ async function recognize(file) {
   return data.text;
 }
 
-// As in the popup: Send to Stellarium Desktop, and Share…, which opens the
-// receiving page in a tab with the chart in its link, or says why a chart the
-// format can't carry can't go, with Cancel back to the chart.
+// As in the popup: Send to Stellarium Desktop; Share…, which opens the
+// receiving page in a tab with the chart in its link; and Which planets were
+// visible, which opens Helioscope's page the same way, without the chart's
+// name or town. A chart the format can't carry says why, with Cancel back to
+// the chart.
 function showChart(result) {
   const view = viewForScreenshot(result);
+  const pages = {
+    share: { page: "chart.html", labels: { town: result.town, name: result.name }, refusal: viewForShareRefusal },
+    helioscope: { page: "helioscope.html", labels: {}, refusal: viewForHelioscopeRefusal },
+  };
   const onButton = async (button, sky, screen) => {
-    if (button.does !== "share") return openLink(button, sky);
-    const shared = chartToShare(result, sky, "screenshot", { town: result.town, name: result.name });
+    if (!Object.hasOwn(pages, button.does)) return openLink(button, sky);
+    const { page, labels, refusal } = pages[button.does];
+    const shared = chartToShare(result, sky, "screenshot", labels);
     if (shared.kind === "refused") {
-      render(app, viewForShareRefusal(shared.reason), screen.onButton, screen.view);
+      render(app, refusal(shared.reason), screen.onButton, screen.view);
       return;
     }
-    await chrome.tabs.create({ url: linkFor(chrome.runtime.getURL("chart.html"), shared.chart) });
+    await chrome.tabs.create({ url: linkFor(chrome.runtime.getURL(page), shared.chart) });
   };
   // Without the desktop button, should Stellarium's side fail.
   renderChart(app, view, onButton).catch(() => render(app, view, onButton));

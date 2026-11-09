@@ -72,7 +72,7 @@ https://horoscopes.astro-seek.com/calculate-birth-chart-horoscope-online/?input_
 ```
 
 - [ ] The popup shows Local time `17 Apr 2024, 08:00 (EDT, DST)`, Offset `UTC-04:00`, UTC `2024-04-17 12:00` and Place `40°43'N, 74°0'W`.
-- [ ] Below them are two grey notes, the one about Google last. Under "See the sky" is a blue **Open Stellarium Web** button, and under "Take the chart elsewhere" an outlined **Share…** button (test 20).
+- [ ] Below them are two grey notes, the one about Google last. Under "See the sky" is a blue **Open Stellarium Web** button and an outlined **Which planets were visible** button (test 25), and under "Take the chart elsewhere" an outlined **Share…** button (test 20).
 - [ ] The first note names the time Stellarium's clock will show in your computer's time zone, and says that's 08:00 on 17 Apr at the birthplace. On a Mac set to Pacific time it says 05:00 on 17 Apr.
 - [ ] After **Open Stellarium Web**, Stellarium's clock (bottom right) shows the time the note named, give or take the seconds it has been running.
 - [ ] Clicking **Open Stellarium Web** opens a Stellarium Web tab and closes the popup. The new tab's address contains `date=2024-04-17T12%3A00%3A00Z&lat=40.716667&lng=-74`.
@@ -101,7 +101,7 @@ https://horoscopes.astro-seek.com/calculate-birth-chart-horoscope-online/?input_
 https://horoscopes.astro-seek.com/calculate-birth-chart-horoscope-online/?input_natal=1&send_calculation=1&narozeni_den=14&narozeni_mesic=3&narozeni_rok=2021&narozeni_hodina=02&narozeni_minuta=30&narozeni_sekunda=00&narozeni_city=New+York%2C+USA%2C+New+York&narozeni_mesto_hidden=New+York&narozeni_stat_hidden=US&narozeni_podstat_kratky_hidden=NY&narozeni_tzid_id=156&narozeni_sirka_stupne=40&narozeni_sirka_minuty=43&narozeni_sirka_smer=0&narozeni_delka_stupne=74&narozeni_delka_minuty=0&narozeni_delka_smer=1&narozeni_timezone_form=auto&narozeni_timezone_dst_form=auto&house_system=placidus&hid_fortune=1&hid_vertex=1&hid_chiron=1&hid_chiron_check=on&hid_lilith=1&hid_lilith_check=on&hid_uzel=1&hid_uzel_check=on&tolerance=1&aya=&tolerance_paral=0&zmena_nastaveni=1&aktivni_tab=&hide_aspects=0&dominanta_metoda=1&dominanta_rulership=1#tabs_redraw
 ```
 
-- [ ] The popup shows "Astro-Seek's page contradicts itself…", two readings with round buttons, and faded **Open Stellarium Web** and **Share…** buttons.
+- [ ] The popup shows "Astro-Seek's page contradicts itself…", two readings with round buttons, and faded **Open Stellarium Web**, **Which planets were visible** and **Share…** buttons.
 - [ ] Clicking the faded **Open Stellarium Web** does nothing.
 - [ ] Pick the first reading (06:30) and click **Open Stellarium Web**. The new tab's address contains `date=2021-03-14T06%3A30%3A00Z`.
 - [ ] Go back to the chart tab, open the popup again, pick the second reading (07:30) and click **Open Stellarium Web**. The new tab's address contains `date=2021-03-14T07%3A30%3A00Z`.
@@ -545,6 +545,20 @@ If AstroChart Bridge already has access to www.astro-seek.com, remove it first, 
 ### B: signed out
 
 - [ ] In a profile signed out of Astro-Seek, **Save in Astro-Seek…** from the AAF file above. Note what the Astro-Seek tab shows. The page says either "Astro-Seek shows you signed out, and saves a chart only in an account…" or "Astro-Seek didn't show its Add person form. If it asks you to sign in…", with **Go to the Astro-Seek tab**, and nothing is typed into the form.
+
+## Test 25: which planets were visible
+
+**Which planets were visible** opens Helioscope's page in a new tab, with the chart in its link but not its name or town. The page works out on this computer, with Swiss Ephemeris's WebAssembly, whether each naked-eye planet could be seen in the twilight around the chart's moment. Run it in Firefox first: Firefox hasn't run that WebAssembly before.
+
+- [ ] On the test 1 chart, **Which planets were visible** comes last under "See the sky", after the Stellarium buttons and, when Stellarium Desktop is the default, after the line saying so. It opens a tab at `moz-extension://…/helioscope.html` (`chrome-extension://…` in Chrome, Brave and Edge) and closes the popup.
+- [ ] The tab is headed "Which planets were visible" and shows the popup's rows, from Local time `17 Apr 2024, 08:00 (EDT, DST)` to Place `40°43'N, 74°0'W`, then a table of the five planets. Mercury reads **Under the beams · morning**, `9.4° west of the Sun`, **Not detectable**, `Best at dawn, 06:08: −12.22`. Jupiter reads **Clear · evening**, `23.0° east of the Sun`, **Detectable**, `Best at dusk, 20:34: +3.62`.
+- [ ] Under **Details**, each planet's box opens to its evening and morning windows. **Assumptions** opens to Ephemeris `Swiss Ephemeris 2.10.03, Moshier`, Elevation `0 m, as none was given` and Limits `Cazimi 17′, combust 8°30′, under the beams 15°`, among others. The last grey note says "Times are at UTC-04:00, the chart's offset."
+- [ ] Open the tab's Console (**Cmd+Option+I**; in Firefox, **Tools → Browser Tools → Web Developer Tools**) and reload the tab. The Console stays empty, with nothing about WebAssembly or streaming. In the **Network** tab, every request is a `moz-extension://` address (`chrome-extension://` in Chrome, Brave and Edge), and none goes to `cdn.jsdelivr.net`, the address in Swiss Ephemeris's files that the store listing says is never used.
+- [ ] Type `120` in **Elevation in metres** and press Tab: Mercury's margin becomes `−12.03`, and Elevation under **Assumptions** reads `120 m`. Choose **17°**: Limits ends `under the beams 17°`. Reload the tab: both are still set. Type `12.5` and press Tab: "Enter whole metres, from -500 to 25000." shows under the box, and the table doesn't change. Empty the box and choose **15°** again.
+- [ ] On the test 4 chart, **Which planets were visible** is faded until a reading is picked. Pick the second reading (07:30): the page's Offset row shows `UTC-05:00`.
+- [ ] On the screenshot page (test 13) and the paste page (test 16), **Which planets were visible** opens the page the same way, and the screenshot or paste tab stays open.
+- [ ] On a chart with a name and town, such as an astro.com account chart (test 14's), the page has no Name or Town row.
+- [ ] In light and dark mode the page is readable, like the popup in test 10.
 
 ## Not covered by hand yet
 

@@ -86,9 +86,10 @@ test("with Stellarium Desktop the default, a ready screen leads with it and Open
   const view = viewFor(analyze("ny-2024-04-17"), { timeZone: "America/Los_Angeles", town: "New York" });
   const preferred = withDesktopSend(view, { preferred: true });
   assert.deepEqual(preferred.desktop, { ...SEND, primary: true });
-  // Share… stays where viewFor put it, after Open Stellarium Web.
+  // Which planets were visible and Share… stay where viewFor put them, after Open Stellarium Web.
   assert.deepEqual(preferred.buttons, [
     { label: "Open Stellarium Web", opens: "stellarium", secondary: true },
+    { label: "Which planets were visible", does: "helioscope", secondary: true },
     { label: "Share…", does: "share", secondary: true },
   ]);
   assert.deepEqual(preferred.defaultChoice, {

@@ -168,7 +168,12 @@ test("a confirmed entry opens the sky or the Astro-Seek chart, from the popup's 
   assert.deepEqual(view.warnings, ["a form warning"]);
   assert.match(view.notes[0], /Nothing checks that this offset/);
   assert.deepEqual(view.notes.slice(1), [...popup.notes, astroSeekNotes()[0], astroSeekSaveNote()]);
-  assert.deepEqual(view.buttons, [...astroSeekButtons(), { label: "Save in Astro-Seek…", saves: { town: null, name: null, gender: null }, secondary: true }, shareButton()]);
+  assert.deepEqual(view.buttons, [
+    ...astroSeekButtons(),
+    { label: "Save in Astro-Seek…", saves: { town: null, name: null, gender: null }, secondary: true },
+    { label: "Which planets were visible", does: "helioscope", secondary: true },
+    shareButton(),
+  ]);
 });
 
 test("a confirmed entry can be entered in astro.com, with the text's name as its first name", () => {

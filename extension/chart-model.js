@@ -124,23 +124,7 @@ export function viewForImport(
   }
 
   const { chart, source, labels = {} } = result.chart;
-  const offsetSeconds = chart.utcOffsetSeconds;
-  // The analyzePage result the chart was decided from, as far as the link
-  // tells it. With no site, viewFor adds neither site's extras.
-  const view = viewFor(
-    {
-      kind: "natal",
-      site: null,
-      local: chart.local,
-      zoneLabel: source.zoneLabel ?? null,
-      lat: chart.latitude,
-      lng: chart.longitude,
-      utc: skyFor(result.chart).utc,
-      utcSource: "declared",
-      offsetMinutes: offsetSeconds / 60,
-    },
-    options,
-  );
+  const view = viewFor(natalChartFor(result.chart), options);
 
   // Where the chart was first read, not how it travelled here.
   const origin = words.origin(nameFor(SITE_NAMES, source.site), nameFor(words.viaNames, source.via));
@@ -180,6 +164,30 @@ export function viewForImport(
     buttons,
     ...includes,
     next: step(view.sky, named),
+  };
+}
+
+/**
+ * The analyzePage result a portable chart was decided from, as far as the
+ * chart tells it: natal, with its UTC worked out from its local time and
+ * offset, and no site, so viewFor adds neither site's extras. The receiving
+ * page and Helioscope's page both read their link this way.
+ *
+ * @param {object} portable  a portable chart, from fromFragment or parse
+ * @returns {object}  a normalized chart, as analyzePage gives it
+ */
+export function natalChartFor(portable) {
+  const { chart, source } = portable;
+  return {
+    kind: "natal",
+    site: null,
+    local: chart.local,
+    zoneLabel: source.zoneLabel ?? null,
+    lat: chart.latitude,
+    lng: chart.longitude,
+    utc: skyFor(portable).utc,
+    utcSource: "declared",
+    offsetMinutes: chart.utcOffsetSeconds / 60,
   };
 }
 

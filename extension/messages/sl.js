@@ -33,6 +33,11 @@ const NEWER = "Ta horoskop je naredila novejša različica AstroChart Bridge, za
 const NEWER_FILE = "To datoteko je naredila novejša različica AstroChart Bridge, zato je ta stran ne zna prebrati.";
 const BEFORE_GREGORIAN = "Datum tega horoskopa je pred 15. oktobrom 1582, zato ga AstroChart Bridge še ne zna odpreti.";
 const QR_TOO_LONG = "Ta povezava je predolga za kodo QR, ki bi se zanesljivo prebrala.";
+const ELEVATION_RANGE = "Vnesite cele metre, od -500 do 25000.";
+// After "star", as in "star 36 let".
+const YEARS = { one: "leto", two: "leti", few: "leta", other: "let" };
+// After "od", as in "v 50 od 50 vzorcev".
+const OF_SAMPLES = { one: "vzorca", two: "vzorcev", few: "vzorcev", other: "vzorcev" };
 const JULIAN = "Ta datum je v julijanskem koledarju, ki ga AstroChart Bridge še ne zna odpreti.";
 const PRE_GREGORIAN = "AstroChart Bridge odpira datume od 15. oktobra 1582 naprej, ko se je začel gregorijanski koledar.";
 const OFFSET_RANGE = "Zamik tega horoskopa je, vključno s poletnim časom, zunaj obsega od -12:00 do +14:00.";
@@ -104,6 +109,18 @@ export default {
       hideQr: "Skrij kodo QR",
       shareSheetFailed: "AstroChart Bridge ni mogel odpreti menija za deljenje. Uporabite Kopiraj povezavo ali Prenesi datoteko.",
     },
+    helioscope: {
+      title: "AstroChart Bridge: kateri planeti so bili vidni",
+      heading: "Kateri planeti so bili vidni",
+      elevation: "Nadmorska višina v metrih",
+      underTheBeams: "Pod žarki do",
+      working: "Računanje planetov …",
+      margin:
+        "Število je presežek v magnitudah: za koliko je bil planet svetlejši od najšibkejšega, kar je bilo takrat vidno. Nad 0 je napovedano, da je bil viden.",
+      notice:
+        "AstroChart Bridge, © 2026 Kevin Blake Lopez, to izračuna na tej napravi s Swiss Ephemeris, © 1997–2021 Astrodienst AG, prek swisseph-wasm. Vsi trije so prosto programje: lahko jih delite in spreminjate pod pogoji licence GNU Affero General Public License, različice 3 ali novejše. Zanje ne velja nobeno jamstvo.",
+      source: "Izvorna koda in licenca",
+    },
     astroComFilled: "AstroChart Bridge je izpolnil obrazec astro.com v njegovem zavihku.",
     astroSeekFilled: "AstroChart Bridge je izpolnil obrazec Astro-Seeka v njegovem zavihku. Tam preverite Gender, nato pritisnite Add person.",
   },
@@ -167,6 +184,7 @@ export default {
       saveInAstroSeek: "Shrani na Astro-Seeku …",
       openAstroSeekForm: "Odpri obrazec Astro-Seeka",
       astroSeekTab: "Pojdi na zavihek Astro-Seek",
+      helioscope: "Kateri planeti so bili vidni",
       share: "Deli …",
       enterInAstroCom: "Vnesi na astro.com …",
       openAstroComForm: "Odpri obrazec astro.com",
@@ -233,6 +251,9 @@ export default {
     shareBeforeGregorian:
       "AstroChart Bridge še ne more deliti horoskopa z datumom pred 15. oktobrom 1582: ne more ugotoviti, v katerem koledarju je datum.",
     shareRefused: "AstroChart Bridge tega horoskopa ne more deliti.",
+    helioscopeBeforeGregorian:
+      "AstroChart Bridge še ne more izračunati planetov za horoskop z datumom pred 15. oktobrom 1582: ne more ugotoviti, v katerem koledarju je datum.",
+    helioscopeRefused: "AstroChart Bridge za ta horoskop ne more izračunati planetov.",
 
     townNote: (town) =>
       town === null
@@ -745,5 +766,102 @@ export default {
     qrLabel: "Koda QR za povezavo do tega horoskopa",
     qrNote: "To skenirajte s kamero telefona ali tablice, da tam odprete horoskop. Kdor vidi kodo, lahko prebere horoskop.",
     shareTitle: "Horoskop AstroChart Bridge",
+  },
+
+  helioscope: {
+    decimal: ",",
+    planets: { mercury: "Merkur", venus: "Venera", mars: "Mars", jupiter: "Jupiter", saturn: "Saturn" },
+    // Nouns and phrases, so that nothing has to agree with Venera's gender.
+    conditions: { cazimi: "Kazimi", combust: "Zgorevanje", "under-the-beams": "Pod žarki", clear: "Zunaj žarkov" },
+    sides: { evening: "na večernem nebu", morning: "na jutranjem nebu" },
+    moment: (condition, side) => `${condition} · ${side}`,
+    eastOfSun: (degrees) => `${degrees}° vzhodno od Sonca`,
+    westOfSun: (degrees) => `${degrees}° zahodno od Sonca`,
+    inConjunction: "V konjunkciji s Soncem",
+    inOpposition: "V opoziciji s Soncem",
+    notWorkedOut: "Ni bilo mogoče izračunati",
+    predictions: {
+      detectable: "Lahko se vidi",
+      undetectable: "Ne vidi se",
+      "below-horizon": "Pod obzorjem",
+      indeterminate: "Brez napovedi",
+      unavailable: "Ni bilo mogoče izračunati",
+    },
+    windows: { evening: "v mraku", morning: "v svitu" },
+    // "Najbolje v mraku, ob 18:15: +9,01"
+    best: (window, time, margin) => `Najbolje ${window}, ob ${time}: ${margin}`,
+    also: (window, margin) => ` · ${window} ${margin}`,
+    belowBoth: "Pod obzorjem v mraku in v svitu",
+    noWindow: {
+      set: "Sonce ta dan ne zaide",
+      rise: "Sonce ta dan ne vzide",
+      both: "Sonce ta dan ne zaide in ne vzide",
+      other: "Ta noč nima somraka, po katerem bi lahko presodili",
+    },
+    // "18:15 dne 10. jan."
+    onDay: (time, day) => `${time} dne ${day}`,
+    dayMonth: (day, month) => `${day}. ${MONTHS[month - 1]}`,
+    labels: {
+      evening: "Večer",
+      morning: "Jutro",
+      best: { evening: "Najbolje v mraku", morning: "Najbolje v svitu" },
+      longitudeGap: "Razlika v dolžini",
+      elongation: "Elongacija",
+    },
+    // In the genitive, after od and do.
+    events: {
+      sunset: "sončnega zahoda",
+      "astronomical-dusk": "konca astronomskega somraka",
+      "lower-transit": "najnižje točke Sonca",
+      "astronomical-dawn": "začetka astronomskega somraka",
+      sunrise: "sončnega vzhoda",
+    },
+    // "Od sončnega zahoda ob 16:49 do konca astronomskega somraka ob 18:26"
+    span: (start, startTime, end, endTime) => `Od ${start} ob ${startTime} do ${end} ob ${endTime}`,
+    above: (shown, total) => `, nad obzorjem v ${shown} od ${count(total, OF_SAMPLES)}`,
+    below: ", ves čas pod obzorjem",
+    none: {
+      "no-sunset": "Ga ni: Sonce ta dan ne zaide",
+      "no-sunrise": "Ga ni: Sonce ta dan ne vzide",
+      other: "Ga ni: ta noč nima somraka",
+    },
+    failed: (code) => `Ni bilo mogoče izračunati: ${code}`,
+    bestMoment: ({ time, margin, planet, magnitude, limit, altitude, direction, sunDepth }) =>
+      `${time}: presežek ${margin}, ${planet} z magnitudo ${magnitude} ob meji ${limit}, ${altitude}° visoko na ${direction}, Sonce ${sunDepth}° pod obzorjem`,
+    // In the locative, after na.
+    directions: ["severu", "severovzhodu", "vzhodu", "jugovzhodu", "jugu", "jugozahodu", "zahodu", "severozahodu"],
+    timesAt: (offset) => `Časi so po zamiku ${offset}, ki ga ima horoskop.`,
+    assumptions: {
+      ephemeris: "Efemeride",
+      ephemerisValue: (version) => `Swiss Ephemeris ${version}, Moshier`,
+      atmosphere: "Ozračje",
+      atmosphereValue: (pressure, temperature, humidity) => `${pressure} hPa, ${temperature} °C, ${humidity} % vlažnosti`,
+      observer: "Opazovalec",
+      observerValue: (age, snellen, bothEyes) =>
+        `Star ${count(age, YEARS)}, Snellenovo razmerje ${snellen}, ${bothEyes ? "z obema očesoma" : "z enim očesom"}`,
+      elevation: "Nadmorska višina",
+      elevationGiven: (metres) => `${metres} m`,
+      elevationDefault: (metres) => `${metres} m, ker ni bila podana`,
+      moon: "Luna",
+      moonIncluded: "Njena svetloba je upoštevana",
+      moonLeftOut: "Njena svetloba ni upoštevana",
+      samples: "Vzorci",
+      every: (minutes) => `Na ${count(minutes, MINUTES)}`,
+      limits: "Meje",
+      limitsValue: (cazimi, combust, underTheBeams) => `Kazimi ${cazimi}, zgorevanje ${combust}, pod žarki ${underTheBeams}`,
+    },
+    columns: { planet: "Planet", moment: "Ob trenutku horoskopa", prediction: "Napoved v somraku okoli njega" },
+    detailsHeading: "Podrobnosti",
+    detailsSummary: (planet, prediction) => `${planet}: ${prediction}`,
+    assumptionsHeading: "Predpostavke",
+    empty: "Ta stran izračuna, kateri planeti so bili vidni za horoskop. Odprite jo iz horoskopa v AstroChart Bridge.",
+    refusals: {
+      "date-out-of-range": "AstroChart Bridge izračuna, kateri planeti so bili vidni, le za datume pred letom 3000.",
+      "invalid-coordinates": "Kraj tega horoskopa ni zemljepisna širina in dolžina na Zemlji.",
+      "invalid-elevation": ELEVATION_RANGE,
+      "engine-failed": "Swiss Ephemeris se v tem brskalniku ni mogel zagnati, zato planetov ni mogoče izračunati.",
+      other: "Planetov za ta horoskop ni mogoče izračunati.",
+    },
+    elevationRefused: ELEVATION_RANGE,
   },
 };

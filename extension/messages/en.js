@@ -19,6 +19,7 @@ const NEWER_FILE = "This file was made by a newer version of AstroChart Bridge, 
 const BEFORE_GREGORIAN = "This chart's date is before 15 October 1582, which AstroChart Bridge can't open yet.";
 const PRE_GREGORIAN = "AstroChart Bridge opens dates from 15 October 1582 on, when the Gregorian calendar began.";
 const QR_TOO_LONG = "This link is too long for a QR code that scans reliably.";
+const ELEVATION_RANGE = "Enter whole metres, from -500 to 25000.";
 
 // "a, b and c"
 const and = (items) => (items.length < 2 ? items.join("") : `${items.slice(0, -1).join(", ")} and ${items.at(-1)}`);
@@ -81,6 +82,18 @@ export default {
       copyRefused: "This browser didn't let AstroChart Bridge copy the link. Copy it from here instead:",
       hideQr: "Hide QR code",
       shareSheetFailed: "AstroChart Bridge couldn't open the share sheet. Use Copy link or Download file instead.",
+    },
+    helioscope: {
+      title: "AstroChart Bridge: which planets were visible",
+      heading: "Which planets were visible",
+      elevation: "Elevation in metres",
+      underTheBeams: "Under the beams within",
+      working: "Working out the planets…",
+      margin:
+        "The number is the margin in magnitudes: how much brighter the planet is than the faintest thing visible then. Above 0, it's predicted visible.",
+      notice:
+        "AstroChart Bridge, © 2026 Kevin Blake Lopez, works this out on this device with Swiss Ephemeris, © 1997–2021 Astrodienst AG, through swisseph-wasm. All three are free software: you may share and change them under the GNU Affero General Public License, version 3 or later. They come with no warranty.",
+      source: "Source code and licence",
     },
     // astro-com-page.js's, on the pages that stay open while a form fills in.
     astroComFilled: "AstroChart Bridge filled in astro.com's form in its tab.",
@@ -149,6 +162,7 @@ export default {
       saveInAstroSeek: "Save in Astro-Seek…",
       openAstroSeekForm: "Open Astro-Seek's form",
       astroSeekTab: "Go to the Astro-Seek tab",
+      helioscope: "Which planets were visible",
       share: "Share…",
       enterInAstroCom: "Enter in astro.com…",
       openAstroComForm: "Open astro.com's form",
@@ -217,6 +231,9 @@ export default {
     shareBeforeGregorian:
       "AstroChart Bridge can't share a chart dated before 15 October 1582 yet: it can't tell which calendar the date is in.",
     shareRefused: "AstroChart Bridge can't share this chart.",
+    helioscopeBeforeGregorian:
+      "AstroChart Bridge can't work out the planets for a chart dated before 15 October 1582 yet: it can't tell which calendar the date is in.",
+    helioscopeRefused: "AstroChart Bridge can't work out the planets for this chart.",
 
     // town is what AstroChart Bridge types in, or null.
     townNote: (town) =>
@@ -759,5 +776,110 @@ export default {
     qrNote: "Scan this with a phone or tablet's camera to open the chart there. Anyone who can see the code can read the chart.",
     // The share sheet's title, with no birth data in it.
     shareTitle: "AstroChart Bridge chart",
+  },
+
+  // Helioscope's page, from helioscope-model.js. Numbers arrive written out,
+  // with decimal as their decimal mark, and times as "18:15", or as onDay
+  // gives them when they aren't on the chart's own day.
+  helioscope: {
+    decimal: ".",
+    planets: { mercury: "Mercury", venus: "Venus", mars: "Mars", jupiter: "Jupiter", saturn: "Saturn" },
+    conditions: { cazimi: "Cazimi", combust: "Combust", "under-the-beams": "Under the beams", clear: "Clear" },
+    // The side of the Sun, the apparition: east of it is the evening sky.
+    sides: { evening: "evening", morning: "morning" },
+    // "Clear · evening"
+    moment: (condition, side) => `${condition} · ${side}`,
+    eastOfSun: (degrees) => `${degrees}° east of the Sun`,
+    westOfSun: (degrees) => `${degrees}° west of the Sun`,
+    inConjunction: "In conjunction with the Sun",
+    inOpposition: "Opposite the Sun",
+    notWorkedOut: "Couldn't be worked out",
+    predictions: {
+      detectable: "Detectable",
+      undetectable: "Not detectable",
+      "below-horizon": "Below the horizon",
+      indeterminate: "No prediction",
+      unavailable: "Couldn't be worked out",
+    },
+    // The windows by their twilight, so they aren't taken for the side of the Sun.
+    windows: { evening: "dusk", morning: "dawn" },
+    // "Best at dusk, 18:15: +9.01"
+    best: (window, time, margin) => `Best at ${window}, ${time}: ${margin}`,
+    // " · dusk +4.16": the other window's margin, when it's above 0 too.
+    also: (window, margin) => ` · ${window} ${margin}`,
+    belowBoth: "Below the horizon at dusk and at dawn",
+    noWindow: {
+      set: "The Sun doesn't set that day",
+      rise: "The Sun doesn't rise that day",
+      both: "The Sun doesn't set or rise that day",
+      other: "There's no twilight to judge by that night",
+    },
+    // "18:15 on 10 Jan"
+    onDay: (time, day) => `${time} on ${day}`,
+    dayMonth: (day, month) => `${day} ${MONTHS[month - 1]}`,
+    // A planet's details, one row each.
+    labels: {
+      evening: "Evening",
+      morning: "Morning",
+      best: { evening: "Best at dusk", morning: "Best at dawn" },
+      longitudeGap: "Longitude gap",
+      elongation: "Elongation",
+    },
+    events: {
+      sunset: "sunset",
+      "astronomical-dusk": "the end of astronomical twilight",
+      "lower-transit": "the Sun's lowest point",
+      "astronomical-dawn": "the start of astronomical twilight",
+      sunrise: "sunrise",
+    },
+    // "From sunset at 16:49 to the end of astronomical twilight at 18:26"
+    span: (start, startTime, end, endTime) => `From ${start} at ${startTime} to ${end} at ${endTime}`,
+    // After span.
+    above: (count, total) => `, above the horizon in ${count} of ${total} samples`,
+    below: ", below the horizon throughout",
+    none: {
+      "no-sunset": "None: the Sun doesn't set that day",
+      "no-sunrise": "None: the Sun doesn't rise that day",
+      other: "None: there's no twilight that night",
+    },
+    failed: (code) => `Couldn't be worked out: ${code}`,
+    // "18:15: margin +9.01, Venus at −4.53 against a limit of 4.48, 25° up in the southwest, the Sun 16° down"
+    bestMoment: ({ time, margin, planet, magnitude, limit, altitude, direction, sunDepth }) =>
+      `${time}: margin ${margin}, ${planet} at ${magnitude} against a limit of ${limit}, ${altitude}° up in the ${direction}, the Sun ${sunDepth}° down`,
+    // From north, every 45° clockwise.
+    directions: ["north", "northeast", "east", "southeast", "south", "southwest", "west", "northwest"],
+    timesAt: (offset) => `Times are at ${offset}, the chart's offset.`,
+    assumptions: {
+      ephemeris: "Ephemeris",
+      ephemerisValue: (version) => `Swiss Ephemeris ${version}, Moshier`,
+      atmosphere: "Atmosphere",
+      atmosphereValue: (pressure, temperature, humidity) => `${pressure} hPa, ${temperature} °C, ${humidity} % humidity`,
+      observer: "Observer",
+      observerValue: (age, snellen, bothEyes) => `Aged ${age}, Snellen ratio ${snellen}, ${bothEyes ? "both eyes" : "one eye"}`,
+      elevation: "Elevation",
+      elevationGiven: (metres) => `${metres} m`,
+      elevationDefault: (metres) => `${metres} m, as none was given`,
+      moon: "Moon",
+      moonIncluded: "Its light is included",
+      moonLeftOut: "Its light is left out",
+      samples: "Samples",
+      every: (minutes) => `Every ${minutes} minutes`,
+      limits: "Limits",
+      limitsValue: (cazimi, combust, underTheBeams) => `Cazimi ${cazimi}, combust ${combust}, under the beams ${underTheBeams}`,
+    },
+    columns: { planet: "Planet", moment: "At the chart's moment", prediction: "Predicted in the twilight around it" },
+    detailsHeading: "Details",
+    // A planet's details, closed until opened: "Venus: Detectable"
+    detailsSummary: (planet, prediction) => `${planet}: ${prediction}`,
+    assumptionsHeading: "Assumptions",
+    empty: "This page works out which planets were visible for a chart. Open it from a chart in AstroChart Bridge.",
+    refusals: {
+      "date-out-of-range": "AstroChart Bridge works out which planets were visible only for dates before 3000.",
+      "invalid-coordinates": "This chart's place isn't a latitude and longitude on the globe.",
+      "invalid-elevation": ELEVATION_RANGE,
+      "engine-failed": "Swiss Ephemeris couldn't start in this browser, so the planets can't be worked out.",
+      other: "The planets can't be worked out for this chart.",
+    },
+    elevationRefused: ELEVATION_RANGE,
   },
 };

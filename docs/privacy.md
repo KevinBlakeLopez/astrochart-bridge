@@ -18,6 +18,7 @@ Only when you click the button for it:
 - **Astro-Seek's Add person form**, when you click Save in Astro-Seek…, gets the chart's date, time and place in its address, and its name when it has one. AstroChart Bridge then types the chart's town into the form's Birth city, which sends it to Astro-Seek's city search, and chooses the match nearest the chart's coordinates. When the chart's file gives a gender, it sets the form's Gender to it, in the page; Astro-Seek gets it only when you press Add person. It never presses Add person or signs you in. To know whether to go on, it reads whether the page's menu links to Astro-Seek's sign-in or sign-out page.
 - **astro.com's birth data form** gets the chart's date, time and place, and its town, name and gender when it has them. All of them are on the screen before astro.com opens, and the name can be changed or cleared there. AstroChart Bridge fills the form in but never submits it or signs you in. Once you choose the town, it reads the time zone astro.com picked, to check it against the chart's offset.
 - **A shared link, QR code or `.astrochart.json` file** carries the chart's local time, its offset from UTC, the birthplace's latitude and longitude, and a note of where the chart came from, such as the site it was read on. It carries the chart's name and its town only when you tick them on the share page, where both start unticked, and anyone with the link, code or file can then read them. The receiving page reads the chart from the part of the link after `#`, which browsers don't send to the server.
+- **Which planets were visible** sends nothing. It opens a page of the extension's own in a new tab, with the chart's local time, offset and place, and a note of where the chart came from, but not its name or town, in the part of the page's address after `#`. Swiss Ephemeris, built into the extension, works out the planets on your computer.
 
 Those sites then handle what they receive under their own privacy policies.
 
@@ -27,13 +28,14 @@ Those sites then handle what they receive under their own privacy policies.
 - **Whether a shared chart includes its name and its town**, once you tick either on the share page, so the next chart you share starts the same way. It's kept like your default sky. The name and town themselves aren't kept. The receiving page on the web keeps nothing, so its boxes always start unticked.
 - **A chart it opened astro.com for**: the chart's time, place, town and name, so the form can still be filled in after the popup closes. They're used for 30 minutes at most, and kept in session storage, which the browser empties when it quits.
 - **A chart it opened in Astro-Seek** that has a town or a name: the chart's time, place, town and name, so Save in Astro-Seek… in the popup on that tab can fill in the town and name, used only while the tab still shows that chart. They're kept in session storage until the browser quits.
+- **The elevation and the limit for under the beams** you last chose when working out which planets were visible, so the next chart starts the same way. They're kept like your default sky. The chart isn't kept.
 
 Nothing else is kept.
 
 ## Permissions
 
 - **activeTab** and **scripting**: to read the chart on the page you're on, only when you click the toolbar button.
-- **storage**: for the four things it keeps, above.
+- **storage**: for the five things it keeps, above.
 - **`http://127.0.0.1/*`**, asked for the first time you use Stellarium Desktop.
 - **`https://www.astro.com/*`**, asked for the first time you enter a chart in astro.com, to fill in the form in the tab it opens.
 - **`https://www.astro-seek.com/*`**, asked for the first time you save a chart in Astro-Seek, to choose the town in the form in the tab it opens, and keep the chart's coordinates and time zone there.

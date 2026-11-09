@@ -1,5 +1,5 @@
 import { text } from "./messages/index.js";
-import { astroComStep, astroSeekButtons, astroSeekNotes, astroSeekWarnings, genderRows, shareButton, viewFor, withAstroSeekSave } from "./popup-model.js";
+import { astroComStep, astroSeekButtons, astroSeekNotes, astroSeekWarnings, chartButtons, genderRows, viewFor, withAstroSeekSave } from "./popup-model.js";
 
 // Each refusal analyzeScreenshot can return keeps its code on screen, like the
 // popup's unreadable pages, so a bug report says which check failed. The
@@ -64,7 +64,7 @@ export function viewForScreenshot(result, options) {
     view.state === "enter-offset" && Object.hasOwn(programs, result.site) ? { message: words.noOffset(programs[result.site]) } : {};
   // viewFor already gives an astro.com chart Astro-Seek's notes and buttons.
   const notes = result.site === "astro-com" ? view.notes : [...view.notes, ...astroSeekNotes()];
-  const buttons = [...astroSeekButtons(), shareButton()];
+  const buttons = chartButtons(astroSeekButtons());
   // viewFor leads only an Astro-Seek chart on to astro.com, since the popup
   // is on an astro.com chart's own page, with the town its address names. A
   // screenshot can be any chart, so every chart with a decided sky can be

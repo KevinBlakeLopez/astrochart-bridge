@@ -1,0 +1,97 @@
+/* Helioscope's page is a page in a tab, not a popup: the popup's look, as
+   wide as the planets' table needs and no wider. */
+body.page {
+  width: auto;
+  max-width: 720px;
+  margin: 0 auto;
+  font-size: 14px;
+}
+
+main {
+  padding: 16px;
+}
+
+h1 {
+  margin: 8px 0 12px;
+  font-size: 20px;
+}
+
+h2 {
+  margin: 16px 0 8px;
+  font-size: 15px;
+}
+
+/* The elevation box and the two limits for under the beams, on one line
+   where they fit. */
+.settings {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 20px;
+  margin: 0 0 12px;
+}
+
+.settings fieldset {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+}
+
+.settings legend {
+  float: left;
+  padding: 0;
+}
+
+.settings label {
+  align-items: center;
+}
+
+#app {
+  margin: 0 0 16px;
+}
+
+table.planets {
+  width: 100%;
+  margin: 12px 0;
+  border-collapse: collapse;
+}
+
+table.planets th,
+table.planets td {
+  padding: 8px 12px 8px 0;
+  text-align: left;
+  vertical-align: top;
+  border-top: 1px solid var(--line);
+}
+
+table.planets thead th {
+  border-top: 0;
+  font-weight: normal;
+  color: var(--muted);
+}
+
+table.planets .detail {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+details.planet,
+details.assumptions {
+  margin: 0 0 8px;
+}
+
+details.planet summary,
+details.assumptions summary {
+  cursor: pointer;
+}
+
+details dl {
+  margin: 8px 0 8px 16px;
+}
+
+/* A long row wraps instead of widening the page. */
+dd {
+  overflow-wrap: anywhere;
+}

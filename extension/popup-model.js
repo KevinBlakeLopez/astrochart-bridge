@@ -313,8 +313,16 @@ export function viewForAstroSeekSave(result, sky, saves) {
 // Stellarium tab has no birthplace time, so its screen doesn't offer it.
 export const shareButton = () => ({ label: text().popup.buttons.share, does: "share", secondary: true });
 
-// A screen's buttons, then Share…
-const chartButtons = (buttons) => [...buttons, shareButton()];
+// Opens Helioscope's page in a tab, with the chart in its link but not its
+// name or town, to see which planets could be seen with the naked eye around
+// the chart's moment. It goes wherever Share… goes, right before it, and
+// waits for the UTC as Share… does. A horary chart, which is natal to the
+// readers with horary as its gender, gets it too.
+export const helioscopeButton = () => ({ label: text().popup.buttons.helioscope, does: "helioscope", secondary: true });
+
+// A screen's buttons, then Which planets were visible and Share…: every
+// screen with a chart of its own ends with these.
+export const chartButtons = (buttons) => [...buttons, helioscopeButton(), shareButton()];
 
 // The labels over a screen's two kinds of action, when it has both.
 export const groupLabels = () => ({ ...text().popup.groups });
@@ -322,8 +330,9 @@ export const groupLabels = () => ({ ...text().popup.groups });
 /**
  * The order view.js draws a screen's actions in, in labelled groups. The ways
  * to see the sky, Open Stellarium Web and Send to Stellarium Desktop, go under
- * See the sky, with the line that says which is the default. Every other
- * action goes under Take the chart elsewhere: Share…, Open chart in
+ * See the sky, with the line that says which is the default, then Which
+ * planets were visible, so that line stays beside the buttons it's about.
+ * Every other action goes under Take the chart elsewhere: Share…, Open chart in
  * Astro-Seek, the AAF file and the astro.com step among them. The group with
  * the screen's main button comes first.
  *
@@ -358,7 +367,10 @@ export function actionGroups(view) {
   if (view.download) actions.push({ kind: "download" });
   if (view.next) actions.push({ kind: "next" });
 
-  const sky = actions.filter((action) => opensSky(action) || action.kind === "default-choice");
+  const sky = [
+    ...actions.filter((action) => opensSky(action) || action.kind === "default-choice"),
+    ...actions.filter(({ button }) => button?.does === "helioscope"),
+  ];
   const elsewhere = actions.filter((action) => !sky.includes(action));
   if (!actions.some(opensSky) || elsewhere.length === 0) return [{ label: null, actions }];
   const labels = groupLabels();
@@ -429,6 +441,24 @@ export function viewForShareRefusal(reason) {
   return {
     state: "share-refused",
     message: reason === "before-gregorian" ? words.shareBeforeGregorian : words.shareRefused,
+    code: reason,
+    notes: [],
+    buttons: [],
+  };
+}
+
+/**
+ * What a chart screen shows when the chart can't go in Helioscope's link, for
+ * the reasons chartToShare refuses. Cancel goes back to the chart, as after
+ * Share….
+ *
+ * @param {string} reason
+ */
+export function viewForHelioscopeRefusal(reason) {
+  const words = text().popup;
+  return {
+    state: "helioscope-refused",
+    message: reason === "before-gregorian" ? words.helioscopeBeforeGregorian : words.helioscopeRefused,
     code: reason,
     notes: [],
     buttons: [],

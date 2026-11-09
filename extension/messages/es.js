@@ -16,6 +16,7 @@ const NEWER_FILE = "Este archivo lo creó una versión más reciente de AstroCha
 const BEFORE_GREGORIAN = "La fecha de esta carta es anterior al 15 de octubre de 1582, y AstroChart Bridge todavía no puede abrirla.";
 const PRE_GREGORIAN = "AstroChart Bridge abre fechas a partir del 15 de octubre de 1582, cuando comenzó el calendario gregoriano.";
 const QR_TOO_LONG = "Este enlace es demasiado largo para un código QR que se lea bien.";
+const ELEVATION_RANGE = "Escribe metros enteros, de -500 a 25000.";
 
 // "a, b y c", with e before a word that starts with the sound i, as in "e hija".
 const and = (items) => {
@@ -91,6 +92,18 @@ export default {
       hideQr: "Ocultar código QR",
       shareSheetFailed: "AstroChart Bridge no pudo abrir el menú para compartir. Usa Copiar enlace o Descargar archivo.",
     },
+    helioscope: {
+      title: "AstroChart Bridge: qué planetas eran visibles",
+      heading: "Qué planetas eran visibles",
+      elevation: "Altitud en metros",
+      underTheBeams: "Bajo los rayos a menos de",
+      working: "Calculando los planetas…",
+      margin:
+        "El número es el margen en magnitudes: cuánto más brillante era el planeta que lo más tenue que se veía entonces. Por encima de 0, se predice que era visible.",
+      notice:
+        "AstroChart Bridge, © 2026 Kevin Blake Lopez, lo calcula en este dispositivo con Swiss Ephemeris, © 1997–2021 Astrodienst AG, a través de swisseph-wasm. Los tres son software libre: puedes compartirlos y modificarlos según la Licencia Pública General Affero de GNU, versión 3 o posterior. No tienen ninguna garantía.",
+      source: "Código fuente y licencia",
+    },
     astroComFilled: "AstroChart Bridge completó el formulario de astro.com en su pestaña.",
     astroSeekFilled: "AstroChart Bridge completó el formulario de Astro-Seek en su pestaña. Comprueba allí Gender y después haz clic en Add person.",
   },
@@ -152,6 +165,7 @@ export default {
       saveInAstroSeek: "Guardar en Astro-Seek…",
       openAstroSeekForm: "Abrir el formulario de Astro-Seek",
       astroSeekTab: "Ir a la pestaña de Astro-Seek",
+      helioscope: "Qué planetas eran visibles",
       share: "Compartir…",
       enterInAstroCom: "Completar en astro.com…",
       openAstroComForm: "Abrir el formulario de astro.com",
@@ -218,6 +232,9 @@ export default {
     shareBeforeGregorian:
       "AstroChart Bridge todavía no puede compartir una carta con fecha anterior al 15 de octubre de 1582: no puede saber en qué calendario está la fecha.",
     shareRefused: "AstroChart Bridge no puede compartir esta carta.",
+    helioscopeBeforeGregorian:
+      "AstroChart Bridge todavía no puede calcular los planetas de una carta con fecha anterior al 15 de octubre de 1582: no puede saber en qué calendario está la fecha.",
+    helioscopeRefused: "AstroChart Bridge no puede calcular los planetas de esta carta.",
 
     townNote: (town) =>
       town === null
@@ -722,5 +739,99 @@ export default {
     qrLabel: "Código QR del enlace a esta carta",
     qrNote: "Escanéalo con la cámara de un teléfono o una tableta para abrir la carta en él. Cualquiera que pueda ver el código puede leer la carta.",
     shareTitle: "Carta de AstroChart Bridge",
+  },
+
+  helioscope: {
+    decimal: ",",
+    planets: { mercury: "Mercurio", venus: "Venus", mars: "Marte", jupiter: "Júpiter", saturn: "Saturno" },
+    conditions: { cazimi: "Cazimi", combust: "Combusto", "under-the-beams": "Bajo los rayos", clear: "Libre de los rayos" },
+    sides: { evening: "vespertino", morning: "matutino" },
+    moment: (condition, side) => `${condition} · ${side}`,
+    eastOfSun: (degrees) => `${degrees}° al este del Sol`,
+    westOfSun: (degrees) => `${degrees}° al oeste del Sol`,
+    inConjunction: "En conjunción con el Sol",
+    inOpposition: "En oposición al Sol",
+    notWorkedOut: "No se pudo calcular",
+    predictions: {
+      detectable: "Detectable",
+      undetectable: "No detectable",
+      "below-horizon": "Bajo el horizonte",
+      indeterminate: "Sin predicción",
+      unavailable: "No se pudo calcular",
+    },
+    windows: { evening: "anochecer", morning: "amanecer" },
+    // "Mejor al anochecer, a las 18:15: +9,01"
+    best: (window, time, margin) => `Mejor al ${window}, ${at(time)}: ${margin}`,
+    also: (window, margin) => ` · ${window} ${margin}`,
+    belowBoth: "Bajo el horizonte al anochecer y al amanecer",
+    noWindow: {
+      set: "El Sol no se pone ese día",
+      rise: "El Sol no sale ese día",
+      both: "El Sol no se pone ni sale ese día",
+      other: "Esa noche no hay crepúsculo con el que juzgar",
+    },
+    // "18:15 del 10 ene"
+    onDay: (time, day) => `${time} del ${day}`,
+    dayMonth: (day, month) => `${day} ${MONTHS[month - 1]}`,
+    labels: {
+      evening: "Anochecer",
+      morning: "Amanecer",
+      best: { evening: "Mejor al anochecer", morning: "Mejor al amanecer" },
+      longitudeGap: "Diferencia de longitud",
+      elongation: "Elongación",
+    },
+    events: {
+      sunset: "la puesta del Sol",
+      "astronomical-dusk": "el final del crepúsculo astronómico",
+      "lower-transit": "el punto más bajo del Sol",
+      "astronomical-dawn": "el comienzo del crepúsculo astronómico",
+      sunrise: "la salida del Sol",
+    },
+    // "Desde la puesta del Sol a las 16:49 hasta el final del crepúsculo astronómico a las 18:26"
+    span: (start, startTime, end, endTime) => `Desde ${start} ${at(startTime)} hasta ${end} ${at(endTime)}`,
+    above: (count, total) => `, sobre el horizonte en ${count} de ${total} muestras`,
+    below: ", bajo el horizonte todo el tiempo",
+    none: {
+      "no-sunset": "Ninguna: el Sol no se pone ese día",
+      "no-sunrise": "Ninguna: el Sol no sale ese día",
+      other: "Ninguna: esa noche no hay crepúsculo",
+    },
+    failed: (code) => `No se pudo calcular: ${code}`,
+    bestMoment: ({ time, margin, planet, magnitude, limit, altitude, direction, sunDepth }) =>
+      `${time}: margen ${margin}, ${planet} en ${magnitude} frente a un límite de ${limit}, a ${altitude}° de altura hacia el ${direction}, con el Sol ${sunDepth}° bajo el horizonte`,
+    directions: ["norte", "noreste", "este", "sureste", "sur", "suroeste", "oeste", "noroeste"],
+    timesAt: (offset) => `Las horas están en ${offset}, la diferencia horaria de la carta.`,
+    assumptions: {
+      ephemeris: "Efemérides",
+      ephemerisValue: (version) => `Swiss Ephemeris ${version}, Moshier`,
+      atmosphere: "Atmósfera",
+      atmosphereValue: (pressure, temperature, humidity) => `${pressure} hPa, ${temperature} °C, ${humidity} % de humedad`,
+      observer: "Observador",
+      observerValue: (age, snellen, bothEyes) =>
+        `${age} años, razón de Snellen ${snellen}, ${bothEyes ? "con los dos ojos" : "con un ojo"}`,
+      elevation: "Altitud",
+      elevationGiven: (metres) => `${metres} m`,
+      elevationDefault: (metres) => `${metres} m, porque no se indicó ninguna`,
+      moon: "Luna",
+      moonIncluded: "Se tiene en cuenta su luz",
+      moonLeftOut: "No se tiene en cuenta su luz",
+      samples: "Muestras",
+      every: (minutes) => `Cada ${minutes} minutos`,
+      limits: "Límites",
+      limitsValue: (cazimi, combust, underTheBeams) => `Cazimi ${cazimi}, combusto ${combust}, bajo los rayos ${underTheBeams}`,
+    },
+    columns: { planet: "Planeta", moment: "En el momento de la carta", prediction: "Predicción en el crepúsculo cercano" },
+    detailsHeading: "Detalles",
+    detailsSummary: (planet, prediction) => `${planet}: ${prediction}`,
+    assumptionsHeading: "Supuestos",
+    empty: "Esta página calcula qué planetas eran visibles para una carta. Ábrela desde una carta en AstroChart Bridge.",
+    refusals: {
+      "date-out-of-range": "AstroChart Bridge calcula qué planetas eran visibles solo para fechas anteriores a 3000.",
+      "invalid-coordinates": "El lugar de esta carta no es una latitud y una longitud del globo.",
+      "invalid-elevation": ELEVATION_RANGE,
+      "engine-failed": "Swiss Ephemeris no pudo iniciarse en este navegador, así que no se pueden calcular los planetas.",
+      other: "No se pueden calcular los planetas para esta carta.",
+    },
+    elevationRefused: ELEVATION_RANGE,
   },
 };

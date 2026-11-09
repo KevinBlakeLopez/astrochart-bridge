@@ -4,6 +4,8 @@ AstroChart Bridge is a browser extension that takes the birth data from an astro
 
 It reads a chart from the page you're on, a screenshot, pasted text, an AAF file or a Morinus chart file. It works out the chart's Universal Time from what the source prints and refuses a chart rather than guess a time, an offset or a calendar.
 
+It can also work out, on your computer, which planets could be seen with the naked eye around the chart's moment.
+
 It runs in Chrome, Brave, Microsoft Edge, Firefox 140 or later and Safari 26 or later on macOS. In Safari on iPad it has to be wrapped in an app with Xcode; see [docs/safari-ipad.md](docs/safari-ipad.md).
 
 It speaks English, Spanish and Slovenian, following the browser's preferred languages. The charts, screenshots and text it reads are English ones in any of them.
@@ -30,9 +32,20 @@ It opens natal charts, plus horary charts from a screenshot. Transit, synastry, 
 - **An AAF file**, with **Save as AAF file**.
 - **Another device**, with **Share…**: a link, a QR code of the link, a `.astrochart.json` file or the system's share sheet. The receiving page, `chart.html`, opens the chart without the extension. The chart's name and town go with it only when you tick them on the share page, which remembers what you tick.
 
+## Which planets were visible
+
+**Which planets were visible**, on a chart's screen, opens a page that works out whether Mercury, Venus, Mars, Jupiter and Saturn could be seen with the naked eye in the twilight around the chart's moment, from its place. It runs on your computer with Swiss Ephemeris, compiled to WebAssembly and built into the extension, and sends nothing anywhere. The code calls it Helioscope.
+
+- For each planet it gives its traditional condition at the chart's moment, cazimi, combust, under the beams or clear of them, and its side of the Sun. Under the beams is within 15° of the Sun unless you choose 17°.
+- Apart from those, it predicts whether the planet could be seen in the evening and morning twilight nearest the chart's moment, with the margin in magnitudes the prediction rests on. Above 0, it's predicted visible.
+- The prediction assumes the atmosphere and observer Swiss Ephemeris fills in, which the page lists, and an elevation of 0 m unless you give one. A chart records neither the weather nor the observer's sight, so a small margin is weak evidence.
+- On a night the Sun never gets 18° below the horizon, as every June from about 48.6° N, the twilight windows run to and from its lowest point. With no sunset or no sunrise at all, there's no prediction. Dates from 3000 on are refused.
+
+[docs/HELIOSCOPE_V1_FEASIBILITY.md](docs/HELIOSCOPE_V1_FEASIBILITY.md) has how it's worked out and the checks behind it.
+
 ## Privacy
 
-There is no server, account or tracking. Charts are read in the browser, and nothing leaves your computer until you click a button that opens a site, which then gets only the chart's moment and place. astro.com's form also gets the chart's town and name, both shown on the screen before it opens, where the name can be changed or cleared. A shared chart travels inside its link or file, which carries the chart's name and town only when you tick them on the share page.
+There is no server, account or tracking. Charts are read in the browser, and nothing leaves your computer until you click a button that opens a site, which then gets only the chart's moment and place. Which planets were visible is worked out on your computer, and sends nothing. astro.com's form also gets the chart's town and name, both shown on the screen before it opens, where the name can be changed or cleared. A shared chart travels inside its link or file, which carries the chart's name and town only when you tick them on the share page.
 
 The extension asks for `activeTab`, `scripting` and `storage`. It asks for three more only when a feature needs them, and the browser asks you first: `127.0.0.1`, to talk to Stellarium Desktop, `www.astro.com`, to fill in astro.com's form as it opens, and `www.astro-seek.com`, to choose the town in Astro-Seek's form when saving a chart there.
 
@@ -62,10 +75,10 @@ npm test
 
 | Path | What's there |
 |---|---|
-| `extension/` | The extension, loaded as is. `manifest.json`, the popup, and the screenshot, paste, import and receiving pages, each with a view model (`*-model.js`) that the tests cover. |
+| `extension/` | The extension, loaded as is. `manifest.json`, the popup, and the screenshot, paste, import, receiving and Helioscope pages, each with a view model (`*-model.js`) that the tests cover. |
 | `extension/core/` | Reading and converting charts, with no browser APIs: one module per site or program, civil time, sidereal time, AAF and the portable chart format. |
 | `extension/messages/` | The interface's text, one catalog per language (`en.js`, `es.js`, `sl.js`), and `index.js`, which chooses one from the browser's languages and fills in each page's `data-text`. `_locales/` holds only the extension's name and description, for the browser and the stores. |
-| `extension/vendor/` | Tesseract.js for reading screenshots, lean-qr for QR codes, and Swiss Ephemeris for Helioscope's planetary visibility, which no page uses yet, each with its licence. |
+| `extension/vendor/` | Tesseract.js for reading screenshots, lean-qr for QR codes, and Swiss Ephemeris for Helioscope's planetary visibility, each with its licence. |
 | `test/` | `node --test` tests. |
 | `fixtures/` | Astro-Seek page captures, trimmed to their header block, and AAF files written by Astrolog, with invented birth data; in `golden/`, the reference charts every route out is tested against: invented ones, and well-known people's public birth records from Astro-Databank. The Astro-Seek captures named `golden-*` are of those charts. See [docs/golden-charts.md](docs/golden-charts.md). |
 | `tools/` | `package-safari.sh` makes the Xcode project for Safari; `package-stores.sh` packs a commit for the Chrome Web Store and Firefox Add-ons; `site.mjs` builds the receiving page's site; `make-icons.mjs` draws the icons; `trim-fixture.mjs` trims a new Astro-Seek capture before it's committed; `make-golden.py` works out the golden charts' expected values. |
@@ -86,6 +99,7 @@ Pushes to `main` run `.github/workflows/pages.yml`, which runs the tests and pub
 - [docs/privacy.md](docs/privacy.md): what AstroChart Bridge reads, sends and keeps
 - [docs/manual-test.md](docs/manual-test.md): the manual test checklist
 - [docs/golden-charts.md](docs/golden-charts.md): the reference charts, and adding or swapping one
+- [docs/HELIOSCOPE_V1_FEASIBILITY.md](docs/HELIOSCOPE_V1_FEASIBILITY.md): how Which planets were visible is worked out, and the checks behind it
 - [docs/astroseek-known-issues.md](docs/astroseek-known-issues.md): Astro-Seek behaviour worked around or to report
 - [docs/saved-charts-ideas.md](docs/saved-charts-ideas.md): ideas, not planned, for an account's saved charts
 
