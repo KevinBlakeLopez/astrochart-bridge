@@ -6,21 +6,33 @@ const BASE = "https://stellarium-web.org/";
 const UTC_INSTANT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/;
 
 /**
- * The Stellarium Web link for a decided UTC instant and place. Only date, lat
- * and lng are sent, so Stellarium keeps its default view.
+ * The Stellarium Web link for a decided UTC instant and place. With no
+ * options, only date, lat and lng are sent, so Stellarium keeps its default
+ * view. Helioscope's page also sends a planet, which goes in the path and is
+ * selected with the view locked on it, the observer's elevation in metres and
+ * a field of view in degrees: the form docs/HELIOSCOPE_V1_FEASIBILITY.md §7
+ * checked on stellarium-web.org. Each is sent only when given.
  *
- * Throws when there is no decided UTC: that means the caller ran too early,
- * which is a bug, not a page problem to explain to the user.
+ * Throws when there is no decided UTC, or an elevation or field of view that
+ * isn't a finite number: that means the caller ran too early or passed
+ * nonsense, which is a bug, not a page problem to explain to the user.
  *
  * @param {{ utc: string, lat: number, lng: number }} sky
+ * @param {{ object?: string, elevation?: number, fov?: number }} [options]
  * @returns {string}
  */
-export function stellariumUrl({ utc, lat, lng }) {
+export function stellariumUrl({ utc, lat, lng }, { object, elevation, fov } = {}) {
   if (typeof utc !== "string" || !UTC_INSTANT.test(utc)) {
     throw new Error(`stellariumUrl needs a UTC instant like 2024-04-17T12:00:00Z, got ${utc}`);
   }
-  const url = new URL(BASE);
-  url.search = new URLSearchParams({ date: utc, lat: String(lat), lng: String(lng) });
+  for (const [name, value] of Object.entries({ elevation, fov })) {
+    if (value !== undefined && !Number.isFinite(value)) throw new Error(`stellariumUrl needs a finite ${name}, got ${value}`);
+  }
+  const url = new URL(object === undefined ? "" : `skysource/${encodeURIComponent(object)}`, BASE);
+  const params = new URLSearchParams({ date: utc, lat: String(lat), lng: String(lng) });
+  if (elevation !== undefined) params.set("elev", String(elevation));
+  if (fov !== undefined) params.set("fov", String(fov));
+  url.search = params;
   return url.href;
 }
 

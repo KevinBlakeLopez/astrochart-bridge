@@ -801,6 +801,11 @@ export default {
       `${time}: margen ${margin}, ${planet} en ${magnitude} frente a un límite de ${limit}, a ${altitude}° de altura hacia el ${direction}, con el Sol ${sunDepth}° bajo el horizonte`,
     directions: ["norte", "noreste", "este", "sureste", "sur", "suroeste", "oeste", "noroeste"],
     timesAt: (offset) => `Las horas están en ${offset}, la diferencia horaria de la carta.`,
+    // "Ver Venus a las 18:15 en Stellarium Web"
+    seeInStellarium: "Ver en Stellarium Web",
+    stellariumLabel: (planet, time) => `Ver ${planet} ${at(time)} en Stellarium Web`,
+    linksNote:
+      "Ver en Stellarium Web envía ese momento y el lugar de la carta a stellarium-web.org, cuya página pasa el enlace a las etiquetas publicitarias de Google. El reloj de Stellarium Web empieza a correr enseguida; su botón de pausa lo detiene.",
     assumptions: {
       ephemeris: "Efemérides",
       ephemerisValue: (version) => `Swiss Ephemeris ${version}, Moshier`,

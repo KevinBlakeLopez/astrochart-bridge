@@ -34,10 +34,11 @@ It opens natal charts, plus horary charts from a screenshot. Transit, synastry, 
 
 ## Which planets were visible
 
-**Which planets were visible**, on a chart's screen, opens a page that works out whether Mercury, Venus, Mars, Jupiter and Saturn could be seen with the naked eye in the twilight around the chart's moment, from its place. It runs on your computer with Swiss Ephemeris, compiled to WebAssembly and built into the extension, and sends nothing anywhere. The code calls it Helioscope.
+**Which planets were visible**, on a chart's screen, opens a page that works out whether Mercury, Venus, Mars, Jupiter and Saturn could be seen with the naked eye in the twilight around the chart's moment, from its place. It runs on your computer with Swiss Ephemeris, compiled to WebAssembly and built into the extension, and sends nothing anywhere until you open a planet in Stellarium Web. The code calls it Helioscope.
 
 - For each planet it gives its traditional condition at the chart's moment, cazimi, combust, under the beams or clear of them, and its side of the Sun. Under the beams is within 15° of the Sun unless you choose 17°.
 - Apart from those, it predicts whether the planet could be seen in the evening and morning twilight nearest the chart's moment, with the margin in magnitudes the prediction rests on. Above 0, it's predicted visible.
+- A planet with a best moment has **See it in Stellarium Web**, which opens Stellarium Web at that moment, from the chart's place and elevation, with the planet selected. Like **Open Stellarium Web**, it sends that moment and place to stellarium-web.org.
 - The prediction assumes the atmosphere and observer Swiss Ephemeris fills in, which the page lists, and an elevation of 0 m unless you give one. A chart records neither the weather nor the observer's sight, so a small margin is weak evidence.
 - On a night the Sun never gets 18° below the horizon, as every June from about 48.6° N, the twilight windows run to and from its lowest point. With no sunset or no sunrise at all, there's no prediction. Dates from 3000 on are refused.
 
@@ -45,7 +46,7 @@ It opens natal charts, plus horary charts from a screenshot. Transit, synastry, 
 
 ## Privacy
 
-There is no server, account or tracking. Charts are read in the browser, and nothing leaves your computer until you click a button that opens a site, which then gets only the chart's moment and place. Which planets were visible is worked out on your computer, and sends nothing. astro.com's form also gets the chart's town and name, both shown on the screen before it opens, where the name can be changed or cleared. A shared chart travels inside its link or file, which carries the chart's name and town only when you tick them on the share page.
+There is no server, account or tracking. Charts are read in the browser, and nothing leaves your computer until you click a button that opens a site, which then gets only the chart's moment and place. Which planets were visible is worked out on your computer, and sends nothing until you open a planet in Stellarium Web. astro.com's form also gets the chart's town and name, both shown on the screen before it opens, where the name can be changed or cleared. A shared chart travels inside its link or file, which carries the chart's name and town only when you tick them on the share page.
 
 The extension asks for `activeTab`, `scripting` and `storage`. It asks for three more only when a feature needs them, and the browser asks you first: `127.0.0.1`, to talk to Stellarium Desktop, `www.astro.com`, to fill in astro.com's form as it opens, and `www.astro-seek.com`, to choose the town in Astro-Seek's form when saving a chart there.
 

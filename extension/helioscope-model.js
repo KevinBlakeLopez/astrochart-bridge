@@ -12,6 +12,7 @@
 // nearest minute, since the extension has no time zones to give another.
 import { natalChartFor, readLink } from "./chart-model.js";
 import { ELEVATION_LIMITS, PLANETS, UNDER_THE_BEAMS_LIMITS, visibility } from "./core/helioscope.js";
+import { stellariumUrl } from "./core/stellarium.js";
 import { text } from "./messages/index.js";
 import { offsetText, viewFor } from "./popup-model.js";
 
@@ -24,6 +25,14 @@ const SETTINGS_KEY = "helioscope-settings";
 
 const MINUS = "−";
 const WINDOWS = ["evening", "morning"];
+
+// The names Stellarium Web's skysource/ path takes, which it looks up through
+// the NoctuaSky API: English, whatever the interface's language.
+const SKY_SOURCES = Object.freeze({ mercury: "Mercury", venus: "Venus", mars: "Mars", jupiter: "Jupiter", saturn: "Saturn" });
+
+// Degrees: the field of view the feasibility doc checked (§7), which shows the
+// planet among its neighbours.
+const FIELD_OF_VIEW = 60;
 
 /**
  * The chart in the page's link, as visibility() takes it.
@@ -68,13 +77,17 @@ export function visibilities(chart, engine, { elevation, underTheBeams }) {
  * @returns {{ state: "ready", rows: [string, string][], planets: object[], assumptions: [string, string][], notes: string[] }}
  */
 export function viewForVisibility(chart, results) {
+  const words = text().helioscope;
   const list = PLANETS.map((planet) => results[planet]);
+  const planets = list.map((result) => planetRow(result, chart));
+  // What a Stellarium Web link sends, said once, when there's a link to say it of.
+  const linksNote = planets.some(({ link }) => link !== null) ? [words.linksNote] : [];
   return {
     state: "ready",
     rows: viewFor(chart).rows,
-    planets: list.map((result) => planetRow(result, chart)),
+    planets,
     assumptions: assumptionRows(list),
-    notes: [text().helioscope.timesAt(offsetText(chart.offsetMinutes))],
+    notes: [words.timesAt(offsetText(chart.offsetMinutes)), ...linksNote],
   };
 }
 
@@ -156,6 +169,22 @@ function planetRow(result, chart) {
     moment: momentFor(result.solar),
     prediction: predictionFor(result, chart),
     details: detailRows(result, chart),
+    link: stellariumLink(result, chart),
+  };
+}
+
+// Stellarium Web at the planet's best moment, the one its prediction names,
+// with the planet selected, from the chart's place at the elevation the
+// prediction used: 0 m when none was given, so Stellarium's horizon is the
+// prediction's. A planet with no best moment has no link.
+function stellariumLink({ planet, place, classification, windows }, chart) {
+  if (classification.kind !== "detectable" && classification.kind !== "undetectable") return null;
+  const words = text().helioscope;
+  const { utc } = windows[classification.window].best;
+  return {
+    text: words.seeInStellarium,
+    label: words.stellariumLabel(words.planets[planet], when(utc, chart)),
+    url: stellariumUrl({ utc, lat: place.lat, lng: place.lng }, { object: SKY_SOURCES[planet], elevation: place.elevation, fov: FIELD_OF_VIEW }),
   };
 }
 

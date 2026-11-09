@@ -45,18 +45,21 @@ function drawn(view) {
   return container.parts;
 }
 
-// The New York chart's screen, drawn in a language.
-async function drawnIn(code) {
+// A chart's screen, drawn in a language: the New York chart's unless another is given.
+async function drawnIn(code, chart = NEW_YORK) {
   setLanguage([code]);
   const engine = await createEngine();
   try {
-    const { results } = visibilities(NEW_YORK, engine, { elevation: null, underTheBeams: 15 });
-    return drawn(viewForVisibility(NEW_YORK, results));
+    const { results } = visibilities(chart, engine, { elevation: null, underTheBeams: 15 });
+    return drawn(viewForVisibility(chart, results));
   } finally {
     engine.dispose();
     setLanguage(["en"]);
   }
 }
+
+// Tromsø at midsummer: no sunset and no sunrise, so no best moment and no link.
+const TROMSO = { ...NEW_YORK, local: "2025-06-21T02:00:00", utc: "2025-06-21T00:00:00Z", lat: 69.6492, lng: 18.9553, offsetMinutes: 120 };
 
 // A table cell's text: a heading's, or a data cell's two lines.
 const cellText = (cell) => (cell.tag === "th" ? cell.textContent : cell.children.map(({ textContent }) => textContent));
@@ -81,11 +84,13 @@ test("a chart's screen: its rows, the planets' table, each planet's details, the
     "details.planet",
     "details.assumptions",
     "p.note",
+    "p.note",
   ]);
   const [rows, , heading, ...rest] = parts;
   assert.deepEqual(rows.children.map(({ tag, textContent }) => `${tag}: ${textContent}`).slice(0, 2), ["dt: Local time", "dd: 10 Jan 2025, 17:35"]);
   assert.equal(heading.textContent, "Details");
-  assert.equal(rest.at(-1).textContent, "Times are at UTC-05:00, the chart's offset.");
+  assert.equal(rest.at(-2).textContent, "Times are at UTC-05:00, the chart's offset.");
+  assert.match(rest.at(-1).textContent, /^See it in Stellarium Web sends that moment/);
 });
 
 test("the planets' table has a column heading for each result and a row heading for each planet", async () => {
@@ -103,9 +108,26 @@ test("the planets' table has a column heading for each result and a row heading 
   assert.deepEqual(body.children[1].children.map(cellText), [
     "Venus",
     ["Clear · evening", "47.2° east of the Sun"],
-    ["Detectable", "Best at dusk, 18:15: +9.01"],
+    ["Detectable", "Best at dusk, 18:15: +9.01", "See it in Stellarium Web"],
   ]);
   assert.equal(body.children[1].children[2].children[1].className, "detail");
+});
+
+test("a planet's Stellarium Web link opens in a new tab, with nothing of the page sent with it, and says what it opens", async () => {
+  const [, table] = await drawnIn("en");
+  const link = table.children[1].children[1].children[2].children[2];
+  assert.equal(link.tag, "a");
+  assert.equal(link.href, "https://stellarium-web.org/skysource/Venus?date=2025-01-10T23%3A14%3A32Z&lat=40.7128&lng=-74.006&elev=0&fov=60");
+  assert.equal(link.target, "_blank");
+  assert.equal(link.rel, "noopener noreferrer");
+  assert.equal(link.attributes["aria-label"], "See Venus at 18:15 in Stellarium Web");
+});
+
+test("a planet with no best moment has no link, and a page with no links has no note about them", async () => {
+  const parts = await drawnIn("en", TROMSO);
+  const [, table] = parts;
+  assert.deepEqual(table.children[1].children[1].children.map(cellText)[2], ["No prediction", "The Sun doesn't set or rise that day"]);
+  assert.deepEqual(parts.filter(({ tag }) => tag === "p").map(({ textContent }) => textContent), ["Times are at UTC+02:00, the chart's offset."]);
 });
 
 test("each planet's details and the assumptions are closed boxes with their rows", async () => {
@@ -139,14 +161,14 @@ test("in Spanish, the page's words and decimal commas", async () => {
   assert.deepEqual(table.children[1].children[1].children.map(cellText), [
     "Venus",
     ["Libre de los rayos · vespertino", "47,2° al este del Sol"],
-    ["Detectable", "Mejor al anochecer, a las 18:15: +9,01"],
+    ["Detectable", "Mejor al anochecer, a las 18:15: +9,01", "Ver en Stellarium Web"],
   ]);
   const venus = box(parts.filter(({ tag }) => tag === "details")[1]);
   assert.deepEqual(venus.rows[0], [
     "Anochecer",
     "Desde la puesta del Sol a las 16:49 hasta el final del crepúsculo astronómico a las 18:26, sobre el horizonte en 50 de 50 muestras",
   ]);
-  assert.equal(parts.at(-1).textContent, "Las horas están en UTC-05:00, la diferencia horaria de la carta.");
+  assert.equal(parts.at(-2).textContent, "Las horas están en UTC-05:00, la diferencia horaria de la carta.");
 });
 
 test("in Slovenian, the page's words, decimal commas and counts", async () => {
@@ -155,7 +177,7 @@ test("in Slovenian, the page's words, decimal commas and counts", async () => {
   assert.deepEqual(table.children[1].children[1].children.map(cellText), [
     "Venera",
     ["Zunaj žarkov · na večernem nebu", "47,2° vzhodno od Sonca"],
-    ["Lahko se vidi", "Najbolje v mraku, ob 18:15: +9,01"],
+    ["Lahko se vidi", "Najbolje v mraku, ob 18:15: +9,01", "Odpri v Stellarium Web"],
   ]);
   const boxes = parts.filter(({ tag }) => tag === "details").map(box);
   assert.deepEqual(boxes[1].rows[0], [

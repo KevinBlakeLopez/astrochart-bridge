@@ -849,6 +849,12 @@ export default {
     // From north, every 45° clockwise.
     directions: ["north", "northeast", "east", "southeast", "south", "southwest", "west", "northwest"],
     timesAt: (offset) => `Times are at ${offset}, the chart's offset.`,
+    // A planet's link to Stellarium Web at its best moment, and what a screen
+    // reader says for it: "See Venus at 18:15 in Stellarium Web".
+    seeInStellarium: "See it in Stellarium Web",
+    stellariumLabel: (planet, time) => `See ${planet} at ${time} in Stellarium Web`,
+    linksNote:
+      "See it in Stellarium Web sends that moment and the chart's place to stellarium-web.org, whose page passes the link on to Google's advertising tags. Stellarium Web's clock starts running at once; its pause button stops it.",
     assumptions: {
       ephemeris: "Ephemeris",
       ephemerisValue: (version) => `Swiss Ephemeris ${version}, Moshier`,

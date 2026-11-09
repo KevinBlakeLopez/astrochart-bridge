@@ -77,6 +77,14 @@ table.planets .detail {
   color: var(--muted);
 }
 
+/* A planet's Stellarium Web link, on its own line under the prediction. */
+table.planets .sky-link {
+  display: inline-block;
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--accent);
+}
+
 details.planet,
 details.assumptions {
   margin: 0 0 8px;

@@ -29,18 +29,33 @@ export function drawScreen(container, view) {
 }
 
 // A row for each planet: its name, the moment's condition and side of the
-// Sun, and the prediction, each with its detail under it.
+// Sun, and the prediction, each with its detail under it, and the
+// prediction with its Stellarium Web link when it has a best moment.
 function planetTable(planets) {
   const { columns } = text().helioscope;
   const table = element("table", "planets");
   const head = element("thead");
   head.append(tableRow([columns.planet, columns.moment, columns.prediction].map((label) => heading(label, "col"))));
   const body = element("tbody");
-  for (const { name, moment, prediction } of planets) {
-    body.append(tableRow([heading(name, "row"), twoLines(moment.text, moment.angle), twoLines(prediction.label, prediction.detail)]));
+  for (const { name, moment, prediction, link } of planets) {
+    const predicted = twoLines(prediction.label, prediction.detail);
+    if (link) predicted.append(skyLink(link));
+    body.append(tableRow([heading(name, "row"), twoLines(moment.text, moment.angle), predicted]));
   }
   table.append(head, body);
   return table;
+}
+
+// A planet in Stellarium Web, opened in a new tab with nothing of this page
+// sent with it: no opener and no referrer. A screen reader says the planet
+// and the time, which the short text leaves to the row.
+function skyLink(link) {
+  const anchor = element("a", "sky-link", link.text);
+  anchor.href = link.url;
+  anchor.target = "_blank";
+  anchor.rel = "noopener noreferrer";
+  anchor.setAttribute("aria-label", link.label);
+  return anchor;
 }
 
 function tableRow(cells) {

@@ -831,6 +831,12 @@ export default {
     // In the locative, after na.
     directions: ["severu", "severovzhodu", "vzhodu", "jugovzhodu", "jugu", "jugozahodu", "zahodu", "severozahodu"],
     timesAt: (offset) => `Časi so po zamiku ${offset}, ki ga ima horoskop.`,
+    // "Stellarium Web: Venera ob 18:15", with the planet's name as it is, so
+    // that it needn't be declined.
+    seeInStellarium: "Odpri v Stellarium Web",
+    stellariumLabel: (planet, time) => `Stellarium Web: ${planet} ob ${time}`,
+    linksNote:
+      "Odpri v Stellarium Web pošlje ta trenutek in kraj horoskopa na stellarium-web.org, njegova stran pa povezavo posreduje Googlovim oglaševalskim oznakam. Ura v Stellarium Web začne teči takoj; ustavite jo z gumbom za premor.",
     assumptions: {
       ephemeris: "Efemeride",
       ephemerisValue: (version) => `Swiss Ephemeris ${version}, Moshier`,

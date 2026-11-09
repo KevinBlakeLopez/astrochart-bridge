@@ -45,6 +45,10 @@ const TROMSO = { ...NEW_YORK, local: "2025-06-21T02:00:00", utc: "2025-06-21T00:
 // No elevation given, and under the beams within 15°: the page's defaults.
 const DEFAULTS = { elevation: null, underTheBeams: 15 };
 
+// What a page with a Stellarium Web link says about it, after the offset.
+const LINKS_NOTE =
+  "See it in Stellarium Web sends that moment and the chart's place to stellarium-web.org, whose page passes the link on to Google's advertising tags. Stellarium Web's clock starts running at once; its pause button stops it.";
+
 // What the page works out for a chart, with an engine of its own.
 async function worked(chart, settings = DEFAULTS) {
   const engine = await createEngine();
@@ -189,16 +193,42 @@ test("viewForVisibility: a window that runs to or from the Sun's lowest point sa
     ["Morning", "From the Sun's lowest point at 01:02 on 22 Jun to sunrise at 04:43 on 22 Jun, above the horizon in 61 of 112 samples"],
     ["Best at dawn", "03:38 on 22 Jun: margin +4.49, Venus at −4.21 against a limit of 0.28, 8° up in the east, the Sun 8° down"],
   ]);
-  assert.deepEqual(view.notes, ["Times are at UTC+01:00, the chart's offset."]);
+  assert.deepEqual(view.notes, ["Times are at UTC+01:00, the chart's offset.", LINKS_NOTE]);
 });
 
 test("viewForVisibility: with no sunset and no sunrise there's no prediction, and the row says why", async () => {
-  const { planets } = await screen(TROMSO);
+  const { view, planets } = await screen(TROMSO);
   assert.deepEqual(planets.venus.prediction, { kind: "indeterminate", label: "No prediction", detail: "The Sun doesn't set or rise that day" });
   assert.deepEqual(planets.venus.details.slice(0, 2), [
     ["Evening", "None: the Sun doesn't set that day"],
     ["Morning", "None: the Sun doesn't rise that day"],
   ]);
+  // No best moment, so no link, and no planet has one, so no note about them.
+  assert.equal(planets.venus.link, null);
+  assert.deepEqual(view.notes, ["Times are at UTC+02:00, the chart's offset."]);
+});
+
+test("viewForVisibility: a planet with a best moment links to Stellarium Web at that moment, from the chart's place and elevation", async () => {
+  const { planets } = await screen(NEW_YORK);
+  assert.deepEqual(planets.venus.link, {
+    text: "See it in Stellarium Web",
+    label: "See Venus at 18:15 in Stellarium Web",
+    url: "https://stellarium-web.org/skysource/Venus?date=2025-01-10T23%3A14%3A32Z&lat=40.7128&lng=-74.006&elev=0&fov=60",
+  });
+  // Mercury isn't detectable, but it has a best moment, at dawn.
+  assert.equal(planets.mercury.link.label, "See Mercury at 06:38 in Stellarium Web");
+  // Mars is detectable in both windows: the link is the one its row names, at dawn.
+  assert.equal(
+    planets.mars.link.url,
+    "https://stellarium-web.org/skysource/Mars?date=2025-01-10T10%3A42%3A08Z&lat=40.7128&lng=-74.006&elev=0&fov=60",
+  );
+  const high = await screen(NEW_YORK, { elevation: 120, underTheBeams: 15 });
+  assert.match(high.planets.venus.link.url, /&elev=120&fov=60$/);
+});
+
+test("viewForVisibility: a link's label carries the date of a moment on another day than the chart's", async () => {
+  const { planets } = await screen(NEW_YORK_EARLY);
+  assert.equal(planets.venus.link.label, "See Venus at 18:15 on 10 Jan in Stellarium Web");
 });
 
 test("viewForVisibility: a planet below the horizon in both windows, or one the engine fails on, says so", async () => {
@@ -206,6 +236,7 @@ test("viewForVisibility: a planet below the horizon in both windows, or one the 
   const below = visibilities(chart, fakeEngine(() => ({ kind: "below-horizon", raw: { ret: -2, dret: [-100], serr: "" } })), DEFAULTS);
   const belowRow = viewForVisibility(chart, below.results).planets.find(({ planet }) => planet === "venus");
   assert.deepEqual(belowRow.prediction, { kind: "below-horizon", label: "Below the horizon", detail: "Below the horizon at dusk and at dawn" });
+  assert.equal(belowRow.link, null);
 
   const failing = () => ({ kind: "failed", reason: "engine-error", raw: { ret: -1, dret: [], serr: "error in swe_calc" } });
   const failed = visibilities(chart, fakeEngine(failing), DEFAULTS);
@@ -215,11 +246,12 @@ test("viewForVisibility: a planet below the horizon in both windows, or one the 
     ["Evening", "Couldn't be worked out: engine-error"],
     ["Morning", "Couldn't be worked out: engine-error"],
   ]);
+  assert.equal(failedRow.link, null);
 });
 
-test("viewForVisibility: the notes say whose offset the times are at, and the assumptions are listed as Swiss Ephemeris completed them", async () => {
+test("viewForVisibility: the notes say whose offset the times are at and what a Stellarium Web link sends, and the assumptions are listed as Swiss Ephemeris completed them", async () => {
   const { view } = await screen(NEW_YORK);
-  assert.deepEqual(view.notes, ["Times are at UTC-05:00, the chart's offset."]);
+  assert.deepEqual(view.notes, ["Times are at UTC-05:00, the chart's offset.", LINKS_NOTE]);
   assert.deepEqual(view.assumptions, [
     ["Ephemeris", "Swiss Ephemeris 2.10.03, Moshier"],
     ["Atmosphere", "1013.25 hPa, 15 °C, 40 % humidity"],

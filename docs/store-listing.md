@@ -45,7 +45,7 @@ The same text serves both stores. English is the default listing. Both stores al
 >
 > It sends a chart to Stellarium Web or Stellarium Desktop, to Astro-Seek, or to astro.com's birth data form, which it fills in but never submits. With Save in Astro-Seek… it opens Astro-Seek's Add person form with the chart's date, time, place and name filled in and its town chosen, ready to save in your Astro-Seek account. It never presses Add person itself. It can also save the chart as an AAF file, or share it as a link, a QR code or a file that opens on another device without the extension.
 >
-> Which planets were visible works out, on your computer, whether Mercury, Venus, Mars, Jupiter and Saturn could be seen with the naked eye in the twilight around the chart's moment, with each one's traditional condition (cazimi, combust or under the beams) and side of the Sun. It uses Swiss Ephemeris, built into the extension.
+> Which planets were visible works out, on your computer, whether Mercury, Venus, Mars, Jupiter and Saturn could be seen with the naked eye in the twilight around the chart's moment, with each one's traditional condition (cazimi, combust or under the beams) and side of the Sun. It uses Swiss Ephemeris, built into the extension. Each planet opens in Stellarium Web at its best moment.
 >
 > It works out the chart's Universal Time from what the source prints, and refuses a chart rather than guess a time, an offset or a calendar. It opens natal charts, plus horary charts from a screenshot. Transit, synastry, compatibility, return, profection and direction charts are refused, as are dates before the Gregorian calendar began on 15 October 1582.
 >
@@ -78,7 +78,7 @@ Add these in each store's listing for that language: Chrome picks the language f
 >
 > Envía una carta a Stellarium Web o Stellarium Desktop, a Astro-Seek o al formulario de datos de nacimiento de astro.com, que rellena pero nunca envía. Con Guardar en Astro-Seek… abre el formulario Add person de Astro-Seek con la fecha, la hora, el lugar y el nombre de la carta ya puestos y su ciudad elegida, listo para guardarla en tu cuenta de Astro-Seek. Nunca pulsa Add person por sí mismo. También puede guardar la carta como archivo AAF, o compartirla como enlace, código QR o archivo que se abre en otro dispositivo sin la extensión.
 >
-> Qué planetas eran visibles calcula en tu equipo si Mercurio, Venus, Marte, Júpiter y Saturno podían verse a simple vista en el crepúsculo cercano al momento de la carta, con la condición tradicional de cada uno (cazimi, combusto o bajo los rayos) y su lado del Sol. Usa Swiss Ephemeris, incluida en la extensión.
+> Qué planetas eran visibles calcula en tu equipo si Mercurio, Venus, Marte, Júpiter y Saturno podían verse a simple vista en el crepúsculo cercano al momento de la carta, con la condición tradicional de cada uno (cazimi, combusto o bajo los rayos) y su lado del Sol. Usa Swiss Ephemeris, incluida en la extensión. Cada planeta se abre en Stellarium Web en su mejor momento.
 >
 > Calcula el tiempo universal de la carta a partir de lo que muestra la fuente, y rechaza una carta antes que adivinar una hora, un desfase horario o un calendario. Abre cartas natales, y cartas horarias desde una captura de pantalla. Rechaza las cartas de tránsitos, sinastría, compatibilidad, revoluciones, profecciones y direcciones, y las fechas anteriores al 15 de octubre de 1582, cuando empezó el calendario gregoriano.
 >
@@ -107,7 +107,7 @@ Add these in each store's listing for that language: Chrome picks the language f
 >
 > Horoskop pošlje v Stellarium Web ali Stellarium Desktop, na Astro-Seek ali v obrazec za rojstne podatke na astro.com, ki ga izpolni, nikoli pa ne odda. Z ukazom Shrani na Astro-Seeku … odpre obrazec Add person na Astro-Seeku z že vpisanimi datumom, časom, krajem in imenom horoskopa ter izbranim mestom, tako da ga lahko shranite v svoj račun na Astro-Seeku. Gumba Add person nikoli ne pritisne sam. Horoskop lahko shrani tudi kot datoteko AAF ali ga deli kot povezavo, kodo QR ali datoteko, ki se odpre na drugi napravi brez razširitve.
 >
-> Kateri planeti so bili vidni na vašem računalniku izračuna, ali so se Merkur, Venera, Mars, Jupiter in Saturn videli s prostim očesom v somraku okoli trenutka horoskopa, skupaj s tradicionalnim stanjem vsakega (kazimi, zgorevanje ali pod žarki) in njegovo stranjo od Sonca. Uporablja Swiss Ephemeris, vgrajen v razširitev.
+> Kateri planeti so bili vidni na vašem računalniku izračuna, ali so se Merkur, Venera, Mars, Jupiter in Saturn videli s prostim očesom v somraku okoli trenutka horoskopa, skupaj s tradicionalnim stanjem vsakega (kazimi, zgorevanje ali pod žarki) in njegovo stranjo od Sonca. Uporablja Swiss Ephemeris, vgrajen v razširitev. Vsak planet se odpre v Stellarium Web ob svojem najboljšem trenutku.
 >
 > Univerzalni čas horoskopa izračuna iz tega, kar izpiše vir, in horoskop raje zavrne, kot da bi ugibal čas, časovni zamik ali koledar. Odpira rojstne horoskope, s posnetka zaslona pa tudi horarne. Zavrne horoskope tranzitov, sinastrije, združljivosti, revolucij, profekcij in direkcij ter datume pred 15. oktobrom 1582, ko se je začel gregorijanski koledar.
 >
