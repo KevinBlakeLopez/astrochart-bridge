@@ -142,6 +142,8 @@ Brave installs from the Chrome Web Store as it is, and Microsoft Edge does once 
 
 > Moves an astrology chart's birth moment and place between astrology sites, astrology programs and planetarium software, so the same chart opens in each.
 
+When Helioscope ships inside AstroChart Bridge, this needs a clause for its planetary visibility ([HELIOSCOPE_V1_FEASIBILITY.md](HELIOSCOPE_V1_FEASIBILITY.md), §9).
+
 **Permission justifications:**
 
 | Permission | Justification |
