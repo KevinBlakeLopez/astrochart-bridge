@@ -436,6 +436,7 @@ The engine failing to load is tested too, with `swisseph.wasm` missing or not We
   - `test/store-packages.test.js` checks that none of the extension's pages loads anything on that list, and that everything Helioscope loads is on it or used by a page too. When a page starts using Helioscope, the first check fails and the list comes off on purpose.
   - `docs/safari-ipad.md` asks for the same files to be left out of TestFlight and App Store builds. Local Safari builds keep them.
   - When Helioscope ships, the store listings need `@kuntay/swisseph` 0.2.2 among the reviewer notes' links, and its unused jsDelivr address in the remote-code answers, as Tesseract's has. The App Store question of §4 comes back then too.
+  - **9 November 2026:** Helioscope's page arrived and the list came off, so the zips carry Helioscope from then on. `docs/safari-ipad.md` now names the files an App Store build leaves out itself.
 - **One extension or two:** on 9 November 2026 the owner asked whether Helioscope should also, or instead, be an extension of its own. **Decision, 9 November 2026:** it stays a feature of AstroChart Bridge, at least for V1.
   - Helioscope needs a chart, and reading charts is what the Bridge does. On its own it would need a way in: links and `.astrochart.json` files, which come from the Bridge anyway, a form to type a chart into, which would be new, or copies of the Bridge's readers.
   - **Read** in MDN's compatibility data, not run: in Chrome and Firefox, one extension can message another by its ID, which receives it in `runtime.onMessageExternal`. In Safari that event fires only for the extension's own app and, from Safari 15.4, for web pages its `externally_connectable` allows. Between two extensions in Safari, a chart could travel only as a link or a file.
@@ -467,4 +468,8 @@ The engine failing to load is tested too, with `swisseph.wasm` missing or not We
    - Under the beams is within 15° of the Sun unless 17° is chosen, as the owner decided the same day (§6).
    - The apparition is the side of the Sun, the traditional oriental or occidental, as the owner decided the same day (§6). The windows say where the planet can be seen.
    - No page uses it yet, so the store zips leave it out, as the owner decided on 7 November 2026 (§9).
-4. **Then Helioscope's page, inside AstroChart Bridge**, which the owner chose on 9 November 2026 over an extension of its own (§9). Not started.
+4. **Then Helioscope's page, inside AstroChart Bridge**, which the owner chose on 9 November 2026 over an extension of its own (§9). Started the same day:
+   - `extension/helioscope.html` works out the five planets for the chart in its link, which it reads as the receiving page reads one. Its decisions are in `extension/helioscope-model.js` and its drawing in `extension/helioscope-view.js`, both tested in Node with the real engine.
+   - For each planet it keeps §6's results apart: the traditional condition and the side of the Sun at the chart's moment, then the prediction from the windows around it, with its raw margin. Times are at the chart's own offset, to the nearest minute.
+   - Its settings are an elevation in whole metres and 15° or 17° for under the beams, kept on this computer.
+   - Not done: the chart screen's button that opens it, the docs, and running it in a browser.
