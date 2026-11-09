@@ -45,6 +45,8 @@ The same text serves both stores. English is the default listing. Both stores al
 >
 > It sends a chart to Stellarium Web or Stellarium Desktop, to Astro-Seek, or to astro.com's birth data form, which it fills in but never submits. With Save in Astro-Seek… it opens Astro-Seek's Add person form with the chart's date, time, place and name filled in and its town chosen, ready to save in your Astro-Seek account. It never presses Add person itself. It can also save the chart as an AAF file, or share it as a link, a QR code or a file that opens on another device without the extension.
 >
+> Which planets were visible works out, on your computer, whether Mercury, Venus, Mars, Jupiter and Saturn could be seen with the naked eye in the twilight around the chart's moment, with each one's traditional condition (cazimi, combust or under the beams) and side of the Sun. It uses Swiss Ephemeris, built into the extension.
+>
 > It works out the chart's Universal Time from what the source prints, and refuses a chart rather than guess a time, an offset or a calendar. It opens natal charts, plus horary charts from a screenshot. Transit, synastry, compatibility, return, profection and direction charts are refused, as are dates before the Gregorian calendar began on 15 October 1582.
 >
 > Privacy: there's no server, account or tracking. Charts are read in your browser, and nothing leaves it until you click a button that opens a site. A shared chart carries its name and town only when you tick them. Details: https://github.com/KevinBlakeLopez/astrochart-bridge/blob/main/docs/privacy.md
@@ -76,6 +78,8 @@ Add these in each store's listing for that language: Chrome picks the language f
 >
 > Envía una carta a Stellarium Web o Stellarium Desktop, a Astro-Seek o al formulario de datos de nacimiento de astro.com, que rellena pero nunca envía. Con Guardar en Astro-Seek… abre el formulario Add person de Astro-Seek con la fecha, la hora, el lugar y el nombre de la carta ya puestos y su ciudad elegida, listo para guardarla en tu cuenta de Astro-Seek. Nunca pulsa Add person por sí mismo. También puede guardar la carta como archivo AAF, o compartirla como enlace, código QR o archivo que se abre en otro dispositivo sin la extensión.
 >
+> Qué planetas eran visibles calcula en tu equipo si Mercurio, Venus, Marte, Júpiter y Saturno podían verse a simple vista en el crepúsculo cercano al momento de la carta, con la condición tradicional de cada uno (cazimi, combusto o bajo los rayos) y su lado del Sol. Usa Swiss Ephemeris, incluida en la extensión.
+>
 > Calcula el tiempo universal de la carta a partir de lo que muestra la fuente, y rechaza una carta antes que adivinar una hora, un desfase horario o un calendario. Abre cartas natales, y cartas horarias desde una captura de pantalla. Rechaza las cartas de tránsitos, sinastría, compatibilidad, revoluciones, profecciones y direcciones, y las fechas anteriores al 15 de octubre de 1582, cuando empezó el calendario gregoriano.
 >
 > Privacidad: no hay servidor, cuenta ni seguimiento. Las cartas se leen en tu navegador, y nada sale de él hasta que haces clic en un botón que abre un sitio. Una carta compartida lleva su nombre y su ciudad solo si los marcas. Detalles (en inglés): https://github.com/KevinBlakeLopez/astrochart-bridge/blob/main/docs/privacy.md
@@ -102,6 +106,8 @@ Add these in each store's listing for that language: Chrome picks the language f
 > • iz datoteke AAF ali horoskopa Morinus (.hor)
 >
 > Horoskop pošlje v Stellarium Web ali Stellarium Desktop, na Astro-Seek ali v obrazec za rojstne podatke na astro.com, ki ga izpolni, nikoli pa ne odda. Z ukazom Shrani na Astro-Seeku … odpre obrazec Add person na Astro-Seeku z že vpisanimi datumom, časom, krajem in imenom horoskopa ter izbranim mestom, tako da ga lahko shranite v svoj račun na Astro-Seeku. Gumba Add person nikoli ne pritisne sam. Horoskop lahko shrani tudi kot datoteko AAF ali ga deli kot povezavo, kodo QR ali datoteko, ki se odpre na drugi napravi brez razširitve.
+>
+> Kateri planeti so bili vidni na vašem računalniku izračuna, ali so se Merkur, Venera, Mars, Jupiter in Saturn videli s prostim očesom v somraku okoli trenutka horoskopa, skupaj s tradicionalnim stanjem vsakega (kazimi, zgorevanje ali pod žarki) in njegovo stranjo od Sonca. Uporablja Swiss Ephemeris, vgrajen v razširitev.
 >
 > Univerzalni čas horoskopa izračuna iz tega, kar izpiše vir, in horoskop raje zavrne, kot da bi ugibal čas, časovni zamik ali koledar. Odpira rojstne horoskope, s posnetka zaslona pa tudi horarne. Zavrne horoskope tranzitov, sinastrije, združljivosti, revolucij, profekcij in direkcij ter datume pred 15. oktobrom 1582, ko se je začel gregorijanski koledar.
 >
@@ -140,9 +146,9 @@ Brave installs from the Chrome Web Store as it is, and Microsoft Edge does once 
 
 **Single purpose:**
 
-> Moves an astrology chart's birth moment and place between astrology sites, astrology programs and planetarium software, so the same chart opens in each.
+> Moves an astrology chart's birth moment and place between astrology sites, astrology programs and planetarium software, so the same chart opens in each, and works out which planets could be seen in the sky at that moment.
 
-When Helioscope ships inside AstroChart Bridge, this needs a clause for its planetary visibility ([HELIOSCOPE_V1_FEASIBILITY.md](HELIOSCOPE_V1_FEASIBILITY.md), §9).
+Its last clause is for Which planets were visible, added on 9 November 2026 when Helioscope's page arrived ([HELIOSCOPE_V1_FEASIBILITY.md](HELIOSCOPE_V1_FEASIBILITY.md), §9).
 
 **Permission justifications:**
 
@@ -150,10 +156,10 @@ When Helioscope ships inside AstroChart Bridge, this needs a clause for its plan
 |---|---|
 | `activeTab` | Reads the chart on the page the user is viewing, only when they click the toolbar button. |
 | `scripting` | Runs the script that reads that chart's birth data from the page, fills in astro.com's birth data form in the tab the extension opens for it, and chooses the town in Astro-Seek's Add person form in the tab it opens for that. |
-| `storage` | Keeps the user's choice of Stellarium Web or Stellarium Desktop as the default, and whether a chart they share includes its name and town, and, in session storage, the chart whose astro.com form it is filling in, for 30 minutes at most, and the town and name of a chart it opened in Astro-Seek, for saving it there, until the browser quits. |
+| `storage` | Keeps the user's choice of Stellarium Web or Stellarium Desktop as the default, whether a chart they share includes its name and town, and the elevation and limit for under the beams they last chose when working out which planets were visible. In session storage, it keeps the chart whose astro.com form it is filling in, for 30 minutes at most, and the town and name of a chart it opened in Astro-Seek, for saving it there, until the browser quits. |
 | Host permissions | All three are optional and requested the first time the user needs them. `http://127.0.0.1/*` sends the chart to Stellarium Desktop's Remote Control plugin on the user's own computer. `https://www.astro.com/*` fills in astro.com's birth data form in the tab the extension opens. `https://www.astro-seek.com/*` chooses the town in Astro-Seek's Add person form, and keeps the chart's coordinates and time zone there, in the tab the extension opens to save a chart in the user's Astro-Seek account. |
 
-**Remote code:** No. All of the extension's code is in the package, including the WebAssembly Tesseract uses to read screenshots, which is what `'wasm-unsafe-eval'` in the content security policy is for. Reviewers search a package for web addresses, and Tesseract.js's minified files contain its default jsDelivr addresses. `extension/screenshot.js` replaces all three (`workerPath`, `corePath` and `langPath`) with files in `vendor/tesseract/`, so the defaults are never used. Say so in the remote-code field if it asks why.
+**Remote code:** No. All of the extension's code is in the package, including the WebAssembly Tesseract uses to read screenshots and the Swiss Ephemeris WebAssembly that works out which planets were visible, which is what `'wasm-unsafe-eval'` in the content security policy is for. Reviewers search a package for web addresses, and Tesseract.js's minified files contain its default jsDelivr addresses. `extension/screenshot.js` replaces all three (`workerPath`, `corePath` and `langPath`) with files in `vendor/tesseract/`, so the defaults are never used. `@kuntay/swisseph`'s `dist/ephemeris/sources.js` names one more, `https://cdn.jsdelivr.net/npm/@kuntay/swisseph-data/ephe`, where its `FetchEphemeris` downloads ephemeris files by default. `extension/helioscope-engine.js` uses the Moshier ephemeris compiled into the WebAssembly and never calls `FetchEphemeris`, so nothing is fetched from it. Say so in the remote-code field if it asks why.
 
 **Data usage:** the store's guidance says to disclose data the extension handles even when it's only processed on the user's device. Tick:
 
@@ -187,13 +193,14 @@ Leave **Location** unticked: a birthplace's coordinates aren't the user's locati
 
 **Notes to reviewer:**
 
-> There's no build step: the zip is the repository's extension/ folder as committed, loaded as is, less the files of a feature no page uses yet, which tools/store-leave-out.txt lists. The minified files are unmodified files from these npm releases, as listed in extension/vendor/tesseract/README.md and extension/vendor/lean-qr/README.md:
+> There's no build step: the zip is the repository's extension/ folder as committed, loaded as is. The minified and compiled files are unmodified files from these npm releases, as listed in extension/vendor/tesseract/README.md, extension/vendor/lean-qr/README.md and extension/vendor/swisseph/README.md:
 > - tesseract.js 5.1.1, dist/tesseract.esm.min.js and dist/worker.min.js, with their .map files: https://www.npmjs.com/package/tesseract.js/v/5.1.1
 > - tesseract.js-core 5.1.1, tesseract-core-simd-lstm.wasm.js: https://www.npmjs.com/package/tesseract.js-core/v/5.1.1
 > - @tesseract.js-data/eng 1.0.0, 4.0.0_best_int/eng.traineddata.gz: https://www.npmjs.com/package/@tesseract.js-data/eng/v/1.0.0
 > - lean-qr 2.7.4, index.mjs: https://www.npmjs.com/package/lean-qr/v/2.7.4
+> - @kuntay/swisseph 0.2.2, dist/ and wasm/ (swisseph.mjs and swisseph.wasm): https://www.npmjs.com/package/@kuntay/swisseph/v/0.2.2
 >
-> The jsDelivr addresses in the Tesseract files are its defaults, which extension/screenshot.js replaces with the packaged files. The source is at https://github.com/KevinBlakeLopez/astrochart-bridge. To try it, open an Astro-Seek birth chart, for example the url in fixtures/astroseek/ny-2024-04-17.json, and click the toolbar button.
+> The jsDelivr addresses in the Tesseract files are its defaults, which extension/screenshot.js replaces with the packaged files. The one in @kuntay/swisseph's dist/ephemeris/sources.js is where its FetchEphemeris downloads ephemeris files, which extension/helioscope-engine.js never calls: it uses the Moshier ephemeris compiled into the WebAssembly. The source is at https://github.com/KevinBlakeLopez/astrochart-bridge. To try it, open an Astro-Seek birth chart, for example the url in fixtures/astroseek/ny-2024-04-17.json, click the toolbar button, then Which planets were visible.
 
 **Data collection:** declared in `manifest.json`, under `browser_specific_settings.gecko.data_collection_permissions`. Firefox shows it when the extension is installed.
 

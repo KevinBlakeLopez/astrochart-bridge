@@ -473,4 +473,5 @@ The engine failing to load is tested too, with `swisseph.wasm` missing or not We
    - For each planet it keeps §6's results apart: the traditional condition and the side of the Sun at the chart's moment, then the prediction from the windows around it, with its raw margin. Times are at the chart's own offset, to the nearest minute.
    - Its settings are an elevation in whole metres and 15° or 17° for under the beams, kept on this computer.
    - The chart screens open it with **Which planets were visible**, under See the sky, wherever Share… is offered: the popup and the screenshot and paste pages. Its link carries the chart but not its name or town. A horary chart, which reaches a chart screen as natal with horary as its gender, gets the button too.
-   - Not done: the docs, and running it in a browser (test 25 of `docs/manual-test.md`).
+   - The README, the privacy page and the store listing describe it. The store listing has its single-purpose clause, `@kuntay/swisseph` among the reviewer notes' links, and the remote-code answer for the package's unused jsDelivr address.
+   - Not done: running it in a browser (test 25 of `docs/manual-test.md`).
