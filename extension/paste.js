@@ -6,7 +6,7 @@ import { openLink as openPageLink } from "./astro-com-page.js";
 import { linkFor } from "./chart-model.js";
 import { renderChart } from "./desktop-page.js";
 import { chartForEntry, checkField, entryFor, formForText, localEntryFor, viewForEntry, viewForLocalEntry } from "./paste-model.js";
-import { viewForShareRefusal } from "./popup-model.js";
+import { viewForHelioscopeRefusal, viewForShareRefusal } from "./popup-model.js";
 import { localizePage, text } from "./messages/index.js";
 import { paragraph, render } from "./view.js";
 
@@ -135,21 +135,27 @@ function fieldElement(field, onValue) {
 }
 
 // As on the screenshot page: Share… opens the receiving page in a tab with the
-// chart in its link, and a chart the format can't carry says why, with Cancel
-// back to this screen.
+// chart in its link, and Which planets were visible opens Helioscope's page
+// the same way, without the chart's name or town. A chart the format can't
+// carry says why, with Cancel back to this screen.
 function showReady(formElementToKeep, entry, form) {
   const screen = document.createElement("div");
   const view = viewForEntry(entry, { warnings: form.warnings, name: form.name, town: form.town, gender: form.gender });
+  const pages = {
+    share: { page: "chart.html", labels: { town: form.town, name: form.name }, refusal: viewForShareRefusal },
+    helioscope: { page: "helioscope.html", labels: {}, refusal: viewForHelioscopeRefusal },
+  };
   const onButton = async (button, sky, drawn) => {
     // Links, Save in Astro-Seek…, and the astro.com buttons of the step after
     // this screen, as on the screenshot page.
-    if (button.does !== "share") return openPageLink(screen, button, sky);
-    const shared = chartForEntry(entry, form.statedOffsets, { town: form.town, name: form.name });
+    if (!Object.hasOwn(pages, button.does)) return openPageLink(screen, button, sky);
+    const { page, labels, refusal } = pages[button.does];
+    const shared = chartForEntry(entry, form.statedOffsets, labels);
     if (shared.kind === "refused") {
-      render(screen, viewForShareRefusal(shared.reason), drawn.onButton, drawn.view);
+      render(screen, refusal(shared.reason), drawn.onButton, drawn.view);
       return;
     }
-    await chrome.tabs.create({ url: linkFor(chrome.runtime.getURL("chart.html"), shared.chart) });
+    await chrome.tabs.create({ url: linkFor(chrome.runtime.getURL(page), shared.chart) });
   };
   // With Send to Stellarium Desktop, as in the popup; without it, should Stellarium's side fail.
   renderChart(screen, view, onButton).catch(() => render(screen, view, onButton));

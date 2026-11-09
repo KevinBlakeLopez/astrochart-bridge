@@ -165,6 +165,7 @@ export default {
       saveInAstroSeek: "Guardar en Astro-Seek…",
       openAstroSeekForm: "Abrir el formulario de Astro-Seek",
       astroSeekTab: "Ir a la pestaña de Astro-Seek",
+      helioscope: "Qué planetas eran visibles",
       share: "Compartir…",
       enterInAstroCom: "Completar en astro.com…",
       openAstroComForm: "Abrir el formulario de astro.com",
@@ -231,6 +232,9 @@ export default {
     shareBeforeGregorian:
       "AstroChart Bridge todavía no puede compartir una carta con fecha anterior al 15 de octubre de 1582: no puede saber en qué calendario está la fecha.",
     shareRefused: "AstroChart Bridge no puede compartir esta carta.",
+    helioscopeBeforeGregorian:
+      "AstroChart Bridge todavía no puede calcular los planetas de una carta con fecha anterior al 15 de octubre de 1582: no puede saber en qué calendario está la fecha.",
+    helioscopeRefused: "AstroChart Bridge no puede calcular los planetas de esta carta.",
 
     townNote: (town) =>
       town === null

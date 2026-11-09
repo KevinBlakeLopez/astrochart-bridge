@@ -16,6 +16,8 @@ const analyze = (name) => {
 const LA = { timeZone: "America/Los_Angeles" };
 const NY = { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 };
 const { sky: SKY, elsewhere: ELSEWHERE } = groupLabels();
+// Helioscope's button, which ends See the sky.
+const HELIOSCOPE = "Which planets were visible";
 
 // Each group as its label, then its actions: a button by its label, anything else by its kind.
 const groupsOf = (view) => actionGroups(view).map(({ label, actions }) => [label, ...actions.map(({ kind, button }) => button?.label ?? kind)]);
@@ -28,14 +30,14 @@ const NEW_YORK = { town: "New York" };
 
 test("an Astro-Seek chart's ways to see the sky come first, and the rest go under Take the chart elsewhere", () => {
   assert.deepEqual(groupsOf(chartScreen(analyze("ny-2024-04-17"), undefined, NEW_YORK)), [
-    [SKY, "Open Stellarium Web", "desktop"],
+    [SKY, "Open Stellarium Web", "desktop", HELIOSCOPE],
     [ELSEWHERE, "Share…", "download", "next"],
   ]);
 });
 
 test("an Astro-Seek chart placed by coordinates leads Take the chart elsewhere with Save in Astro-Seek…", () => {
   assert.deepEqual(groupsOf(chartScreen(analyze("manual-ut-2024-04-17-0000"))), [
-    [SKY, "Open Stellarium Web", "desktop"],
+    [SKY, "Open Stellarium Web", "desktop", HELIOSCOPE],
     [ELSEWHERE, "Save in Astro-Seek…", "Share…", "download", "next"],
   ]);
 });
@@ -53,14 +55,14 @@ test("an astro.com chart's Open chart in Astro-Seek goes under Take the chart el
     offsetMinutes: -240,
   };
   assert.deepEqual(groupsOf(chartScreen(result)), [
-    [SKY, "Open Stellarium Web", "desktop"],
+    [SKY, "Open Stellarium Web", "desktop", HELIOSCOPE],
     [ELSEWHERE, "Open chart in Astro-Seek", "Save in Astro-Seek…", "Share…", "download"],
   ]);
 });
 
-test("with Stellarium Desktop the default, it leads See the sky, and the line about the default ends it", () => {
+test("with Stellarium Desktop the default, it leads See the sky, and the line about the default follows the Stellarium buttons", () => {
   assert.deepEqual(groupsOf(chartScreen(analyze("ny-2024-04-17"), { preferred: true }, NEW_YORK)), [
-    [SKY, "desktop", "Open Stellarium Web", "default-choice"],
+    [SKY, "desktop", "Open Stellarium Web", "default-choice", HELIOSCOPE],
     [ELSEWHERE, "Share…", "download", "next"],
   ]);
 });

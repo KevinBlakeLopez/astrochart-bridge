@@ -30,6 +30,7 @@ test("a screenshot opens the sky or the Astro-Seek chart, or shares it", () => {
     { label: "Open Stellarium Web", opens: "stellarium" },
     { label: "Open chart in Astro-Seek", opens: "astro-seek" },
     { label: "Save in Astro-Seek…", saves: { town: null, name: null, gender: null }, secondary: true },
+    { label: "Which planets were visible", does: "helioscope", secondary: true },
     { label: "Share…", does: "share", secondary: true },
   ]);
 });
@@ -100,7 +101,12 @@ test("a Solar Fire chart with nothing to check its offset says so, after the pop
   assert.deepEqual(view.warnings, [
     "Nothing in this Solar Fire screenshot checks its UTC offset. Compare the Offset row with the screenshot.",
   ]);
-  assert.deepEqual(view.buttons, [...astroSeekButtons(), { label: "Save in Astro-Seek…", saves: { town: null, name: null, gender: null }, secondary: true }, shareButton()]);
+  assert.deepEqual(view.buttons, [
+    ...astroSeekButtons(),
+    { label: "Save in Astro-Seek…", saves: { town: null, name: null, gender: null }, secondary: true },
+    { label: "Which planets were visible", does: "helioscope", secondary: true },
+    shareButton(),
+  ]);
   assert.deepEqual(view.notes.slice(-2), [astroSeekNotes()[0], astroSeekSaveNote()]);
   const either = viewForScreenshot({ ...streisand, site: "solar-fire-or-astro-gold" }, LA);
   assert.match(either.warnings[0], /^Nothing in this Solar Fire or Astro Gold screenshot/);

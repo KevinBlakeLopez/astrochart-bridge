@@ -472,4 +472,5 @@ The engine failing to load is tested too, with `swisseph.wasm` missing or not We
    - `extension/helioscope.html` works out the five planets for the chart in its link, which it reads as the receiving page reads one. Its decisions are in `extension/helioscope-model.js` and its drawing in `extension/helioscope-view.js`, both tested in Node with the real engine.
    - For each planet it keeps §6's results apart: the traditional condition and the side of the Sun at the chart's moment, then the prediction from the windows around it, with its raw margin. Times are at the chart's own offset, to the nearest minute.
    - Its settings are an elevation in whole metres and 15° or 17° for under the beams, kept on this computer.
-   - Not done: the chart screen's button that opens it, the docs, and running it in a browser.
+   - The chart screens open it with **Which planets were visible**, under See the sky, wherever Share… is offered: the popup and the screenshot and paste pages. Its link carries the chart but not its name or town. A horary chart, which reaches a chart screen as natal with horary as its gender, gets the button too.
+   - Not done: the docs, and running it in a browser (test 25 of `docs/manual-test.md`).

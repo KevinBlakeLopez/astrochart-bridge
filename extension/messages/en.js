@@ -162,6 +162,7 @@ export default {
       saveInAstroSeek: "Save in Astro-Seek…",
       openAstroSeekForm: "Open Astro-Seek's form",
       astroSeekTab: "Go to the Astro-Seek tab",
+      helioscope: "Which planets were visible",
       share: "Share…",
       enterInAstroCom: "Enter in astro.com…",
       openAstroComForm: "Open astro.com's form",
@@ -230,6 +231,9 @@ export default {
     shareBeforeGregorian:
       "AstroChart Bridge can't share a chart dated before 15 October 1582 yet: it can't tell which calendar the date is in.",
     shareRefused: "AstroChart Bridge can't share this chart.",
+    helioscopeBeforeGregorian:
+      "AstroChart Bridge can't work out the planets for a chart dated before 15 October 1582 yet: it can't tell which calendar the date is in.",
+    helioscopeRefused: "AstroChart Bridge can't work out the planets for this chart.",
 
     // town is what AstroChart Bridge types in, or null.
     townNote: (town) =>

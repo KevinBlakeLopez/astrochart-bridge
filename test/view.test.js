@@ -48,6 +48,7 @@ test("a chart screen's buttons are drawn under their labels, with the Stellarium
     "Open Stellarium Web",
     "Send to Stellarium Desktop",
     "(Stellarium Desktop line)",
+    "Which planets were visible",
     "[Take the chart elsewhere]",
     "Share…",
     "Enter in astro.com…",
@@ -96,7 +97,7 @@ test("the buttons that wait for the sky still wait for it, whichever group they'
   const container = { replaceChildren: (...parts) => (container.parts = parts) };
   render(container, { ...view, sky: undefined }, () => {});
   const disabled = container.parts.filter(({ tag, disabled }) => tag === "button" && disabled).map(({ textContent }) => textContent);
-  assert.deepEqual(disabled, ["Open Stellarium Web", "Send to Stellarium Desktop", "Share…"]);
+  assert.deepEqual(disabled, ["Open Stellarium Web", "Send to Stellarium Desktop", "Which planets were visible", "Share…"]);
 });
 
 // The popup's chart screen, with Read a different chart, as drawn, and what its clicks passed on.

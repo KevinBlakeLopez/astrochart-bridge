@@ -184,6 +184,7 @@ export default {
       saveInAstroSeek: "Shrani na Astro-Seeku …",
       openAstroSeekForm: "Odpri obrazec Astro-Seeka",
       astroSeekTab: "Pojdi na zavihek Astro-Seek",
+      helioscope: "Kateri planeti so bili vidni",
       share: "Deli …",
       enterInAstroCom: "Vnesi na astro.com …",
       openAstroComForm: "Odpri obrazec astro.com",
@@ -250,6 +251,9 @@ export default {
     shareBeforeGregorian:
       "AstroChart Bridge še ne more deliti horoskopa z datumom pred 15. oktobrom 1582: ne more ugotoviti, v katerem koledarju je datum.",
     shareRefused: "AstroChart Bridge tega horoskopa ne more deliti.",
+    helioscopeBeforeGregorian:
+      "AstroChart Bridge še ne more izračunati planetov za horoskop z datumom pred 15. oktobrom 1582: ne more ugotoviti, v katerem koledarju je datum.",
+    helioscopeRefused: "AstroChart Bridge za ta horoskop ne more izračunati planetov.",
 
     townNote: (town) =>
       town === null
