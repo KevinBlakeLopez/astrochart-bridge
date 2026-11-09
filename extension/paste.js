@@ -152,7 +152,9 @@ function showReady(formElementToKeep, entry, form) {
     const { page, labels, refusal } = pages[button.does];
     const shared = chartForEntry(entry, form.statedOffsets, labels);
     if (shared.kind === "refused") {
-      render(screen, refusal(shared.reason), drawn.onButton, drawn.view);
+      // renderChart passes what it drew; the plain render below, without the
+      // desktop button, doesn't, and then this screen's own are the way back.
+      render(screen, refusal(shared.reason), drawn?.onButton ?? onButton, drawn?.view ?? view);
       return;
     }
     await chrome.tabs.create({ url: linkFor(chrome.runtime.getURL(page), shared.chart) });

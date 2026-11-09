@@ -80,6 +80,8 @@ function showChart({ view, chart }) {
     if (button.does !== "helioscope") return openLink(button, sky);
     const shared = chartToShare(chart, sky, "file");
     if (shared.kind === "refused") {
+      // renderChart passes its screen; the plain render below, without the
+      // desktop button, doesn't, and then this page's own are the way back.
       render(app, viewForHelioscopeRefusal(shared.reason), screen?.onButton ?? onButton, screen?.view ?? view);
       return;
     }

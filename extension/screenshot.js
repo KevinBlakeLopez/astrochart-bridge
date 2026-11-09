@@ -115,7 +115,9 @@ function showChart(result) {
     const { page, labels, refusal } = pages[button.does];
     const shared = chartToShare(result, sky, "screenshot", labels);
     if (shared.kind === "refused") {
-      render(app, refusal(shared.reason), screen.onButton, screen.view);
+      // renderChart passes its screen; the plain render below, without the
+      // desktop button, doesn't, and then this page's own are the way back.
+      render(app, refusal(shared.reason), screen?.onButton ?? onButton, screen?.view ?? view);
       return;
     }
     await chrome.tabs.create({ url: linkFor(chrome.runtime.getURL(page), shared.chart) });
