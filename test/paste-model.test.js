@@ -224,6 +224,40 @@ test("text copied from a saved Astro-Seek chart gives its name, and its town wit
   assert.equal(form.town, "New York, United States United States (US), NY");
 });
 
+test("text copied from an Astro-Seek chart with each label above its value fills every box", () => {
+  const copied = [
+    "Example Chart",
+    "Date of Birth (local time):",
+    "5 January 2022 - 15:28  (PST)",
+    "Universal Time (UT/GMT):",
+    "5 January 2022 - 23:28  ",
+    "Local Sidereal Time (LST):",
+    "22:20:31",
+    "House system:",
+    "Placidus system",
+    "Latitude, Longitude:",
+    "47°39'N, 122°24'W",
+    "City:",
+    "Seattle",
+    "Country:",
+    "United States (US), WA",
+  ].join("\n");
+  const form = formForText(copied);
+  assert.equal(form.state, "form");
+  assert.deepEqual(
+    form.fields.map(({ name, text, source }) => [name, text, source]),
+    [
+      ["date", "2022-01-05", "Line 3: 5 January 2022 - 15:28  (PST)"],
+      ["time", "15:28", "Line 3: 5 January 2022 - 15:28  (PST)"],
+      ["lat", "47.65", "Line 11: 47°39'N, 122°24'W"],
+      ["lng", "-122.4", "Line 11: 47°39'N, 122°24'W"],
+      ["offset", "-08:00", "Read as Astro-Seek's text."],
+    ],
+  );
+  assert.deepEqual(form.name, { first: "Example Chart", last: "" });
+  assert.equal(form.town, "Seattle, United States (US), WA");
+});
+
 test("the text's place goes in astro.com's town field", () => {
   const entry = { date: "1985-06-15", time: "10:30:00", lat: 47.6062, lng: -122.3321, offsetMinutes: -420 };
   const { town } = formOf(LABELLED);

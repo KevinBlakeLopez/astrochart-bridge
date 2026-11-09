@@ -71,14 +71,59 @@ function runOnLines(line) {
   return [0, ...starts].map((start, i, all) => line.slice(start, all[i + 1]));
 }
 
+// The labels runOnLines splits at, as labelKey writes them.
+const KNOWN_LABELS = new Set([...LABELS.keys(), ...SKIPPED_LABELS]);
+
+// "City:" with nothing after it, for a label read or skipped.
+function isLabelAlone(text) {
+  const match = LINE.exec(text);
+  return match !== null && match[2] === "" && KNOWN_LABELS.has(labelKey(match[1]));
+}
+
+// Whether a line can be the value of the label alone on the line before it:
+// not blank, not a label alone of any kind, such as a report's "Planets:"
+// heading, and not a label read or skipped with its value, as in
+// "Name:" above "Date of Birth: 15 June 1985".
+function isValue(text) {
+  const match = LINE.exec(text);
+  return text.trim() !== "" && !(match && (match[2] === "" || KNOWN_LABELS.has(labelKey(match[1]))));
+}
+
 /**
- * Pasted text with the labelled lines run together in it put on lines of
- * their own, for the desktop programs' readers, which read whole lines.
+ * Pasted text as "Label: value" lines, each with the number of the line its
+ * value is on, counting from 1. Labels run together on one line are split
+ * apart, at the line they share. A label alone on its line, as a copy of
+ * Astro-Seek's page in Firefox puts it, is joined to the value on the next.
+ *
+ * @param {string[]} lines
+ * @returns {{ line: number, text: string }[]}
+ */
+function labelledLines(lines) {
+  const pieces = lines.flatMap((line, index) => runOnLines(line).map((text) => ({ line: index + 1, text })));
+  const joined = [];
+  for (let i = 0; i < pieces.length; i++) {
+    const [piece, next] = [pieces[i], pieces[i + 1]];
+    // The next piece starts the next line, so this one ends its own line.
+    if (next && next.line === piece.line + 1 && isLabelAlone(piece.text) && isValue(next.text)) {
+      joined.push({ line: next.line, text: `${piece.text.trimEnd()} ${next.text.trimStart()}` });
+      i++;
+    } else {
+      joined.push(piece);
+    }
+  }
+  return joined;
+}
+
+/**
+ * Pasted text with each labelled line on a line of its own, its label and
+ * value together, for Astro-Seek's screenshot reader, which reads whole lines.
  *
  * @param {string} text
  */
 export function separateLabels(text) {
-  return text.split(/\r\n|\r|\n/).flatMap(runOnLines).join("\n");
+  return labelledLines(text.split(/\r\n|\r|\n/))
+    .map((piece) => piece.text)
+    .join("\n");
 }
 
 // "Date of Birth (local time)" → "date of birth", "birth_date" → "birth date"
@@ -154,19 +199,15 @@ export function readText(text) {
   if (text.length > MAX_TEXT_LENGTH) return refused("too-long");
 
   const sightings = new Map();
-  // Labels run together on one line are read as lines of their own, each
-  // with the number of the line they share.
-  text.split(/\r\n|\r|\n/).forEach((original, index) => {
-    for (const piece of runOnLines(normalize(original))) {
-      const match = LINE.exec(piece);
-      const reader = match && match[2] !== "" ? LABELS.get(labelKey(match[1])) : undefined;
-      if (!reader) continue;
-      for (const [field, reading] of READERS[reader](match[2])) {
-        if (!sightings.has(field)) sightings.set(field, []);
-        sightings.get(field).push({ line: index + 1, text: match[2], ...reading });
-      }
+  for (const { line, text: piece } of labelledLines(text.split(/\r\n|\r|\n/).map(normalize))) {
+    const match = LINE.exec(piece);
+    const reader = match && match[2] !== "" ? LABELS.get(labelKey(match[1])) : undefined;
+    if (!reader) continue;
+    for (const [field, reading] of READERS[reader](match[2])) {
+      if (!sightings.has(field)) sightings.set(field, []);
+      sightings.get(field).push({ line, text: match[2], ...reading });
     }
-  });
+  }
   if (sightings.size === 0) return refused("no-birth-data");
 
   const fields = {};

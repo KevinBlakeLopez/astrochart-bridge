@@ -223,7 +223,8 @@ const SCREENSHOT_READERS = [
 // Astro-Seek's chart data copied from its page. "Date of Birth" alone turns up
 // in ordinary labelled text too, so it counts as Astro-Seek's only with the
 // Universal Time and sidereal time lines it prints. A copy can run its rows
-// together on one line, so they are separated first.
+// together on one line, or put each label on a line above its value, so each
+// row is put on a line of its own first.
 const ASTRO_SEEK_TEXT = /^Universal Time\b[^]*^Local Sidereal Time\b/m;
 const ASTRO_SEEK_TEXT_READER = {
   shows: (text) => ASTRO_SEEK_TEXT.test(separateLabels(text)),
