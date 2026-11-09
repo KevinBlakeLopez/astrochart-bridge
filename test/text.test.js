@@ -321,6 +321,71 @@ test("separateLabels puts each run-on label on a line of its own", () => {
   );
 });
 
+// An Astro-Seek chart's data as Firefox copies it: each label on a line of its
+// own, and its value on the next.
+const OWN_LINES = [
+  "Example Chart",
+  "Date of Birth (local time):",
+  "5 January 2022 - 15:28  (PST)",
+  "Universal Time (UT/GMT):",
+  "5 January 2022 - 23:28  ",
+  "Local Sidereal Time (LST):",
+  "22:20:31",
+  "House system:",
+  "Placidus system",
+  "Latitude, Longitude:",
+  "47°39'N, 122°24'W",
+  "City:",
+  "Seattle",
+  "Country:",
+  "United States (US), WA",
+].join("\n");
+
+test("a label alone on its line takes the next line as its value, at the value's line", () => {
+  assert.deepEqual(readText(OWN_LINES).fields, {
+    date: { line: 3, text: "5 January 2022 - 15:28  (PST)", value: "2022-01-05" },
+    time: { line: 3, text: "5 January 2022 - 15:28  (PST)", value: "15:28:00" },
+    houses: { line: 9, text: "Placidus system", value: "placidus" },
+    lat: { line: 11, text: "47°39'N, 122°24'W", value: 47.65 },
+    lng: { line: 11, text: "47°39'N, 122°24'W", value: -122.4 },
+    place: { line: 13, text: "Seattle", value: "Seattle" },
+    country: { line: 15, text: "United States (US), WA", value: "United States (US), WA" },
+  });
+});
+
+test("separateLabels puts each label alone on its line together with its value", () => {
+  assert.equal(
+    separateLabels(OWN_LINES),
+    [
+      "Example Chart",
+      "Date of Birth (local time): 5 January 2022 - 15:28  (PST)",
+      "Universal Time (UT/GMT): 5 January 2022 - 23:28  ",
+      "Local Sidereal Time (LST): 22:20:31",
+      "House system: Placidus system",
+      "Latitude, Longitude: 47°39'N, 122°24'W",
+      "City: Seattle",
+      "Country: United States (US), WA",
+    ].join("\n"),
+  );
+});
+
+test("a label alone takes no blank line, no label, and nothing after a label it doesn't know", () => {
+  // An empty Name stays empty: the next line is a label with its value.
+  assert.deepEqual(readText("Name:\nDate of Birth: 15 June 1985").fields, {
+    date: { line: 2, text: "15 June 1985", value: "1985-06-15" },
+  });
+  // A label alone on the next line is a label too, and takes its own value.
+  assert.deepEqual(readText("Name:\nCity:\nSeattle").fields, { place: { line: 3, text: "Seattle", value: "Seattle" } });
+  // Nor does it reach past a blank line, or take a heading of the report's.
+  for (const text of ["Name:\n\nExample Person\nBorn: 15 June 1985", "City:\nPlanets:\nBorn: 15 June 1985"]) {
+    assert.deepEqual(Object.keys(readText(text).fields), ["date"], text);
+  }
+  // A label readText doesn't know joins nothing, so its next line reads alone.
+  assert.deepEqual(separateLabels("Notes:\nBorn: 15 June 1985"), "Notes:\nBorn: 15 June 1985");
+  // The last label of a run-on line takes the next line, at that line.
+  assert.deepEqual(readText("House system:Placidus systemCity:\nSeattle").fields.place, { line: 2, text: "Seattle", value: "Seattle" });
+});
+
 test("a label is split off only where it starts with a capital and ends in a colon", () => {
   for (const line of ["Place: Velocity: 3", "notes=see city=Seattle", "Place: Mexico City"]) {
     assert.equal(separateLabels(line), line, line);
