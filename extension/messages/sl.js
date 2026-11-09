@@ -229,6 +229,7 @@ export default {
       "Preden kliknete Add person, v seznamu Astro-Seeka izberite Birth city, če še ni izbrano, in preverite, da koordinate in UT/GMT še vedno ustrezajo horoskopu.",
     saveDeclined: "Brez dostopa do www.astro-seek.com AstroChart Bridge ne more izbrati mesta v obrazcu Astro-Seeka.",
     saveDeclinedNote: (named) => `Obrazec se odpre s tem datumom, časom in krajem v UT/GMT${named ? " ter z imenom" : ""}.`,
+    saveByHand: "Ta stran ne more izbrati mesta v obrazcu Astro-Seeka namesto vas.",
 
     shareBeforeGregorian:
       "AstroChart Bridge še ne more deliti horoskopa z datumom pred 15. oktobrom 1582: ne more ugotoviti, v katerem koledarju je datum.",

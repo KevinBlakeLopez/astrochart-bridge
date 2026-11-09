@@ -2,16 +2,25 @@
 // check and correct, then the popup's ready screen for it. Every decision is
 // made in core/ and paste-model.js; this file handles the page. The text is
 // only ever inserted with textContent or an input's value, never as HTML.
-import { openLink as openPageLink } from "./astro-com-page.js";
 import { linkFor } from "./chart-model.js";
-import { renderChart } from "./desktop-page.js";
+import { isExtensionCopy } from "./extension-copy.js";
 import { chartForEntry, checkField, entryFor, formForText, localEntryFor, viewForEntry, viewForLocalEntry } from "./paste-model.js";
 import { viewForShareRefusal } from "./popup-model.js";
 import { localizePage, text } from "./messages/index.js";
 import { paragraph, render } from "./view.js";
+import { openChartPage, openLink as openWebLink } from "./web-page.js";
 
 // The browser's language, chosen before anything is drawn.
 localizePage(document, navigator.languages);
+
+// The extension's copy fills in astro.com's and Astro-Seek's forms and sends
+// to Stellarium Desktop; the web's copy can't, and the site doesn't publish
+// that code. Loaded now, not on a click, so a click that asks for access to a
+// site still counts as the user's.
+const onTheWeb = !isExtensionCopy(location.href);
+const extensionLinks = onTheWeb ? null : await import("./astro-com-page.js");
+const desktop = onTheWeb ? null : await import("./desktop-page.js");
+const openPageLink = (container, button, sky) => (extensionLinks?.openLink ?? openWebLink)(container, button, sky);
 
 const textArea = document.getElementById("text");
 const app = document.getElementById("app");
@@ -139,7 +148,7 @@ function fieldElement(field, onValue) {
 // back to this screen.
 function showReady(formElementToKeep, entry, form) {
   const screen = document.createElement("div");
-  const view = viewForEntry(entry, { warnings: form.warnings, name: form.name, town: form.town, gender: form.gender });
+  const view = viewForEntry(entry, { warnings: form.warnings, name: form.name, town: form.town, gender: form.gender, onTheWeb });
   const onButton = async (button, sky, drawn) => {
     // Links, Save in Astro-Seek…, and the astro.com buttons of the step after
     // this screen, as on the screenshot page.
@@ -149,10 +158,13 @@ function showReady(formElementToKeep, entry, form) {
       render(screen, viewForShareRefusal(shared.reason), drawn.onButton, drawn.view);
       return;
     }
-    await chrome.tabs.create({ url: linkFor(chrome.runtime.getURL("chart.html"), shared.chart) });
+    if (onTheWeb) openChartPage(shared.chart, location.href);
+    else await chrome.tabs.create({ url: linkFor(chrome.runtime.getURL("chart.html"), shared.chart) });
   };
-  // With Send to Stellarium Desktop, as in the popup; without it, should Stellarium's side fail.
-  renderChart(screen, view, onButton).catch(() => render(screen, view, onButton));
+  // With Send to Stellarium Desktop in the extension, as in the popup;
+  // without it on the web, or should Stellarium's side fail.
+  if (desktop) desktop.renderChart(screen, view, onButton).catch(() => render(screen, view, onButton));
+  else render(screen, view, onButton);
   app.replaceChildren(screen, backButton(formElementToKeep));
 }
 
@@ -160,7 +172,9 @@ function showReady(formElementToKeep, entry, form) {
 // buttons work as on the ready screen's astro.com step.
 function showLocal(formElementToKeep, local, form) {
   const screen = document.createElement("div");
-  render(screen, viewForLocalEntry(local, { name: form.name, town: form.town, gender: form.gender }), (button) => openPageLink(screen, button));
+  render(screen, viewForLocalEntry(local, { name: form.name, town: form.town, gender: form.gender, onTheWeb }), (button) =>
+    openPageLink(screen, button),
+  );
   app.replaceChildren(screen, backButton(formElementToKeep));
 }
 

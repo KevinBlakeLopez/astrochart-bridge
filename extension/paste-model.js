@@ -2,7 +2,7 @@ import { analyzeEntry, analyzeProgramText } from "./core/index.js";
 import { toPortable } from "./core/portable.js";
 import { MAX_TEXT_LENGTH, readField, readText } from "./core/text.js";
 import {
-  astroComStep,
+  astroComStepFor,
   astroSeekButtons,
   astroSeekNotes,
   astroSeekWarnings,
@@ -12,6 +12,7 @@ import {
   shareButton,
   viewFor,
   viewForAstroCom,
+  viewForAstroComByHand,
   withAstroSeekSave,
 } from "./popup-model.js";
 // Imported as messages, since the pasted text is text here.
@@ -302,12 +303,14 @@ export function localEntryFor({ date, time, lat, lng }, offsetText) {
 /**
  * The astro.com screen for a localEntryFor chart: its local time and place,
  * with no UTC, so astro.com's automatic time zone decides the moment.
+ * On the web, it is the values to type in instead (viewForAstroComByHand).
  *
  * @param {NonNullable<ReturnType<typeof localEntryFor>>} chart
- * @param {{ name?: { first: string, last: string } | null, town?: string | null, gender?: string | null }} [options]  formFor's
+ * @param {{ name?: { first: string, last: string } | null, town?: string | null, gender?: string | null,
+ *   onTheWeb?: boolean }} [options]  name, town and gender are formFor's; onTheWeb is for the web's copy of the page
  */
-export function viewForLocalEntry({ local, lat, lng }, { name = null, town = null, gender = null } = {}) {
-  const view = viewForAstroCom({ utc: null, lat, lng }, { local, name, town, gender });
+export function viewForLocalEntry({ local, lat, lng }, { name = null, town = null, gender = null, onTheWeb = false } = {}) {
+  const view = (onTheWeb ? viewForAstroComByHand : viewForAstroCom)({ utc: null, lat, lng }, { local, name, town, gender });
   return { ...view, notes: [messages().paste.localOnlyNote, ...view.notes] };
 }
 
@@ -319,11 +322,12 @@ export function viewForLocalEntry({ local, lat, lng }, { name = null, town = nul
  *
  * @param {ReturnType<typeof entryFor>} entry
  * @param {{ warnings?: string[], timeZone?: string, name?: { first: string, last: string } | null, town?: string | null,
- *   gender?: string | null }} [options]  timeZone is passed on to viewFor; name, town and gender are formFor's
+ *   gender?: string | null, onTheWeb?: boolean }} [options]  timeZone and onTheWeb are passed on to viewFor; name,
+ *   town and gender are formFor's
  */
-export function viewForEntry(entry, { warnings = [], timeZone, name = null, town = null, gender = null } = {}) {
+export function viewForEntry(entry, { warnings = [], timeZone, name = null, town = null, gender = null, onTheWeb = false } = {}) {
   const result = analyzeEntry(entry);
-  const view = viewFor(result, { timeZone });
+  const view = viewFor(result, { timeZone, onTheWeb });
   return withAstroSeekSave(
     {
       ...view,
@@ -331,9 +335,10 @@ export function viewForEntry(entry, { warnings = [], timeZone, name = null, town
       warnings: [...view.warnings, ...warnings, ...astroSeekWarnings(result.lng)],
       notes: [messages().paste.offsetNote, ...view.notes, ...astroSeekNotes()],
       buttons: [...astroSeekButtons(), shareButton()],
-      next: astroComStep(view.sky, { local: result.local, name, town, gender }),
+      next: astroComStepFor({ onTheWeb })(view.sky, { local: result.local, name, town, gender }),
     },
     { town, name, gender },
+    { onTheWeb },
   );
 }
 

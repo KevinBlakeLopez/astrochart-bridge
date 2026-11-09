@@ -4,7 +4,7 @@
 import { chartFromHor, parseHor } from "./core/morinus-hor.js";
 import { withAafExport } from "./aaf-model.js";
 import { text } from "./messages/index.js";
-import { astroComStep, astroSeekButtons, astroSeekNotes, astroSeekWarnings, genderRows, nameFromText, offsetText, viewFor, withAstroSeekSave } from "./popup-model.js";
+import { astroComStepFor, astroSeekButtons, astroSeekNotes, astroSeekWarnings, genderRows, nameFromText, offsetText, viewFor, withAstroSeekSave } from "./popup-model.js";
 
 // The words are the catalog's (messages/), read as each screen is built. Each
 // refusal keeps its code on screen, like the AAF import's refusals, so a bug
@@ -16,7 +16,7 @@ import { astroComStep, astroSeekButtons, astroSeekNotes, astroSeekWarnings, gend
  * viewForAafText's, so the page lists both alike.
  *
  * @param {Uint8Array} bytes
- * @param {{ timeZone?: string }} [options]  passed on to viewFor
+ * @param {{ timeZone?: string, onTheWeb?: boolean }} [options]  passed on to viewFor, and onTheWeb to withAstroSeekSave and astroComStepFor
  * @returns {{ state: "hor-file", items: { label: string, view: object }[], message: string }}
  */
 export function viewForHorFile(bytes, options) {
@@ -45,7 +45,7 @@ export function viewForHorFile(bytes, options) {
  * name, as the paste page does, and the place as the town for astro.com's atlas.
  *
  * @param {ReturnType<typeof chartFromHor>} result
- * @param {{ timeZone?: string }} [options]  passed on to viewFor
+ * @param {{ timeZone?: string, onTheWeb?: boolean }} [options]  passed on to viewFor, and onTheWeb to withAstroSeekSave and astroComStepFor
  */
 export function viewForHorChart(result, options) {
   const words = text();
@@ -85,9 +85,10 @@ export function viewForHorChart(result, options) {
         ],
         notes: [...view.notes, ...(morinus.timeBasis === "zone" ? [words.hor.zoneNote] : []), ...astroSeekNotes()],
         buttons: [...astroSeekButtons()],
-        ...(view.sky ? { next: astroComStep(view.sky, { local: chart.local, name: nameFromText(chart.name), town: chart.place, gender }) } : {}),
+        ...(view.sky ? { next: astroComStepFor(options)(view.sky, { local: chart.local, name: nameFromText(chart.name), town: chart.place, gender }) } : {}),
       },
       { town: chart.place, name: nameFromText(chart.name), gender },
+      options,
     ),
     result,
   );

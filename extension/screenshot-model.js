@@ -1,5 +1,5 @@
 import { text } from "./messages/index.js";
-import { astroComStep, astroSeekButtons, astroSeekNotes, astroSeekWarnings, genderRows, shareButton, viewFor, withAstroSeekSave } from "./popup-model.js";
+import { astroComStepFor, astroSeekButtons, astroSeekNotes, astroSeekWarnings, genderRows, shareButton, viewFor, withAstroSeekSave } from "./popup-model.js";
 
 // Each refusal analyzeScreenshot can return keeps its code on screen, like the
 // popup's unreadable pages, so a bug report says which check failed. The
@@ -43,7 +43,7 @@ const WARNINGS = {
  * a second button that opens the chart in Astro-Seek.
  *
  * @param {ReturnType<typeof import("./core/index.js").analyzeScreenshot>} result
- * @param {{ timeZone?: string }} [options]  passed on to viewFor
+ * @param {{ timeZone?: string, onTheWeb?: boolean }} [options]  passed on to viewFor, and onTheWeb to withAstroSeekSave and astroComStepFor
  */
 export function viewForScreenshot(result, options) {
   const words = text().screenshot;
@@ -73,12 +73,13 @@ export function viewForScreenshot(result, options) {
   // its reader found them, which go on to both forms and show as rows to
   // compare with the screenshot like the others.
   const { name = null, town = null, gender = null } = result;
-  const next = view.sky ? { next: astroComStep(view.sky, { local: result.local, name, town, gender }) } : {};
+  const next = view.sky ? { next: astroComStepFor(options)(view.sky, { local: result.local, name, town, gender }) } : {};
   const rows = view.rows && (name || town || gender) ? { rows: labelRows(view.rows, { name, town, gender }) } : {};
   // The compare note comes first on every screen that opens the sky.
   return withAstroSeekSave(
     { ...view, ...rows, ...warnings, ...message, ...next, notes: [words.compareNote, ...notes], buttons },
     { name, town, gender },
+    options,
   );
 }
 

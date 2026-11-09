@@ -214,6 +214,7 @@ export default {
       "Antes de hacer clic en Add person, elige la Birth city en la lista de Astro-Seek si no está elegida, y comprueba que las coordenadas y el UT/GMT siguen siendo los de la carta.",
     saveDeclined: "AstroChart Bridge no puede elegir la ciudad en el formulario de Astro-Seek sin acceso a www.astro-seek.com.",
     saveDeclinedNote: (named) => `El formulario se abre con esta fecha, hora y lugar en UT/GMT${named ? ", y con el nombre" : ""}.`,
+    saveByHand: "Esta página no puede elegir la ciudad en el formulario de Astro-Seek por ti.",
 
     shareBeforeGregorian:
       "AstroChart Bridge todavía no puede compartir una carta con fecha anterior al 15 de octubre de 1582: no puede saber en qué calendario está la fecha.",

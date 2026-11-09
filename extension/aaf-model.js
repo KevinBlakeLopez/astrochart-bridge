@@ -4,7 +4,7 @@
 import { chartFromRecord, exportRecord, parseAaf, writeAaf } from "./core/aaf.js";
 // Imported as messages, since an AAF file is read as text here.
 import { text as messages } from "./messages/index.js";
-import { astroComStep, astroSeekButtons, astroSeekNotes, astroSeekWarnings, genderRows, viewFor, withAstroSeekSave } from "./popup-model.js";
+import { astroComStepFor, astroSeekButtons, astroSeekNotes, astroSeekWarnings, genderRows, viewFor, withAstroSeekSave } from "./popup-model.js";
 
 // The words are the catalog's (messages/), read as each screen is built. Each
 // refusal keeps its code on screen, like the screenshot page's refusals, so a
@@ -19,7 +19,7 @@ const WARNINGS = {
  * what the file says, with the view to show when it is chosen.
  *
  * @param {string} text
- * @param {{ timeZone?: string }} [options]  passed on to viewFor
+ * @param {{ timeZone?: string, onTheWeb?: boolean }} [options]  passed on to viewFor, and onTheWeb to withAstroSeekSave and astroComStepFor
  * @returns {{ state: "aaf-list", items: { label: string, view: object }[], message: string }}
  */
 export function viewForAafText(text, options) {
@@ -41,7 +41,7 @@ export function viewForAafText(text, options) {
  * gets the place alone, and the country helps choose among its matches.
  *
  * @param {ReturnType<typeof chartFromRecord>} result
- * @param {{ timeZone?: string }} [options]  passed on to viewFor
+ * @param {{ timeZone?: string, onTheWeb?: boolean }} [options]  passed on to viewFor, and onTheWeb to withAstroSeekSave and astroComStepFor
  */
 export function viewForAafChart(result, options) {
   const words = messages();
@@ -70,9 +70,10 @@ export function viewForAafChart(result, options) {
         warnings: [...warnings.map((code) => WARNINGS[code]?.(chart) ?? code), ...astroSeekWarnings(chart.lng)],
         notes: [...view.notes, ...astroSeekNotes()],
         buttons: [...astroSeekButtons()],
-        ...(view.sky ? { next: astroComStep(view.sky, { local: chart.local, name: aafName(chart.aaf), town, gender }) } : {}),
+        ...(view.sky ? { next: astroComStepFor(options)(view.sky, { local: chart.local, name: aafName(chart.aaf), town, gender }) } : {}),
       },
       { town, name: aafName(chart.aaf), gender },
+      options,
     ),
     result,
   );

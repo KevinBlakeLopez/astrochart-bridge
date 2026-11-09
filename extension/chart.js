@@ -16,6 +16,7 @@ import {
   shareDataFor,
   viewForImport,
 } from "./chart-model.js";
+import { isExtensionCopy } from "./extension-copy.js";
 import { RECEIVER_URL } from "./share-config.js";
 import { localizePage, text } from "./messages/index.js";
 import { paragraph, render } from "./view.js";
@@ -35,7 +36,7 @@ const fileInput = document.getElementById("file");
 const base = linkBase(location.href, RECEIVER_URL);
 
 // The extension's copy has the import page, for Morinus and AAF files, next to it.
-const canImport = location.protocol.endsWith("-extension:");
+const canImport = isExtensionCopy(location.href);
 
 // The extension's copy can also fill in astro.com's form, with the code the
 // extension's other pages use, which the web's copy doesn't publish. It is

@@ -213,6 +213,7 @@ export default {
       "Before Add person, choose the Birth city in Astro-Seek's list if it isn't, then check that the coordinates and UT/GMT are still the chart's.",
     saveDeclined: "AstroChart Bridge can't choose the town in Astro-Seek's form without access to www.astro-seek.com.",
     saveDeclinedNote: (named) => `The form opens with this date, time and place in UT/GMT${named ? ", and the name" : ""}.`,
+    saveByHand: "This page can't choose the town in Astro-Seek's form for you.",
 
     shareBeforeGregorian:
       "AstroChart Bridge can't share a chart dated before 15 October 1582 yet: it can't tell which calendar the date is in.",
