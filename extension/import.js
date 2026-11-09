@@ -6,11 +6,12 @@
 // inserted with textContent.
 import { decodeAafFile, viewForAafText } from "./aaf-model.js";
 import { openLink as openPageLink } from "./astro-com-page.js";
-import { takeFileForImport } from "./chart-model.js";
+import { linkFor, takeFileForImport } from "./chart-model.js";
 import { renderChart } from "./desktop-page.js";
 import { isHorFile } from "./core/morinus-hor.js";
 import { viewForHorFile } from "./hor-model.js";
 import { localizePage } from "./messages/index.js";
+import { chartToShare, viewForHelioscopeRefusal } from "./popup-model.js";
 import { paragraph, render } from "./view.js";
 
 // The browser's language, chosen before anything is drawn.
@@ -52,14 +53,14 @@ function show(view, warning) {
   app.replaceChildren();
 
   if (view.items.length === 1) {
-    showChart(view.items[0].view);
+    showChart(view.items[0]);
   } else if (view.items.length > 1) {
     const choices = document.createElement("fieldset");
     for (const item of view.items) {
       const input = document.createElement("input");
       input.type = "radio";
       input.name = "chart";
-      input.addEventListener("change", () => showChart(item.view));
+      input.addEventListener("change", () => showChart(item));
       const label = document.createElement("label");
       label.append(input, item.label);
       choices.append(label);
@@ -70,9 +71,21 @@ function show(view, warning) {
 }
 
 // A chart, with Send to Stellarium Desktop, as in the popup; without it,
-// should Stellarium's side fail. A refusal is drawn as it is.
-function showChart(chart) {
-  renderChart(app, chart, openLink).catch(() => render(app, chart, openLink));
+// should Stellarium's side fail. A refusal is drawn as it is. Which planets
+// were visible opens Helioscope's page in a tab with the chart in its link,
+// but not its name or town, as on the screenshot and paste pages, and a chart
+// the link can't carry says why, with Cancel back to the chart.
+function showChart({ view, chart }) {
+  const onButton = async (button, sky, screen) => {
+    if (button.does !== "helioscope") return openLink(button, sky);
+    const shared = chartToShare(chart, sky, "file");
+    if (shared.kind === "refused") {
+      render(app, viewForHelioscopeRefusal(shared.reason), screen?.onButton ?? onButton, screen?.view ?? view);
+      return;
+    }
+    await chrome.tabs.create({ url: linkFor(chrome.runtime.getURL("helioscope.html"), shared.chart) });
+  };
+  renderChart(app, view, onButton).catch(() => render(app, view, onButton));
 }
 
 // Links, the astro.com buttons and Save in Astro-Seek…, as on the screenshot and paste pages.

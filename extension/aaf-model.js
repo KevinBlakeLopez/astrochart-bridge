@@ -4,7 +4,16 @@
 import { chartFromRecord, exportRecord, parseAaf, writeAaf } from "./core/aaf.js";
 // Imported as messages, since an AAF file is read as text here.
 import { text as messages } from "./messages/index.js";
-import { astroComStep, astroSeekButtons, astroSeekNotes, astroSeekWarnings, genderRows, viewFor, withAstroSeekSave } from "./popup-model.js";
+import {
+  astroComStep,
+  astroSeekButtons,
+  astroSeekNotes,
+  astroSeekWarnings,
+  genderRows,
+  helioscopeButton,
+  viewFor,
+  withAstroSeekSave,
+} from "./popup-model.js";
 
 // The words are the catalog's (messages/), read as each screen is built. Each
 // refusal keeps its code on screen, like the screenshot page's refusals, so a
@@ -16,18 +25,24 @@ const WARNINGS = {
 
 /**
  * The import page's list for an AAF text: one item per record, labelled by
- * what the file says, with the view to show when it is chosen.
+ * what the file says, with the view to show when it is chosen and the chart
+ * itself, for the link Which planets were visible opens. A record that can't
+ * open has no chart.
  *
  * @param {string} text
  * @param {{ timeZone?: string }} [options]  passed on to viewFor
- * @returns {{ state: "aaf-list", items: { label: string, view: object }[], message: string }}
+ * @returns {{ state: "aaf-list", items: { label: string, view: object, chart: object | null }[], message: string }}
  */
 export function viewForAafText(text, options) {
   const words = messages();
-  const items = parseAaf(text).map((record) => ({
-    label: record.kind === "refused" ? words.aaf.unreadableRecord(record.line) : recordLabel(record),
-    view: viewForAafChart(chartFromRecord(record), options),
-  }));
+  const items = parseAaf(text).map((record) => {
+    const chart = chartFromRecord(record);
+    return {
+      label: record.kind === "refused" ? words.aaf.unreadableRecord(record.line) : recordLabel(record),
+      view: viewForAafChart(chart, options),
+      chart: chart.kind === "refused" ? null : chart,
+    };
+  });
   const message =
     items.length === 0 ? words.aaf.noRecords : items.length === 1 ? words.files.oneChart : words.aaf.charts(items.length);
   return { state: "aaf-list", items, message };
@@ -69,7 +84,9 @@ export function viewForAafChart(result, options) {
         rows: [...(chart.name ? [[words.popup.rows.name, chart.name]] : []), ...genderRows(gender), ...rows],
         warnings: [...warnings.map((code) => WARNINGS[code]?.(chart) ?? code), ...astroSeekWarnings(chart.lng)],
         notes: [...view.notes, ...astroSeekNotes()],
-        buttons: [...astroSeekButtons()],
+        // The import page has no Share…, so Which planets were visible ends
+        // the buttons on its own.
+        buttons: [...astroSeekButtons(), helioscopeButton()],
         ...(view.sky ? { next: astroComStep(view.sky, { local: chart.local, name: aafName(chart.aaf), town, gender }) } : {}),
       },
       { town, name: aafName(chart.aaf), gender },

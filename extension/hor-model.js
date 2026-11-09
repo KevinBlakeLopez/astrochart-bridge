@@ -4,7 +4,18 @@
 import { chartFromHor, parseHor } from "./core/morinus-hor.js";
 import { withAafExport } from "./aaf-model.js";
 import { text } from "./messages/index.js";
-import { astroComStep, astroSeekButtons, astroSeekNotes, astroSeekWarnings, genderRows, nameFromText, offsetText, viewFor, withAstroSeekSave } from "./popup-model.js";
+import {
+  astroComStep,
+  astroSeekButtons,
+  astroSeekNotes,
+  astroSeekWarnings,
+  genderRows,
+  helioscopeButton,
+  nameFromText,
+  offsetText,
+  viewFor,
+  withAstroSeekSave,
+} from "./popup-model.js";
 
 // The words are the catalog's (messages/), read as each screen is built. Each
 // refusal keeps its code on screen, like the AAF import's refusals, so a bug
@@ -12,12 +23,14 @@ import { astroComStep, astroSeekButtons, astroSeekNotes, astroSeekWarnings, gend
 
 /**
  * The import page's list for a .hor file's bytes: its one chart, labelled by
- * what the file says, with the view to show for it. The same shape as
- * viewForAafText's, so the page lists both alike.
+ * what the file says, with the view to show for it and the chart itself, for
+ * the link Which planets were visible opens. The same shape as
+ * viewForAafText's, so the page lists both alike. A file or chart that can't
+ * open has no chart.
  *
  * @param {Uint8Array} bytes
  * @param {{ timeZone?: string }} [options]  passed on to viewFor
- * @returns {{ state: "hor-file", items: { label: string, view: object }[], message: string }}
+ * @returns {{ state: "hor-file", items: { label: string, view: object, chart: object | null }[], message: string }}
  */
 export function viewForHorFile(bytes, options) {
   const words = text();
@@ -27,13 +40,14 @@ export function viewForHorFile(bytes, options) {
     const what = Object.hasOwn(unreadable, record.reason) ? unreadable[record.reason](fieldWords[record.field]) : words.hor.couldntReadFile;
     return {
       state: "hor-file",
-      items: [{ label: words.hor.unreadableLabel, view: { state: "refused", message: what, code: record.reason } }],
+      items: [{ label: words.hor.unreadableLabel, view: { state: "refused", message: what, code: record.reason }, chart: null }],
       message: words.hor.couldntReadMorinus,
     };
   }
+  const chart = chartFromHor(record);
   return {
     state: "hor-file",
-    items: [{ label: recordLabel(record.values), view: viewForHorChart(chartFromHor(record), options) }],
+    items: [{ label: recordLabel(record.values), view: viewForHorChart(chart, options), chart: chart.kind === "refused" ? null : chart }],
     message: words.files.oneChart,
   };
 }
@@ -84,7 +98,8 @@ export function viewForHorChart(result, options) {
           ...astroSeekWarnings(chart.lng),
         ],
         notes: [...view.notes, ...(morinus.timeBasis === "zone" ? [words.hor.zoneNote] : []), ...astroSeekNotes()],
-        buttons: [...astroSeekButtons()],
+        // As for an AAF chart: no Share… here, so Which planets were visible ends the buttons.
+        buttons: [...astroSeekButtons(), helioscopeButton()],
         ...(view.sky ? { next: astroComStep(view.sky, { local: chart.local, name: nameFromText(chart.name), town: chart.place, gender }) } : {}),
       },
       { town: chart.place, name: nameFromText(chart.name), gender },

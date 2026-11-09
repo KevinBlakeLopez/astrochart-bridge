@@ -560,6 +560,7 @@ If AstroChart Bridge already has access to www.astro-seek.com, remove it first, 
 - [ ] Type `120` in **Elevation in metres** and press Tab: Mercury's margin becomes `−12.03`, and Elevation under **Assumptions** reads `120 m`. Choose **17°**: Limits ends `under the beams 17°`. Reload the tab: both are still set. Type `12.5` and press Tab: "Enter whole metres, from -500 to 25000." shows under the box, and the table doesn't change. Empty the box and choose **15°** again.
 - [ ] On the test 4 chart, **Which planets were visible** is faded until a reading is picked. Pick the second reading (07:30): the page's Offset row shows `UTC-05:00`.
 - [ ] On the screenshot page (test 13) and the paste page (test 16), **Which planets were visible** opens the page the same way, and the screenshot or paste tab stays open.
+- [ ] On the import page (test 15), `fixtures/aaf/astrolog-8.00-new-york.aaf` and `fixtures/morinus/horary.p2.hor` (test 23) each end "See the sky" with **Which planets were visible**, and neither has **Share…**. It opens the page the same way, and the import tab stays open. The page has no Name or Town row, though both files name the chart.
 - [ ] On a chart with a name and town, such as an astro.com account chart (test 14's), the page has no Name or Town row.
 - [ ] In light and dark mode the page is readable, like the popup in test 10.
 

@@ -6,11 +6,12 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { withAafExport } from "../extension/aaf-model.js";
+import { viewForAafText, withAafExport } from "../extension/aaf-model.js";
 import { analyzePage } from "../extension/core/index.js";
 import { toFragment } from "../extension/core/portable.js";
 import { withDesktopSend } from "../extension/desktop-model.js";
 import { chartFromLink } from "../extension/helioscope-model.js";
+import { viewForHorFile } from "../extension/hor-model.js";
 import { viewForEntry } from "../extension/paste-model.js";
 import {
   actionGroups,
@@ -136,4 +137,58 @@ test("a chart its link can't carry says why, with Cancel back to the chart, as S
     buttons: [],
   });
   assert.equal(viewForHelioscopeRefusal("unknown-field").message, "AstroChart Bridge can't work out the planets for this chart.");
+});
+
+// --- The import page: AAF and Morinus files ---
+// The import page has no Share…, so here the button stands alone, after the
+// Astro-Seek buttons. import.js opens the page; its part is in test 25 of
+// docs/manual-test.md.
+
+const AAF_TEXT = "#A93:Test,New York,*,17.4.2024,8:00,New York,NY (US)\n#B93:*,40n43,74w00,5hw00,1\n";
+const horFile = (key) => new Uint8Array(readFileSync(new URL(`../fixtures/morinus/${key}.p2.hor`, import.meta.url)));
+
+test("the import page's AAF and Morinus screens end See the sky with it, without Share…, a horary chart's too", () => {
+  const screens = {
+    "an AAF chart": viewForAafText(AAF_TEXT, LA).items[0].view,
+    "a Morinus chart": viewForHorFile(horFile("ny-est-plus-dst"), LA).items[0].view,
+    "a horary Morinus chart": viewForHorFile(horFile("horary"), LA).items[0].view,
+  };
+  for (const [name, view] of Object.entries(screens)) {
+    assert.deepEqual(view.buttons.at(-1), helioscopeButton(), name);
+    assert.equal(labels(view).includes("Share…"), false, name);
+    const [sky] = groupsOf(view);
+    assert.deepEqual([sky[0], sky.at(-1)], [SKY, HELIOSCOPE], name);
+  }
+});
+
+test("each chart the import page lists carries the chart itself, whose link Helioscope's page reads back as that chart", () => {
+  const items = {
+    "an AAF chart": viewForAafText(AAF_TEXT, LA).items[0],
+    "a Morinus chart": viewForHorFile(horFile("ny-est-plus-dst"), LA).items[0],
+  };
+  for (const [name, { chart, view }] of Object.entries(items)) {
+    assert.equal(chart.kind, "natal", name);
+    // As import.js builds it for helioscope.html: no labels, though both files name the chart.
+    const shared = chartToShare(chart, view.sky, "file");
+    assert.equal(shared.kind, "portable", name);
+    assert.equal(Object.hasOwn(shared.chart, "labels"), false, name);
+    const read = chartFromLink(`#${toFragment(shared.chart)}`).chart;
+    assert.deepEqual(
+      [read.local, read.utc, read.lat, read.lng, read.offsetMinutes],
+      [chart.local, chart.utc, chart.lat, chart.lng, chart.offsetMinutes],
+      name,
+    );
+  }
+});
+
+test("a record the import page refuses carries no chart, and its screen offers nothing", () => {
+  const items = {
+    "an AAF chart from 1500": viewForAafText("#A93:Test,Nowhere,*,17.4.1500,8:00,Nowhere,XX\n#B93:*,40n43,74w00,5hw00,1\n", LA).items[0],
+    "a Morinus chart from 575 BC": viewForHorFile(horFile("bce-julian"), LA).items[0],
+  };
+  for (const [name, item] of Object.entries(items)) {
+    assert.equal(item.view.state, "refused", name);
+    assert.equal(item.chart, null, name);
+    assert.equal(item.view.buttons, undefined, name);
+  }
 });
