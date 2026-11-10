@@ -787,7 +787,8 @@ export default {
 
   // Helioscope's page, from helioscope-model.js. Numbers arrive written out,
   // with decimal as their decimal mark, and times as "18:15", or as onDay
-  // gives them when they aren't on the chart's own day.
+  // gives them when they aren't on the chart's own day. A number and its
+  // unit are joined by a no-break space, \u00a0, so no line ends between them.
   helioscope: {
     decimal: ".",
     // For numbers written out whole, such as how many times brighter.
@@ -886,17 +887,17 @@ export default {
     weather: {
       button: "Check that night's weather",
       // Under the button, before anything is sent.
-      sends: "Sends the chart's month and its place, rounded to about 25 km, to open-meteo.com, whose logs may keep them for up to 90 days.",
+      sends: "Sends the chart's month and its place, rounded to about 25\u00a0km, to open-meteo.com, whose logs may keep them for up to 90 days.",
       asking: "Asking Open-Meteo…",
       title: "That night's weather, from ERA5",
       // "Dusk: 90 % cloud at 18:00 · Dawn: no cloud at 07:00"
       twilights: { evening: "Dusk", morning: "Dawn" },
       twilight: (twilight, said) => `${twilight}: ${said}`,
       both: (evening, morning) => `${evening} · ${morning}`,
-      cloudAt: (percent, time) => `${percent} % cloud at ${time}`,
+      cloudAt: (percent, time) => `${percent}\u00a0% cloud at ${time}`,
       clearAt: (time) => `no cloud at ${time}`,
       reworked:
-        "The planets below are worked out again with that night's air. ERA5's cloud is for a square about 25 km across, and a bright planet can show through thin high cloud or a gap.",
+        "The planets below are worked out again with that night's air. ERA5's cloud is for a square about 25\u00a0km across, and a bright planet can show through thin high cloud or a gap.",
       // The credit Open-Meteo's licence and ERA5's ask for, drawn as "Weather
       // data by Open-Meteo.com (CC BY 4.0), generated using …", its first part
       // linked to Open-Meteo and the licence to the licence.
@@ -918,18 +919,18 @@ export default {
       // Under Assumptions, once the weather is in.
       air: "Atmosphere that night",
       cloud: "Cloud that night",
-      cloudValue: (low, mid, high) => `low ${low} %, mid ${mid} %, high ${high} %`,
+      cloudValue: (low, mid, high) => `low ${low}\u00a0%, mid ${mid}\u00a0%, high ${high}\u00a0%`,
     },
     assumptions: {
       ephemeris: "Ephemeris",
       ephemerisValue: (version) => `Swiss Ephemeris ${version}, Moshier`,
       atmosphere: "Atmosphere",
-      atmosphereValue: (pressure, temperature, humidity) => `${pressure} hPa, ${temperature} °C, ${humidity} % humidity`,
+      atmosphereValue: (pressure, temperature, humidity) => `${pressure}\u00a0hPa, ${temperature}\u00a0°C, ${humidity}\u00a0% humidity`,
       observer: "Observer",
       observerValue: (age, snellen, bothEyes) => `Aged ${age}, Snellen ratio ${snellen}, ${bothEyes ? "both eyes" : "one eye"}`,
       elevation: "Elevation",
-      elevationGiven: (metres) => `${metres} m`,
-      elevationDefault: (metres) => `${metres} m, as none was given`,
+      elevationGiven: (metres) => `${metres}\u00a0m`,
+      elevationDefault: (metres) => `${metres}\u00a0m, as none was given`,
       moon: "Moon",
       moonIncluded: "Its light is included",
       moonLeftOut: "Its light is left out",

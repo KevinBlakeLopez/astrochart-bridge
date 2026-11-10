@@ -259,16 +259,16 @@ test("viewForVisibility: the notes say whose offset the times are at and what a 
   assert.deepEqual(view.notes, ["Times are at UTC-05:00, the chart's offset.", LINKS_NOTE]);
   assert.deepEqual(view.assumptions, [
     ["Ephemeris", "Swiss Ephemeris 2.10.03, Moshier"],
-    ["Atmosphere", "1013.25 hPa, 15 °C, 40 % humidity"],
+    ["Atmosphere", "1013.25\u00a0hPa, 15\u00a0°C, 40\u00a0% humidity"],
     ["Observer", "Aged 36, Snellen ratio 1, both eyes"],
-    ["Elevation", "0 m, as none was given"],
+    ["Elevation", "0\u00a0m, as none was given"],
     ["Moon", "Its light is included"],
     ["Samples", "Every 2 minutes"],
     ["Limits", "Cazimi 17′, combust 8°30′, under the beams 15°"],
   ]);
 
   const chosen = await screen(NEW_YORK, { elevation: 120, underTheBeams: 17 });
-  assert.deepEqual(chosen.view.assumptions.find(([label]) => label === "Elevation"), ["Elevation", "120 m"]);
+  assert.deepEqual(chosen.view.assumptions.find(([label]) => label === "Elevation"), ["Elevation", "120\u00a0m"]);
   assert.deepEqual(chosen.view.assumptions.find(([label]) => label === "Limits"), ["Limits", "Cazimi 17′, combust 8°30′, under the beams 17°"]);
 });
 
@@ -379,7 +379,7 @@ const NIGHT_HOURS = { evening: "2025-01-10T23:00", morning: "2025-01-10T12:00" }
 const OFFER = {
   kind: "offer",
   button: "Check that night's weather",
-  note: "Sends the chart's month and its place, rounded to about 25 km, to open-meteo.com, whose logs may keep them for up to 90 days.",
+  note: "Sends the chart's month and its place, rounded to about 25\u00a0km, to open-meteo.com, whose logs may keep them for up to 90 days.",
   message: null,
   code: null,
 };
@@ -461,16 +461,16 @@ test("viewForVisibility: with that night's weather, the cloud at each twilight, 
   assert.deepEqual(view.weather, {
     kind: "shown",
     title: "That night's weather, from ERA5",
-    line: "Dusk: 90 % cloud at 18:00 · Dawn: no cloud at 07:00",
-    note: "The planets below are worked out again with that night's air. ERA5's cloud is for a square about 25 km across, and a bright planet can show through thin high cloud or a gap.",
+    line: "Dusk: 90\u00a0% cloud at 18:00 · Dawn: no cloud at 07:00",
+    note: "The planets below are worked out again with that night's air. ERA5's cloud is for a square about 25\u00a0km across, and a bright planet can show through thin high cloud or a gap.",
     credit: { data: "Weather data by Open-Meteo.com", licence: "CC BY 4.0", source: "generated using Copernicus Climate Change Service information 2026" },
   });
   // Venus's margin is +8.98 with that night's air, against +9.01 with the default.
   const venus = view.planets.find(({ planet }) => planet === "venus");
   assert.equal(venus.prediction.detail, "At dusk, 18:15: about 3,900 times brighter than needed");
   assert.deepEqual(view.assumptions.slice(1, 4), [
-    ["Atmosphere that night", "Dusk: 1007 hPa, 1.4 °C, 56 % humidity · Dawn: 1010.8 hPa, −2.8 °C, 65 % humidity"],
-    ["Cloud that night", "Dusk: low 0 %, mid 86 %, high 88 % · Dawn: low 0 %, mid 0 %, high 0 %"],
+    ["Atmosphere that night", "Dusk: 1007\u00a0hPa, 1.4\u00a0°C, 56\u00a0% humidity · Dawn: 1010.8\u00a0hPa, −2.8\u00a0°C, 65\u00a0% humidity"],
+    ["Cloud that night", "Dusk: low 0\u00a0%, mid 86\u00a0%, high 88\u00a0% · Dawn: low 0\u00a0%, mid 0\u00a0%, high 0\u00a0%"],
     ["Observer", "Aged 36, Snellen ratio 1, both eyes"],
   ]);
 });
@@ -502,5 +502,5 @@ test("viewForVisibility: before a check, the page offers one and says what it se
     assert.deepEqual(weatherIn({ kind: "refused", reason }), { kind: "unavailable", message }, reason);
   }
   // Until the weather is in, the assumptions are the default air's.
-  assert.deepEqual(viewForVisibility(NEW_YORK, results, { kind: "asking" }).assumptions[1], ["Atmosphere", "1013.25 hPa, 15 °C, 40 % humidity"]);
+  assert.deepEqual(viewForVisibility(NEW_YORK, results, { kind: "asking" }).assumptions[1], ["Atmosphere", "1013.25\u00a0hPa, 15\u00a0°C, 40\u00a0% humidity"]);
 });

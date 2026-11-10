@@ -864,17 +864,17 @@ export default {
     weather: {
       button: "Preveri vreme tisto noč",
       // The month and the place: two of them, so ju.
-      sends: "Pošlje mesec horoskopa in njegov kraj, zaokrožen na približno 25 km, na open-meteo.com, katerega dnevniki ju lahko hranijo do 90 dni.",
+      sends: "Pošlje mesec horoskopa in njegov kraj, zaokrožen na približno 25\u00a0km, na open-meteo.com, katerega dnevniki ju lahko hranijo do 90 dni.",
       asking: "Sprašujem Open-Meteo…",
       title: "Vreme tisto noč po ERA5",
       // "Mrak: 90 % oblačnosti ob 18:00 · Svit: brez oblakov ob 07:00"
       twilights: { evening: "Mrak", morning: "Svit" },
       twilight: (twilight, said) => `${twilight}: ${said}`,
       both: (evening, morning) => `${evening} · ${morning}`,
-      cloudAt: (percent, time) => `${percent} % oblačnosti ob ${time}`,
+      cloudAt: (percent, time) => `${percent}\u00a0% oblačnosti ob ${time}`,
       clearAt: (time) => `brez oblakov ob ${time}`,
       reworked:
-        "Planeti spodaj so izračunani znova z zrakom tiste noči. Oblačnost ERA5 velja za kvadrat s stranico približno 25 km, svetel planet pa se lahko vidi skozi tanke visoke oblake ali skozi vrzel.",
+        "Planeti spodaj so izračunani znova z zrakom tiste noči. Oblačnost ERA5 velja za kvadrat s stranico približno 25\u00a0km, svetel planet pa se lahko vidi skozi tanke visoke oblake ali skozi vrzel.",
       credit: {
         data: "Vremenski podatki: Open-Meteo.com",
         licence: "CC BY 4.0",
@@ -891,19 +891,19 @@ export default {
       consentFailed: "Firefox ni mogel vprašati za privolitev, zato ni bilo poslano nič.",
       air: "Ozračje tisto noč",
       cloud: "Oblačnost tisto noč",
-      cloudValue: (low, mid, high) => `nizka ${low} %, srednja ${mid} %, visoka ${high} %`,
+      cloudValue: (low, mid, high) => `nizka ${low}\u00a0%, srednja ${mid}\u00a0%, visoka ${high}\u00a0%`,
     },
     assumptions: {
       ephemeris: "Efemeride",
       ephemerisValue: (version) => `Swiss Ephemeris ${version}, Moshier`,
       atmosphere: "Ozračje",
-      atmosphereValue: (pressure, temperature, humidity) => `${pressure} hPa, ${temperature} °C, ${humidity} % vlažnosti`,
+      atmosphereValue: (pressure, temperature, humidity) => `${pressure}\u00a0hPa, ${temperature}\u00a0°C, ${humidity}\u00a0% vlažnosti`,
       observer: "Opazovalec",
       observerValue: (age, snellen, bothEyes) =>
         `Star ${count(age, YEARS)}, Snellenovo razmerje ${snellen}, ${bothEyes ? "z obema očesoma" : "z enim očesom"}`,
       elevation: "Nadmorska višina",
-      elevationGiven: (metres) => `${metres} m`,
-      elevationDefault: (metres) => `${metres} m, ker ni bila podana`,
+      elevationGiven: (metres) => `${metres}\u00a0m`,
+      elevationDefault: (metres) => `${metres}\u00a0m, ker ni bila podana`,
       moon: "Luna",
       moonIncluded: "Njena svetloba je upoštevana",
       moonLeftOut: "Njena svetloba ni upoštevana",

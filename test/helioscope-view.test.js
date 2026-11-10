@@ -229,7 +229,7 @@ test("the weather check sits between the chart's rows and the table: a button, t
   assert.deepEqual([button.tag, button.type, button.className, button.textContent], ["button", "button", "secondary", "Check that night's weather"]);
   assert.deepEqual(
     [note.tag, note.className, note.textContent],
-    ["p", "note", "Sends the chart's month and its place, rounded to about 25 km, to open-meteo.com, whose logs may keep them for up to 90 days."],
+    ["p", "note", "Sends the chart's month and its place, rounded to about 25\u00a0km, to open-meteo.com, whose logs may keep them for up to 90 days."],
   );
   button.listeners.click();
   assert.deepEqual(clicks, ["weather"]);
@@ -246,7 +246,7 @@ test("while asking it says so; a check that failed says why, with its code, over
     "p.warning: Couldn't get the weather.",
     "p.code: Code: http-400",
     "button.secondary: Check that night's weather",
-    "p.note: Sends the chart's month and its place, rounded to about 25 km, to open-meteo.com, whose logs may keep them for up to 90 days.",
+    "p.note: Sends the chart's month and its place, rounded to about 25\u00a0km, to open-meteo.com, whose logs may keep them for up to 90 days.",
   ]);
   const [, unreached] = await drawnIn("en", NEW_YORK, { kind: "refused", reason: "not-yet" });
   assert.deepEqual(said(unreached), ["p.note: ERA5 doesn't have that night yet: it runs about 5 days behind."]);
@@ -256,7 +256,7 @@ test("with the weather in, the section has its heading, the cloud at each twilig
   const [, weather] = await drawnIn("en", NEW_YORK, WEATHER);
   const [title, line, note, credit] = weather.children;
   assert.deepEqual([title.tag, title.textContent], ["h2", "That night's weather, from ERA5"]);
-  assert.deepEqual([line.tag, line.textContent], ["p", "Dusk: 90 % cloud at 18:00 · Dawn: no cloud at 07:00"]);
+  assert.deepEqual([line.tag, line.textContent], ["p", "Dusk: 90\u00a0% cloud at 18:00 · Dawn: no cloud at 07:00"]);
   assert.equal(note.className, "note");
   assert.match(note.textContent, /^The planets below are worked out again with that night's air\./);
   assert.equal(credit.className, "note");
@@ -272,9 +272,9 @@ test("with the weather in, the section has its heading, the cloud at each twilig
 
 test("in Spanish and Slovenian, the weather in each language's words and decimal commas", async () => {
   const [, spanish] = await drawnIn("es", NEW_YORK, WEATHER);
-  assert.equal(spanish.children[1].textContent, "Anochecer: 90 % de nubes a las 18:00 · Amanecer: sin nubes a las 07:00");
+  assert.equal(spanish.children[1].textContent, "Anochecer: 90\u00a0% de nubes a las 18:00 · Amanecer: sin nubes a las 07:00");
   const [, slovenian] = await drawnIn("sl", NEW_YORK, WEATHER);
-  assert.equal(slovenian.children[1].textContent, "Mrak: 90 % oblačnosti ob 18:00 · Svit: brez oblakov ob 07:00");
+  assert.equal(slovenian.children[1].textContent, "Mrak: 90\u00a0% oblačnosti ob 18:00 · Svit: brez oblakov ob 07:00");
   const assumptions = (await drawnIn("es", NEW_YORK, WEATHER)).find(({ className }) => className === "assumptions");
-  assert.deepEqual(box(assumptions).rows[1], ["Atmósfera esa noche", "Anochecer: 1007 hPa, 1,4 °C, 56 % de humedad · Amanecer: 1010,8 hPa, −2,8 °C, 65 % de humedad"]);
+  assert.deepEqual(box(assumptions).rows[1], ["Atmósfera esa noche", "Anochecer: 1007\u00a0hPa, 1,4\u00a0°C, 56\u00a0% de humedad · Amanecer: 1010,8\u00a0hPa, −2,8\u00a0°C, 65\u00a0% de humedad"]);
 });
