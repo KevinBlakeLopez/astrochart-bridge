@@ -585,6 +585,7 @@ The site can be installed as an app, opens on its home page, `index.html`, and k
 - [ ] In Chrome or Edge, the address bar offers to install the app. Installed, it opens in a window of its own on the home page, with the star-and-arch icon and the night-blue title bar. Firefox on the desktop doesn't offer to install it, and the pages work as before.
 - [ ] Open the Developer Tools' **Application** tab (in Firefox, **Storage**): under **Service workers**, `sw.js` is activated and running for `http://127.0.0.1:8778/`.
 - [ ] Paste the test 16 text, then **Which planets were visible**. Under **Cache storage**, `astrochart-bridge` lists the files the pages loaded, and no address in it has a `#` or a `?`.
+- [ ] On Helioscope's page, click **Check that night's weather**: nothing asks for consent, and the weather shows as in test 25. Under **Cache storage**, no address is from `open-meteo.com`.
 - [ ] In the **Network** tab, choose **Offline**, then reload each page opened so far: each works as before, with the chart in the link, and Helioscope still works out the planets. A page never opened shows the browser's own offline error. Turn **Offline** off again.
 - [ ] Afterwards, **Unregister** the worker and clear the site's data, so later tests start without it.
 

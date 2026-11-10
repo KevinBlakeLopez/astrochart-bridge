@@ -101,6 +101,9 @@ export const SITE_FILES = Object.freeze([
   "helioscope-model.js",
   "helioscope-view.js",
   "core/helioscope.js",
+  // Check that night's weather: the request to Open-Meteo, which the page
+  // sends only on its click, and reading the answer.
+  "core/open-meteo.js",
   // Only its Julian Day arithmetic: the requests to Stellarium Desktop are
   // sent by stellarium-desktop.js, which isn't published.
   "core/stellarium-desktop.js",

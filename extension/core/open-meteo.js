@@ -8,7 +8,9 @@
 // which loses nothing ERA5 has, and whole months, so the day isn't given
 // away. Never the chart's time, name or town.
 
-const ARCHIVE = "https://archive-api.open-meteo.com/v1/archive";
+// The archive's origin, which Helioscope's page policy lets it reach.
+export const ARCHIVE_ORIGIN = "https://archive-api.open-meteo.com";
+const ARCHIVE = `${ARCHIVE_ORIGIN}/v1/archive`;
 
 // ERA5's first day. The archive refuses an earlier one, and a day after
 // today, with HTTP 400.
