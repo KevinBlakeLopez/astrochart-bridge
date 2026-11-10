@@ -1,7 +1,8 @@
 // The pages published on the web set their own content security policy with
 // a <meta> tag, since GitHub Pages sends no headers. The same files are the
 // extension's pages, so each policy also allows what the extension's copy
-// does: the paste, import and screenshot pages send to Stellarium Desktop.
+// does: the paste, import and screenshot pages send to Stellarium Desktop,
+// and Helioscope's page runs Swiss Ephemeris's WebAssembly.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -24,10 +25,13 @@ function policyOf(page) {
   );
 }
 
+// Every page the site publishes (tools/site.mjs).
+const PUBLISHED = ["chart.html", "paste.html", "import.html", "screenshot.html", "helioscope.html"];
+
 const STRICT = { "default-src": ["'none'"], "style-src": ["'self'"], "base-uri": ["'none'"], "form-action": ["'none'"] };
 
 test("every published page fits an iPad's screen and sends no referrer", () => {
-  for (const page of ["chart.html", "paste.html", "import.html", "screenshot.html"]) {
+  for (const page of PUBLISHED) {
     const html = read(page);
     assert.equal(metaContent(html, "name", "viewport"), "width=device-width, initial-scale=1", page);
     assert.equal(metaContent(html, "name", "referrer"), "no-referrer", page);
@@ -51,8 +55,17 @@ test("the screenshot page also lets Tesseract.js start its worker, compile its W
   });
 });
 
+test("Helioscope's page also lets Swiss Ephemeris compile its WebAssembly and fetch it from beside the glue", () => {
+  // No Stellarium Desktop: the page opens Stellarium Web by its links only.
+  assert.deepEqual(policyOf("helioscope.html"), {
+    ...STRICT,
+    "script-src": ["'self'", "'wasm-unsafe-eval'"],
+    "connect-src": ["'self'"],
+  });
+});
+
 test("no page allows inline scripts, eval, scripts from elsewhere, or a whole scheme", () => {
-  for (const page of ["chart.html", "paste.html", "import.html", "screenshot.html"]) {
+  for (const page of PUBLISHED) {
     const policy = policyOf(page);
     assert.deepEqual(policy["script-src"].filter((source) => !["'self'", "'wasm-unsafe-eval'"].includes(source)), [], page);
     for (const [directive, sources] of Object.entries(policy)) {

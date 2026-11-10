@@ -9,9 +9,9 @@ import { buildSite, SITE_FILES } from "../tools/site.mjs";
 const extension = new URL("../extension/", import.meta.url).pathname;
 const read = (file) => readFileSync(join(extension, file), "utf8");
 
-// The pages published on the web: the receiving page, and the pages that read
-// a pasted chart, a chart file and a screenshot.
-const PAGES = ["chart.html", "paste.html", "import.html", "screenshot.html"];
+// The pages published on the web: the receiving page, the pages that read a
+// pasted chart, a chart file and a screenshot, and Helioscope's page.
+const PAGES = ["chart.html", "paste.html", "import.html", "screenshot.html", "helioscope.html"];
 
 // Modules the pages import only in the extension's copy, which the extension
 // ships: astro.com's and Astro-Seek's forms are filled in, and Stellarium
@@ -21,14 +21,27 @@ const EXTENSION_ONLY = ["astro-com-page.js", "desktop-page.js", "preference.js"]
 
 // Files Tesseract.js loads by address while the screenshot page reads, which
 // no import names (screenshot.js's createWorker).
-const LOADED_BY_ADDRESS = [
+const TESSERACT_BY_ADDRESS = [
   "vendor/tesseract/worker.min.js",
   "vendor/tesseract/tesseract-core-simd-lstm.wasm.js",
   "vendor/tesseract/eng.traineddata.gz",
 ];
 
-// Files a page doesn't load but must travel with what it loads.
-const LICENSES = ["vendor/lean-qr/LICENSE", "vendor/tesseract/LICENSE-tesseract.js.md", "vendor/tesseract/LICENSE-tesseract.js-core"];
+// The binary Swiss Ephemeris's glue fetches by address beside itself, which
+// no import names either.
+const SWISSEPH_BY_ADDRESS = ["vendor/swisseph/wasm/swisseph.wasm"];
+
+const LOADED_BY_ADDRESS = [...TESSERACT_BY_ADDRESS, ...SWISSEPH_BY_ADDRESS];
+
+// Files a page doesn't load but must travel with what it loads. Swiss
+// Ephemeris goes out under the AGPL, with swisseph-wasm's notice.
+const LICENSES = [
+  "vendor/lean-qr/LICENSE",
+  "vendor/tesseract/LICENSE-tesseract.js.md",
+  "vendor/tesseract/LICENSE-tesseract.js-core",
+  "vendor/swisseph/LICENSE",
+  "vendor/swisseph/NOTICE",
+];
 
 test("the site is exactly the files the web's pages load, and the licences for what they vendor", () => {
   // Everything the pages load on the web, and so not their extension-only modules.
@@ -38,12 +51,18 @@ test("the site is exactly the files the web's pages load, and the licences for w
 
 test("the files Tesseract.js loads by address are the ones screenshot.js names", () => {
   const code = read("screenshot.js");
-  for (const file of LOADED_BY_ADDRESS) {
+  for (const file of TESSERACT_BY_ADDRESS) {
     const name = file.slice("vendor/tesseract/".length).replace("eng.traineddata.gz", "eng");
     assert.ok(code.includes(name), file);
   }
   assert.match(code, /langPath: VENDOR,/);
   assert.match(code, /createWorker\("eng",/);
+});
+
+test("the binary Swiss Ephemeris's glue fetches by address is the one beside it", () => {
+  const glue = read("vendor/swisseph/wasm/swisseph.mjs");
+  assert.ok(glue.includes('new URL("swisseph.wasm",import.meta.url)'));
+  assert.deepEqual(SWISSEPH_BY_ADDRESS, ["vendor/swisseph/wasm/swisseph.wasm"]);
 });
 
 test("the paste, import and screenshot pages load the code that fills in forms and sends to Stellarium Desktop only in the extension's copy", () => {
@@ -81,14 +100,19 @@ test("nothing only the extension can use is published", () => {
   }
 });
 
-test("Tesseract.js's source maps, which nothing loads, aren't published", () => {
-  for (const file of SITE_FILES) assert.doesNotMatch(file, /\.map$/, file);
+test("Tesseract.js's and Swiss Ephemeris's source maps and type declarations, which nothing loads, aren't published", () => {
+  for (const file of SITE_FILES) assert.doesNotMatch(file, /\.map$|\.d\.ts$/, file);
 });
 
-// Publishing Helioscope with the receiving page would hand Swiss Ephemeris's
-// WebAssembly to every visitor (docs/HELIOSCOPE_V1_FEASIBILITY.md §4).
-test("neither Helioscope nor the Swiss Ephemeris it loads is published", () => {
-  for (const file of SITE_FILES) assert.doesNotMatch(file, /helioscope|vendor\/swisseph/, file);
+// Publishing Helioscope's page hands Swiss Ephemeris's WebAssembly to every
+// visitor, which the project's AGPL-3.0-or-later licence covers
+// (docs/HELIOSCOPE_V1_FEASIBILITY.md §4, route A). The AGPL asks the page to
+// say so, and to offer the source.
+test("Swiss Ephemeris goes out with its licence and notice, and Helioscope's page says so and links the source", () => {
+  for (const file of ["vendor/swisseph/LICENSE", "vendor/swisseph/NOTICE"]) assert.ok(SITE_FILES.includes(file), file);
+  const html = read("helioscope.html");
+  assert.match(html, /data-text="pages\.helioscope\.notice"/);
+  assert.match(html, /<a href="https:\/\/github\.com\/KevinBlakeLopez\/astrochart-bridge"[^>]*data-text="pages\.helioscope\.source"/);
 });
 
 test("the receiving page's own files are in it", () => {

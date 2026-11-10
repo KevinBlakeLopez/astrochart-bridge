@@ -20,6 +20,7 @@ import { isExtensionCopy } from "./extension-copy.js";
 import { RECEIVER_URL } from "./share-config.js";
 import { localizePage, text } from "./messages/index.js";
 import { paragraph, render } from "./view.js";
+import { openPage } from "./web-page.js";
 
 // The browser's language, chosen before anything is drawn.
 localizePage(document, navigator.languages);
@@ -202,6 +203,13 @@ async function onButton(button) {
   }
   if (does === "share-file") {
     share({ title: text().chart.shareTitle, files: [shareableFile] });
+    return;
+  }
+  // Helioscope's page beside this one, in either copy, with the chart in its
+  // link but not its name or town. Opened before anything is awaited, so
+  // Safari still counts the click.
+  if (does === "helioscope") {
+    if (chart !== null) openPage("helioscope.html", chartToPassOn(chart, {}), location.href);
     return;
   }
   if (url) window.open(url, "_blank", "noopener,noreferrer");

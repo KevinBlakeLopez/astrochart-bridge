@@ -1,6 +1,6 @@
-// Builds the static site: the receiving page and the paste, import and
-// screenshot pages, the files they load on the web, and the licences of what
-// they vendor, copied unchanged from extension/. Nothing else from the
+// Builds the static site: the receiving page, the paste, import and
+// screenshot pages, Helioscope's page, the files they load on the web, and the
+// licences of what they vendor, copied unchanged from extension/. Nothing else from the
 // extension is published. The Pages workflow runs it as
 //
 //   node tools/site.mjs _site
@@ -80,6 +80,46 @@ export const SITE_FILES = Object.freeze([
   "vendor/tesseract/eng.traineddata.gz",
   "vendor/tesseract/LICENSE-tesseract.js.md",
   "vendor/tesseract/LICENSE-tesseract.js-core",
+  // Helioscope's page, which works out which planets were visible.
+  "helioscope.html",
+  "helioscope.css",
+  "helioscope.js",
+  "helioscope-engine.js",
+  "helioscope-model.js",
+  "helioscope-view.js",
+  "core/helioscope.js",
+  // Only its Julian Day arithmetic: the requests to Stellarium Desktop are
+  // sent by stellarium-desktop.js, which isn't published.
+  "core/stellarium-desktop.js",
+  // Swiss Ephemeris, compiled to WebAssembly by swisseph-wasm: the modules
+  // its index.js imports, the binary its glue fetches by address, and the
+  // AGPL and notice they're distributed under.
+  "vendor/swisseph/dist/index.js",
+  "vendor/swisseph/dist/instance.js",
+  "vendor/swisseph/dist/constants.js",
+  "vendor/swisseph/dist/types.js",
+  "vendor/swisseph/dist/derived/antiscia.js",
+  "vendor/swisseph/dist/derived/aspects.js",
+  "vendor/swisseph/dist/derived/declination.js",
+  "vendor/swisseph/dist/derived/dignities.js",
+  "vendor/swisseph/dist/derived/eclipses.js",
+  "vendor/swisseph/dist/derived/heliacal.js",
+  "vendor/swisseph/dist/derived/houses.js",
+  "vendor/swisseph/dist/derived/lot-names-tr.js",
+  "vendor/swisseph/dist/derived/lots.js",
+  "vendor/swisseph/dist/derived/parans.js",
+  "vendor/swisseph/dist/derived/sect.js",
+  "vendor/swisseph/dist/derived/stars.js",
+  "vendor/swisseph/dist/derived/timelords.js",
+  "vendor/swisseph/dist/ephemeris/asteroids.js",
+  "vendor/swisseph/dist/ephemeris/files.js",
+  "vendor/swisseph/dist/ephemeris/sources.js",
+  "vendor/swisseph/dist/generated/constants.js",
+  "vendor/swisseph/dist/generated/stars.js",
+  "vendor/swisseph/wasm/swisseph.mjs",
+  "vendor/swisseph/wasm/swisseph.wasm",
+  "vendor/swisseph/LICENSE",
+  "vendor/swisseph/NOTICE",
 ]);
 
 /**

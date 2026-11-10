@@ -1,7 +1,7 @@
 # Publishes the receiving page, extension/chart.html, at
 # https://kevinblakelopez.github.io/astrochart-bridge/chart.html, the address in
-# extension/share-config.js, with the paste, import and screenshot pages beside
-# it and the files they load (tools/site.mjs). Only main deploys: GitHub's
+# extension/share-config.js, with the paste, import and screenshot pages and
+# Helioscope's page beside it, and the files they load (tools/site.mjs). Only main deploys: GitHub's
 # github-pages environment allows the default branch alone. Pages must be set
 # to deploy from GitHub Actions (Settings → Pages → Source) before the first run.
 #
