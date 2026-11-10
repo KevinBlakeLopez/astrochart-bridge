@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; worker-src 'self'; style-src 'self'; img-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'">
+    <meta name="referrer" content="no-referrer">
+    <title data-text="pages.popup.title">AstroChart Bridge</title>
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="icons/icon-180.png">
+    <link rel="stylesheet" href="popup.css">
+    <link rel="stylesheet" href="home.css">
+    <script type="module" src="home.js"></script>
+  </head>
+  <body class="page">
+    <main>
+      <h1 data-text="pages.popup.title">AstroChart Bridge</h1>
+      <p data-text="pages.home.intro">Bring in a chart's birth data, then open its sky in Stellarium Web, open the chart in Astro-Seek, or see which planets were visible.</p>
+      <ul class="ways">
+        <li><a href="paste.html" data-text="pages.paste.heading">Paste chart text</a></li>
+        <li><a href="import.html" data-text="pages.import.heading">Open an AAF or Morinus file</a></li>
+        <li><a href="screenshot.html" data-text="pages.screenshot.heading">Read a chart screenshot</a></li>
+        <li><a href="chart.html" data-text="pages.chart.openFile">Open an AstroChart Bridge file</a></li>
+      </ul>
+      <p class="note" data-text="pages.home.privacy">Charts are read on this device, and nothing is sent until you open the sky or the chart. This site keeps copies of its own files on this device so that it works offline, but never a chart.</p>
+      <p class="note"><a href="https://github.com/KevinBlakeLopez/astrochart-bridge" target="_blank" rel="noopener noreferrer" data-text="pages.helioscope.source">Source code and licence</a></p>
+    </main>
+  </body>
+</html>

@@ -37,6 +37,7 @@ function received(sky, source, labels) {
 const BUTTONS = [
   { label: "Open Stellarium Web", opens: "stellarium" },
   { label: "Open chart in Astro-Seek", opens: "astro-seek" },
+  { label: "Which planets were visible", does: "helioscope", secondary: true },
   { label: "Copy link", does: "copy", secondary: true, shares: true },
   { label: "Show QR code", does: "qr", secondary: true, shares: true },
   { label: "Download file", does: "download", secondary: true, shares: true },
@@ -384,7 +385,7 @@ const SHARE_NOTE = "Share link… and Share file… send the chart to the app yo
 
 test("Share link… comes before Copy link, where the browser can share links", () => {
   const view = viewForImport(received(NY, NY_SOURCE), { ...LOS_ANGELES, canShare: true });
-  assert.deepEqual(view.buttons, [...BUTTONS.slice(0, 2), SHARE_LINK, ...BUTTONS.slice(2)]);
+  assert.deepEqual(view.buttons, [...BUTTONS.slice(0, 3), SHARE_LINK, ...BUTTONS.slice(3)]);
   assert.equal(view.notes.at(-1), SHARE_NOTE);
 });
 
@@ -403,7 +404,7 @@ test("neither share button, and no note, where the browser can't share", () => {
 test("with nowhere to point a link, Share link… goes too, but Share file… stays", () => {
   const view = viewForImport(received(NY, NY_SOURCE), { ...LOS_ANGELES, canCopy: false, canShare: true, canShareFiles: true });
   assert.deepEqual(view.buttons.map((button) => button.label), [
-    "Open Stellarium Web", "Open chart in Astro-Seek", "Download file", "Share file…",
+    "Open Stellarium Web", "Open chart in Astro-Seek", "Which planets were visible", "Download file", "Share file…",
   ]);
 });
 

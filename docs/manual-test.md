@@ -430,9 +430,11 @@ http://127.0.0.1:8778/chart.html#v1=eyJmb3JtYXQiOiJhc3Ryb2NoYXJ0IiwidmVyc2lvbiI6
 
 ### A: desktop
 
-- [ ] The page shows Local time `17 Apr 2024, 08:00 (EDT, DST)`, Offset `UTC-04:00`, UTC `2024-04-17 12:00`, Place `40°43'N, 74°0'W` and From `Astro-Seek page`, four grey notes, **Open Stellarium Web**, **Open chart in Astro-Seek**, **Copy link**, **Show QR code**, **Download file** and **Open an AstroChart Bridge file**. In a browser with a share sheet (test 22), **Share link…** and possibly **Share file…** are there too, and **Enter in astro.com…**. There is no **Share…**.
+- [ ] The page shows Local time `17 Apr 2024, 08:00 (EDT, DST)`, Offset `UTC-04:00`, UTC `2024-04-17 12:00`, Place `40°43'N, 74°0'W` and From `Astro-Seek page`, four grey notes, **Open Stellarium Web** and **Which planets were visible** under "See the sky", **Open chart in Astro-Seek**, **Copy link**, **Show QR code**, **Download file** and **Open an AstroChart Bridge file**. In a browser with a share sheet (test 22), **Share link…** and possibly **Share file…** are there too, and **Enter in astro.com…**. There is no **Share…**.
 - [ ] **Enter in astro.com…** shows Birthday `17 April 2024`, Hour, min `08:00`, Time zone `automatic time zone, the form's default`, Offset `UTC-04:00` and Place `40°43'N, 74°0'W`, with no Town row and no name boxes; "Type these into astro.com's form. This page can't fill it in for you."; a grey note to check that astro.com's time zone is 4 h west (UTC-04:00), or else to enter 17 April 2024, 12:00 in 00:00 GMT / UT; a grey note to choose the town nearest this place; **Open astro.com's form**; and **Cancel**, which goes back to the chart.
 - [ ] **Open astro.com's form** opens astro.com's empty birth data form in a new tab. Nothing is filled in, and the Network tab shows no request to `astro-com-page.js`.
+- [ ] **Which planets were visible** opens Helioscope's page in a new tab, as in test 25, with the same rows and planets.
+- [ ] Above the heading, a grey **AstroChart Bridge** link leads to the site's home page (test 26). The extension's copy of the page, opened by **Share…**, has no such link.
 - [ ] The address bar shows `chart.html` with nothing after it, and **Back** doesn't bring the `#v1=…` part back.
 - [ ] Nothing opens by itself. **Open Stellarium Web** opens the same Stellarium address as test 1; **Open chart in Astro-Seek** opens a chart for 17 April 2024 12:00 UT at 40°43'N, 74°0'W.
 - [ ] **Copy link** says "Link copied.", and pasting gives exactly the link above. If the browser refuses, the link appears selected in a field below the message instead.
@@ -563,6 +565,32 @@ If AstroChart Bridge already has access to www.astro-seek.com, remove it first, 
 - [ ] On the import page (test 15), `fixtures/aaf/astrolog-8.00-new-york.aaf` and `fixtures/morinus/horary.p2.hor` (test 23) each end "See the sky" with **Which planets were visible**, and neither has **Share…**. It opens the page the same way, and the import tab stays open. The page has no Name or Town row, though both files name the chart.
 - [ ] On a chart with a name and town, such as an astro.com account chart (test 14's), the page has no Name or Town row.
 - [ ] In light and dark mode the page is readable, like the popup in test 10.
+
+## Test 26: the web app
+
+The site can be installed as an app, opens on its home page, `index.html`, and keeps copies of its own files so the pages it has opened work offline (`extension/sw.js`). A service worker and installing need a secure address: `http://127.0.0.1` is one, but a phone reaching the Mac over plain http isn't, so B and C need the site on GitHub Pages. Serve the `extension` folder as in test 19 and open `http://127.0.0.1:8778/index.html`.
+
+### A: desktop
+
+- [ ] The home page is headed **AstroChart Bridge**, with a line about what it does, four links, **Paste chart text**, **Open an AAF or Morinus file**, **Read a chart screenshot** and **Open an AstroChart Bridge file**, a grey note that it keeps copies of its own files but never a chart, and **Source code and licence**.
+- [ ] Each link opens its page in the same tab, and each page, Helioscope's too, has a grey **AstroChart Bridge** link above its heading back to the home page.
+- [ ] In Chrome or Edge, the address bar offers to install the app. Installed, it opens in a window of its own on the home page, with the star-and-arch icon and the night-blue title bar. Firefox on the desktop doesn't offer to install it, and the pages work as before.
+- [ ] Open the Developer Tools' **Application** tab (in Firefox, **Storage**): under **Service workers**, `sw.js` is activated and running for `http://127.0.0.1:8778/`.
+- [ ] Paste the test 16 text, then **Which planets were visible**. Under **Cache storage**, `astrochart-bridge` lists the files the pages loaded, and no address in it has a `#` or a `?`.
+- [ ] In the **Network** tab, choose **Offline**, then reload each page opened so far: each works as before, with the chart in the link, and Helioscope still works out the planets. A page never opened shows the browser's own offline error. Turn **Offline** off again.
+- [ ] Afterwards, **Unregister** the worker and clear the site's data, so later tests start without it.
+
+### B: iPad and iPhone (needs the devices and the site on GitHub Pages)
+
+- [ ] In Safari, **Share → Add to Home Screen** on the home page offers **AstroChart** with the star-and-arch icon. It opens full screen on the home page.
+- [ ] Each page's **AstroChart Bridge** link leads back home, since the app has no back button.
+- [ ] **Share…** and **Which planets were visible** open their pages; note whether they open inside the app or in Safari.
+- [ ] After opening the paste page and Helioscope's page once, turn on Airplane Mode: both open again from the Home Screen icon.
+
+### C: Android (needs a device and the site on GitHub Pages)
+
+- [ ] In Chrome, **Install app** (or **Add to Home screen**) adds **AstroChart** with the icon. It opens on the home page in its own window.
+- [ ] The same checks as B, with flight mode for Airplane Mode. In Firefox for Android, note what **Add to Home screen** gives.
 
 ## Not covered by hand yet
 

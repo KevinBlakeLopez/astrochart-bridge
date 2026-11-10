@@ -5,15 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- Only this page's own files load. A meta policy can't set
          frame-ancestors, so a host that can send headers should add it. -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; base-uri 'none'; form-action 'none'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'">
     <meta name="referrer" content="no-referrer">
     <title data-text="pages.chart.title">AstroChart Bridge: open a chart</title>
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="icons/icon-180.png">
     <link rel="stylesheet" href="popup.css">
     <link rel="stylesheet" href="chart.css">
     <script type="module" src="chart.js"></script>
   </head>
   <body class="page">
     <main>
+      <p id="home" class="home" hidden><a href="index.html" data-text="pages.popup.title">AstroChart Bridge</a></p>
       <h1>AstroChart Bridge</h1>
       <div id="app"><p class="note" data-text="pages.chart.readingLink">Reading the link…</p></div>
       <p id="status" class="note" role="status"></p>

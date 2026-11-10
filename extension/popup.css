@@ -42,6 +42,16 @@ main {
   padding: 0 14px 10px;
 }
 
+/* The way back to the site's home page, above each page's heading on the web.
+   An installed web app has no back button. */
+.home {
+  margin: 0;
+}
+
+.home a {
+  color: var(--muted);
+}
+
 p {
   margin: 0 0 8px;
 }

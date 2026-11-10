@@ -29,6 +29,7 @@ Those sites then handle what they receive under their own privacy policies.
 - **A chart it opened astro.com for**: the chart's time, place, town and name, so the form can still be filled in after the popup closes. They're used for 30 minutes at most, and kept in session storage, which the browser empties when it quits.
 - **A chart it opened in Astro-Seek** that has a town or a name: the chart's time, place, town and name, so Save in Astro-Seek… in the popup on that tab can fill in the town and name, used only while the tab still shows that chart. They're kept in session storage until the browser quits.
 - **The elevation and the limit for under the beams** you last chose when working out which planets were visible, so the next chart starts the same way. They're kept like your default sky. The chart isn't kept.
+- **The website's own files**, on the website, once its home page has been opened: a service worker keeps a copy of each of the site's pages and the files they load, so they work offline, and installing the site as an app keeps the same. The copies are kept under their addresses without anything after a `#`, where a chart's link carries the chart, so no chart is kept. Clearing the site's data in the browser removes them.
 
 Nothing else is kept.
 

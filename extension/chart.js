@@ -16,12 +16,17 @@ import {
   shareDataFor,
   viewForImport,
 } from "./chart-model.js";
+import { isExtensionCopy } from "./extension-copy.js";
 import { RECEIVER_URL } from "./share-config.js";
 import { localizePage, text } from "./messages/index.js";
 import { paragraph, render } from "./view.js";
+import { openPage, showHomeLink } from "./web-page.js";
 
 // The browser's language, chosen before anything is drawn.
 localizePage(document, navigator.languages);
+
+// The way back to the home page, on the web.
+showHomeLink(document, location.href);
 
 const app = document.getElementById("app");
 const status = document.getElementById("status");
@@ -35,7 +40,7 @@ const fileInput = document.getElementById("file");
 const base = linkBase(location.href, RECEIVER_URL);
 
 // The extension's copy has the import page, for Morinus and AAF files, next to it.
-const canImport = location.protocol.endsWith("-extension:");
+const canImport = isExtensionCopy(location.href);
 
 // The extension's copy can also fill in astro.com's form, with the code the
 // extension's other pages use, which the web's copy doesn't publish. It is
@@ -201,6 +206,13 @@ async function onButton(button) {
   }
   if (does === "share-file") {
     share({ title: text().chart.shareTitle, files: [shareableFile] });
+    return;
+  }
+  // Helioscope's page beside this one, in either copy, with the chart in its
+  // link but not its name or town. Opened before anything is awaited, so
+  // Safari still counts the click.
+  if (does === "helioscope") {
+    if (chart !== null) openPage("helioscope.html", chartToPassOn(chart, {}), location.href);
     return;
   }
   if (url) window.open(url, "_blank", "noopener,noreferrer");

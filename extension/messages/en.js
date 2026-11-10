@@ -33,6 +33,13 @@ export default {
       reading: "Reading the page…",
       version: (number) => `AstroChart Bridge ${number}`,
     },
+    // The site's home page, index.html. Its links say what each page's own heading says.
+    home: {
+      intro:
+        "Bring in a chart's birth data, then open its sky in Stellarium Web, open the chart in Astro-Seek, or see which planets were visible.",
+      privacy:
+        "Charts are read on this device, and nothing is sent until you open the sky or the chart. This site keeps copies of its own files on this device so that it works offline, but never a chart.",
+    },
     screenshot: {
       title: "AstroChart Bridge: read a screenshot",
       heading: "Read a chart screenshot",
@@ -226,6 +233,7 @@ export default {
       "Before Add person, choose the Birth city in Astro-Seek's list if it isn't, then check that the coordinates and UT/GMT are still the chart's.",
     saveDeclined: "AstroChart Bridge can't choose the town in Astro-Seek's form without access to www.astro-seek.com.",
     saveDeclinedNote: (named) => `The form opens with this date, time and place in UT/GMT${named ? ", and the name" : ""}.`,
+    saveByHand: "This page can't choose the town in Astro-Seek's form for you.",
 
     shareBeforeGregorian:
       "AstroChart Bridge can't share a chart dated before 15 October 1582 yet: it can't tell which calendar the date is in.",
