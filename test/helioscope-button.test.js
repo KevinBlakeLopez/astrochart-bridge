@@ -1,14 +1,15 @@
 // Which planets were visible: the chart screens' way to Helioscope's page.
 // It goes wherever Share… goes, and like Share… it opens a page in a tab
 // with the chart in its link, here helioscope.html, with no name or town.
-// popup.js, screenshot.js and paste.js open it; their part is in the manual
-// test checklist.
+// popup.js, screenshot.js, paste.js, import.js and chart.js open it; their
+// part is in the manual test checklist.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { viewForAafText, withAafExport } from "../extension/aaf-model.js";
+import { chartToPassOn, viewForImport } from "../extension/chart-model.js";
 import { analyzePage } from "../extension/core/index.js";
-import { toFragment } from "../extension/core/portable.js";
+import { fromFragment, toFragment, toPortable } from "../extension/core/portable.js";
 import { withDesktopSend } from "../extension/desktop-model.js";
 import { chartFromLink } from "../extension/helioscope-model.js";
 import { viewForHorFile } from "../extension/hor-model.js";
@@ -191,4 +192,39 @@ test("a record the import page refuses carries no chart, and its screen offers n
     assert.equal(item.chart, null, name);
     assert.equal(item.view.buttons, undefined, name);
   }
+});
+
+// --- The receiving page ---
+// chart.html offers it too, in the extension's copy and on the web, with
+// Copy link, Download file and the share sheet's buttons as its Share….
+
+const NAMED = { name: "Jane Doe", town: "New York, NY, USA" };
+const receivedChart = () => {
+  const built = toPortable({ local: "2024-04-17T08:00:00", ...NY_SKY }, { site: "astro-seek", via: "page" }, NAMED);
+  assert.equal(built.kind, "portable", `refused: ${built.reason}`);
+  return fromFragment(`#${toFragment(built.chart)}`);
+};
+
+test("the receiving page offers it under See the sky, before the buttons that pass the chart on", () => {
+  for (const options of [{ ...LA }, { ...LA, canFill: true, canShare: true, canShareFiles: true }]) {
+    const view = viewForImport(receivedChart(), options);
+    const [sky, elsewhere] = groupsOf(view);
+    assert.deepEqual(sky, [SKY, "Open Stellarium Web", HELIOSCOPE]);
+    assert.equal(elsewhere[0], ELSEWHERE);
+    assert.ok(!elsewhere.includes(HELIOSCOPE));
+  }
+});
+
+test("the receiving page's link to it carries the chart without its name or town, even with both boxes ticked", () => {
+  const received = receivedChart();
+  const view = viewForImport(received, { ...LA, include: { name: true, town: true } });
+  assert.deepEqual(view.includes.boxes.map(({ checked }) => checked), [true, true]);
+  // As chart.js builds it for helioscope.html, whatever the boxes say.
+  const sent = chartToPassOn(received.chart, {});
+  assert.deepEqual(sent.labels ?? {}, {});
+  const back = chartFromLink(`#${toFragment(sent)}`);
+  assert.equal(back.kind, "chart");
+  assert.equal(back.chart.utc, NY_SKY.utc);
+  assert.equal(back.chart.lat, NY_SKY.lat);
+  assert.equal(back.chart.lng, NY_SKY.lng);
 });

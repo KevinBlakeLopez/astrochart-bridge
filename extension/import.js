@@ -5,17 +5,28 @@
 // file handles the file and the page. Text from the file is only ever
 // inserted with textContent.
 import { decodeAafFile, viewForAafText } from "./aaf-model.js";
-import { openLink as openPageLink } from "./astro-com-page.js";
 import { linkFor, takeFileForImport } from "./chart-model.js";
-import { renderChart } from "./desktop-page.js";
 import { isHorFile } from "./core/morinus-hor.js";
+import { isExtensionCopy } from "./extension-copy.js";
 import { viewForHorFile } from "./hor-model.js";
 import { localizePage } from "./messages/index.js";
 import { chartToShare, viewForHelioscopeRefusal } from "./popup-model.js";
 import { paragraph, render } from "./view.js";
+import { openPage, openLink as openWebLink, showHomeLink } from "./web-page.js";
 
 // The browser's language, chosen before anything is drawn.
 localizePage(document, navigator.languages);
+
+// The way back to the home page, on the web.
+showHomeLink(document, location.href);
+
+// The extension's copy fills in astro.com's and Astro-Seek's forms and sends
+// to Stellarium Desktop; the web's copy can't, and the site doesn't publish
+// that code. Loaded now, not on a click, so a click that asks for access to a
+// site still counts as the user's.
+const onTheWeb = !isExtensionCopy(location.href);
+const extensionLinks = onTheWeb ? null : await import("./astro-com-page.js");
+const desktop = onTheWeb ? null : await import("./desktop-page.js");
 
 const fileInput = document.getElementById("file");
 const textInput = document.getElementById("text");
@@ -23,7 +34,7 @@ const list = document.getElementById("list");
 const app = document.getElementById("app");
 
 fileInput.addEventListener("change", () => readFile(fileInput.files[0] ?? null));
-document.getElementById("read").addEventListener("click", () => show(viewForAafText(textInput.value)));
+document.getElementById("read").addEventListener("click", () => show(viewForAafText(textInput.value, { onTheWeb })));
 document.addEventListener("dragover", (event) => event.preventDefault());
 document.addEventListener("drop", (event) => {
   event.preventDefault();
@@ -37,11 +48,11 @@ async function readFile(file) {
 
 function readBytes(name, bytes) {
   if (isHorFile(name, bytes)) {
-    show(viewForHorFile(bytes));
+    show(viewForHorFile(bytes, { onTheWeb }));
     return;
   }
   const { text, warning } = decodeAafFile(bytes);
-  show(viewForAafText(text), warning);
+  show(viewForAafText(text, { onTheWeb }), warning);
 }
 
 // A list from viewForAafText or viewForHorFile: one chart is shown at once,
@@ -70,11 +81,12 @@ function show(view, warning) {
   list.replaceChildren(...parts);
 }
 
-// A chart, with Send to Stellarium Desktop, as in the popup; without it,
-// should Stellarium's side fail. A refusal is drawn as it is. Which planets
-// were visible opens Helioscope's page in a tab with the chart in its link,
-// but not its name or town, as on the screenshot and paste pages, and a chart
-// the link can't carry says why, with Cancel back to the chart.
+// A chart, with Send to Stellarium Desktop in the extension, as in the popup;
+// without it on the web, or should Stellarium's side fail. A refusal is drawn
+// as it is. Which planets were visible opens Helioscope's page in a tab with
+// the chart in its link, but not its name or town, as on the screenshot and
+// paste pages, and a chart the link can't carry says why, with Cancel back to
+// the chart.
 function showChart({ view, chart }) {
   const onButton = async (button, sky, screen) => {
     if (button.does !== "helioscope") return openLink(button, sky);
@@ -85,13 +97,15 @@ function showChart({ view, chart }) {
       render(app, viewForHelioscopeRefusal(shared.reason), screen?.onButton ?? onButton, screen?.view ?? view);
       return;
     }
-    await chrome.tabs.create({ url: linkFor(chrome.runtime.getURL("helioscope.html"), shared.chart) });
+    if (onTheWeb) openPage("helioscope.html", shared.chart, location.href);
+    else await chrome.tabs.create({ url: linkFor(chrome.runtime.getURL("helioscope.html"), shared.chart) });
   };
-  renderChart(app, view, onButton).catch(() => render(app, view, onButton));
+  if (desktop) desktop.renderChart(app, view, onButton).catch(() => render(app, view, onButton));
+  else render(app, view, onButton);
 }
 
 // Links, the astro.com buttons and Save in Astro-Seek…, as on the screenshot and paste pages.
-const openLink = (button, sky) => openPageLink(app, button, sky);
+const openLink = (button, sky) => (extensionLinks?.openLink ?? openWebLink)(app, button, sky);
 
 // A file the receiving page sent here, when it was given one it doesn't
 // read. Last, once openLink is defined. sessionStorage itself can throw when

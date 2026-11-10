@@ -5,7 +5,7 @@ import { chartFromRecord, exportRecord, parseAaf, writeAaf } from "./core/aaf.js
 // Imported as messages, since an AAF file is read as text here.
 import { text as messages } from "./messages/index.js";
 import {
-  astroComStep,
+  astroComStepFor,
   astroSeekButtons,
   astroSeekNotes,
   astroSeekWarnings,
@@ -30,7 +30,7 @@ const WARNINGS = {
  * open has no chart.
  *
  * @param {string} text
- * @param {{ timeZone?: string }} [options]  passed on to viewFor
+ * @param {{ timeZone?: string, onTheWeb?: boolean }} [options]  passed on to viewFor, and onTheWeb to withAstroSeekSave and astroComStepFor
  * @returns {{ state: "aaf-list", items: { label: string, view: object, chart: object | null }[], message: string }}
  */
 export function viewForAafText(text, options) {
@@ -56,7 +56,7 @@ export function viewForAafText(text, options) {
  * gets the place alone, and the country helps choose among its matches.
  *
  * @param {ReturnType<typeof chartFromRecord>} result
- * @param {{ timeZone?: string }} [options]  passed on to viewFor
+ * @param {{ timeZone?: string, onTheWeb?: boolean }} [options]  passed on to viewFor, and onTheWeb to withAstroSeekSave and astroComStepFor
  */
 export function viewForAafChart(result, options) {
   const words = messages();
@@ -87,9 +87,10 @@ export function viewForAafChart(result, options) {
         // The import page has no Share…, so Which planets were visible ends
         // the buttons on its own.
         buttons: [...astroSeekButtons(), helioscopeButton()],
-        ...(view.sky ? { next: astroComStep(view.sky, { local: chart.local, name: aafName(chart.aaf), town, gender }) } : {}),
+        ...(view.sky ? { next: astroComStepFor(options)(view.sky, { local: chart.local, name: aafName(chart.aaf), town, gender }) } : {}),
       },
       { town, name: aafName(chart.aaf), gender },
+      options,
     ),
     result,
   );

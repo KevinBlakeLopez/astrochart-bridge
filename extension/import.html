@@ -2,7 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; connect-src http://127.0.0.1:8090; style-src 'self'; img-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'">
+    <meta name="referrer" content="no-referrer">
     <title data-text="pages.import.title">AstroChart Bridge: open an AAF or Morinus file</title>
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="icons/icon-180.png">
     <link rel="stylesheet" href="popup.css">
     <link rel="stylesheet" href="screenshot.css">
     <link rel="stylesheet" href="import.css">
@@ -10,6 +15,7 @@
   </head>
   <body class="page">
     <main>
+      <p id="home" class="home" hidden><a href="index.html" data-text="pages.popup.title">AstroChart Bridge</a></p>
       <h1 data-text="pages.import.heading">Open an AAF or Morinus file</h1>
       <p data-text="pages.import.intro">Choose or drop an AAF (.aaf) file or a Morinus chart (.hor) anywhere on this page, or paste an AAF file's text below. Astrolog and other astrology programs save charts in AAF.</p>
       <!-- No accept filter: macOS file dialogs grey out extensions no app on the

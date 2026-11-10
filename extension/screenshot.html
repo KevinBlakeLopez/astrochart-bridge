@@ -2,13 +2,19 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; connect-src 'self' http://127.0.0.1:8090; style-src 'self'; img-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'">
+    <meta name="referrer" content="no-referrer">
     <title data-text="pages.screenshot.title">AstroChart Bridge: read a screenshot</title>
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="icons/icon-180.png">
     <link rel="stylesheet" href="popup.css">
     <link rel="stylesheet" href="screenshot.css">
     <script type="module" src="screenshot.js"></script>
   </head>
   <body class="page">
     <main>
+      <p id="home" class="home" hidden><a href="index.html" data-text="pages.popup.title">AstroChart Bridge</a></p>
       <h1 data-text="pages.screenshot.heading">Read a chart screenshot</h1>
       <p data-text="pages.screenshot.intro">Paste (⌘V) or drop a screenshot of an Astro-Seek birth chart page, an astro.com chart drawing, a Solar Fire wheel, Astro Gold's Chart Details, a Morinus chart, a Valens wheel, a Planetdance chart, Jagannatha Hora's birth data, a Kepler or Sirius wheel, a Janus or Win*Star wheel, a TimePassages chart or an Astrolog wheel anywhere on this page, or choose a file. From Astro-Seek it needs everything from Date of Birth to Latitude, Longitude; from astro.com, the drawing's header from the date to Sid. Time; from Solar Fire or Astro Gold, the chart details from the date to the coordinates; from Morinus, its status bar or the middle of its square chart; from Valens, the middle of its wheel; from Planetdance, the lines at the top left of the wheel, down to St:; from Jagannatha Hora, the birth data from Date to Sidereal Time; from Kepler or Sirius, the data block from the name to the Time Zone; from Janus, the middle of the wheel from the date to the coordinates; from Win*Star, the upper right of the wheel from the date to the latitude; from TimePassages, the whole chart, with its corners; from Astrolog, the top of the sidebar from the date to the Julian Day. The whole page is fine.</p>
       <p><input id="file" type="file" accept="image/*" aria-label="Choose a screenshot" data-label="pages.screenshot.choose"></p>

@@ -21,9 +21,13 @@ import {
 } from "./helioscope-model.js";
 import { drawScreen } from "./helioscope-view.js";
 import { localizePage } from "./messages/index.js";
+import { showHomeLink } from "./web-page.js";
 
 // The browser's language, chosen before anything is drawn.
 localizePage(document, navigator.languages);
+
+// The way back to the home page, on the web.
+showHomeLink(document, location.href);
 
 const app = document.getElementById("app");
 const elevationBox = document.getElementById("elevation");

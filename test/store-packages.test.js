@@ -10,11 +10,12 @@ const LEFT_OUT = readFileSync(new URL("../tools/store-leave-out.txt", import.met
   .split("\n")
   .filter((line) => line !== "" && !line.startsWith("#"));
 const extension = new URL("../extension/", import.meta.url);
-const PAGES = readdirSync(extension).filter((name) => name.endsWith(".html"));
 const leftOut = (file) => LEFT_OUT.some((path) => file === path || file.startsWith(`${path}/`));
+// The pages the zip keeps: every page in extension/ but the site's own home page.
+const PAGES = readdirSync(extension).filter((name) => name.endsWith(".html") && !leftOut(name));
 
-test("the store zips leave nothing out now that Helioscope's page uses it, and each path listed exists", () => {
-  assert.deepEqual(LEFT_OUT, []);
+test("the store zips leave out only the web app's home page and service worker, and each path listed exists", () => {
+  assert.deepEqual(LEFT_OUT, ["index.html", "home.css", "home.js", "sw.js"]);
   for (const path of LEFT_OUT) assert.ok(existsSync(new URL(path, extension)), path);
 });
 
@@ -25,7 +26,7 @@ test("no page the extension ships loads anything the store zips leave out", () =
   }
 });
 
-// With nothing left out, everything Helioscope loads must be a page's.
+// Everything Helioscope loads must be a page's, since none of it is left out.
 test("everything Helioscope loads is left out of the store zips, unless a page loads it too", () => {
   const usedByPages = new Set(PAGES.flatMap((page) => [...loadedBy(page)]));
   for (const start of ["helioscope-engine.js", "core/helioscope.js"]) {

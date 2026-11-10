@@ -5,7 +5,7 @@ import { chartFromHor, parseHor } from "./core/morinus-hor.js";
 import { withAafExport } from "./aaf-model.js";
 import { text } from "./messages/index.js";
 import {
-  astroComStep,
+  astroComStepFor,
   astroSeekButtons,
   astroSeekNotes,
   astroSeekWarnings,
@@ -29,7 +29,7 @@ import {
  * open has no chart.
  *
  * @param {Uint8Array} bytes
- * @param {{ timeZone?: string }} [options]  passed on to viewFor
+ * @param {{ timeZone?: string, onTheWeb?: boolean }} [options]  passed on to viewFor, and onTheWeb to withAstroSeekSave and astroComStepFor
  * @returns {{ state: "hor-file", items: { label: string, view: object, chart: object | null }[], message: string }}
  */
 export function viewForHorFile(bytes, options) {
@@ -59,7 +59,7 @@ export function viewForHorFile(bytes, options) {
  * name, as the paste page does, and the place as the town for astro.com's atlas.
  *
  * @param {ReturnType<typeof chartFromHor>} result
- * @param {{ timeZone?: string }} [options]  passed on to viewFor
+ * @param {{ timeZone?: string, onTheWeb?: boolean }} [options]  passed on to viewFor, and onTheWeb to withAstroSeekSave and astroComStepFor
  */
 export function viewForHorChart(result, options) {
   const words = text();
@@ -100,9 +100,10 @@ export function viewForHorChart(result, options) {
         notes: [...view.notes, ...(morinus.timeBasis === "zone" ? [words.hor.zoneNote] : []), ...astroSeekNotes()],
         // As for an AAF chart: no Share… here, so Which planets were visible ends the buttons.
         buttons: [...astroSeekButtons(), helioscopeButton()],
-        ...(view.sky ? { next: astroComStep(view.sky, { local: chart.local, name: nameFromText(chart.name), town: chart.place, gender }) } : {}),
+        ...(view.sky ? { next: astroComStepFor(options)(view.sky, { local: chart.local, name: nameFromText(chart.name), town: chart.place, gender }) } : {}),
       },
       { town: chart.place, name: nameFromText(chart.name), gender },
+      options,
     ),
     result,
   );

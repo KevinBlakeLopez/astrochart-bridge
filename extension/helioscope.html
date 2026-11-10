@@ -3,13 +3,18 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; connect-src 'self'; style-src 'self'; img-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'">
+    <meta name="referrer" content="no-referrer">
     <title data-text="pages.helioscope.title">AstroChart Bridge: which planets were visible</title>
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="icons/icon-180.png">
     <link rel="stylesheet" href="popup.css">
     <link rel="stylesheet" href="helioscope.css">
     <script type="module" src="helioscope.js"></script>
   </head>
   <body class="page">
     <main>
+      <p id="home" class="home" hidden><a href="index.html" data-text="pages.popup.title">AstroChart Bridge</a></p>
       <h1 data-text="pages.helioscope.heading">Which planets were visible</h1>
       <div class="settings">
         <label for="elevation"><span data-text="pages.helioscope.elevation">Elevation in metres</span></label>

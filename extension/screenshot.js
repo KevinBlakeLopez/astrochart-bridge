@@ -4,19 +4,31 @@
 // the popup's screens for it. Every decision about the chart is made in core/
 // and screenshot-model.js; this file handles the image and the page.
 import Tesseract from "./vendor/tesseract/tesseract.esm.min.js";
-import { openLink as openPageLink } from "./astro-com-page.js";
 import { analyzeScreenshot } from "./core/index.js";
 import { linkFor } from "./chart-model.js";
-import { renderChart } from "./desktop-page.js";
+import { isExtensionCopy } from "./extension-copy.js";
 import { chartToShare, viewForHelioscopeRefusal, viewForShareRefusal } from "./popup-model.js";
 import { viewForScreenshot } from "./screenshot-model.js";
 import { localizePage, text } from "./messages/index.js";
 import { paragraph, render } from "./view.js";
+import { openPage, openLink as openWebLink, showHomeLink } from "./web-page.js";
 
 // The browser's language, chosen before anything is drawn.
 localizePage(document, navigator.languages);
 
-// Every file Tesseract.js loads comes from the extension, never a CDN.
+// The way back to the home page, on the web.
+showHomeLink(document, location.href);
+
+// The extension's copy fills in astro.com's and Astro-Seek's forms and sends
+// to Stellarium Desktop; the web's copy can't, and the site doesn't publish
+// that code. Loaded now, not on a click, so a click that asks for access to a
+// site still counts as the user's.
+const onTheWeb = !isExtensionCopy(location.href);
+const extensionLinks = onTheWeb ? null : await import("./astro-com-page.js");
+const desktop = onTheWeb ? null : await import("./desktop-page.js");
+
+// Every file Tesseract.js loads comes from this page's own copy, the
+// extension's or the site's, never a CDN.
 const VENDOR = new URL("vendor/tesseract/", import.meta.url).href;
 
 // OCR lost whole lines of a half-size screenshot (723 px wide). Scaled up on
@@ -45,7 +57,8 @@ const getWorker = () =>
     langPath: VENDOR,
     // Start the worker from its file; a blob: worker would need a looser script policy.
     workerBlobURL: false,
-    // The language data is already in the extension, so there's nothing to cache.
+    // The language data comes with the page, the extension's or the site's, so
+    // Tesseract.js has nothing to cache.
     cacheMethod: "none",
   }).catch((error) => {
     worker = null;
@@ -105,7 +118,7 @@ async function recognize(file) {
 // name or town. A chart the format can't carry says why, with Cancel back to
 // the chart.
 function showChart(result) {
-  const view = viewForScreenshot(result);
+  const view = viewForScreenshot(result, { onTheWeb });
   const pages = {
     share: { page: "chart.html", labels: { town: result.town, name: result.name }, refusal: viewForShareRefusal },
     helioscope: { page: "helioscope.html", labels: {}, refusal: viewForHelioscopeRefusal },
@@ -120,11 +133,14 @@ function showChart(result) {
       render(app, refusal(shared.reason), screen?.onButton ?? onButton, screen?.view ?? view);
       return;
     }
-    await chrome.tabs.create({ url: linkFor(chrome.runtime.getURL(page), shared.chart) });
+    if (onTheWeb) openPage(page, shared.chart, location.href);
+    else await chrome.tabs.create({ url: linkFor(chrome.runtime.getURL(page), shared.chart) });
   };
-  // Without the desktop button, should Stellarium's side fail.
-  renderChart(app, view, onButton).catch(() => render(app, view, onButton));
+  // With Send to Stellarium Desktop in the extension, as in the popup;
+  // without it on the web, or should Stellarium's side fail.
+  if (desktop) desktop.renderChart(app, view, onButton).catch(() => render(app, view, onButton));
+  else render(app, view, onButton);
 }
 
 // Links, the astro.com buttons and Save in Astro-Seek…, as on the paste page.
-const openLink = (button, sky) => openPageLink(app, button, sky);
+const openLink = (button, sky) => (extensionLinks?.openLink ?? openWebLink)(app, button, sky);

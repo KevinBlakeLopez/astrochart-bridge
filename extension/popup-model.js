@@ -69,16 +69,19 @@ const WARNINGS = {
  *
  * @param {ReturnType<typeof import("./core/index.js").analyzePage>} result
  * @param {{ timeZone?: string, town?: string | null, name?: { first: string, last: string } | null,
- *   kept?: { town: string | null, name: { first: string, last: string } | null, gender?: string | null } | null }} [options]
+ *   kept?: { town: string | null, name: { first: string, last: string } | null, gender?: string | null } | null,
+ *   onTheWeb?: boolean }} [options]
  *   timeZone is the computer's time zone; when left out, Intl uses the one
  *   this code runs in, which the popup shares with the Stellarium tab. Tests
  *   pass it so they give the same result anywhere. town and name are the ones
  *   the chart's page names, for astro.com's form. kept is the town, name and
  *   gender Open chart in Astro-Seek kept for an Astro-Seek tab whose page
  *   still shows its chart, used where the page names none. The page never
- *   gives a gender.
+ *   gives a gender. onTheWeb is for the web's copy of an import page, which
+ *   the import models pass on: nothing on the screen asks for what only the
+ *   extension can do (withAstroSeekSave's, astroComStepFor's).
  */
-export function viewFor(result, { timeZone, town = null, name = null, kept = null } = {}) {
+export function viewFor(result, { timeZone, town = null, name = null, kept = null, onTheWeb = false } = {}) {
   const words = text().popup;
   if (result.kind === "refused") {
     // Every refusal without a message of its own means the chart page couldn't
@@ -143,6 +146,7 @@ export function viewFor(result, { timeZone, town = null, name = null, kept = nul
         buttons: chartButtons(astroSeekButtons()),
       },
       townAndName(result),
+      { onTheWeb },
     );
   }
   if (result.site !== "astro-seek") return ready;
@@ -154,8 +158,8 @@ export function viewFor(result, { timeZone, town = null, name = null, kept = nul
   // The page's own town and name, or else those kept for the tab, go to
   // Astro-Seek's form and astro.com's alike.
   const chart = { ...townAndName(result, { town, name, kept }), gender: kept?.gender ?? null };
-  const buttons = town === null ? chartButtons([openSkyButton(), astroSeekSaveButton(chart)]) : ready.buttons;
-  return { ...ready, buttons, next: astroComStep(ready.sky, { ...chart, local }) };
+  const buttons = town === null ? chartButtons([openSkyButton(), astroSeekSaveButton(chart, { onTheWeb })]) : ready.buttons;
+  return { ...ready, buttons, next: astroComStepFor({ onTheWeb })(ready.sky, { ...chart, local }) };
 }
 
 /**
@@ -228,16 +232,21 @@ export const astroSeekSaveNamedNote = () => text().popup.astroSeekSaveNamedNote;
  * The notes are found by their text, which is the same language's throughout:
  * the screen and this are built in one go.
  *
+ * On the web, which has no extension to fill in the form or keep anything
+ * for a tab, the button is savesByHand: it leads to the form filled in by its
+ * address alone (viewForAstroSeekSave's by hand), and nothing is kept.
+ *
  * @param {object} view  with a button that opens "astro-seek"
  * @param {{ town?: string | null, name?: { first: string, last: string } | null,
  *   gender?: "female" | "male" | "event" | "horary" | null }} [chart]
  *   the chart's town, name and gender, for the form's Birth city, Name and Gender
+ * @param {{ onTheWeb?: boolean }} [options]  onTheWeb for the web's copy of a page
  */
-export function withAstroSeekSave(view, chart = {}) {
-  const button = astroSeekSaveButton(chart);
-  const { saves } = button;
+export function withAstroSeekSave(view, chart = {}, { onTheWeb = false } = {}) {
+  const button = astroSeekSaveButton(chart, { onTheWeb });
+  const saves = button.saves ?? button.savesByHand;
   const keeps =
-    saves.town === null && saves.name === null && saves.gender === null
+    onTheWeb || (saves.town === null && saves.name === null && saves.gender === null)
       ? null
       : { town: saves.town, name: chart.name ?? null, gender: saves.gender };
   const opener = (each) => (keeps && each.opens === "astro-seek" ? { ...each, keeps } : each);
@@ -251,7 +260,7 @@ export function withAstroSeekSave(view, chart = {}) {
   return {
     ...view,
     notes: noted ? view.notes : notes,
-    buttons: view.buttons.some(({ saves }) => saves)
+    buttons: view.buttons.some(({ saves, savesByHand }) => saves || savesByHand)
       ? view.buttons
       : [...view.buttons.slice(0, at).map(opener), button, ...view.buttons.slice(at)],
   };
@@ -259,8 +268,10 @@ export function withAstroSeekSave(view, chart = {}) {
 
 // Save in Astro-Seek… for a chart's town, name and gender, which popup.js and
 // astro-com-page.js pass to astro-seek-open.js with the sky the screen decided.
-function astroSeekSaveButton({ town = null, name = null, gender = null } = {}) {
-  return { label: text().popup.buttons.saveInAstroSeek, saves: { town, name: nickFor(name), gender }, secondary: true };
+// On the web it is savesByHand, for viewForAstroSeekSave's by hand instead.
+function astroSeekSaveButton({ town = null, name = null, gender = null } = {}, { onTheWeb = false } = {}) {
+  const saves = { town, name: nickFor(name), gender };
+  return { label: text().popup.buttons.saveInAstroSeek, ...(onTheWeb ? { savesByHand: saves } : { saves }), secondary: true };
 }
 
 // Astro-Seek's form has one Name field, so a name's two parts go in it as one.
@@ -280,17 +291,20 @@ export const astroSeekSaveBusy = () => ({ state: "astro-seek-busy", message: tex
  * is what the person checks before Add person in a form AstroChart Bridge
  * didn't finish: choosing a city may change the coordinates and time zone.
  *
- * @param {{ outcome: "declined" | "signed-out" } | { outcome: "not-filled", page: string }} result
+ * By hand is the web copy's Save in Astro-Seek…: the same as declined, but
+ * there is no access to give, so it says this page can't choose the town.
+ *
+ * @param {{ outcome: "declined" | "by-hand" | "signed-out" } | { outcome: "not-filled", page: string }} result
  *   page is one of the catalog's saveMessages
  * @param {{ utc: string, lat: number, lng: number }} sky
- * @param {{ town: string | null, name: string | null }} saves  the button's
+ * @param {{ town: string | null, name: string | null }} saves  the button's saves, or savesByHand
  */
 export function viewForAstroSeekSave(result, sky, saves) {
   const words = text().popup;
-  if (result.outcome === "declined") {
+  if (result.outcome === "declined" || result.outcome === "by-hand") {
     return {
       state: "astro-seek-manual",
-      message: words.saveDeclined,
+      message: result.outcome === "declined" ? words.saveDeclined : words.saveByHand,
       notes: [`${words.saveDeclinedNote(Boolean(saves.name))} ${words.checkNote}`],
       sky,
       buttons: [{ label: words.buttons.openAstroSeekForm, url: astroSeekSaveUrl(sky, { name: saves.name }) }],
@@ -627,21 +641,26 @@ export const astroComStep = (sky, chart = {}) => ({ label: text().popup.buttons.
 // to fill in astro.com's form: it leads to the values to type in.
 export const astroComStepByHand = (sky, chart = {}) => ({ label: text().popup.buttons.enterInAstroCom, view: viewForAstroComByHand(sky, chart) });
 
+// The step for the copy a screen is built for: the extension's fills in the
+// form, the web's leads to the values to type in.
+export const astroComStepFor = ({ onTheWeb = false } = {}) => (onTheWeb ? astroComStepByHand : astroComStep);
+
 /**
  * The values to type into astro.com's form, for a page with no extension to
  * fill it in, such as the shared chart page on the web: the values, what to
  * check once the town is chosen, and a plain link to the form. Nothing is kept.
  *
  * @param {{ utc: string, lat: number, lng: number }} sky
- * @param {{ local?: string | null, town?: string | null, name?: { first: string, last: string } | null }} [chart]
- *   the chart's local time, town and name, as for viewForAstroCom
+ * @param {{ local?: string | null, town?: string | null, name?: { first: string, last: string } | null,
+ *   gender?: "female" | "male" | "event" | "horary" | null }} [chart]
+ *   the chart's local time, town, name and gender, as for viewForAstroCom
  */
-export function viewForAstroComByHand({ utc, lat, lng }, { local = null, town = null, name = null } = {}) {
+export function viewForAstroComByHand({ utc, lat, lng }, { local = null, town = null, name = null, gender = null } = {}) {
   const words = text().popup;
   const values = { utc, lat, lng, local };
   return {
     state: "astro-com-by-hand",
-    ...astroComValues({ ...values, town, name }),
+    ...astroComValues({ ...values, town, name, gender }),
     message: words.byHand,
     notes: [...zoneNotes(values, { filled: false }), townByHandNote(town)],
     sky: { utc, lat, lng },

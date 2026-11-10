@@ -4,7 +4,16 @@
 // Astro-Seek, be entered in astro.com, and be passed on. Every decision is made here, so chart.js only
 // reads the link or file and renders.
 import { fromFragment, keepLabels, parse, serialize, skyFor, toFragment } from "./core/portable.js";
-import { astroComStep, astroComStepByHand, astroSeekButtons, astroSeekNotes, astroSeekWarnings, nameFromText, viewFor } from "./popup-model.js";
+import {
+  astroComStep,
+  astroComStepByHand,
+  astroSeekButtons,
+  astroSeekNotes,
+  astroSeekWarnings,
+  helioscopeButton,
+  nameFromText,
+  viewFor,
+} from "./popup-model.js";
 import { text } from "./messages/index.js";
 import { qrFor } from "./qr.js";
 
@@ -139,8 +148,12 @@ export function viewForImport(
   const includesNotes = boxes.length === 0 ? [] : [words.includesNote, ...(remembers ? [words.remembersNote] : [])];
   const shareLink = canCopy && canShare;
   const own = pageButtons();
+  // Which planets were visible, as on the other chart screens: it goes under
+  // See the sky, and its link never carries the name or town, whatever the
+  // boxes say, since it doesn't pass the chart on.
   const buttons = [
     ...astroSeekButtons(),
+    helioscopeButton(),
     ...(shareLink ? [own.shareLink] : []),
     ...(canCopy ? [own.copyLink, own.showQr] : []),
     own.downloadFile,

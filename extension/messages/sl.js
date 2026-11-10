@@ -57,6 +57,12 @@ export default {
       reading: "Branje strani …",
       version: (number) => `AstroChart Bridge ${number}`,
     },
+    home: {
+      intro:
+        "AstroChart Bridge prebere rojstne podatke horoskopa, nato pa lahko odprete njegovo nebo v Stellarium Web, horoskop na strani Astro-Seek ali pogledate, kateri planeti so bili vidni.",
+      privacy:
+        "Horoskopi se preberejo na tej napravi in nič se ne pošlje, dokler ne odprete neba ali horoskopa. To spletno mesto na tej napravi hrani kopije svojih datotek, da deluje brez povezave, nikoli pa horoskopa.",
+    },
     screenshot: {
       title: "AstroChart Bridge: branje posnetka zaslona",
       heading: "Preberi posnetek zaslona s horoskopom",
@@ -246,6 +252,7 @@ export default {
       "Preden kliknete Add person, v seznamu Astro-Seeka izberite Birth city, če še ni izbrano, in preverite, da koordinate in UT/GMT še vedno ustrezajo horoskopu.",
     saveDeclined: "Brez dostopa do www.astro-seek.com AstroChart Bridge ne more izbrati mesta v obrazcu Astro-Seeka.",
     saveDeclinedNote: (named) => `Obrazec se odpre s tem datumom, časom in krajem v UT/GMT${named ? " ter z imenom" : ""}.`,
+    saveByHand: "Ta stran ne more izbrati mesta v obrazcu Astro-Seeka namesto vas.",
 
     shareBeforeGregorian:
       "AstroChart Bridge še ne more deliti horoskopa z datumom pred 15. oktobrom 1582: ne more ugotoviti, v katerem koledarju je datum.",
