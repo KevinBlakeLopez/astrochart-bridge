@@ -226,11 +226,42 @@ The label would mostly say which atmospheres were chosen. Venus charts it called
 
 **Decision, 6 November 2026:** no "marginal" class. A result shows its raw margin with its assumptions. Reporting each scenario's margin beside a prediction, without a class, stays possible for a page later: each scenario would need its own engine.
 
+**Measured on 10 November 2026**, after the owner said some cases look marginal in Stellarium. The charts were the repository's invented ones with a best moment: §8's New York reference chart, London's light-sky night, test 1's New York chart, Sydney on 15 January 2024 and New York on War Time in 1944. That's 25 planets, each under the defaults, a 40 km range and a 10 km range, each in its own engine:
+
+- The defaults gave all 25 a larger margin than a 40 km range: Swiss Ephemeris's own air is very clear.
+- What a 10 km range takes away depends mostly on the planet's altitude at its best moment. It took 1.75 to 2.16 magnitudes from 41° up, 2.57 to 4.58 between 14° and 34°, and 3.95 to 8.48 between 5° and 10°.
+- Test 1's Jupiter, +3.62 at 9°, is −2.82 at 10 km, while §8's New York Jupiter, +6.24 at 48°, keeps +4.43. So a margin alone doesn't say how fragile a prediction is.
+- How the page shows that is still for the owner to decide. Check that night's weather, below, gives the night's own humidity, from which Swiss Ephemeris estimates the haze.
+
+### That night's weather
+
+**Decision, 10 November 2026:** for an optional weather check on Helioscope's page, the owner chose Open-Meteo's archive of the ERA5 reanalysis alone, over NOAA's station reports or both.
+
+**Read and tried with curl on 10 November 2026**, with §8's invented New York chart:
+
+- Open-Meteo's archive (`archive-api.open-meteo.com/v1/archive`) has ERA5 from 1940, on a 0.25° grid, about 5 days behind. Each hour has cloud cover, in all and low, mid and high, with humidity, temperature and surface pressure. None of its datasets has visibility.
+- It needs no key and answers with `access-control-allow-origin: *`. It's free for non-commercial use, under CC BY 4.0, and its terms say its server logs may hold coordinates for up to 90 days.
+- It answers a day before 1940, or after today, with HTTP 400, and the days ERA5 hasn't reached with nulls.
+- A month at 40.75, −74 is about 33 KB. With ERA5 alone, the reference evening has 90 % cloud at 23:00 UTC. Open-Meteo's default mix, which adds a 9 km model from 2017, gave 100 %.
+- NOAA's global hourly station reports have real visibility, but US automated stations report 10 miles at most, and older or rural charts may have no station near.
+
+**As built** in `extension/core/open-meteo.js`, with the page's decisions in `extension/helioscope-model.js`:
+
+- Nothing is asked until the user clicks **Check that night's weather**, whose note says what it sends.
+  - One request asks for every hour of the month, or months, the twilights fall in, up to today, so the day isn't sent, at ERA5's grid point nearest the place. The time, name and town are never sent.
+  - In Firefox, the click first asks Firefox's optional consent for location information.
+- Each twilight's reading is the hour nearest its middle. The page shows its cloud and never turns it into a verdict, since a bright planet can show through thin high cloud or a gap.
+- Each twilight is worked out again in its own engine, with that night's pressure, temperature and humidity. Swiss Ephemeris takes those as given when the pressure isn't 0, and the meteorological range is left for it to estimate from the humidity.
+  - For §8's New York chart, the margins move by 0.29 at most: Mercury's goes from −0.94 to −1.23.
+  - For test 1's chart, Jupiter, 9° up in 83 % humidity, goes from 28 to 6.9 times brighter than needed.
+- An answer that isn't in the shape asked for is refused. A night ERA5 hasn't reached is refused too, rather than half shown. Nothing is kept.
+- `test/open-meteo-era5-new-york-2025-01.json` is the archive's answer for the reference chart's month, recorded on 10 November 2026, so the tests never go to the network.
+
 ### Assumptions reported with every result
 
 - Swiss Ephemeris 2.10.03, and the Moshier ephemeris, always requested explicitly (`SEFLG_MOSEPH`).
 - The `helflag` bits.
-- The atmosphere and observer **as Swiss Ephemeris completed them**, since it fills in defaults in place (§8, item 2). **Read** in `swehel.c`: it fills in a temperature or humidity of 0 only when the pressure is 0 too. With a pressure given, a temperature of 0 is 0 °C.
+- The atmosphere and observer **as Swiss Ephemeris completed them**, since it fills in defaults in place (§8, item 2). **Read** in `swehel.c`: it fills in a temperature or humidity of 0 only when the pressure is 0 too. With a pressure given, a temperature of 0 is 0 °C. Once that night's weather is in, the page lists each twilight's air from ERA5 instead, and its cloud at each height.
 - The observer's elevation: 0 m unless the user gives one, since charts don't carry it.
 - Whether the Moon was included.
 - The window rule and the sampling step.
@@ -430,9 +461,10 @@ The engine failing to load is tested too, with `swisseph.wasm` missing or not We
     - each planet's condition, side and angle from the Sun
     - its prediction and best time, including Jupiter's and Saturn's "20:24 on 31 Aug"
     - its margin: Mercury +1.33, Venus +6.91, Mars −2.25, Jupiter +8.10, Saturn +4.34
-  - Not yet reported for Firefox: the console and network checks, the settings, the Stellarium Web links, and the screenshot, paste and import pages (test 25).
+  - Not yet reported for Firefox: the console and network checks, the settings, the Stellarium Web links, the weather check, and the screenshot, paste and import pages (test 25).
   - Still unknown in Safari 26 on the Mac and the iPad: streaming instantiation and the `.wasm` MIME type, console messages, and whether the results match Node's.
-- **Model validity:** in the cases tried, the margin moved by 0.5 to 2.4 magnitudes with assumptions nobody records for a birth, and it has a discontinuity of 1.1 magnitudes. A "detectable" with a small margin is weak evidence.
+- **Model validity:** in the cases tried, the margin moved by 0.5 to 2.4 magnitudes with assumptions nobody records for a birth. It moved much more for a planet low in the sky: a 10 km range took 3.95 to 8.48 magnitudes from planets 5° to 10° up (§6). The model also has a discontinuity of 1.1 magnitudes. A "detectable" with a small margin is weak evidence, and so is one with a large margin near the horizon.
+- **Weather:** ERA5's cloud and air are a reanalysis's, on a 25 km grid, not observations, and ERA5 has no visibility (§6). Nobody has yet seen in a browser Firefox's consent prompt, the request's Origin header, or the page's answer to a real network failure (test 25).
 - **Hidden state:** the extinction memo (item 5) and the global observer (item 3). Any sweep over atmospheres needs a fresh instance for each scenario, or calls at different instants.
 - **Magnitudes:** Swiss Ephemeris uses Mallama and Hilton's 2018 formulas. **Read:** Mercury's is applied at every phase angle without a range check (`swecl.c:3923-3926`), and only Venus gets a warning, beyond 179°. Near superior conjunction, the object's magnitude is extrapolated.
 - **High latitudes:** decided on 6 November 2026 (§6). Nights that never get fully dark, from about 48.6° N every June, have windows to and from the Sun's lowest point, and their predictions rest on the model in bright twilight. Polar day and night still get none. `swe_heliacal_ut()` is documented only for 60° S to 60° N.
@@ -480,5 +512,6 @@ The engine failing to load is tested too, with `swisseph.wasm` missing or not We
    - Its settings are an elevation in whole metres and 15° or 17° for under the beams, kept on this computer.
    - The chart screens open it with **Which planets were visible**, under See the sky, wherever Share… is offered: the popup and the screenshot and paste pages. Its link carries the chart but not its name or town. A horary chart, which reaches a chart screen as natal with horary as its gender, gets the button too. The import page's AAF and Morinus screens, which have no Share…, offer it as well, after their Astro-Seek buttons.
    - Each planet with a best moment links to Stellarium Web at that moment, from the chart's place at the elevation the prediction used, with the planet selected: §7's form, with a 60° field. §7 tried only Venus, with an unencoded date. The other four planets, and the encoded date the extension's links use, are for test 25 to check.
+   - **Check that night's weather**, which the owner chose on 10 November 2026 (§6), gets ERA5's cloud and air from Open-Meteo when it's clicked, and works each twilight out again with that air.
    - The README, the privacy page and the store listing describe it. The store listing has its single-purpose clause, `@kuntay/swisseph` among the reviewer notes' links, and the remote-code answer for the package's unused jsDelivr address.
    - First run in a browser: Firefox 159, on 10 November 2026, where its results matched Node's (§9). The rest of test 25 of `docs/manual-test.md`, and Safari, are still to run.

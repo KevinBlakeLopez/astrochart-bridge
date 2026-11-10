@@ -869,7 +869,7 @@ export default {
         "Brightness is measured in magnitudes, which run backwards: the lower the number, the brighter. Venus is about −4, and the faintest stars a dark sky shows are about 6. Each step of 1 is about 2.5 times in brightness.",
         "Twilight hides faint things. Every 2 minutes from sunset to the end of astronomical twilight, and from its start to sunrise, Swiss Ephemeris works out the faintest magnitude you could see where the planet was: the limiting magnitude. It depends on the Sun's depth, the Moon, and the air and observer under Assumptions. Where the Sun never gets 18° below the horizon, the twilights end or start at its lowest point.",
         "A planet brighter than the limit can be seen. The table gives its best moment, and how many times brighter or fainter than needed it was then; the details give the magnitudes.",
-        "The weather and the observer's eyes on the night aren't known, so a planet only a few times brighter or fainter than needed could have gone either way.",
+        "The chart doesn't record the weather or the observer's eyes. Haze dims a planet most when it's low in the sky, so even one many times brighter than needed could have been hidden. Check that night's weather gives ERA5's cloud and air.",
         "The prediction uses the planet's true place, its latitude included, while the condition uses longitude alone, so the two can disagree.",
       ],
       more: "The method, and how it was checked",

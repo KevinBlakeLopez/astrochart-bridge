@@ -849,7 +849,7 @@ export default {
         "Svetlost se meri v magnitudah, ki tečejo obratno: manjše ko je število, svetlejše je telo. Venera ima okoli −4, najšibkejše zvezde, ki jih pokaže temno nebo, pa okoli 6. Vsak korak za 1 pomeni približno 2,5-krat drugačno svetlost.",
         "Somrak skrije šibke stvari. Vsaki 2 minuti od sončnega zahoda do konca astronomskega somraka in od njegovega začetka do sončnega vzhoda Swiss Ephemeris izračuna najšibkejšo magnitudo, ki bi se videla tam, kjer je bil planet: mejno magnitudo. Odvisna je od globine Sonca, Lune ter zraka in opazovalca iz Predpostavk. Kjer se Sonce nikoli ne spusti 18° pod obzorje, se somraka končata ali začneta v njegovi najnižji točki.",
         "Planet, svetlejši od meje, se lahko vidi. Tabela navede njegov najboljši trenutek in kolikokrat več ali manj svetlobe, kot je potrebno, je imel takrat; podrobnosti navedejo magnitude.",
-        "Vreme in oči opazovalca tisto noč niso znani, zato je pri planetu, ki je le nekajkrat svetlejši ali šibkejši od potrebnega, lahko šlo v obe smeri.",
+        "Horoskop ne beleži ne vremena ne vida opazovalca. Meglica planet najbolj zatemni, ko je nizko na nebu, zato je lahko ostal skrit tudi planet z večkrat več svetlobe, kot je potrebno. Preveri vreme tisto noč pokaže oblačnost in zrak po ERA5.",
         "Napoved upošteva pravi položaj planeta, tudi njegovo širino, stanje pa samo dolžino, zato se lahko razlikujeta.",
       ],
       more: "Metoda in kako je bila preverjena",

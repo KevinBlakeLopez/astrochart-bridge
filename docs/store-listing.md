@@ -45,11 +45,11 @@ The same text serves both stores. English is the default listing. Both stores al
 >
 > It sends a chart to Stellarium Web or Stellarium Desktop, to Astro-Seek, or to astro.com's birth data form, which it fills in but never submits. With Save in Astro-Seek… it opens Astro-Seek's Add person form with the chart's date, time, place and name filled in and its town chosen, ready to save in your Astro-Seek account. It never presses Add person itself. It can also save the chart as an AAF file, or share it as a link, a QR code or a file that opens on another device without the extension.
 >
-> Which planets were visible works out, on your computer, whether Mercury, Venus, Mars, Jupiter and Saturn could be seen with the naked eye in the twilight around the chart's moment, with each one's traditional condition (cazimi, combust or under the beams) and side of the Sun. It uses Swiss Ephemeris, built into the extension. Each planet opens in Stellarium Web at its best moment.
+> Which planets were visible works out, on your computer, whether Mercury, Venus, Mars, Jupiter and Saturn could be seen with the naked eye in the twilight around the chart's moment, with each one's traditional condition (cazimi, combust or under the beams) and side of the Sun. It uses Swiss Ephemeris, built into the extension. Each planet opens in Stellarium Web at its best moment. When you ask, it checks that night's weather with Open-Meteo, which gets only the chart's month and its place rounded to about 25 km.
 >
 > It works out the chart's Universal Time from what the source prints, and refuses a chart rather than guess a time, an offset or a calendar. It opens natal charts, plus horary charts from a screenshot. Transit, synastry, compatibility, return, profection and direction charts are refused, as are dates before the Gregorian calendar began on 15 October 1582.
 >
-> Privacy: there's no server, account or tracking. Charts are read in your browser, and nothing leaves it until you click a button that opens a site. A shared chart carries its name and town only when you tick them. Details: https://github.com/KevinBlakeLopez/astrochart-bridge/blob/main/docs/privacy.md
+> Privacy: there's no server, account or tracking. Charts are read in your browser, and nothing leaves it until you click a button that opens a site or checks that night's weather. A shared chart carries its name and town only when you tick them. Details: https://github.com/KevinBlakeLopez/astrochart-bridge/blob/main/docs/privacy.md
 >
 > Its interface is in English, Spanish and Slovenian, following your browser's language.
 >
@@ -78,11 +78,11 @@ Add these in each store's listing for that language: Chrome picks the language f
 >
 > Envía una carta a Stellarium Web o Stellarium Desktop, a Astro-Seek o al formulario de datos de nacimiento de astro.com, que rellena pero nunca envía. Con Guardar en Astro-Seek… abre el formulario Add person de Astro-Seek con la fecha, la hora, el lugar y el nombre de la carta ya puestos y su ciudad elegida, listo para guardarla en tu cuenta de Astro-Seek. Nunca pulsa Add person por sí mismo. También puede guardar la carta como archivo AAF, o compartirla como enlace, código QR o archivo que se abre en otro dispositivo sin la extensión.
 >
-> Qué planetas eran visibles calcula en tu equipo si Mercurio, Venus, Marte, Júpiter y Saturno podían verse a simple vista en el crepúsculo cercano al momento de la carta, con la condición tradicional de cada uno (cazimi, combusto o bajo los rayos) y su lado del Sol. Usa Swiss Ephemeris, incluida en la extensión. Cada planeta se abre en Stellarium Web en su mejor momento.
+> Qué planetas eran visibles calcula en tu equipo si Mercurio, Venus, Marte, Júpiter y Saturno podían verse a simple vista en el crepúsculo cercano al momento de la carta, con la condición tradicional de cada uno (cazimi, combusto o bajo los rayos) y su lado del Sol. Usa Swiss Ephemeris, incluida en la extensión. Cada planeta se abre en Stellarium Web en su mejor momento. Si lo pides, consulta el tiempo de esa noche en Open-Meteo, que solo recibe el mes de la carta y su lugar redondeado a unos 25 km.
 >
 > Calcula el tiempo universal de la carta a partir de lo que muestra la fuente, y rechaza una carta antes que adivinar una hora, un desfase horario o un calendario. Abre cartas natales, y cartas horarias desde una captura de pantalla. Rechaza las cartas de tránsitos, sinastría, compatibilidad, revoluciones, profecciones y direcciones, y las fechas anteriores al 15 de octubre de 1582, cuando empezó el calendario gregoriano.
 >
-> Privacidad: no hay servidor, cuenta ni seguimiento. Las cartas se leen en tu navegador, y nada sale de él hasta que haces clic en un botón que abre un sitio. Una carta compartida lleva su nombre y su ciudad solo si los marcas. Detalles (en inglés): https://github.com/KevinBlakeLopez/astrochart-bridge/blob/main/docs/privacy.md
+> Privacidad: no hay servidor, cuenta ni seguimiento. Las cartas se leen en tu navegador, y nada sale de él hasta que haces clic en un botón que abre un sitio o consulta el tiempo de esa noche. Una carta compartida lleva su nombre y su ciudad solo si los marcas. Detalles (en inglés): https://github.com/KevinBlakeLopez/astrochart-bridge/blob/main/docs/privacy.md
 >
 > La interfaz está en español, inglés y esloveno, según el idioma del navegador.
 >
@@ -107,11 +107,11 @@ Add these in each store's listing for that language: Chrome picks the language f
 >
 > Horoskop pošlje v Stellarium Web ali Stellarium Desktop, na Astro-Seek ali v obrazec za rojstne podatke na astro.com, ki ga izpolni, nikoli pa ne odda. Z ukazom Shrani na Astro-Seeku … odpre obrazec Add person na Astro-Seeku z že vpisanimi datumom, časom, krajem in imenom horoskopa ter izbranim mestom, tako da ga lahko shranite v svoj račun na Astro-Seeku. Gumba Add person nikoli ne pritisne sam. Horoskop lahko shrani tudi kot datoteko AAF ali ga deli kot povezavo, kodo QR ali datoteko, ki se odpre na drugi napravi brez razširitve.
 >
-> Kateri planeti so bili vidni na vašem računalniku izračuna, ali so se Merkur, Venera, Mars, Jupiter in Saturn videli s prostim očesom v somraku okoli trenutka horoskopa, skupaj s tradicionalnim stanjem vsakega (kazimi, zgorevanje ali pod žarki) in njegovo stranjo od Sonca. Uporablja Swiss Ephemeris, vgrajen v razširitev. Vsak planet se odpre v Stellarium Web ob svojem najboljšem trenutku.
+> Kateri planeti so bili vidni na vašem računalniku izračuna, ali so se Merkur, Venera, Mars, Jupiter in Saturn videli s prostim očesom v somraku okoli trenutka horoskopa, skupaj s tradicionalnim stanjem vsakega (kazimi, zgorevanje ali pod žarki) in njegovo stranjo od Sonca. Uporablja Swiss Ephemeris, vgrajen v razširitev. Vsak planet se odpre v Stellarium Web ob svojem najboljšem trenutku. Na vašo zahtevo preveri vreme tisto noč pri Open-Meteo, ki dobi le mesec horoskopa in njegov kraj, zaokrožen na približno 25 km.
 >
 > Univerzalni čas horoskopa izračuna iz tega, kar izpiše vir, in horoskop raje zavrne, kot da bi ugibal čas, časovni zamik ali koledar. Odpira rojstne horoskope, s posnetka zaslona pa tudi horarne. Zavrne horoskope tranzitov, sinastrije, združljivosti, revolucij, profekcij in direkcij ter datume pred 15. oktobrom 1582, ko se je začel gregorijanski koledar.
 >
-> Zasebnost: ni strežnika, računa ali sledenja. Horoskopi se preberejo v vašem brskalniku in nič ga ne zapusti, dokler ne kliknete gumba, ki odpre spletno mesto. Deljeni horoskop vsebuje ime in mesto samo, če ju označite. Podrobnosti (v angleščini): https://github.com/KevinBlakeLopez/astrochart-bridge/blob/main/docs/privacy.md
+> Zasebnost: ni strežnika, računa ali sledenja. Horoskopi se preberejo v vašem brskalniku in nič ga ne zapusti, dokler ne kliknete gumba, ki odpre spletno mesto ali preveri vreme tisto noč. Deljeni horoskop vsebuje ime in mesto samo, če ju označite. Podrobnosti (v angleščini): https://github.com/KevinBlakeLopez/astrochart-bridge/blob/main/docs/privacy.md
 >
 > Vmesnik je v slovenščini, angleščini in španščini, glede na jezik brskalnika.
 >
@@ -164,9 +164,9 @@ Its last clause is for Which planets were visible, added on 9 November 2026 when
 **Data usage:** the store's guidance says to disclose data the extension handles even when it's only processed on the user's device. Tick:
 
 - **Website content**: it reads the chart's text from the page the user is on.
-- **Personally identifiable information**: a chart's name and birth data, which go to astro.com's form when the user asks, and into a link or file they share when they tick the name or town.
+- **Personally identifiable information**: a chart's name and birth data, which go to astro.com's form when the user asks, and into a link or file they share when they tick the name or town, and a chart's month and rounded place, which go to Open-Meteo when they check that night's weather.
 
-Leave **Location** unticked: a birthplace's coordinates aren't the user's location. Tick all three certifications. They're true here: nothing is sold, nothing is used outside the single purpose, and nothing is used for creditworthiness or lending.
+Leave **Location** unticked: a birthplace's coordinates aren't the user's location. Firefox's declaration differs: it has location information as optional, asked for from the weather check's click (Firefox Add-ons, below). Tick all three certifications. They're true here: nothing is sold, nothing is used outside the single purpose, and nothing is used for creditworthiness or lending.
 
 **Privacy policy URL:** the privacy policy link above. The store requires one whenever an extension handles user data.
 
@@ -187,7 +187,7 @@ Leave **Location** unticked: a birthplace's coordinates aren't the user's locati
 | Name, summary, description | The listing text above |
 | Licence | AGPL-3.0-or-later |
 | Support site | The support link above |
-| Privacy policy | The privacy policy link above. A listing needs one when any data leaves the user's device, and the Stellarium Web and Astro-Seek links carry birth data to those sites. |
+| Privacy policy | The privacy policy link above. A listing needs one when any data leaves the user's device: the Stellarium Web and Astro-Seek links carry birth data to those sites, and Check that night's weather sends a chart's month and rounded place to Open-Meteo. |
 
 **Source code:** not needed. AMO asks for source only for code the developer minified, bundled or generated. Unmodified libraries need links instead, in the notes below, and reviewers compare checksums, so the vendored files have to stay byte-identical to their releases.
 
@@ -201,8 +201,10 @@ Leave **Location** unticked: a birthplace's coordinates aren't the user's locati
 > - @kuntay/swisseph 0.2.2, dist/ and wasm/ (swisseph.mjs and swisseph.wasm): https://www.npmjs.com/package/@kuntay/swisseph/v/0.2.2
 >
 > The jsDelivr addresses in the Tesseract files are its defaults, which extension/screenshot.js replaces with the packaged files. The one in @kuntay/swisseph's dist/ephemeris/sources.js is where its FetchEphemeris downloads ephemeris files, which extension/helioscope-engine.js never calls: it uses the Moshier ephemeris compiled into the WebAssembly. The source is at https://github.com/KevinBlakeLopez/astrochart-bridge. To try it, open an Astro-Seek birth chart, for example the url in fixtures/astroseek/ny-2024-04-17.json, click the toolbar button, then Which planets were visible.
+>
+> Check that night's weather, on that page, is the only request the extension's own code makes to a server on the web; the other fetch is to Stellarium Desktop's Remote Control plugin at 127.0.0.1. Only when it's clicked, extension/helioscope.js asks Firefox's optional locationInfo consent, then fetches JSON from https://archive-api.open-meteo.com/v1/archive with the chart's month and its place rounded to 0.25°, with no cookies and no referrer. The answer is data, read by extension/core/open-meteo.js, never code.
 
-**Data collection:** declared in `manifest.json`, under `browser_specific_settings.gecko.data_collection_permissions`. Firefox shows it when the extension is installed.
+**Data collection:** declared in `manifest.json`, under `browser_specific_settings.gecko.data_collection_permissions`. Firefox shows the required categories when the extension is installed. Location information is optional: Check that night's weather asks for it from its click, with `permissions.request({ data_collection: ["locationInfo"] })`, before anything is sent.
 
 ## Screenshots
 
