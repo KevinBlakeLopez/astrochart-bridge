@@ -248,9 +248,9 @@ The label would mostly say which atmospheres were chosen. Venus charts it called
 **As built** in `extension/core/open-meteo.js`, with the page's decisions in `extension/helioscope-model.js`:
 
 - Nothing is asked until the user clicks **Check that night's weather**, whose note says what it sends.
-  - One request asks for every hour of the month, or months, the twilights fall in, up to today, so the day isn't sent, at ERA5's grid point nearest the place. The time, name and town are never sent.
+  - One request asks for every hour of the month, or months, the twilights touch, their ends included, up to today, so the day isn't sent, at ERA5's grid point nearest the place. The time, name and town are never sent.
   - In Firefox, the click first asks Firefox's optional consent for location information.
-- Each twilight's reading is the hour nearest its middle. The page shows its cloud and never turns it into a verdict, since a bright planet can show through thin high cloud or a gap.
+- Each twilight's air is read at the hour nearest its middle, and the page shows the cloud then. Each planet's cloud is read at the hour nearest its own best moment, as decided below.
 - Each twilight is worked out again in its own engine, with that night's pressure, temperature and humidity. Swiss Ephemeris takes those as given when the pressure isn't 0, and the meteorological range is left for it to estimate from the humidity.
   - For §8's New York chart, the margins move by 0.29 at most: Mercury's goes from −0.94 to −1.23.
   - For test 1's chart, Jupiter, 9° up in 83 % humidity, goes from 28 to 6.9 times brighter than needed.
@@ -259,6 +259,25 @@ The label would mostly say which atmospheres were chosen. Venus charts it called
 - Both copies of the page offer it, as the owner chose on 10 November 2026.
   - The page's `<meta>` policy lets it reach `https://archive-api.open-meteo.com` beyond its own site, and nothing else. `test/page-policy.test.js` takes that origin from `core/open-meteo.js`.
   - The site's service worker leaves the request alone, since it has a query and goes to another site, so no answer is cached.
+
+**Decision, 10 November 2026:** a planet bright enough to see can be called probably clouded out. The owner asked whether the weather could change the verdicts, and chose B of three:
+
+- A, a cloud line under each planet with the verdicts unchanged, would leave the reader to weigh "Visible" against a low overcast.
+- B adds one verdict, where ERA5 is clear-cut.
+- C, folding cloud into the margin as extra magnitudes, was turned down. ERA5 gives how much of its square is covered, not how thick the cloud is, so the number would look precise while resting on a guess.
+
+**As built**, in `predictionFor` in `extension/helioscope-model.js`:
+
+- A planet bright enough to see shows ERA5's cloud at the hour nearest its best moment, in all and at each height, in each twilight it was bright enough in. A planet too faint to see shows none, since cloud can't change its answer.
+- It reads **Probably clouded out** when every one of those readings has low or mid cloud over at least 90 % of the square (`CLOUDED_OUT`). Its brightness answer stays under that, and the cloud line says why.
+- High cloud alone never counts, since a bright planet can show through thin high cloud. A twilight with no reading at the planet's hour is left out of its line, and can't make it clouded out.
+- `nightWeather` keeps every hour of the answer, since a best moment is known only once the planets are worked out with that night's air. The request takes in each twilight's ends, so a dusk that ends after midnight UTC on a month's last day asks for both months: on 31 January 2025, New York's dusk ends at 23:46:48 UTC.
+
+**Measured on 10 November 2026:**
+
+- §8's New York chart: dusk had 86 % mid cloud at 23:00 UTC, under the bar, so Venus, Jupiter and Saturn stay visible, each with its cloud line. At 90 % they're clouded out, while Mars, also visible at a clear dawn, isn't.
+- Test 1's chart, with the live archive: Jupiter, 6.9 times brighter than needed at 20:28, reads Probably clouded out under 100 % low cloud at 20:00. It was the chart's only planet bright enough to see.
+- Seven ways of breaking the rule were each caught by a test, run on a copy outside the repository: 90 % not counting, low cloud ignored, total cloud used instead, a missing reading ignored, only the best twilight judged, the request missing the twilights' ends, and the cloud line not drawn.
 
 ### Assumptions reported with every result
 
@@ -467,7 +486,7 @@ The engine failing to load is tested too, with `swisseph.wasm` missing or not We
   - Not yet reported for Firefox: the console and network checks, the settings, the Stellarium Web links, the weather check, and the screenshot, paste and import pages (test 25).
   - Still unknown in Safari 26 on the Mac and the iPad: streaming instantiation and the `.wasm` MIME type, console messages, and whether the results match Node's.
 - **Model validity:** in the cases tried, the margin moved by 0.5 to 2.4 magnitudes with assumptions nobody records for a birth. It moved much more for a planet low in the sky: a 10 km range took 3.95 to 8.48 magnitudes from planets 5° to 10° up (§6). The model also has a discontinuity of 1.1 magnitudes. A "detectable" with a small margin is weak evidence, and so is one with a large margin near the horizon.
-- **Weather:** ERA5's cloud and air are a reanalysis's, on a 25 km grid, not observations, and ERA5 has no visibility (§6). Nobody has yet seen in a browser Firefox's consent prompt, the request's Origin header, or the page's answer to a real network failure (test 25).
+- **Weather:** ERA5's cloud and air are a reanalysis's, on a 25 km grid, not observations, and ERA5 has no visibility (§6). The 90 % bar for **Probably clouded out** is a choice, not a measurement, and nothing has checked it against what people saw. ERA5's low cloud can be wrong, its cover is a share of the square rather than the planet's line of sight, and each planet is judged at the hour nearest its best moment, so a planet could have shown in a gap or at another moment of its twilight. Nobody has yet seen in a browser Firefox's consent prompt, the request's Origin header, or the page's answer to a real network failure (test 25).
 - **Hidden state:** the extinction memo (item 5) and the global observer (item 3). Any sweep over atmospheres needs a fresh instance for each scenario, or calls at different instants.
 - **Magnitudes:** Swiss Ephemeris uses Mallama and Hilton's 2018 formulas. **Read:** Mercury's is applied at every phase angle without a range check (`swecl.c:3923-3926`), and only Venus gets a warning, beyond 179°. Near superior conjunction, the object's magnitude is extrapolated.
 - **High latitudes:** decided on 6 November 2026 (§6). Nights that never get fully dark, from about 48.6° N every June, have windows to and from the Sun's lowest point, and their predictions rest on the model in bright twilight. Polar day and night still get none. `swe_heliacal_ut()` is documented only for 60° S to 60° N.
@@ -515,7 +534,7 @@ The engine failing to load is tested too, with `swisseph.wasm` missing or not We
    - Its settings are an elevation in whole metres and 15° or 17° for under the beams, kept on this computer.
    - The chart screens open it with **Which planets were visible**, under See the sky, wherever Share… is offered: the popup and the screenshot and paste pages. Its link carries the chart but not its name or town. A horary chart, which reaches a chart screen as natal with horary as its gender, gets the button too. The import page's AAF and Morinus screens, which have no Share…, offer it as well, after their Astro-Seek buttons.
    - Each planet with a best moment links to Stellarium Web at that moment, from the chart's place at the elevation the prediction used, with the planet selected: §7's form, with a 60° field. §7 tried only Venus, with an unencoded date. The other four planets, and the encoded date the extension's links use, are for test 25 to check.
-   - **Check that night's weather**, which the owner chose on 10 November 2026 (§6), gets ERA5's cloud and air from Open-Meteo when it's clicked, and works each twilight out again with that air.
+   - **Check that night's weather**, which the owner chose on 10 November 2026 (§6), gets ERA5's cloud and air from Open-Meteo when it's clicked, and works each twilight out again with that air. A planet bright enough to see then shows the cloud at its best moment, and reads Probably clouded out under thick low or mid cloud, as the owner chose the same day (§6).
    - The README, the privacy page and the store listing describe it. The store listing has its single-purpose clause, `@kuntay/swisseph` among the reviewer notes' links, and the remote-code answer for the package's unused jsDelivr address.
    - **On the web too**, as the owner chose on 9 November 2026: the site publishes `helioscope.html` beside the receiving page, with the 31 files it loads, the binary its glue fetches and Swiss Ephemeris's licence and notice: 34 files, 0.88 MiB, and 35 since `core/open-meteo.js` (`tools/site.mjs`, checked by `test/site.test.js`). Its `<meta>` policy allows its own scripts, compiling WebAssembly and fetching from its own site and, since 10 November 2026, from Open-Meteo's archive (§6). The policy applies to the extension's copy too. Outside the extension it has nowhere to keep its settings, so it starts from the defaults. On the web, the paste, import and screenshot pages open it beside themselves, and the receiving page offers it in both copies, under See the sky, without the chart's name or town whatever its boxes say. On 9 November 2026 a local build of the site ran it from the paste, import, screenshot and receiving pages in the built-in browser, and the extension's copies did the same in Chromium 141.
    - First run in a browser: Firefox 159, on 10 November 2026, where its results matched Node's (§9). The rest of test 25 of `docs/manual-test.md`, and Safari, are still to run.
