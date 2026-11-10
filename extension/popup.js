@@ -33,6 +33,7 @@ import {
 import { HOST_PERMISSION, readSky } from "./stellarium-desktop.js";
 import { localizePage, text } from "./messages/index.js";
 import { desktopHintLine, render, wayGroups } from "./view.js";
+import { pageUrl } from "./web-page.js";
 
 // The browser's language, chosen before anything is drawn.
 localizePage(document, navigator.languages);
@@ -267,14 +268,15 @@ async function share(sky, back, onButton) {
 
 // Which planets were visible opens Helioscope's page in a tab, with the chart
 // in its link as Share… puts it there, but never its name or town: the page
-// needs only the moment and the place.
+// needs only the moment and the place. pageUrl gives the extension's own
+// page, or the web's copy in a build that leaves Helioscope out.
 async function openHelioscope(sky, back, onButton) {
   const shared = chartToShare(sharing, sky, "page");
   if (shared.kind === "refused") {
     render(app, viewForHelioscopeRefusal(shared.reason), onButton, back);
     return;
   }
-  await chrome.tabs.create({ url: linkFor(chrome.runtime.getURL("helioscope.html"), shared.chart) });
+  await chrome.tabs.create({ url: linkFor(pageUrl("helioscope.html", location.href), shared.chart) });
   window.close();
 }
 

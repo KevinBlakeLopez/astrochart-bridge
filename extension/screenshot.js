@@ -11,7 +11,7 @@ import { chartToShare, viewForHelioscopeRefusal, viewForShareRefusal } from "./p
 import { viewForScreenshot } from "./screenshot-model.js";
 import { localizePage, text } from "./messages/index.js";
 import { paragraph, render } from "./view.js";
-import { openPage, openLink as openWebLink, showHomeLink } from "./web-page.js";
+import { openPage, openLink as openWebLink, pageUrl, showHomeLink } from "./web-page.js";
 
 // The browser's language, chosen before anything is drawn.
 localizePage(document, navigator.languages);
@@ -134,7 +134,7 @@ function showChart(result) {
       return;
     }
     if (onTheWeb) openPage(page, shared.chart, location.href);
-    else await chrome.tabs.create({ url: linkFor(chrome.runtime.getURL(page), shared.chart) });
+    else await chrome.tabs.create({ url: linkFor(pageUrl(page, location.href), shared.chart) });
   };
   // With Send to Stellarium Desktop in the extension, as in the popup;
   // without it on the web, or should Stellarium's side fail.

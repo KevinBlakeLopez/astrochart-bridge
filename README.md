@@ -82,7 +82,7 @@ npm test
 | `extension/vendor/` | Tesseract.js for reading screenshots, lean-qr for QR codes, and Swiss Ephemeris for Helioscope's planetary visibility, each with its licence. |
 | `test/` | `node --test` tests. |
 | `fixtures/` | Astro-Seek page captures, trimmed to their header block, and AAF files written by Astrolog, with invented birth data; in `golden/`, the reference charts every route out is tested against: invented ones, and well-known people's public birth records from Astro-Databank. The Astro-Seek captures named `golden-*` are of those charts. See [docs/golden-charts.md](docs/golden-charts.md). |
-| `tools/` | `package-safari.sh` makes the Xcode project for Safari; `package-stores.sh` packs a commit for the Chrome Web Store and Firefox Add-ons; `site.mjs` builds the website; `make-icons.mjs` draws the icons; `trim-fixture.mjs` trims a new Astro-Seek capture before it's committed; `make-golden.py` works out the golden charts' expected values. |
+| `tools/` | `package-safari.sh` makes the Xcode project for Safari; `package-app-store.sh` makes the App Store's, without Helioscope, with `app-store.mjs`; `package-stores.sh` packs a commit for the Chrome Web Store and Firefox Add-ons; `site.mjs` builds the website; `make-icons.mjs` draws the icons; `trim-fixture.mjs` trims a new Astro-Seek capture before it's committed; `make-golden.py` works out the golden charts' expected values. |
 | `docs/` | Feature guides, the manual test checklist and notes on known issues. |
 
 ### The website

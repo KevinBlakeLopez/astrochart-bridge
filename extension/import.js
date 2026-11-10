@@ -12,7 +12,7 @@ import { viewForHorFile } from "./hor-model.js";
 import { localizePage } from "./messages/index.js";
 import { chartToShare, viewForHelioscopeRefusal } from "./popup-model.js";
 import { paragraph, render } from "./view.js";
-import { openPage, openLink as openWebLink, showHomeLink } from "./web-page.js";
+import { openPage, openLink as openWebLink, pageUrl, showHomeLink } from "./web-page.js";
 
 // The browser's language, chosen before anything is drawn.
 localizePage(document, navigator.languages);
@@ -98,7 +98,7 @@ function showChart({ view, chart }) {
       return;
     }
     if (onTheWeb) openPage("helioscope.html", shared.chart, location.href);
-    else await chrome.tabs.create({ url: linkFor(chrome.runtime.getURL("helioscope.html"), shared.chart) });
+    else await chrome.tabs.create({ url: linkFor(pageUrl("helioscope.html", location.href), shared.chart) });
   };
   if (desktop) desktop.renderChart(app, view, onButton).catch(() => render(app, view, onButton));
   else render(app, view, onButton);

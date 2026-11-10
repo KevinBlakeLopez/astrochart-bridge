@@ -199,6 +199,10 @@ export default {
     // date and coordinates included, as its url= parameter.
     privacyNote:
       "Opening the sky sends this date, time and place to stellarium-web.org, and its page passes the link on to Google's advertising tags.",
+    // In a build that leaves Helioscope out, such as the App Store's Safari
+    // app, where Which planets were visible opens the website's copy.
+    helioscopeOnTheWeb: (site) =>
+      `Which planets were visible opens AstroChart Bridge's website, ${site}, which works out the planets in the browser. The chart goes after the # in the page's address, which the browser doesn't send to the website.`,
     clockSame: (clock) => `Stellarium Web's clock will show ${clock}, the same as the birthplace. ${RUNNING}`,
     clockDiffers: (clock, birth) => `Stellarium Web's clock will show ${clock}, your computer's time. That's ${birth} at the birthplace. ${RUNNING}`,
     // label is the zone label's abbreviation, or null when Astro-Seek printed none.

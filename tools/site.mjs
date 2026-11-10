@@ -54,6 +54,7 @@ export const SITE_FILES = Object.freeze([
   "vendor/lean-qr/LICENSE",
   // The paste, import and screenshot pages, and what they share.
   "web-page.js",
+  "helioscope-config.js",
   "paste.html",
   "paste.css",
   "paste.js",

@@ -6,6 +6,7 @@
 // filled in by its address alone. Nothing is kept.
 import { linkFor } from "./chart-model.js";
 import { isExtensionCopy } from "./extension-copy.js";
+import { HELIOSCOPE_URL } from "./helioscope-config.js";
 import { viewForAstroSeekSave } from "./popup-model.js";
 import { render } from "./view.js";
 
@@ -35,13 +36,18 @@ export function openLink(container, { url, savesByHand }, sky = null) {
 }
 
 /**
- * A page beside this one, wherever the site is served: on GitHub Pages, or on
- * this computer while it is tried out.
+ * A page beside this one, wherever it is served: on GitHub Pages, on this
+ * computer while the site is tried out, or in the extension. A build that
+ * leaves Helioscope out, as the App Store's does, opens the web's copy of
+ * Helioscope's page instead (helioscope-config.js). Every Which planets were
+ * visible button opens its page through here.
  *
  * @param {string} page  the page's file, chart.html or helioscope.html
  * @param {string} href  this page's address, location.href
+ * @param {string | null} [helioscopeUrl]  helioscope-config.js's HELIOSCOPE_URL
  */
-export const pageUrl = (page, href) => new URL(page, href).href;
+export const pageUrl = (page, href, helioscopeUrl = HELIOSCOPE_URL) =>
+  page === "helioscope.html" && helioscopeUrl !== null ? helioscopeUrl : new URL(page, href).href;
 
 /**
  * Share… or Which planets were visible on the web: the receiving page or

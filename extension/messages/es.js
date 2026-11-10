@@ -197,6 +197,8 @@ export default {
     clockNote: "El reloj de Stellarium Web muestra la zona horaria de tu equipo y sigue en marcha.",
     privacyNote:
       "Abrir el cielo envía esta fecha, hora y lugar a stellarium-web.org, y su página pasa el enlace a las etiquetas publicitarias de Google.",
+    helioscopeOnTheWeb: (site) =>
+      `Qué planetas eran visibles abre el sitio web de AstroChart Bridge, ${site}, que calcula los planetas en el navegador. La carta va después del # en la dirección de la página, y el navegador no envía esa parte al sitio web.`,
     // Each says that the clock keeps running within its first sentence, which
     // keeps the note to English's two lines (or three) at the popup's 440px.
     clockSame: (clock) => `El reloj de Stellarium Web marcará ${clock}, como en el lugar de nacimiento, y avanzará hasta que lo pauses.`,

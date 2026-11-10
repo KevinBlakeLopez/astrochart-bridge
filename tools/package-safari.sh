@@ -11,13 +11,18 @@
 # The project is written to build/safari/, replacing what was there. The
 # bundle identifier defaults to com.example.astrochartbridge; signing needs one
 # your Apple team can register. See docs/safari-ipad.md.
+#
+# tools/package-app-store.sh runs this on its own copy of extension/, without
+# Helioscope, by setting EXTENSION_DIR to the copy and SAFARI_OUT to where its
+# project goes.
 set -eu
 
 root=$(cd "$(dirname "$0")/.." && pwd)
 bundle_id=${1:-com.example.astrochartbridge}
-out="$root/build/safari"
+src=${EXTENSION_DIR:-"$root/extension"}
+out=${SAFARI_OUT:-"$root/build/safari"}
 
-xcrun safari-web-extension-packager "$root/extension" \
+xcrun safari-web-extension-packager "$src" \
   --project-location "$out" \
   --app-name "AstroChart Bridge" \
   --bundle-identifier "$bundle_id" \

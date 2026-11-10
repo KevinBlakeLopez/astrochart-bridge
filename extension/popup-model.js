@@ -4,6 +4,7 @@ import { parseOffset, utcFromOffset } from "./core/civiltime.js";
 import { nameFromText } from "./core/names.js";
 import { searchTown } from "./core/towns.js";
 import { isLabelText, toPortable } from "./core/portable.js";
+import { HELIOSCOPE_URL } from "./helioscope-config.js";
 import { text } from "./messages/index.js";
 import { HOLD_MINUTES } from "./pending.js";
 
@@ -12,6 +13,19 @@ import { HOLD_MINUTES } from "./pending.js";
 // reason: a constant would keep the language chosen when this module loaded.
 
 export const privacyNote = () => text().popup.privacyNote;
+
+/**
+ * Said wherever Which planets were visible is offered, in a build that leaves
+ * Helioscope out, such as the App Store's Safari app, where the button opens
+ * the website's copy of Helioscope's page: which website, and that the chart
+ * doesn't reach it. Nothing in the extension or on the site, which open their
+ * own copy. It comes right after the privacy note, as the button comes after
+ * the Stellarium buttons.
+ *
+ * @param {string | null} [url]  helioscope-config.js's HELIOSCOPE_URL
+ * @returns {string[]}
+ */
+export const helioscopeNotes = (url = HELIOSCOPE_URL) => (url === null ? [] : [text().popup.helioscopeOnTheWeb(new URL(url).host)]);
 
 // Shown on the choose and enter-offset screens, the privacy note last, just above
 // Open Stellarium Web. The ready screen knows its UTC, so it names the exact clock time instead.
@@ -110,7 +124,7 @@ export function viewFor(result, { timeZone, town = null, name = null, kept = nul
             : words.asLabelled(utcText(candidate.utc), label, offsetText(candidate.offsetMinutes)),
         sky: sky(candidate.utc),
       })),
-      notes: skyNotes(),
+      notes: [...skyNotes(), ...helioscopeNotes()],
       buttons: chartButtons([openSkyButton()]),
     };
   }
@@ -120,7 +134,7 @@ export function viewFor(result, { timeZone, town = null, name = null, kept = nul
       state: "enter-offset",
       rows: [localRow, placeRow],
       message: words.needsOffset,
-      notes: skyNotes(),
+      notes: [...skyNotes(), ...helioscopeNotes()],
       chart: { local, lat, lng },
       buttons: chartButtons([openSkyButton()]),
     };
@@ -130,7 +144,7 @@ export function viewFor(result, { timeZone, town = null, name = null, kept = nul
     state: "ready",
     rows: [localRow, [words.rows.offset, offsetText(result.offsetMinutes)], [words.rows.utc, utcText(result.utc)], placeRow],
     warnings: (result.warnings ?? []).map((code) => WARNINGS[code]?.(result) ?? code),
-    notes: [clockNote(result.utc, local, timeZone), privacyNote()],
+    notes: [clockNote(result.utc, local, timeZone), privacyNote(), ...helioscopeNotes()],
     sky: sky(result.utc),
     buttons: chartButtons([openSkyButton()]),
   };

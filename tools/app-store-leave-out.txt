@@ -1,0 +1,16 @@
+# Paths in extension/ that tools/package-app-store.sh leaves out of the App
+# Store's Safari build, on top of those tools/store-leave-out.txt lists, one a
+# line. They are Helioscope's page and Swiss Ephemeris, which is under the
+# AGPL, whose terms and the App Store's may conflict (docs/safari-ipad.md).
+# The build's Which planets were visible opens the web's copy of Helioscope's
+# page instead (extension/helioscope-config.js). test/app-store.test.js checks
+# that these are the files only Helioscope's page loads, with Swiss
+# Ephemeris's licence and notice, and that no page the build keeps loads one.
+helioscope.html
+helioscope.css
+helioscope.js
+helioscope-engine.js
+helioscope-model.js
+helioscope-view.js
+core/helioscope.js
+vendor/swisseph

@@ -216,6 +216,8 @@ export default {
     clockNote: "Ura v Stellarium Web kaže časovni pas vašega računalnika in teče naprej.",
     privacyNote:
       "Odpiranje neba pošlje ta datum, čas in kraj na stellarium-web.org, njegova stran pa povezavo posreduje Googlovim oglaševalskim oznakam.",
+    helioscopeOnTheWeb: (site) =>
+      `Kateri planeti so bili vidni odpre spletno mesto AstroChart Bridge, ${site}, ki planete izračuna v brskalniku. Horoskop je v naslovu strani za znakom #, tega dela pa brskalnik spletnemu mestu ne pošlje.`,
     // As in es.js, each says that the clock keeps running within its first
     // sentence, to keep the note close to English's length at the popup's 440px.
     clockSame: (clock) => `Ura v Stellarium Web bo kazala ${clock}, kot v kraju rojstva, in bo tekla, dokler je ne ustavite.`,
