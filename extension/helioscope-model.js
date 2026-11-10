@@ -10,8 +10,14 @@
 // and the prediction is from the twilight windows around it, with its raw
 // margin and no "marginal" class. Times are at the chart's own offset, to the
 // nearest minute, since the extension has no time zones to give another.
+//
+// Check that night's weather, when the user clicks it, asks Open-Meteo for
+// ERA5's weather in the twilights (core/open-meteo.js), then works each
+// twilight out again with that night's air. Its cloud is shown, never turned
+// into a verdict: a bright planet can show through thin high cloud or a gap.
 import { natalChartFor, readLink } from "./chart-model.js";
-import { ELEVATION_LIMITS, PLANETS, UNDER_THE_BEAMS_LIMITS, visibility } from "./core/helioscope.js";
+import { ELEVATION_LIMITS, PLANETS, UNDER_THE_BEAMS_LIMITS, classify, visibility } from "./core/helioscope.js";
+import { nearestHour, readWeather, weatherRequest } from "./core/open-meteo.js";
 import { stellariumUrl } from "./core/stellarium.js";
 import { text } from "./messages/index.js";
 import { offsetText, viewFor } from "./popup-model.js";
@@ -68,28 +74,153 @@ export function visibilities(chart, engine, { elevation, underTheBeams }) {
 }
 
 /**
- * The screen for a chart's results: the chart screen's own rows, so the chart
- * reads as it does in the popup, then a row for each planet with its
- * details, the assumptions and the notes.
+ * The planets again with that night's air: the evening twilight worked out
+ * with the evening's engine, the morning with the morning's, and the two
+ * judged together as visibilities judges them. A twilight with no window
+ * can share the other's engine, since a window's bounds don't depend on the
+ * air.
+ *
+ * @param {object} chart  a normalized chart
+ * @param {{ evening: import("./helioscope-engine.js").Engine, morning: import("./helioscope-engine.js").Engine }} engines
+ * @param {{ elevation: number | null, underTheBeams: number }} settings
+ * @returns {ReturnType<typeof visibilities>}
+ */
+export function visibilitiesWithAir(chart, { evening, morning }, settings) {
+  const dusk = visibilities(chart, evening, settings);
+  if (dusk.kind === "refused" || evening === morning) return dusk;
+  const dawn = visibilities(chart, morning, settings);
+  if (dawn.kind === "refused") return dawn;
+  const results = {};
+  for (const planet of PLANETS) {
+    const windows = { evening: dusk.results[planet].windows.evening, morning: dawn.results[planet].windows.morning };
+    results[planet] = { ...dusk.results[planet], windows, classification: classify(windows.evening, windows.morning) };
+  }
+  return { kind: "results", results };
+}
+
+/**
+ * What Check that night's weather asks Open-Meteo for: the hour nearest the
+ * middle of each twilight, from the months they fall in. A twilight's bounds
+ * are the Sun's, the same for every planet. null for a twilight with no window.
  *
  * @param {object} chart  a normalized chart
  * @param {Record<string, object>} results  from visibilities
- * @returns {{ state: "ready", rows: [string, string][], planets: object[], assumptions: [string, string][], notes: string[] }}
+ * @param {string} today  the UTC date, "YYYY-MM-DD"
+ * @returns {{ kind: "request", url: string, hours: { evening: string | null, morning: string | null } }
+ *   | { kind: "refused", reason: "no-twilight" | "before-1940" | "future" }}
  */
-export function viewForVisibility(chart, results) {
+export function weatherRequestFor(chart, results, today) {
+  const hours = {};
+  for (const name of WINDOWS) {
+    const bounded = PLANETS.map((planet) => results[planet].windows[name]).find((window) => window.start && window.end);
+    hours[name] = bounded ? nearestHour(new Date((Date.parse(bounded.start.utc) + Date.parse(bounded.end.utc)) / 2).toISOString()) : null;
+  }
+  const wanted = WINDOWS.map((name) => hours[name]).filter((hour) => hour !== null);
+  if (wanted.length === 0) return { kind: "refused", reason: "no-twilight" };
+  const request = weatherRequest(chart, wanted, today);
+  return request.kind === "refused" ? request : { ...request, hours };
+}
+
+/**
+ * Whether the page can offer Check that night's weather, or why not.
+ *
+ * @param {object} chart
+ * @param {Record<string, object>} results
+ * @param {string} today
+ * @returns {{ kind: "offer" } | { kind: "refused", reason: "no-twilight" | "before-1940" | "future" }}
+ */
+export function weatherOffer(chart, results, today) {
+  const request = weatherRequestFor(chart, results, today);
+  return request.kind === "refused" ? request : { kind: "offer" };
+}
+
+/**
+ * That night's weather at each twilight's hour, from Open-Meteo's answer.
+ * Every twilight with a window needs its reading: a night ERA5 hasn't reached
+ * yet is refused rather than half shown.
+ *
+ * @param {unknown} answer  Open-Meteo's JSON
+ * @param {{ evening: string | null, morning: string | null }} hours  from weatherRequestFor
+ * @param {string} today  the UTC date it was asked on, for the credit
+ * @returns {{ kind: "weather", year: string, evening: Night | null, morning: Night | null }
+ *   | { kind: "refused", reason: "not-yet" } | { kind: "failed", reason: "unexpected-answer" }}
+ */
+export function nightWeather(answer, hours, today) {
+  const wanted = WINDOWS.map((name) => hours[name]).filter((hour) => hour !== null);
+  const read = readWeather(answer, wanted);
+  if (read.kind === "failed") return read;
+  const night = {};
+  for (const name of WINDOWS) {
+    const hour = hours[name];
+    if (hour !== null && read.at[hour] === null) return { kind: "refused", reason: "not-yet" };
+    night[name] = hour === null ? null : { hour, ...read.at[hour] };
+  }
+  return { kind: "weather", year: today.slice(0, 4), ...night };
+}
+
+/**
+ * The screen for a chart's results: the chart screen's own rows, so the chart
+ * reads as it does in the popup, then the weather check, a row for each
+ * planet with its details, the assumptions and the notes.
+ *
+ * @param {object} chart  a normalized chart
+ * @param {Record<string, object>} results  from visibilities, or visibilitiesWithAir once the weather is in
+ * @param {WeatherCheck} [weather]  where the weather check stands: offered, unless the page says otherwise
+ * @returns {{ state: "ready", rows: [string, string][], weather: object, planets: object[], assumptions: [string, string][], notes: string[] }}
+ */
+export function viewForVisibility(chart, results, weather = OFFERED) {
   const words = text().helioscope;
   const list = PLANETS.map((planet) => results[planet]);
   const planets = list.map((result) => planetRow(result, chart));
   // What a Stellarium Web link sends, said once, when there's a link to say it of.
   const linksNote = planets.some(({ link }) => link !== null) ? [words.linksNote] : [];
+  const night = weather.kind === "weather" ? weather : null;
   return {
     state: "ready",
     rows: viewFor(chart).rows,
+    weather: weatherView(weather, chart),
     method: methodFor(list[0].assumptions),
     planets,
-    assumptions: assumptionRows(list),
+    assumptions: assumptionRows(list, night),
     notes: [words.timesAt(offsetText(chart.offsetMinutes)), ...linksNote],
   };
+}
+
+const OFFERED = Object.freeze({ kind: "offer" });
+
+// The weather check as the page shows it: a button with what it sends; what
+// it's doing; why it can't be done; or that night's weather, with the credit
+// Open-Meteo and ERA5's licence ask for. A failure, or Firefox's consent
+// refused, keeps the button, to try again.
+function weatherView(weather, chart) {
+  const words = text().helioscope.weather;
+  if (weather.kind === "asking") return { kind: "asking", message: words.asking };
+  if (weather.kind === "weather") {
+    // The cloud in all at the reading's hour, said at the chart's offset.
+    const cloud = (night) => {
+      const time = when(`${night.hour}:00Z`, chart);
+      return night.cloud.total === 0 ? words.clearAt(time) : words.cloudAt(plain(night.cloud.total), time);
+    };
+    return {
+      kind: "shown",
+      title: words.title,
+      line: nightLine(weather, cloud),
+      note: words.reworked,
+      credit: { data: words.credit.data, licence: words.credit.licence, source: words.credit.source(weather.year) },
+    };
+  }
+  const offer = { kind: "offer", button: words.button, note: words.sends, message: null, code: null };
+  if (weather.kind === "offer") return offer;
+  if (weather.kind === "failed") return { ...offer, message: words.failed, code: weather.reason };
+  if (weather.reason === "declined") return { ...offer, message: words.refusals.declined };
+  return { kind: "unavailable", message: Object.hasOwn(words.refusals, weather.reason) ? words.refusals[weather.reason] : words.failed };
+}
+
+// Each twilight with that night's weather, "Dusk: …", joined.
+function nightLine(weather, said) {
+  const words = text().helioscope.weather;
+  const parts = WINDOWS.filter((name) => weather[name] !== null).map((name) => words.twilight(words.twilights[name], said(weather[name])));
+  return parts.length === 2 ? words.both(...parts) : parts[0];
 }
 
 // How each column judges, said under its heading: the traditional condition
@@ -325,19 +456,27 @@ function when(utc, chart) {
 
 // The atmosphere and observer as Swiss Ephemeris completed them, from the
 // first planet with a sample above the horizon: they're the same at one
-// place for every planet. The rest is the same in every result.
-function assumptionRows(results) {
+// place for every planet. With that night's weather in, the atmosphere is
+// each twilight's, which Swiss Ephemeris takes as given, and the cloud at
+// each height follows it. The rest is the same in every result.
+function assumptionRows(results, night) {
   const words = text().helioscope.assumptions;
+  const { weather } = text().helioscope;
   const { assumptions } = results[0];
   const completed = results.find((result) => result.assumptions.atmosphere.completed !== null)?.assumptions;
   const rows = [[words.ephemeris, words.ephemerisValue(assumptions.swissEphemeris)]];
-  if (completed) {
-    const { pressure, temperature, humidity } = completed.atmosphere.completed;
-    const { age, snellenRatio, binocular } = completed.observer.completed;
+  if (night) {
     rows.push(
-      [words.atmosphere, words.atmosphereValue(plain(pressure), plain(temperature), plain(humidity))],
-      [words.observer, words.observerValue(age, plain(snellenRatio), binocular === 1)],
+      [weather.air, nightLine(night, ({ air }) => words.atmosphereValue(plain(air.pressure), plain(air.temperature), plain(air.humidity)))],
+      [weather.cloud, nightLine(night, ({ cloud }) => weather.cloudValue(plain(cloud.low), plain(cloud.mid), plain(cloud.high)))],
     );
+  } else if (completed) {
+    const { pressure, temperature, humidity } = completed.atmosphere.completed;
+    rows.push([words.atmosphere, words.atmosphereValue(plain(pressure), plain(temperature), plain(humidity))]);
+  }
+  if (completed) {
+    const { age, snellenRatio, binocular } = completed.observer.completed;
+    rows.push([words.observer, words.observerValue(age, plain(snellenRatio), binocular === 1)]);
   }
   const { metres, source } = assumptions.elevation;
   const elevation = `${metres < 0 ? MINUS : ""}${Math.abs(metres)}`;
@@ -369,5 +508,17 @@ const signed = (x) => `${x > 0 ? "+" : x < 0 ? MINUS : ""}${decimal(Math.abs(x),
 // A magnitude, to 0.01, with a true minus when it's below 0.
 const magnitude = (x) => `${x < 0 ? MINUS : ""}${decimal(Math.abs(x), 2)}`;
 
-// A filled-in value as Swiss Ephemeris has it, to at most 0.01: 1013.25, 15.
-const plain = (x) => String(Math.round(x * 100) / 100).replace(".", text().helioscope.decimal);
+// A value as Swiss Ephemeris or the weather has it, to at most 0.01, with a
+// true minus below 0: 1013.25, 15, −2.8.
+const plain = (x) => {
+  const rounded = Math.round(x * 100) / 100;
+  return `${rounded < 0 ? MINUS : ""}${String(Math.abs(rounded)).replace(".", text().helioscope.decimal)}`;
+};
+
+/**
+ * @typedef {{ kind: "offer" } | { kind: "asking" } | { kind: "failed", reason: string }
+ *   | { kind: "refused", reason: "no-twilight" | "before-1940" | "future" | "not-yet" | "declined" }
+ *   | ReturnType<typeof nightWeather>} WeatherCheck
+ *   where Check that night's weather stands, as the page keeps it
+ * @typedef {import("./core/open-meteo.js").Reading & { hour: string }} Night  a twilight's reading, at its hour in GMT
+ */

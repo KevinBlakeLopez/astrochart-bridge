@@ -58,12 +58,16 @@ test("the Firefox add-on ID is the one AMO has", () => {
 
 // Firefox shows this at install. The name and birth data go to astro.com's
 // form, and birth data read from a page goes into Stellarium Web and
-// Astro-Seek links, when the user asks. Firefox 140 is the first with the
-// consent screen, which is why it's the minimum. A change here changes what
-// users agree to, so it should be deliberate and match docs/privacy.md.
+// Astro-Seek links, when the user asks. Location is optional: Helioscope's
+// Check that night's weather asks for it from its click, before sending a
+// chart's month and rounded place to Open-Meteo. Firefox 140 is the first
+// with the consent screen, which is why it's the minimum. A change here
+// changes what users agree to, so it should be deliberate and match
+// docs/privacy.md.
 test("the Firefox data collection declaration is the one the privacy page describes", () => {
   assert.deepEqual(manifest.browser_specific_settings.gecko.data_collection_permissions, {
     required: ["personallyIdentifyingInfo", "websiteContent"],
+    optional: ["locationInfo"],
   });
 });
 

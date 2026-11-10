@@ -1,19 +1,25 @@
 // Draws Helioscope's page from helioscope-model.js's views: the chart's
-// rows, a table of the five planets, each planet's details and the
-// assumptions, closed until opened, then the notes. Everything shown is set
-// with textContent.
+// rows, the weather check, a table of the five planets, each planet's
+// details and the assumptions, closed until opened, then the notes.
+// Everything shown is set with textContent.
 import { text } from "./messages/index.js";
 import { paragraph, rowList } from "./view.js";
 
 // Where the method and its checks are written up.
 const METHOD_URL = "https://github.com/KevinBlakeLopez/astrochart-bridge/blob/main/docs/HELIOSCOPE_V1_FEASIBILITY.md";
 
+// Where the weather's credit links: Open-Meteo, as its licence asks, and the
+// licence itself.
+const OPEN_METEO_URL = "https://open-meteo.com/";
+const LICENCE_URL = "https://creativecommons.org/licenses/by/4.0/";
+
 /**
  * @param {{ replaceChildren: (...nodes: Node[]) => void }} container  its children are replaced
  * @param {ReturnType<typeof import("./helioscope-model.js").viewForVisibility>
  *   | ReturnType<typeof import("./helioscope-model.js").viewForRefusal>} view
+ * @param {() => void} [onWeather]  for a click on Check that night's weather
  */
-export function drawScreen(container, view) {
+export function drawScreen(container, view, onWeather = () => {}) {
   if (view.state !== "ready") {
     const parts = [paragraph(view.message)];
     if (view.code) parts.push(paragraph(text().view.code(view.code), "code"));
@@ -23,6 +29,7 @@ export function drawScreen(container, view) {
   const words = text().helioscope;
   container.replaceChildren(
     rowList(view.rows),
+    weatherSection(view.weather, onWeather),
     planetTable(view.planets, view.method),
     element("h2", "", words.detailsHeading),
     ...view.planets.map(({ name, prediction, details }) => closed(words.detailsSummary(name, prediction.label), details, "planet")),
@@ -55,15 +62,51 @@ function planetTable(planets, method) {
   return table;
 }
 
+// The weather check, in one place before and after: the button and what it
+// sends, with why the last try failed over it; what it's doing, or why it
+// can't be done; or, once it's in, that night's weather and its credit.
+function weatherSection(weather, onWeather) {
+  const section = element("div", "weather");
+  if (weather.kind === "shown") {
+    section.append(element("h2", "", weather.title), element("p", "", weather.line), paragraph(weather.note, "note"), creditLine(weather.credit));
+    return section;
+  }
+  if (weather.kind !== "offer") {
+    section.append(paragraph(weather.message, "note"));
+    return section;
+  }
+  if (weather.message) section.append(paragraph(weather.message, "warning"));
+  if (weather.code) section.append(paragraph(text().view.code(weather.code), "code"));
+  const button = element("button", "secondary", weather.button);
+  button.type = "button";
+  button.addEventListener("click", onWeather);
+  section.append(button, paragraph(weather.note, "note"));
+  return section;
+}
+
+// "Weather data by Open-Meteo.com (CC BY 4.0), generated using …": the
+// credit's first part links to Open-Meteo and its licence to the licence.
+function creditLine({ data, licence, source }) {
+  const line = element("p", "note");
+  line.append(outLink(data, OPEN_METEO_URL), " (", outLink(licence, LICENCE_URL), `), ${source}.`);
+  return line;
+}
+
 // A planet in Stellarium Web, opened in a new tab with nothing of this page
 // sent with it: no opener and no referrer. A screen reader says the planet
 // and the time, which the short text leaves to the row.
 function skyLink(link) {
-  const anchor = element("a", "sky-link", link.text);
-  anchor.href = link.url;
+  const anchor = outLink(link.text, link.url, "sky-link");
+  anchor.setAttribute("aria-label", link.label);
+  return anchor;
+}
+
+// A link that opens in a new tab with nothing of this page sent with it.
+function outLink(label, url, className = "") {
+  const anchor = element("a", className, label);
+  anchor.href = url;
   anchor.target = "_blank";
   anchor.rel = "noopener noreferrer";
-  anchor.setAttribute("aria-label", link.label);
   return anchor;
 }
 
@@ -92,12 +135,8 @@ function howBox() {
   const box = element("details", "how");
   const steps = element("ol");
   steps.append(...how.steps.map((step) => element("li", "", step)));
-  const more = element("a", "", how.more);
-  more.href = METHOD_URL;
-  more.target = "_blank";
-  more.rel = "noopener noreferrer";
   const line = element("p", "note");
-  line.append(more);
+  line.append(outLink(how.more, METHOD_URL));
   box.append(element("summary", "", how.title), steps, line);
   return box;
 }

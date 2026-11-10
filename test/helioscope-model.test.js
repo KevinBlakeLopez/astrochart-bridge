@@ -4,17 +4,23 @@
 // below is what the page shows for that chart.
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { classify } from "../extension/core/helioscope.js";
 import { toFragment, toPortable } from "../extension/core/portable.js";
 import { createEngine } from "../extension/helioscope-engine.js";
 import { viewFor } from "../extension/popup-model.js";
 import {
   chartFromLink,
   helioscopeSettings,
+  nightWeather,
   readElevation,
   setHelioscopeSettings,
   viewForRefusal,
   viewForVisibility,
   visibilities,
+  visibilitiesWithAir,
+  weatherOffer,
+  weatherRequestFor,
 } from "../extension/helioscope-model.js";
 
 // The feasibility doc's reference chart (§10): New York, 10 January 2025 at
@@ -362,4 +368,132 @@ test("viewForVisibility: how many times brighter or fainter is the margin at 2.5
   assert.match(planets.jupiter.prediction.detail, /: about 2,100,000 times too faint$/);
   assert.match(planets.mars.prediction.detail, /: about 1\.8 times brighter than needed$/);
   assert.equal(planets.mars.prediction.label, "Visible");
+});
+
+// Check that night's weather. ERA5 is Open-Meteo's answer for the New York
+// chart's month, recorded as test/open-meteo.test.js says, so nothing here
+// goes to the network. TODAY is the day it was recorded.
+const ERA5 = JSON.parse(readFileSync(new URL("./open-meteo-era5-new-york-2025-01.json", import.meta.url), "utf8"));
+const TODAY = "2026-11-10";
+const NIGHT_HOURS = { evening: "2025-01-10T23:00", morning: "2025-01-10T12:00" };
+const OFFER = {
+  kind: "offer",
+  button: "Check that night's weather",
+  note: "Sends the chart's month and its place, rounded to about 25 km, to open-meteo.com, whose logs may keep them for up to 90 days.",
+  message: null,
+  code: null,
+};
+
+test("weatherRequestFor asks Open-Meteo for the hour nearest the middle of each twilight, for the chart's month", async () => {
+  const { results } = await worked(NEW_YORK);
+  const request = weatherRequestFor(NEW_YORK, results, TODAY);
+  // Dusk runs from 21:48:32 to 23:25:36 UTC, and that morning's dawn from 10:42:08 to 12:19:10.
+  assert.deepEqual(request.hours, NIGHT_HOURS);
+  const sent = Object.fromEntries(new URL(request.url).searchParams);
+  assert.deepEqual([sent.latitude, sent.longitude, sent.start_date, sent.end_date], ["40.75", "-74", "2025-01-01", "2025-01-31"]);
+});
+
+test("weatherOffer offers the check, unless the night is before 1940, after today, or has no twilight", async () => {
+  const offered = async (chart) => weatherOffer(chart, (await worked(chart)).results, TODAY);
+  assert.deepEqual(await offered(NEW_YORK), { kind: "offer" });
+  assert.deepEqual(await offered({ ...NEW_YORK, local: "1935-01-10T17:35:00", utc: "1935-01-10T22:35:00Z" }), { kind: "refused", reason: "before-1940" });
+  assert.deepEqual(await offered({ ...NEW_YORK, local: "2026-12-10T17:35:00", utc: "2026-12-10T22:35:00Z" }), { kind: "refused", reason: "future" });
+  assert.deepEqual(await offered(TROMSO), { kind: "refused", reason: "no-twilight" });
+});
+
+test("nightWeather reads each twilight's hour, and refuses a night ERA5 hasn't reached yet", () => {
+  assert.deepEqual(nightWeather(ERA5, NIGHT_HOURS, TODAY), {
+    kind: "weather",
+    year: "2026",
+    evening: { hour: "2025-01-10T23:00", cloud: { total: 90, low: 0, mid: 86, high: 88 }, air: { pressure: 1007, temperature: 1.4, humidity: 56 } },
+    morning: { hour: "2025-01-10T12:00", cloud: { total: 0, low: 0, mid: 0, high: 0 }, air: { pressure: 1010.8, temperature: -2.8, humidity: 65 } },
+  });
+  // A twilight with no window has no hour, and needs no weather.
+  assert.equal(nightWeather(ERA5, { ...NIGHT_HOURS, evening: null }, TODAY).evening, null);
+  // The archive answers the days ERA5 hasn't reached with null.
+  const unreached = { ...ERA5, hourly: { ...ERA5.hourly, cloud_cover: ERA5.hourly.cloud_cover.map(() => null) } };
+  assert.deepEqual(nightWeather(unreached, NIGHT_HOURS, TODAY), { kind: "refused", reason: "not-yet" });
+  assert.deepEqual(nightWeather({ error: true, reason: "out of range" }, NIGHT_HOURS, TODAY), { kind: "failed", reason: "unexpected-answer" });
+});
+
+// The planets with that night's air, an engine for each twilight, as the page
+// makes them once the weather is in.
+async function withAir(chart, weather) {
+  const evening = await createEngine({ atmosphere: weather.evening.air });
+  const morning = await createEngine({ atmosphere: weather.morning.air });
+  try {
+    return {
+      both: visibilitiesWithAir(chart, { evening, morning }, DEFAULTS),
+      dusk: visibilities(chart, evening, DEFAULTS),
+      dawn: visibilities(chart, morning, DEFAULTS),
+    };
+  } finally {
+    evening.dispose();
+    morning.dispose();
+  }
+}
+
+test("visibilitiesWithAir works each twilight out under its own night's air, and judges the two together", async () => {
+  const { both, dusk, dawn } = await withAir(NEW_YORK, nightWeather(ERA5, NIGHT_HOURS, TODAY));
+  assert.equal(both.kind, "results");
+  for (const [planet, result] of Object.entries(both.results)) {
+    assert.deepEqual(result.windows.evening, dusk.results[planet].windows.evening, planet);
+    assert.deepEqual(result.windows.morning, dawn.results[planet].windows.morning, planet);
+    assert.deepEqual(result.classification, classify(result.windows.evening, result.windows.morning), planet);
+  }
+  // Against the default air's −0.94, +9.01, +7.70, +6.24 and +3.65.
+  const margins = Object.fromEntries(
+    Object.entries(both.results).map(([planet, { classification: c }]) => [planet, `${c.kind} at ${c.window}, ${c.margin.toFixed(2)}`]),
+  );
+  assert.deepEqual(margins, {
+    mercury: "undetectable at morning, -1.23",
+    venus: "detectable at evening, 8.98",
+    mars: "detectable at morning, 7.65",
+    jupiter: "detectable at evening, 6.23",
+    saturn: "detectable at evening, 3.62",
+  });
+});
+
+test("viewForVisibility: with that night's weather, the cloud at each twilight, the planets worked out again, the night's air under Assumptions, and the credit", async () => {
+  const weather = nightWeather(ERA5, NIGHT_HOURS, TODAY);
+  const { both } = await withAir(NEW_YORK, weather);
+  const view = viewForVisibility(NEW_YORK, both.results, weather);
+  assert.deepEqual(view.weather, {
+    kind: "shown",
+    title: "That night's weather, from ERA5",
+    line: "Dusk: 90 % cloud at 18:00 · Dawn: no cloud at 07:00",
+    note: "The planets below are worked out again with that night's air. ERA5's cloud is for a square about 25 km across, and a bright planet can show through thin high cloud or a gap.",
+    credit: { data: "Weather data by Open-Meteo.com", licence: "CC BY 4.0", source: "generated using Copernicus Climate Change Service information 2026" },
+  });
+  // Venus's margin is +8.98 with that night's air, against +9.01 with the default.
+  const venus = view.planets.find(({ planet }) => planet === "venus");
+  assert.equal(venus.prediction.detail, "At dusk, 18:15: about 3,900 times brighter than needed");
+  assert.deepEqual(view.assumptions.slice(1, 4), [
+    ["Atmosphere that night", "Dusk: 1007 hPa, 1.4 °C, 56 % humidity · Dawn: 1010.8 hPa, −2.8 °C, 65 % humidity"],
+    ["Cloud that night", "Dusk: low 0 %, mid 86 %, high 88 % · Dawn: low 0 %, mid 0 %, high 0 %"],
+    ["Observer", "Aged 36, Snellen ratio 1, both eyes"],
+  ]);
+});
+
+test("viewForVisibility: before a check, the page offers one and says what it sends, and after a refusal or failure it says why", async () => {
+  const { results } = await worked(NEW_YORK);
+  const weatherIn = (state) => viewForVisibility(NEW_YORK, results, state).weather;
+  assert.deepEqual(viewForVisibility(NEW_YORK, results).weather, OFFER);
+  assert.deepEqual(weatherIn({ kind: "offer" }), OFFER);
+  assert.deepEqual(weatherIn({ kind: "asking" }), { kind: "asking", message: "Asking Open-Meteo…" });
+  // A failure, or Firefox's consent refused, can be tried again.
+  assert.deepEqual(weatherIn({ kind: "failed", reason: "network" }), { ...OFFER, message: "Couldn't get the weather.", code: "network" });
+  assert.deepEqual(weatherIn({ kind: "refused", reason: "declined" }), { ...OFFER, message: "Firefox wasn't allowed to send it, so nothing was sent." });
+  // The rest can't be, so there's nothing to click.
+  const unavailable = {
+    "before-1940": "ERA5's weather starts in 1940, so there's none to check for this chart.",
+    future: "That night hasn't happened yet, so there's no weather to check.",
+    "no-twilight": "There's no twilight that night, so there's no weather to check.",
+    "not-yet": "ERA5 doesn't have that night yet: it runs about 5 days behind.",
+  };
+  for (const [reason, message] of Object.entries(unavailable)) {
+    assert.deepEqual(weatherIn({ kind: "refused", reason }), { kind: "unavailable", message }, reason);
+  }
+  // Until the weather is in, the assumptions are the default air's.
+  assert.deepEqual(viewForVisibility(NEW_YORK, results, { kind: "asking" }).assumptions[1], ["Atmosphere", "1013.25 hPa, 15 °C, 40 % humidity"]);
 });

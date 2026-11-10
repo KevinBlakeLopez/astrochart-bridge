@@ -51,6 +51,26 @@ h2 {
   margin: 0 0 16px;
 }
 
+/* Check that night's weather, between the chart's rows and the table: a
+   button no wider than its words, and once the weather is in, the cloud at
+   each twilight. */
+.weather {
+  margin: 12px 0;
+}
+
+.weather button {
+  width: auto;
+  padding: 6px 12px;
+}
+
+.weather h2 {
+  margin-top: 0;
+}
+
+.weather p {
+  margin: 4px 0;
+}
+
 table.planets {
   width: 100%;
   margin: 12px 0;

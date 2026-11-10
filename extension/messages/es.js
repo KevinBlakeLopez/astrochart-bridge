@@ -822,6 +822,36 @@ export default {
       ],
       more: "El método y cómo se comprobó",
     },
+    weather: {
+      button: "Consultar el tiempo de esa noche",
+      sends: "Envía el mes de la carta y su lugar, redondeado a unos 25 km, a open-meteo.com, cuyos registros pueden guardarlos hasta 90 días.",
+      asking: "Consultando Open-Meteo…",
+      title: "El tiempo de esa noche, según ERA5",
+      // "Anochecer: 90 % de nubes a las 18:00 · Amanecer: sin nubes a las 07:00"
+      twilights: { evening: "Anochecer", morning: "Amanecer" },
+      twilight: (twilight, said) => `${twilight}: ${said}`,
+      both: (evening, morning) => `${evening} · ${morning}`,
+      cloudAt: (percent, time) => `${percent} % de nubes ${at(time)}`,
+      clearAt: (time) => `sin nubes ${at(time)}`,
+      reworked:
+        "Los planetas de abajo se vuelven a calcular con el aire de esa noche. Las nubes de ERA5 son las de un cuadrado de unos 25 km de lado, y un planeta brillante puede verse a través de nubes altas y finas o de un claro.",
+      credit: {
+        data: "Datos meteorológicos de Open-Meteo.com",
+        licence: "CC BY 4.0",
+        source: (year) => `generados con información del Servicio de Cambio Climático de Copernicus ${year}`,
+      },
+      refusals: {
+        "before-1940": "Los datos de ERA5 empiezan en 1940, así que no hay tiempo que consultar para esta carta.",
+        future: "Esa noche aún no ha llegado, así que no hay tiempo que consultar.",
+        "no-twilight": "Esa noche no hay crepúsculo, así que no hay tiempo que consultar.",
+        "not-yet": "ERA5 aún no tiene esa noche: va unos 5 días por detrás.",
+        declined: "Firefox no dio permiso para enviarlo, así que no se envió nada.",
+      },
+      failed: "No se pudo obtener el tiempo.",
+      air: "Atmósfera esa noche",
+      cloud: "Nubes esa noche",
+      cloudValue: (low, mid, high) => `bajas ${low} %, medias ${mid} %, altas ${high} %`,
+    },
     assumptions: {
       ephemeris: "Efemérides",
       ephemerisValue: (version) => `Swiss Ephemeris ${version}, Moshier`,

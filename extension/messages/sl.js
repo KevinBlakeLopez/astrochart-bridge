@@ -854,6 +854,37 @@ export default {
       ],
       more: "Metoda in kako je bila preverjena",
     },
+    weather: {
+      button: "Preveri vreme tisto noč",
+      // The month and the place: two of them, so ju.
+      sends: "Pošlje mesec horoskopa in njegov kraj, zaokrožen na približno 25 km, na open-meteo.com, katerega dnevniki ju lahko hranijo do 90 dni.",
+      asking: "Sprašujem Open-Meteo…",
+      title: "Vreme tisto noč po ERA5",
+      // "Mrak: 90 % oblačnosti ob 18:00 · Svit: brez oblakov ob 07:00"
+      twilights: { evening: "Mrak", morning: "Svit" },
+      twilight: (twilight, said) => `${twilight}: ${said}`,
+      both: (evening, morning) => `${evening} · ${morning}`,
+      cloudAt: (percent, time) => `${percent} % oblačnosti ob ${time}`,
+      clearAt: (time) => `brez oblakov ob ${time}`,
+      reworked:
+        "Planeti spodaj so izračunani znova z zrakom tiste noči. Oblačnost ERA5 velja za kvadrat s stranico približno 25 km, svetel planet pa se lahko vidi skozi tanke visoke oblake ali skozi vrzel.",
+      credit: {
+        data: "Vremenski podatki: Open-Meteo.com",
+        licence: "CC BY 4.0",
+        source: (year) => `pripravljeno z informacijami Copernicusove storitve za podnebne spremembe ${year}`,
+      },
+      refusals: {
+        "before-1940": "Podatki ERA5 se začnejo leta 1940, zato za ta horoskop ni vremena za preverjanje.",
+        future: "Ta noč še ni bila, zato ni vremena za preverjanje.",
+        "no-twilight": "Ta noč nima somraka, zato ni vremena za preverjanje.",
+        "not-yet": "ERA5 te noči še nima: zaostaja približno 5 dni.",
+        declined: "Firefox ni dovolil pošiljanja, zato ni bilo poslano nič.",
+      },
+      failed: "Vremena ni bilo mogoče dobiti.",
+      air: "Ozračje tisto noč",
+      cloud: "Oblačnost tisto noč",
+      cloudValue: (low, mid, high) => `nizka ${low} %, srednja ${mid} %, visoka ${high} %`,
+    },
     assumptions: {
       ephemeris: "Efemeride",
       ephemerisValue: (version) => `Swiss Ephemeris ${version}, Moshier`,
