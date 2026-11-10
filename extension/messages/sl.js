@@ -116,8 +116,6 @@ export default {
       elevation: "Nadmorska višina v metrih",
       underTheBeams: "Pod žarki do",
       working: "Računanje planetov …",
-      margin:
-        "Število je presežek v magnitudah: za koliko je bil planet svetlejši od najšibkejšega, kar je bilo takrat vidno. Nad 0 je napovedano, da je bil viden.",
       notice:
         "AstroChart Bridge, © 2026 Kevin Blake Lopez, to izračuna na tej napravi s Swiss Ephemeris, © 1997–2021 Astrodienst AG, prek swisseph-wasm. Vsi trije so prosto programje: lahko jih delite in spreminjate pod pogoji licence GNU Affero General Public License, različice 3 ali novejše. Zanje ne velja nobeno jamstvo.",
       source: "Izvorna koda in licenca",
@@ -772,6 +770,8 @@ export default {
 
   helioscope: {
     decimal: ",",
+    // For numbers written out whole, such as how many times brighter.
+    locale: "sl",
     planets: { mercury: "Merkur", venus: "Venera", mars: "Mars", jupiter: "Jupiter", saturn: "Saturn" },
     // Nouns and phrases, so that nothing has to agree with Venera's gender.
     conditions: { cazimi: "Kazimi", combust: "Zgorevanje", "under-the-beams": "Pod žarki", clear: "Zunaj žarkov" },
@@ -784,15 +784,17 @@ export default {
     notWorkedOut: "Ni bilo mogoče izračunati",
     predictions: {
       detectable: "Lahko se vidi",
-      undetectable: "Ne vidi se",
+      undetectable: "Prešibek sij",
       "below-horizon": "Pod obzorjem",
       indeterminate: "Brez napovedi",
       unavailable: "Ni bilo mogoče izračunati",
     },
     windows: { evening: "v mraku", morning: "v svitu" },
-    // "Najbolje v mraku, ob 18:15: +9,01"
-    best: (window, time, margin) => `Najbolje ${window}, ob ${time}: ${margin}`,
-    also: (window, margin) => ` · ${window} ${margin}`,
+    // "Najbolje v mraku, ob 18:15: približno 4000-krat več svetlobe, kot je potrebno",
+    // with light as the noun, so nothing has to agree with Venera's gender.
+    visibleAt: (window, time, ratio) => `Najbolje ${window}, ob ${time}: približno ${ratio}-krat več svetlobe, kot je potrebno`,
+    tooFaintAt: (window, time, ratio) => `Najbolje ${window}, ob ${time}: približno ${ratio}-krat premalo svetlobe`,
+    alsoVisible: (window) => ` · se vidi tudi ${window}`,
     belowBoth: "Pod obzorjem v mraku in v svitu",
     noWindow: {
       set: "Sonce ta dan ne zaide",
@@ -828,8 +830,8 @@ export default {
       other: "Ga ni: ta noč nima somraka",
     },
     failed: (code) => `Ni bilo mogoče izračunati: ${code}`,
-    bestMoment: ({ time, margin, planet, magnitude, limit, altitude, direction, sunDepth }) =>
-      `${time}: presežek ${margin}, ${planet} z magnitudo ${magnitude} ob meji ${limit}, ${altitude}° visoko na ${direction}, Sonce ${sunDepth}° pod obzorjem`,
+    bestMoment: ({ time, margin, magnitude, limit, altitude, direction, sunDepth }) =>
+      `${time}: magnituda ${magnitude} ob mejni magnitudi ${limit}, presežek ${margin}. ${altitude}° visoko na ${direction}, Sonce ${sunDepth}° pod obzorjem`,
     // In the locative, after na.
     directions: ["severu", "severovzhodu", "vzhodu", "jugovzhodu", "jugu", "jugozahodu", "zahodu", "severozahodu"],
     timesAt: (offset) => `Časi so po zamiku ${offset}, ki ga ima horoskop.`,
@@ -839,6 +841,20 @@ export default {
     stellariumLabel: (planet, time) => `Stellarium Web: ${planet} ob ${time}`,
     linksNote:
       "Odpri v Stellarium Web pošlje ta trenutek in kraj horoskopa na stellarium-web.org, njegova stran pa povezavo posreduje Googlovim oglaševalskim oznakam. Ura v Stellarium Web začne teči takoj; ustavite jo z gumbom za premor.",
+    methodMoment: (cazimi, combust, underTheBeams) =>
+      `Tradicionalno stanje, samo iz razlike v dolžini: kazimi do ${cazimi}, zgorevanje do ${combust}, pod žarki do ${underTheBeams}`,
+    methodPrediction: "Ali je bil dovolj svetel, da bi se videl, v somrakih, najbližjih trenutku horoskopa",
+    how: {
+      title: "Kako se izračuna",
+      steps: [
+        "Svetlost se meri v magnitudah, ki tečejo obratno: manjše ko je število, svetlejše je telo. Venera ima okoli −4, najšibkejše zvezde, ki jih pokaže temno nebo, pa okoli 6. Vsak korak za 1 pomeni približno 2,5-krat drugačno svetlost.",
+        "Somrak skrije šibke stvari. Vsaki 2 minuti od sončnega zahoda do konca astronomskega somraka in od njegovega začetka do sončnega vzhoda Swiss Ephemeris izračuna najšibkejšo magnitudo, ki bi se videla tam, kjer je bil planet: mejno magnitudo. Odvisna je od globine Sonca, Lune ter zraka in opazovalca iz Predpostavk. Kjer se Sonce nikoli ne spusti 18° pod obzorje, se somraka končata ali začneta v njegovi najnižji točki.",
+        "Planet, svetlejši od meje, se lahko vidi. Tabela navede njegov najboljši trenutek in kolikokrat več ali manj svetlobe, kot je potrebno, je imel takrat; podrobnosti navedejo magnitude.",
+        "Vreme in oči opazovalca tisto noč niso znani, zato je pri planetu, ki je le nekajkrat svetlejši ali šibkejši od potrebnega, lahko šlo v obe smeri.",
+        "Napoved upošteva pravi položaj planeta, tudi njegovo širino, stanje pa samo dolžino, zato se lahko razlikujeta.",
+      ],
+      more: "Metoda in kako je bila preverjena",
+    },
     assumptions: {
       ephemeris: "Efemeride",
       ephemerisValue: (version) => `Swiss Ephemeris ${version}, Moshier`,
