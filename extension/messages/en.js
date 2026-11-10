@@ -90,8 +90,6 @@ export default {
       elevation: "Elevation in metres",
       underTheBeams: "Under the beams within",
       working: "Working out the planets…",
-      margin:
-        "The number is the margin in magnitudes: how much brighter the planet is than the faintest thing visible then. Above 0, it's predicted visible.",
       notice:
         "AstroChart Bridge, © 2026 Kevin Blake Lopez, works this out on this device with Swiss Ephemeris, © 1997–2021 Astrodienst AG, through swisseph-wasm. All three are free software: you may share and change them under the GNU Affero General Public License, version 3 or later. They come with no warranty.",
       source: "Source code and licence",
@@ -856,6 +854,23 @@ export default {
     stellariumLabel: (planet, time) => `See ${planet} at ${time} in Stellarium Web`,
     linksNote:
       "See it in Stellarium Web sends that moment and the chart's place to stellarium-web.org, whose page passes the link on to Google's advertising tags. Stellarium Web's clock starts running at once; its pause button stops it.",
+    // Under each result's heading: how it's judged.
+    methodMoment: (cazimi, combust, underTheBeams) =>
+      `From the longitude gap alone: cazimi within ${cazimi}, combust within ${combust}, under the beams within ${underTheBeams}.`,
+    methodPrediction: (minutes) =>
+      `The planet's magnitude against the faintest visible, every ${minutes} minutes through the nearest twilights. Above 0, bright enough to see.`,
+    // Under a prediction's margin: what it's the difference of. "−4.53 against a limit of 4.48"
+    basis: (magnitude, limit) => `${magnitude} against a limit of ${limit}`,
+    // How this is worked out: only what the headings don't say.
+    how: {
+      title: "How this is worked out",
+      steps: [
+        "The twilights are the evening one nearest the chart's moment, from sunset to the end of astronomical twilight, and the morning one, from its start to sunrise. Where the Sun never gets 18° below the horizon, they end or start at its lowest point instead.",
+        "The limit is the faintest magnitude visible at that place and moment, as Swiss Ephemeris works it out from the Sun's depth, the Moon, and the atmosphere and observer under Assumptions. The best of the samples is shown.",
+        "The prediction uses the planet's true place, its latitude included, while the condition uses longitude alone, so the two can disagree.",
+      ],
+      more: "The method, and how it was checked",
+    },
     assumptions: {
       ephemeris: "Ephemeris",
       ephemerisValue: (version) => `Swiss Ephemeris ${version}, Moshier`,

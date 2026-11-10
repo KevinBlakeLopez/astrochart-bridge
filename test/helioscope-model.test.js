@@ -147,13 +147,13 @@ test("viewForVisibility: each planet's condition and side of the Sun at the char
 
 test("viewForVisibility: each prediction gives its best window, its time at the chart's offset to the nearest minute, and its margin", async () => {
   const { planets } = await screen(NEW_YORK);
-  assert.deepEqual(planets.mercury.prediction, { kind: "undetectable", label: "Not detectable", detail: "Best at dawn, 06:38: −0.94" });
-  assert.deepEqual(planets.venus.prediction, { kind: "detectable", label: "Detectable", detail: "Best at dusk, 18:15: +9.01" });
+  assert.deepEqual(planets.mercury.prediction, { kind: "undetectable", label: "Not detectable", detail: "Best at dawn, 06:38: −0.94", basis: "−0.41 against a limit of −1.35" });
+  assert.deepEqual(planets.venus.prediction, { kind: "detectable", label: "Detectable", detail: "Best at dusk, 18:15: +9.01", basis: "−4.53 against a limit of 4.48" });
   // Mars is near opposition, up all night, and detectable in both windows:
   // the other one's margin follows.
-  assert.deepEqual(planets.mars.prediction, { kind: "detectable", label: "Detectable", detail: "Best at dawn, 05:42: +7.70 · dusk +4.16" });
-  assert.deepEqual(planets.jupiter.prediction, { kind: "detectable", label: "Detectable", detail: "Best at dusk, 18:21: +6.24" });
-  assert.deepEqual(planets.saturn.prediction, { kind: "detectable", label: "Detectable", detail: "Best at dusk, 18:15: +3.65" });
+  assert.deepEqual(planets.mars.prediction, { kind: "detectable", label: "Detectable", detail: "Best at dawn, 05:42: +7.70 · dusk +4.16", basis: "−1.39 against a limit of 6.30" });
+  assert.deepEqual(planets.jupiter.prediction, { kind: "detectable", label: "Detectable", detail: "Best at dusk, 18:21: +6.24", basis: "−2.68 against a limit of 3.56" });
+  assert.deepEqual(planets.saturn.prediction, { kind: "detectable", label: "Detectable", detail: "Best at dusk, 18:15: +3.65", basis: "1.07 against a limit of 4.72" });
 });
 
 test("viewForVisibility: a planet's details give both windows, its best moment's sky, and its two angles from the Sun", async () => {
@@ -198,7 +198,7 @@ test("viewForVisibility: a window that runs to or from the Sun's lowest point sa
 
 test("viewForVisibility: with no sunset and no sunrise there's no prediction, and the row says why", async () => {
   const { view, planets } = await screen(TROMSO);
-  assert.deepEqual(planets.venus.prediction, { kind: "indeterminate", label: "No prediction", detail: "The Sun doesn't set or rise that day" });
+  assert.deepEqual(planets.venus.prediction, { kind: "indeterminate", label: "No prediction", detail: "The Sun doesn't set or rise that day", basis: null });
   assert.deepEqual(planets.venus.details.slice(0, 2), [
     ["Evening", "None: the Sun doesn't set that day"],
     ["Morning", "None: the Sun doesn't rise that day"],
@@ -235,13 +235,13 @@ test("viewForVisibility: a planet below the horizon in both windows, or one the 
   const chart = NEW_YORK;
   const below = visibilities(chart, fakeEngine(() => ({ kind: "below-horizon", raw: { ret: -2, dret: [-100], serr: "" } })), DEFAULTS);
   const belowRow = viewForVisibility(chart, below.results).planets.find(({ planet }) => planet === "venus");
-  assert.deepEqual(belowRow.prediction, { kind: "below-horizon", label: "Below the horizon", detail: "Below the horizon at dusk and at dawn" });
+  assert.deepEqual(belowRow.prediction, { kind: "below-horizon", label: "Below the horizon", detail: "Below the horizon at dusk and at dawn", basis: null });
   assert.equal(belowRow.link, null);
 
   const failing = () => ({ kind: "failed", reason: "engine-error", raw: { ret: -1, dret: [], serr: "error in swe_calc" } });
   const failed = visibilities(chart, fakeEngine(failing), DEFAULTS);
   const failedRow = viewForVisibility(chart, failed.results).planets.find(({ planet }) => planet === "venus");
-  assert.deepEqual(failedRow.prediction, { kind: "unavailable", label: "Couldn't be worked out", detail: "Code: engine-error" });
+  assert.deepEqual(failedRow.prediction, { kind: "unavailable", label: "Couldn't be worked out", detail: "Code: engine-error", basis: null });
   assert.deepEqual(failedRow.details.slice(0, 2), [
     ["Evening", "Couldn't be worked out: engine-error"],
     ["Morning", "Couldn't be worked out: engine-error"],
@@ -345,4 +345,14 @@ test("helioscopeSettings: going back to the defaults forgets the choice, and a s
   assert.deepEqual(await helioscopeSettings(odd), DEFAULTS);
   const far = storage({ "helioscope-settings": { elevation: 30_000, underTheBeams: 17 } });
   assert.deepEqual(await helioscopeSettings(far), { elevation: null, underTheBeams: 17 });
+});
+
+test("viewForVisibility: each result's heading says how it's judged, with the limits the page used", async () => {
+  const { view } = await screen(NEW_YORK);
+  assert.deepEqual(view.method, {
+    moment: "From the longitude gap alone: cazimi within 17′, combust within 8°30′, under the beams within 15°.",
+    prediction: "The planet's magnitude against the faintest visible, every 2 minutes through the nearest twilights. Above 0, bright enough to see.",
+  });
+  const wider = await screen(NEW_YORK, { elevation: null, underTheBeams: 17 });
+  assert.match(wider.view.method.moment, /under the beams within 17°\.$/);
 });

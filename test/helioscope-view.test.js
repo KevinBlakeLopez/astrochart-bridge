@@ -83,6 +83,7 @@ test("a chart's screen: its rows, the planets' table, each planet's details, the
     "details.planet",
     "details.planet",
     "details.assumptions",
+    "details.how",
     "p.note",
     "p.note",
   ]);
@@ -108,14 +109,14 @@ test("the planets' table has a column heading for each result and a row heading 
   assert.deepEqual(body.children[1].children.map(cellText), [
     "Venus",
     ["Clear · evening", "47.2° east of the Sun"],
-    ["Detectable", "Best at dusk, 18:15: +9.01", "See it in Stellarium Web"],
+    ["Detectable", "Best at dusk, 18:15: +9.01", "−4.53 against a limit of 4.48", "See it in Stellarium Web"],
   ]);
   assert.equal(body.children[1].children[2].children[1].className, "detail");
 });
 
 test("a planet's Stellarium Web link opens in a new tab, with nothing of the page sent with it, and says what it opens", async () => {
   const [, table] = await drawnIn("en");
-  const link = table.children[1].children[1].children[2].children[2];
+  const link = table.children[1].children[1].children[2].children[3];
   assert.equal(link.tag, "a");
   assert.equal(link.href, "https://stellarium-web.org/skysource/Venus?date=2025-01-10T23%3A14%3A32Z&lat=40.7128&lng=-74.006&elev=0&fov=60");
   assert.equal(link.target, "_blank");
@@ -132,7 +133,7 @@ test("a planet with no best moment has no link, and a page with no links has no 
 
 test("each planet's details and the assumptions are closed boxes with their rows", async () => {
   const parts = await drawnIn("en");
-  const boxes = parts.filter(({ tag }) => tag === "details").map(box);
+  const boxes = parts.filter(({ className }) => className === "planet" || className === "assumptions").map(box);
   assert.deepEqual(
     boxes.map(({ summary }) => summary),
     ["Mercury: Not detectable", "Venus: Detectable", "Mars: Detectable", "Jupiter: Detectable", "Saturn: Detectable", "Assumptions"],
@@ -161,9 +162,9 @@ test("in Spanish, the page's words and decimal commas", async () => {
   assert.deepEqual(table.children[1].children[1].children.map(cellText), [
     "Venus",
     ["Libre de los rayos · vespertino", "47,2° al este del Sol"],
-    ["Detectable", "Mejor al anochecer, a las 18:15: +9,01", "Ver en Stellarium Web"],
+    ["Detectable", "Mejor al anochecer, a las 18:15: +9,01", "−4,53 frente a un límite de 4,48", "Ver en Stellarium Web"],
   ]);
-  const venus = box(parts.filter(({ tag }) => tag === "details")[1]);
+  const venus = box(parts.filter(({ className }) => className === "planet")[1]);
   assert.deepEqual(venus.rows[0], [
     "Anochecer",
     "Desde la puesta del Sol a las 16:49 hasta el final del crepúsculo astronómico a las 18:26, sobre el horizonte en 50 de 50 muestras",
@@ -177,13 +178,32 @@ test("in Slovenian, the page's words, decimal commas and counts", async () => {
   assert.deepEqual(table.children[1].children[1].children.map(cellText), [
     "Venera",
     ["Zunaj žarkov · na večernem nebu", "47,2° vzhodno od Sonca"],
-    ["Lahko se vidi", "Najbolje v mraku, ob 18:15: +9,01", "Odpri v Stellarium Web"],
+    ["Lahko se vidi", "Najbolje v mraku, ob 18:15: +9,01", "−4,53 ob meji 4,48", "Odpri v Stellarium Web"],
   ]);
-  const boxes = parts.filter(({ tag }) => tag === "details").map(box);
+  const boxes = parts.filter(({ className }) => className === "planet" || className === "assumptions").map(box);
   assert.deepEqual(boxes[1].rows[0], [
     "Večer",
     "Od sončnega zahoda ob 16:49 do konca astronomskega somraka ob 18:26, nad obzorjem v 50 od 50 vzorcev",
   ]);
   assert.deepEqual(boxes.at(-1).rows.find(([label]) => label === "Opazovalec"), ["Opazovalec", "Star 36 let, Snellenovo razmerje 1, z obema očesoma"]);
   assert.deepEqual(boxes.at(-1).rows.find(([label]) => label === "Vzorci"), ["Vzorci", "Na 2 minuti"]);
+});
+
+test("each result's heading carries how it's judged, under its name", async () => {
+  const [, table] = await drawnIn("en");
+  const [, moment, prediction] = table.children[0].children[0].children;
+  assert.equal(moment.children[0].textContent, "From the longitude gap alone: cazimi within 17′, combust within 8°30′, under the beams within 15°.");
+  assert.match(prediction.children[0].textContent, /^The planet's magnitude against the faintest visible/);
+});
+
+test("How this is worked out is a closed box of steps, then a link to the method and its checks", async () => {
+  const how = (await drawnIn("en")).find(({ className }) => className === "how");
+  const [summary, steps, line] = how.children;
+  assert.equal(summary.textContent, "How this is worked out");
+  assert.equal(steps.tag, "ol");
+  assert.equal(steps.children.length, 3);
+  assert.match(steps.children[0].textContent, /^The twilights are the evening one nearest/);
+  const [link] = line.children;
+  assert.equal(link.href, "https://github.com/KevinBlakeLopez/astrochart-bridge/blob/main/docs/HELIOSCOPE_V1_FEASIBILITY.md");
+  assert.equal(link.rel, "noopener noreferrer");
 });

@@ -99,8 +99,6 @@ export default {
       elevation: "Altitud en metros",
       underTheBeams: "Bajo los rayos a menos de",
       working: "Calculando los planetas…",
-      margin:
-        "El número es el margen en magnitudes: cuánto más brillante era el planeta que lo más tenue que se veía entonces. Por encima de 0, se predice que era visible.",
       notice:
         "AstroChart Bridge, © 2026 Kevin Blake Lopez, lo calcula en este dispositivo con Swiss Ephemeris, © 1997–2021 Astrodienst AG, a través de swisseph-wasm. Los tres son software libre: puedes compartirlos y modificarlos según la Licencia Pública General Affero de GNU, versión 3 o posterior. No tienen ninguna garantía.",
       source: "Código fuente y licencia",
@@ -807,6 +805,20 @@ export default {
     stellariumLabel: (planet, time) => `Ver ${planet} ${at(time)} en Stellarium Web`,
     linksNote:
       "Ver en Stellarium Web envía ese momento y el lugar de la carta a stellarium-web.org, cuya página pasa el enlace a las etiquetas publicitarias de Google. El reloj de Stellarium Web empieza a correr enseguida; su botón de pausa lo detiene.",
+    methodMoment: (cazimi, combust, underTheBeams) =>
+      `Solo por la diferencia de longitud: cazimi a menos de ${cazimi}, combusto a menos de ${combust}, bajo los rayos a menos de ${underTheBeams}.`,
+    methodPrediction: (minutes) =>
+      `La magnitud del planeta frente a lo más tenue visible, cada ${minutes} minutos en los crepúsculos más cercanos. Por encima de 0, se ve.`,
+    basis: (magnitude, limit) => `${magnitude} frente a un límite de ${limit}`,
+    how: {
+      title: "Cómo se calcula",
+      steps: [
+        "Los crepúsculos son el vespertino más cercano al momento de la carta, desde la puesta del Sol hasta el final del crepúsculo astronómico, y el matutino, desde su comienzo hasta la salida del Sol. Donde el Sol nunca baja 18° bajo el horizonte, terminan o empiezan en su punto más bajo.",
+        "El límite es la magnitud más tenue visible en ese lugar y momento, tal como la calcula Swiss Ephemeris a partir de la profundidad del Sol, la Luna, y la atmósfera y el observador de Supuestos. Se muestra la mejor de las muestras.",
+        "La predicción usa la posición real del planeta, con su latitud, y la condición solo la longitud, así que pueden no coincidir.",
+      ],
+      more: "El método y cómo se comprobó",
+    },
     assumptions: {
       ephemeris: "Efemérides",
       ephemerisValue: (version) => `Swiss Ephemeris ${version}, Moshier`,

@@ -86,11 +86,13 @@ table.planets .sky-link {
 }
 
 details.planet,
+details.how,
 details.assumptions {
   margin: 0 0 8px;
 }
 
 details.planet summary,
+details.how summary,
 details.assumptions summary {
   cursor: pointer;
 }

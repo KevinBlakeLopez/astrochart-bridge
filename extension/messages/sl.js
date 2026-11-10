@@ -116,8 +116,6 @@ export default {
       elevation: "Nadmorska višina v metrih",
       underTheBeams: "Pod žarki do",
       working: "Računanje planetov …",
-      margin:
-        "Število je presežek v magnitudah: za koliko je bil planet svetlejši od najšibkejšega, kar je bilo takrat vidno. Nad 0 je napovedano, da je bil viden.",
       notice:
         "AstroChart Bridge, © 2026 Kevin Blake Lopez, to izračuna na tej napravi s Swiss Ephemeris, © 1997–2021 Astrodienst AG, prek swisseph-wasm. Vsi trije so prosto programje: lahko jih delite in spreminjate pod pogoji licence GNU Affero General Public License, različice 3 ali novejše. Zanje ne velja nobeno jamstvo.",
       source: "Izvorna koda in licenca",
@@ -838,6 +836,20 @@ export default {
     stellariumLabel: (planet, time) => `Stellarium Web: ${planet} ob ${time}`,
     linksNote:
       "Odpri v Stellarium Web pošlje ta trenutek in kraj horoskopa na stellarium-web.org, njegova stran pa povezavo posreduje Googlovim oglaševalskim oznakam. Ura v Stellarium Web začne teči takoj; ustavite jo z gumbom za premor.",
+    methodMoment: (cazimi, combust, underTheBeams) =>
+      `Samo iz razlike v dolžini: kazimi do ${cazimi}, zgorevanje do ${combust}, pod žarki do ${underTheBeams}.`,
+    methodPrediction: (minutes) =>
+      `Magnituda planeta ob meji vidnosti, na ${count(minutes, MINUTES)} v najbližjih somrakih. Nad 0 se vidi.`,
+    basis: (magnitude, limit) => `${magnitude} ob meji ${limit}`,
+    how: {
+      title: "Kako se izračuna",
+      steps: [
+        "Somraka sta večerni, najbližji trenutku horoskopa, od sončnega zahoda do konca astronomskega somraka, in jutranji, od njegovega začetka do sončnega vzhoda. Kjer se Sonce nikoli ne spusti 18° pod obzorje, se končata ali začneta v njegovi najnižji točki.",
+        "Meja je najšibkejša magnituda, ki je vidna v tem kraju in trenutku, kot jo Swiss Ephemeris izračuna iz globine Sonca, Lune ter ozračja in opazovalca iz Predpostavk. Prikazan je najboljši vzorec.",
+        "Napoved upošteva pravi položaj planeta, tudi njegovo širino, stanje pa samo dolžino, zato se lahko razlikujeta.",
+      ],
+      more: "Metoda in kako je bila preverjena",
+    },
     assumptions: {
       ephemeris: "Efemeride",
       ephemerisValue: (version) => `Swiss Ephemeris ${version}, Moshier`,

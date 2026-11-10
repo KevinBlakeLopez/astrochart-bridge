@@ -5,6 +5,9 @@
 import { text } from "./messages/index.js";
 import { paragraph, rowList } from "./view.js";
 
+// Where the method and its checks are written up.
+const METHOD_URL = "https://github.com/KevinBlakeLopez/astrochart-bridge/blob/main/docs/HELIOSCOPE_V1_FEASIBILITY.md";
+
 /**
  * @param {{ replaceChildren: (...nodes: Node[]) => void }} container  its children are replaced
  * @param {ReturnType<typeof import("./helioscope-model.js").viewForVisibility>
@@ -20,25 +23,32 @@ export function drawScreen(container, view) {
   const words = text().helioscope;
   container.replaceChildren(
     rowList(view.rows),
-    planetTable(view.planets),
+    planetTable(view.planets, view.method),
     element("h2", "", words.detailsHeading),
     ...view.planets.map(({ name, prediction, details }) => closed(words.detailsSummary(name, prediction.label), details, "planet")),
     closed(words.assumptionsHeading, view.assumptions, "assumptions"),
+    howBox(),
     ...view.notes.map((note) => paragraph(note, "note")),
   );
 }
 
 // A row for each planet: its name, the moment's condition and side of the
 // Sun, and the prediction, each with its detail under it, and the
-// prediction with its Stellarium Web link when it has a best moment.
-function planetTable(planets) {
+// prediction with the comparison its margin comes from and its Stellarium
+// Web link when it has a best moment. Each result's heading says how it's judged.
+function planetTable(planets, method) {
   const { columns } = text().helioscope;
   const table = element("table", "planets");
   const head = element("thead");
-  head.append(tableRow([columns.planet, columns.moment, columns.prediction].map((label) => heading(label, "col"))));
+  const momentHeading = heading(columns.moment, "col");
+  momentHeading.append(element("span", "detail", method.moment));
+  const predictionHeading = heading(columns.prediction, "col");
+  predictionHeading.append(element("span", "detail", method.prediction));
+  head.append(tableRow([heading(columns.planet, "col"), momentHeading, predictionHeading]));
   const body = element("tbody");
   for (const { name, moment, prediction, link } of planets) {
     const predicted = twoLines(prediction.label, prediction.detail);
+    if (prediction.basis) predicted.append(element("span", "detail", prediction.basis));
     if (link) predicted.append(skyLink(link));
     body.append(tableRow([heading(name, "row"), twoLines(moment.text, moment.angle), predicted]));
   }
@@ -74,6 +84,23 @@ function twoLines(main, detail) {
   const cell = element("td");
   cell.append(element("span", "", main), element("span", "detail", detail));
   return cell;
+}
+
+// How this is worked out, closed until opened: only what the column
+// headings don't say, then where the method and its checks are written up.
+function howBox() {
+  const { how } = text().helioscope;
+  const box = element("details", "how");
+  const steps = element("ol");
+  steps.append(...how.steps.map((step) => element("li", "", step)));
+  const more = element("a", "", how.more);
+  more.href = METHOD_URL;
+  more.target = "_blank";
+  more.rel = "noopener noreferrer";
+  const line = element("p", "note");
+  line.append(more);
+  box.append(element("summary", "", how.title), steps, line);
+  return box;
 }
 
 // A details box with its rows, closed until opened.

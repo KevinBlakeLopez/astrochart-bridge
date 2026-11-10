@@ -85,9 +85,21 @@ export function viewForVisibility(chart, results) {
   return {
     state: "ready",
     rows: viewFor(chart).rows,
+    method: methodFor(list[0].assumptions),
     planets,
     assumptions: assumptionRows(list),
     notes: [words.timesAt(offsetText(chart.offsetMinutes)), ...linksNote],
+  };
+}
+
+// How each column judges, said under its heading: the traditional condition
+// from the longitude gap alone, with the limits this page used, and the
+// prediction from Swiss Ephemeris's brightness against the twilight sky.
+function methodFor({ conditionLimits: { cazimi, combust, underTheBeams }, stepMinutes }) {
+  const words = text().helioscope;
+  return {
+    moment: words.methodMoment(arc(cazimi), arc(combust), arc(underTheBeams)),
+    prediction: words.methodPrediction(stepMinutes),
   };
 }
 
@@ -226,11 +238,14 @@ function predictionFor({ classification, windows }, chart) {
     const other = window === "evening" ? "morning" : "evening";
     const second = windows[other];
     const both = kind === "detectable" && second.kind === "evaluated" && second.best.margin > 0;
-    return { kind, label, detail: both ? `${best}${words.also(words.windows[other], signed(second.best.margin))}` : best };
+    // The comparison the margin comes from, at the best moment.
+    const moment = windows[window].best;
+    const basis = words.basis(magnitude(moment.objectMagnitude), magnitude(moment.limitingMagnitude));
+    return { kind, label, detail: both ? `${best}${words.also(words.windows[other], signed(second.best.margin))}` : best, basis };
   }
-  if (kind === "below-horizon") return { kind, label, detail: words.belowBoth };
-  if (kind === "indeterminate") return { kind, label, detail: noWindowText(windows) };
-  return { kind, label, detail: text().view.code(classification.reason) };
+  if (kind === "below-horizon") return { kind, label, detail: words.belowBoth, basis: null };
+  if (kind === "indeterminate") return { kind, label, detail: noWindowText(windows), basis: null };
+  return { kind, label, detail: text().view.code(classification.reason), basis: null };
 }
 
 function noWindowText({ evening, morning }) {
