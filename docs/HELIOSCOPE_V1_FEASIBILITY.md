@@ -425,7 +425,13 @@ The engine failing to load is tested too, with `swisseph.wasm` missing or not We
 ## 9. Remaining risks
 
 - **Licensing** (§4) blocks everything else.
-- **Runtime in browsers** is verified in Chrome only (§8), since the owner chose to skip Firefox and Safari. Unknown in Firefox, and in Safari 26 on the Mac and the iPad: streaming instantiation and the `.wasm` MIME type, console messages, and whether the results match Node's.
+- **Runtime in browsers** was verified in Chrome only at gate 2 (§8), since the owner chose to skip Firefox and Safari then.
+  - **Firefox, 10 November 2026:** the owner opened Helioscope's page in Firefox 159, from version 0.2.0 loaded as a temporary add-on, for a Los Angeles chart, 1 September 1985 at 02:16 PDT. **Verified:** every value it showed matches Node's for the same chart, to the precision shown:
+    - each planet's condition, side and angle from the Sun
+    - its prediction and best time, including Jupiter's and Saturn's "20:24 on 31 Aug"
+    - its margin: Mercury +1.33, Venus +6.91, Mars −2.25, Jupiter +8.10, Saturn +4.34
+  - Not yet reported for Firefox: the console and network checks, the settings, the Stellarium Web links, and the screenshot, paste and import pages (test 25).
+  - Still unknown in Safari 26 on the Mac and the iPad: streaming instantiation and the `.wasm` MIME type, console messages, and whether the results match Node's.
 - **Model validity:** in the cases tried, the margin moved by 0.5 to 2.4 magnitudes with assumptions nobody records for a birth, and it has a discontinuity of 1.1 magnitudes. A "detectable" with a small margin is weak evidence.
 - **Hidden state:** the extinction memo (item 5) and the global observer (item 3). Any sweep over atmospheres needs a fresh instance for each scenario, or calls at different instants.
 - **Magnitudes:** Swiss Ephemeris uses Mallama and Hilton's 2018 formulas. **Read:** Mercury's is applied at every phase angle without a range check (`swecl.c:3923-3926`), and only Venus gets a warning, beyond 179°. Near superior conjunction, the object's magnitude is extrapolated.
@@ -475,4 +481,4 @@ The engine failing to load is tested too, with `swisseph.wasm` missing or not We
    - The chart screens open it with **Which planets were visible**, under See the sky, wherever Share… is offered: the popup and the screenshot and paste pages. Its link carries the chart but not its name or town. A horary chart, which reaches a chart screen as natal with horary as its gender, gets the button too. The import page's AAF and Morinus screens, which have no Share…, offer it as well, after their Astro-Seek buttons.
    - Each planet with a best moment links to Stellarium Web at that moment, from the chart's place at the elevation the prediction used, with the planet selected: §7's form, with a 60° field. §7 tried only Venus, with an unencoded date. The other four planets, and the encoded date the extension's links use, are for test 25 to check.
    - The README, the privacy page and the store listing describe it. The store listing has its single-purpose clause, `@kuntay/swisseph` among the reviewer notes' links, and the remote-code answer for the package's unused jsDelivr address.
-   - Not done: running it in a browser (test 25 of `docs/manual-test.md`).
+   - First run in a browser: Firefox 159, on 10 November 2026, where its results matched Node's (§9). The rest of test 25 of `docs/manual-test.md`, and Safari, are still to run.
