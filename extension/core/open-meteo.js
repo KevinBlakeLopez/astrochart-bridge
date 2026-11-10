@@ -72,29 +72,30 @@ export function weatherRequest({ lat, lng }, hours, today) {
 }
 
 /**
- * The archive's answer at each hour asked for: the cloud cover in all and at
- * each height, in %, and the air at 2 m as Swiss Ephemeris takes it. An hour
- * the answer doesn't have, or has without every value, is null: the archive
- * answers the days ERA5 hasn't reached yet, about the last five, with nulls.
+ * The archive's answer at each hour asked for, or at every hour it has: the
+ * cloud cover in all and at each height, in %, and the air at 2 m as Swiss
+ * Ephemeris takes it. An hour the answer doesn't have, or has without every
+ * value, is null: the archive answers the days ERA5 hasn't reached yet, about
+ * the last five, with nulls.
  *
  * @param {unknown} answer  the archive's JSON
- * @param {string[]} hours  from nearestHour
+ * @param {string[] | null} [hours]  from nearestHour; null for every hour of the answer
  * @returns {{ kind: "weather", at: Record<string, Reading | null> } | { kind: "failed", reason: "unexpected-answer" }}
  */
-export function readWeather(answer, hours) {
+export function readWeather(answer, hours = null) {
   if (!inShape(answer)) return { kind: "failed", reason: "unexpected-answer" };
   const { hourly } = answer;
-  const at = {};
-  for (const hour of hours) {
-    const i = hourly.time.indexOf(hour);
+  const reading = (i) => {
     const value = (name) => (i === -1 ? null : hourly[name][i]);
-    at[hour] = Object.keys(UNITS).some((name) => value(name) === null)
-      ? null
-      : {
-          cloud: { total: value("cloud_cover"), low: value("cloud_cover_low"), mid: value("cloud_cover_mid"), high: value("cloud_cover_high") },
-          air: { pressure: value("surface_pressure"), temperature: value("temperature_2m"), humidity: value("relative_humidity_2m") },
-        };
-  }
+    if (Object.keys(UNITS).some((name) => value(name) === null)) return null;
+    return {
+      cloud: { total: value("cloud_cover"), low: value("cloud_cover_low"), mid: value("cloud_cover_mid"), high: value("cloud_cover_high") },
+      air: { pressure: value("surface_pressure"), temperature: value("temperature_2m"), humidity: value("relative_humidity_2m") },
+    };
+  };
+  const at = {};
+  if (hours === null) hourly.time.forEach((hour, i) => (at[hour] = reading(i)));
+  else for (const hour of hours) at[hour] = reading(hourly.time.indexOf(hour));
   return { kind: "weather", at };
 }
 

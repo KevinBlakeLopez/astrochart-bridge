@@ -763,6 +763,7 @@ export default {
     predictions: {
       detectable: "Visible",
       undetectable: "Demasiado tenue",
+      clouded: "Probablemente tras las nubes",
       "below-horizon": "Bajo el horizonte",
       indeterminate: "Sin predicción",
       unavailable: "No se pudo calcular",
@@ -824,7 +825,7 @@ export default {
         "El brillo se mide en magnitudes, que van al revés: cuanto menor el número, más brillante. Venus está en torno a −4, y las estrellas más tenues que muestra un cielo oscuro, en torno a 6. Cada paso de 1 es unas 2,5 veces en brillo.",
         "El crepúsculo oculta lo tenue. Cada 2 minutos, desde la puesta del Sol hasta el final del crepúsculo astronómico y desde su comienzo hasta la salida del Sol, Swiss Ephemeris calcula la magnitud más tenue que se podría ver donde estaba el planeta: la magnitud límite. Depende de la profundidad del Sol, la Luna, y el aire y el observador de Supuestos. Donde el Sol nunca baja 18° bajo el horizonte, los crepúsculos terminan o empiezan en su punto más bajo.",
         "Un planeta más brillante que el límite se puede ver. La tabla da su mejor momento y cuántas veces más brillante o más tenue de lo necesario era entonces; los detalles dan las magnitudes.",
-        "La carta no recoge el tiempo ni la vista del observador. La bruma atenúa más a un planeta cuando está bajo en el cielo, así que incluso uno muchas veces más brillante de lo necesario pudo quedar oculto. Consultar el tiempo de esa noche da las nubes y el aire de ERA5.",
+        "La carta no recoge el tiempo ni la vista del observador. La bruma atenúa más a un planeta cuando está bajo en el cielo, así que incluso uno muchas veces más brillante de lo necesario pudo quedar oculto. Consultar el tiempo de esa noche da las nubes y el aire de ERA5, y dice cuándo nubes bajas o medias espesas probablemente ocultaron un planeta.",
         "La predicción usa la posición real del planeta, con su latitud, y la condición solo la longitud, así que pueden no coincidir.",
       ],
       more: "El método y cómo se comprobó",
@@ -840,8 +841,9 @@ export default {
       both: (evening, morning) => `${evening} · ${morning}`,
       cloudAt: (percent, time) => `${percent}\u00a0% de nubes ${at(time)}`,
       clearAt: (time) => `sin nubes ${at(time)}`,
+      withLayers: (said, layers) => `${said} (${layers})`,
       reworked:
-        "Los planetas de abajo se vuelven a calcular con el aire de esa noche. Las nubes de ERA5 son las de un cuadrado de unos 25\u00a0km de lado, y un planeta brillante puede verse a través de nubes altas y finas o de un claro.",
+        "Los planetas de abajo se vuelven a calcular con el aire de esa noche. Bajo cada uno lo bastante brillante para verse están las nubes de ERA5 en su mejor momento, para un cuadrado de unos 25\u00a0km de lado: nubes bajas o medias sobre al menos el 90\u00a0% de él probablemente ocultaron el planeta, aunque uno brillante puede verse a través de nubes altas y finas o de un claro.",
       credit: {
         data: "Datos meteorológicos de Open-Meteo.com",
         licence: "CC BY 4.0",

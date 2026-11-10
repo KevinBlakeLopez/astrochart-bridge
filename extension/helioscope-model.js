@@ -13,8 +13,10 @@
 //
 // Check that night's weather, when the user clicks it, asks Open-Meteo for
 // ERA5's weather in the twilights (core/open-meteo.js), then works each
-// twilight out again with that night's air. Its cloud is shown, never turned
-// into a verdict: a bright planet can show through thin high cloud or a gap.
+// twilight out again with that night's air. Each planet bright enough to see
+// then gives the cloud at its best moment, and is probably clouded out when
+// low or mid cloud covered nearly all of ERA5's square at every best moment
+// it had. High cloud alone never hides one: a bright planet can show through.
 import { natalChartFor, readLink } from "./chart-model.js";
 import { ELEVATION_LIMITS, PLANETS, UNDER_THE_BEAMS_LIMITS, classify, visibility } from "./core/helioscope.js";
 import { nearestHour, readWeather, weatherRequest } from "./core/open-meteo.js";
@@ -31,6 +33,11 @@ const SETTINGS_KEY = "helioscope-settings";
 
 const MINUS = "−";
 const WINDOWS = ["evening", "morning"];
+
+// Low or mid cloud over this much of ERA5's square, in %, at a planet's best
+// moment probably hid it: a choice, not a measurement. High cloud alone
+// never does, since a bright planet can show through it.
+const CLOUDED_OUT = 90;
 
 // The names Stellarium Web's skysource/ path takes, which it looks up through
 // the NoctuaSky API: English, whatever the interface's language.
@@ -100,8 +107,10 @@ export function visibilitiesWithAir(chart, { evening, morning }, settings) {
 
 /**
  * What Check that night's weather asks Open-Meteo for: the hour nearest the
- * middle of each twilight, from the months they fall in. A twilight's bounds
- * are the Sun's, the same for every planet. null for a twilight with no window.
+ * middle of each twilight, for its air, from every month the twilights touch,
+ * their ends included, since each planet's cloud is read at the hour nearest
+ * its own best moment. A twilight's bounds are the Sun's, the same for every
+ * planet. null for a twilight with no window.
  *
  * @param {object} chart  a normalized chart
  * @param {Record<string, object>} results  from visibilities
@@ -111,13 +120,14 @@ export function visibilitiesWithAir(chart, { evening, morning }, settings) {
  */
 export function weatherRequestFor(chart, results, today) {
   const hours = {};
+  const asked = [];
   for (const name of WINDOWS) {
     const bounded = PLANETS.map((planet) => results[planet].windows[name]).find((window) => window.start && window.end);
     hours[name] = bounded ? nearestHour(new Date((Date.parse(bounded.start.utc) + Date.parse(bounded.end.utc)) / 2).toISOString()) : null;
+    if (bounded) asked.push(nearestHour(bounded.start.utc), hours[name], nearestHour(bounded.end.utc));
   }
-  const wanted = WINDOWS.map((name) => hours[name]).filter((hour) => hour !== null);
-  if (wanted.length === 0) return { kind: "refused", reason: "no-twilight" };
-  const request = weatherRequest(chart, wanted, today);
+  if (asked.length === 0) return { kind: "refused", reason: "no-twilight" };
+  const request = weatherRequest(chart, asked, today);
   return request.kind === "refused" ? request : { ...request, hours };
 }
 
@@ -135,27 +145,29 @@ export function weatherOffer(chart, results, today) {
 }
 
 /**
- * That night's weather at each twilight's hour, from Open-Meteo's answer.
- * Every twilight with a window needs its reading: a night ERA5 hasn't reached
- * yet is refused rather than half shown.
+ * That night's weather at each twilight's hour, from Open-Meteo's answer,
+ * with every hour of the answer kept for the planets' best moments. Every
+ * twilight with a window needs its reading: a night ERA5 hasn't reached yet
+ * is refused rather than half shown.
  *
  * @param {unknown} answer  Open-Meteo's JSON
  * @param {{ evening: string | null, morning: string | null }} hours  from weatherRequestFor
  * @param {string} today  the UTC date it was asked on, for the credit
- * @returns {{ kind: "weather", year: string, evening: Night | null, morning: Night | null }
+ * @returns {{ kind: "weather", year: string, evening: Night | null, morning: Night | null,
+ *   hourly: Record<string, import("./core/open-meteo.js").Reading | null> }
  *   | { kind: "refused", reason: "not-yet" } | { kind: "failed", reason: "unexpected-answer" }}
  */
 export function nightWeather(answer, hours, today) {
-  const wanted = WINDOWS.map((name) => hours[name]).filter((hour) => hour !== null);
-  const read = readWeather(answer, wanted);
+  const read = readWeather(answer);
   if (read.kind === "failed") return read;
   const night = {};
   for (const name of WINDOWS) {
     const hour = hours[name];
-    if (hour !== null && read.at[hour] === null) return { kind: "refused", reason: "not-yet" };
-    night[name] = hour === null ? null : { hour, ...read.at[hour] };
+    const reading = hour === null ? null : (read.at[hour] ?? null);
+    if (hour !== null && reading === null) return { kind: "refused", reason: "not-yet" };
+    night[name] = reading === null ? null : { hour, ...reading };
   }
-  return { kind: "weather", year: today.slice(0, 4), ...night };
+  return { kind: "weather", year: today.slice(0, 4), ...night, hourly: read.at };
 }
 
 /**
@@ -171,10 +183,10 @@ export function nightWeather(answer, hours, today) {
 export function viewForVisibility(chart, results, weather = OFFERED) {
   const words = text().helioscope;
   const list = PLANETS.map((planet) => results[planet]);
-  const planets = list.map((result) => planetRow(result, chart));
+  const night = weather.kind === "weather" ? weather : null;
+  const planets = list.map((result) => planetRow(result, chart, night));
   // What a Stellarium Web link sends, said once, when there's a link to say it of.
   const linksNote = planets.some(({ link }) => link !== null) ? [words.linksNote] : [];
-  const night = weather.kind === "weather" ? weather : null;
   return {
     state: "ready",
     rows: viewFor(chart).rows,
@@ -197,10 +209,7 @@ function weatherView(weather, chart) {
   if (weather.kind === "asking") return { kind: "asking", message: words.asking };
   if (weather.kind === "weather") {
     // The cloud in all at the reading's hour, said at the chart's offset.
-    const cloud = (night) => {
-      const time = when(`${night.hour}:00Z`, chart);
-      return night.cloud.total === 0 ? words.clearAt(time) : words.cloudAt(plain(night.cloud.total), time);
-    };
+    const cloud = (night) => cloudSaid(night.cloud, when(`${night.hour}:00Z`, chart));
     return {
       kind: "shown",
       title: words.title,
@@ -215,6 +224,12 @@ function weatherView(weather, chart) {
   if (weather.kind === "failed") return { ...offer, message: weather.reason === "consent-failed" ? words.consentFailed : words.failed, code: weather.reason };
   if (weather.reason === "declined") return { ...offer, message: words.refusals.declined };
   return { kind: "unavailable", message: Object.hasOwn(words.refusals, weather.reason) ? words.refusals[weather.reason] : words.failed };
+}
+
+// The cloud in all at a time: "90 % cloud at 18:00", or "no cloud at 07:00".
+function cloudSaid(cloud, time) {
+  const words = text().helioscope.weather;
+  return cloud.total === 0 ? words.clearAt(time) : words.cloudAt(plain(cloud.total), time);
 }
 
 // Each twilight with that night's weather, "Dusk: …", joined.
@@ -306,12 +321,12 @@ function settingsFrom(value) {
 
 const fits = (metres) => Number.isInteger(metres) && metres >= ELEVATION_LIMITS.lowest && metres <= ELEVATION_LIMITS.highest;
 
-function planetRow(result, chart) {
+function planetRow(result, chart, night) {
   return {
     planet: result.planet,
     name: text().helioscope.planets[result.planet],
     moment: momentFor(result.solar),
-    prediction: predictionFor(result, chart),
+    prediction: predictionFor(result, chart, night),
     details: detailRows(result, chart),
     link: stellariumLink(result, chart),
   };
@@ -360,8 +375,11 @@ function angleFromSun(gap) {
 // The prediction from the windows in plain words: the best moment, and how
 // many times brighter or fainter than needed the planet was then. A planet
 // visible in both windows, as one near opposition can be, says so. The
-// magnitudes themselves are in its details.
-function predictionFor({ classification, windows }, chart) {
+// magnitudes themselves are in its details. With that night's weather in, a
+// planet bright enough to see also gives the cloud at each best moment it was
+// bright enough at, and is probably clouded out when every one was under
+// thick low or mid cloud: its brightness answer stays, and the cloud says why.
+function predictionFor({ classification, windows }, chart, night) {
   const words = text().helioscope;
   const { kind } = classification;
   const label = words.predictions[kind];
@@ -369,16 +387,44 @@ function predictionFor({ classification, windows }, chart) {
     const window = classification.window;
     const time = when(windows[window].best.utc, chart);
     const ratio = times(classification.margin);
-    if (kind === "undetectable") return { kind, label, detail: words.tooFaintAt(words.windows[window], time, ratio) };
+    if (kind === "undetectable") return { kind, label, detail: words.tooFaintAt(words.windows[window], time, ratio), cloud: null };
     const other = window === "evening" ? "morning" : "evening";
     const second = windows[other];
     const both = second.kind === "evaluated" && second.best.margin > 0;
-    const detail = words.visibleAt(words.windows[window], time, ratio);
-    return { kind, label, detail: both ? `${detail}${words.alsoVisible(words.windows[other])}` : detail };
+    const visible = words.visibleAt(words.windows[window], time, ratio);
+    const detail = both ? `${visible}${words.alsoVisible(words.windows[other])}` : visible;
+    const sky = night ? skyAt(both ? WINDOWS : [window], windows, night, chart) : null;
+    if (sky?.cloudedOut) return { kind: "clouded", label: words.predictions.clouded, detail, cloud: sky.line };
+    return { kind, label, detail, cloud: sky?.line ?? null };
   }
-  if (kind === "below-horizon") return { kind, label, detail: words.belowBoth };
-  if (kind === "indeterminate") return { kind, label, detail: noWindowText(windows) };
-  return { kind, label, detail: text().view.code(classification.reason) };
+  if (kind === "below-horizon") return { kind, label, detail: words.belowBoth, cloud: null };
+  if (kind === "indeterminate") return { kind, label, detail: noWindowText(windows), cloud: null };
+  return { kind, label, detail: text().view.code(classification.reason), cloud: null };
+}
+
+// That night's cloud at the hour nearest a planet's best moment in each of
+// the twilights named, "Dusk: 90 % cloud at 18:00 (low 0 %, mid 86 %, high
+// 88 %)", and whether the planet was probably clouded out: only when every
+// twilight has a reading, each with low or mid cloud over CLOUDED_OUT % or
+// more of ERA5's square. A twilight with no reading is left out of the line
+// and could have been clear. null when none has a reading.
+function skyAt(names, windows, night, chart) {
+  const words = text().helioscope.weather;
+  const seen = names.map((name) => {
+    const hour = nearestHour(windows[name].best.utc);
+    return { name, hour, reading: night.hourly[hour] ?? null };
+  });
+  const read = seen.filter(({ reading }) => reading !== null);
+  if (read.length === 0) return null;
+  const said = ({ name, hour, reading: { cloud } }) => {
+    const total = cloudSaid(cloud, when(`${hour}:00Z`, chart));
+    const layers = words.cloudValue(plain(cloud.low), plain(cloud.mid), plain(cloud.high));
+    return words.twilight(words.twilights[name], cloud.total === 0 ? total : words.withLayers(total, layers));
+  };
+  return {
+    line: read.length === 2 ? words.both(...read.map(said)) : said(read[0]),
+    cloudedOut: read.length === seen.length && read.every(({ reading: { cloud } }) => Math.max(cloud.low, cloud.mid) >= CLOUDED_OUT),
+  };
 }
 
 // How many times brighter, or fainter, than needed: the margin in magnitudes

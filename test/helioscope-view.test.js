@@ -61,13 +61,27 @@ async function drawnIn(code, chart = NEW_YORK, weather = undefined, onWeather = 
   }
 }
 
-// That night's weather for the New York chart, as nightWeather reads Open-Meteo's answer.
+// That night's weather for the New York chart, as nightWeather reads
+// Open-Meteo's answer: each twilight's reading, and of every hour it keeps,
+// those nearest the planets' best moments.
+const DUSK = { cloud: { total: 90, low: 0, mid: 86, high: 88 }, air: { pressure: 1007, temperature: 1.4, humidity: 56 } };
+const DAWN = { cloud: { total: 0, low: 0, mid: 0, high: 0 }, air: { pressure: 1010.8, temperature: -2.8, humidity: 65 } };
 const WEATHER = {
   kind: "weather",
   year: "2026",
-  evening: { hour: "2025-01-10T23:00", cloud: { total: 90, low: 0, mid: 86, high: 88 }, air: { pressure: 1007, temperature: 1.4, humidity: 56 } },
-  morning: { hour: "2025-01-10T12:00", cloud: { total: 0, low: 0, mid: 0, high: 0 }, air: { pressure: 1010.8, temperature: -2.8, humidity: 65 } },
+  evening: { hour: "2025-01-10T23:00", ...DUSK },
+  morning: { hour: "2025-01-10T12:00", ...DAWN },
+  hourly: {
+    "2025-01-10T11:00": { cloud: DAWN.cloud, air: { pressure: 1010.2, temperature: -2.9, humidity: 66 } },
+    "2025-01-10T12:00": DAWN,
+    "2025-01-10T23:00": DUSK,
+  },
 };
+
+// The same night with 95 % mid cloud at dusk: Venus, Jupiter and Saturn,
+// best then, were probably clouded out, while Mars still had a clear dawn.
+const OVERCAST_DUSK = { ...DUSK, cloud: { total: 95, low: 0, mid: 95, high: 88 } };
+const OVERCAST = { ...WEATHER, evening: { hour: "2025-01-10T23:00", ...OVERCAST_DUSK }, hourly: { ...WEATHER.hourly, "2025-01-10T23:00": OVERCAST_DUSK } };
 
 // Tromsø at midsummer: no sunset and no sunrise, so no best moment and no link.
 const TROMSO = { ...NEW_YORK, local: "2025-06-21T02:00:00", utc: "2025-06-21T00:00:00Z", lat: 69.6492, lng: 18.9553, offsetMinutes: 120 };
@@ -270,6 +284,35 @@ test("with the weather in, the section has its heading, the cloud at each twilig
   }
 });
 
+test("with the weather in, a planet bright enough to see has the cloud at its best moment under its prediction, before its Stellarium Web link", async () => {
+  const [, , table] = await drawnIn("en", NEW_YORK, WEATHER);
+  const [mercury, venus] = table.children[1].children;
+  assert.deepEqual(
+    venus.children[2].children.map(({ className, textContent }) => [className, textContent]),
+    [
+      ["", "Visible"],
+      ["detail", "At dusk, 18:15: about 4,000 times brighter than needed"],
+      ["detail", "Dusk: 90\u00a0% cloud at 18:00 (low 0\u00a0%, mid 86\u00a0%, high 88\u00a0%)"],
+      ["sky-link", "See it in Stellarium Web"],
+    ],
+  );
+  // Mercury, too faint to see, has none.
+  assert.deepEqual(cellText(mercury.children[2]), ["Too faint", "Best chance at dawn, 06:38: about 2.4 times too faint", "See it in Stellarium Web"]);
+});
+
+test("a planet probably clouded out says so in the table and in its details' summary, and keeps its brightness answer", async () => {
+  const parts = await drawnIn("en", NEW_YORK, OVERCAST);
+  const venus = parts[2].children[1].children[1];
+  assert.deepEqual(cellText(venus.children[2]), [
+    "Probably clouded out",
+    "At dusk, 18:15: about 4,000 times brighter than needed",
+    "Dusk: 95\u00a0% cloud at 18:00 (low 0\u00a0%, mid 95\u00a0%, high 88\u00a0%)",
+    "See it in Stellarium Web",
+  ]);
+  const summaries = parts.filter(({ className }) => className === "planet").map((details) => box(details).summary);
+  assert.deepEqual(summaries, ["Mercury: Too faint", "Venus: Probably clouded out", "Mars: Visible", "Jupiter: Probably clouded out", "Saturn: Probably clouded out"]);
+});
+
 test("in Spanish and Slovenian, the weather in each language's words and decimal commas", async () => {
   const [, spanish] = await drawnIn("es", NEW_YORK, WEATHER);
   assert.equal(spanish.children[1].textContent, "Anochecer: 90\u00a0% de nubes a las 18:00 · Amanecer: sin nubes a las 07:00");
@@ -277,4 +320,10 @@ test("in Spanish and Slovenian, the weather in each language's words and decimal
   assert.equal(slovenian.children[1].textContent, "Mrak: 90\u00a0% oblačnosti ob 18:00 · Svit: brez oblakov ob 07:00");
   const assumptions = (await drawnIn("es", NEW_YORK, WEATHER)).find(({ className }) => className === "assumptions");
   assert.deepEqual(box(assumptions).rows[1], ["Atmósfera esa noche", "Anochecer: 1007\u00a0hPa, 1,4\u00a0°C, 56\u00a0% de humedad · Amanecer: 1010,8\u00a0hPa, −2,8\u00a0°C, 65\u00a0% de humedad"]);
+  // A planet's cloud, and the verdict when it was probably clouded out.
+  const venusCell = async (code, weather) => (await drawnIn(code, NEW_YORK, weather))[2].children[1].children[1].children[2];
+  assert.equal((await venusCell("es", WEATHER)).children[2].textContent, "Anochecer: 90\u00a0% de nubes a las 18:00 (bajas 0\u00a0%, medias 86\u00a0%, altas 88\u00a0%)");
+  assert.equal((await venusCell("sl", WEATHER)).children[2].textContent, "Mrak: 90\u00a0% oblačnosti ob 18:00 (nizka 0\u00a0%, srednja 86\u00a0%, visoka 88\u00a0%)");
+  assert.equal((await venusCell("es", OVERCAST)).children[0].textContent, "Probablemente tras las nubes");
+  assert.equal((await venusCell("sl", OVERCAST)).children[0].textContent, "Verjetno za oblaki");
 });

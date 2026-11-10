@@ -153,12 +153,12 @@ test("viewForVisibility: each planet's condition and side of the Sun at the char
 
 test("viewForVisibility: each prediction says, in plain words, its best moment at the chart's offset to the nearest minute, and how many times brighter or fainter than needed", async () => {
   const { planets } = await screen(NEW_YORK);
-  assert.deepEqual(planets.mercury.prediction, { kind: "undetectable", label: "Too faint", detail: "Best chance at dawn, 06:38: about 2.4 times too faint" });
-  assert.deepEqual(planets.venus.prediction, { kind: "detectable", label: "Visible", detail: "At dusk, 18:15: about 4,000 times brighter than needed" });
+  assert.deepEqual(planets.mercury.prediction, { kind: "undetectable", label: "Too faint", detail: "Best chance at dawn, 06:38: about 2.4 times too faint", cloud: null });
+  assert.deepEqual(planets.venus.prediction, { kind: "detectable", label: "Visible", detail: "At dusk, 18:15: about 4,000 times brighter than needed", cloud: null });
   // Mars is near opposition, up all night, and visible in both windows.
-  assert.deepEqual(planets.mars.prediction, { kind: "detectable", label: "Visible", detail: "At dawn, 05:42: about 1,200 times brighter than needed · also visible at dusk" });
-  assert.deepEqual(planets.jupiter.prediction, { kind: "detectable", label: "Visible", detail: "At dusk, 18:21: about 310 times brighter than needed" });
-  assert.deepEqual(planets.saturn.prediction, { kind: "detectable", label: "Visible", detail: "At dusk, 18:15: about 29 times brighter than needed" });
+  assert.deepEqual(planets.mars.prediction, { kind: "detectable", label: "Visible", detail: "At dawn, 05:42: about 1,200 times brighter than needed · also visible at dusk", cloud: null });
+  assert.deepEqual(planets.jupiter.prediction, { kind: "detectable", label: "Visible", detail: "At dusk, 18:21: about 310 times brighter than needed", cloud: null });
+  assert.deepEqual(planets.saturn.prediction, { kind: "detectable", label: "Visible", detail: "At dusk, 18:15: about 29 times brighter than needed", cloud: null });
 });
 
 test("viewForVisibility: a planet's details give both windows, its best moment's sky, and its two angles from the Sun", async () => {
@@ -203,7 +203,7 @@ test("viewForVisibility: a window that runs to or from the Sun's lowest point sa
 
 test("viewForVisibility: with no sunset and no sunrise there's no prediction, and the row says why", async () => {
   const { view, planets } = await screen(TROMSO);
-  assert.deepEqual(planets.venus.prediction, { kind: "indeterminate", label: "No prediction", detail: "The Sun doesn't set or rise that day" });
+  assert.deepEqual(planets.venus.prediction, { kind: "indeterminate", label: "No prediction", detail: "The Sun doesn't set or rise that day", cloud: null });
   assert.deepEqual(planets.venus.details.slice(0, 2), [
     ["Evening", "None: the Sun doesn't set that day"],
     ["Morning", "None: the Sun doesn't rise that day"],
@@ -240,13 +240,13 @@ test("viewForVisibility: a planet below the horizon in both windows, or one the 
   const chart = NEW_YORK;
   const below = visibilities(chart, fakeEngine(() => ({ kind: "below-horizon", raw: { ret: -2, dret: [-100], serr: "" } })), DEFAULTS);
   const belowRow = viewForVisibility(chart, below.results).planets.find(({ planet }) => planet === "venus");
-  assert.deepEqual(belowRow.prediction, { kind: "below-horizon", label: "Below the horizon", detail: "Below the horizon at dusk and at dawn" });
+  assert.deepEqual(belowRow.prediction, { kind: "below-horizon", label: "Below the horizon", detail: "Below the horizon at dusk and at dawn", cloud: null });
   assert.equal(belowRow.link, null);
 
   const failing = () => ({ kind: "failed", reason: "engine-error", raw: { ret: -1, dret: [], serr: "error in swe_calc" } });
   const failed = visibilities(chart, fakeEngine(failing), DEFAULTS);
   const failedRow = viewForVisibility(chart, failed.results).planets.find(({ planet }) => planet === "venus");
-  assert.deepEqual(failedRow.prediction, { kind: "unavailable", label: "Couldn't be worked out", detail: "Code: engine-error" });
+  assert.deepEqual(failedRow.prediction, { kind: "unavailable", label: "Couldn't be worked out", detail: "Code: engine-error", cloud: null });
   assert.deepEqual(failedRow.details.slice(0, 2), [
     ["Evening", "Couldn't be worked out: engine-error"],
     ["Morning", "Couldn't be worked out: engine-error"],
@@ -393,6 +393,16 @@ test("weatherRequestFor asks Open-Meteo for the hour nearest the middle of each 
   assert.deepEqual([sent.latitude, sent.longitude, sent.start_date, sent.end_date], ["40.75", "-74", "2025-01-01", "2025-01-31"]);
 });
 
+test("weatherRequestFor asks for every month a twilight touches, since a planet's best moment can fall anywhere in it", async () => {
+  // On 31 January dusk runs from 22:13:07 to 23:46:48 UTC, so its last
+  // moments are nearest midnight, on 1 February.
+  const lastOfJanuary = { ...NEW_YORK, local: "2025-01-31T17:35:00", utc: "2025-01-31T22:35:00Z" };
+  const request = weatherRequestFor(lastOfJanuary, (await worked(lastOfJanuary)).results, TODAY);
+  assert.deepEqual(request.hours, { evening: "2025-01-31T23:00", morning: "2025-01-31T11:00" });
+  const sent = Object.fromEntries(new URL(request.url).searchParams);
+  assert.deepEqual([sent.start_date, sent.end_date], ["2025-01-01", "2025-02-28"]);
+});
+
 test("weatherOffer offers the check, unless the night is before 1940, after today, or has no twilight", async () => {
   const offered = async (chart) => weatherOffer(chart, (await worked(chart)).results, TODAY);
   assert.deepEqual(await offered(NEW_YORK), { kind: "offer" });
@@ -401,13 +411,17 @@ test("weatherOffer offers the check, unless the night is before 1940, after toda
   assert.deepEqual(await offered(TROMSO), { kind: "refused", reason: "no-twilight" });
 });
 
-test("nightWeather reads each twilight's hour, and refuses a night ERA5 hasn't reached yet", () => {
-  assert.deepEqual(nightWeather(ERA5, NIGHT_HOURS, TODAY), {
+test("nightWeather reads each twilight's hour, keeps every hour of the answer, and refuses a night ERA5 hasn't reached yet", () => {
+  const { hourly, ...night } = nightWeather(ERA5, NIGHT_HOURS, TODAY);
+  assert.deepEqual(night, {
     kind: "weather",
     year: "2026",
     evening: { hour: "2025-01-10T23:00", cloud: { total: 90, low: 0, mid: 86, high: 88 }, air: { pressure: 1007, temperature: 1.4, humidity: 56 } },
     morning: { hour: "2025-01-10T12:00", cloud: { total: 0, low: 0, mid: 0, high: 0 }, air: { pressure: 1010.8, temperature: -2.8, humidity: 65 } },
   });
+  // Every hour is kept, for each planet's cloud at the hour nearest its best moment.
+  assert.deepEqual(Object.keys(hourly), ERA5.hourly.time);
+  assert.deepEqual(hourly["2025-01-10T11:00"], { cloud: { total: 0, low: 0, mid: 0, high: 0 }, air: { pressure: 1010.2, temperature: -2.9, humidity: 66 } });
   // A twilight with no window has no hour, and needs no weather.
   assert.equal(nightWeather(ERA5, { ...NIGHT_HOURS, evening: null }, TODAY).evening, null);
   // The archive answers the days ERA5 hasn't reached with null.
@@ -462,7 +476,7 @@ test("viewForVisibility: with that night's weather, the cloud at each twilight, 
     kind: "shown",
     title: "That night's weather, from ERA5",
     line: "Dusk: 90\u00a0% cloud at 18:00 · Dawn: no cloud at 07:00",
-    note: "The planets below are worked out again with that night's air. ERA5's cloud is for a square about 25\u00a0km across, and a bright planet can show through thin high cloud or a gap.",
+    note: "The planets below are worked out again with that night's air. Under each one bright enough to see is ERA5's cloud at its best moment, for a square about 25\u00a0km across: low or mid cloud over at least 90\u00a0% of it probably hid the planet, though a bright one can show through thin high cloud or a gap.",
     credit: { data: "Weather data by Open-Meteo.com", licence: "CC BY 4.0", source: "generated using Copernicus Climate Change Service information 2026" },
   });
   // Venus's margin is +8.98 with that night's air, against +9.01 with the default.
@@ -473,6 +487,87 @@ test("viewForVisibility: with that night's weather, the cloud at each twilight, 
     ["Cloud that night", "Dusk: low 0\u00a0%, mid 86\u00a0%, high 88\u00a0% · Dawn: low 0\u00a0%, mid 0\u00a0%, high 0\u00a0%"],
     ["Observer", "Aged 36, Snellen ratio 1, both eyes"],
   ]);
+});
+
+// The planets as the page shows them with that night's air, under the cloud
+// in an answer: ERA5's, or one with an hour changed, and then as change
+// leaves the weather. The air is always ERA5's, worked out once.
+let reworked = null;
+async function nightPredictions(answer, change = (weather) => weather) {
+  reworked ??= (await withAir(NEW_YORK, nightWeather(ERA5, NIGHT_HOURS, TODAY))).both.results;
+  const view = viewForVisibility(NEW_YORK, reworked, change(nightWeather(answer, NIGHT_HOURS, TODAY)));
+  return Object.fromEntries(view.planets.map(({ planet, prediction }) => [planet, prediction]));
+}
+
+// An answer with one hour's values changed, as test/open-meteo.test.js has it.
+function withHour(hour, values, answer = ERA5) {
+  const i = answer.hourly.time.indexOf(hour);
+  const hourly = { ...answer.hourly };
+  for (const [name, value] of Object.entries(values)) hourly[name] = hourly[name].with(i, value);
+  return { ...answer, hourly };
+}
+
+// ERA5's cloud at 23:00 UTC, 18:00 at the chart's offset.
+const DUSK_CLOUD = "Dusk: 90\u00a0% cloud at 18:00 (low 0\u00a0%, mid 86\u00a0%, high 88\u00a0%)";
+
+test("viewForVisibility: with that night's weather, a planet bright enough to see shows the cloud at the hour nearest its best moment, in each twilight it was bright enough in", async () => {
+  const predictions = await nightPredictions(ERA5);
+  // Venus, Jupiter and Saturn are best between 18:14 and 18:19, nearest
+  // 18:00, when mid cloud covered 86 %: under 90 %, so they're still visible.
+  assert.deepEqual(predictions.venus, { kind: "detectable", label: "Visible", detail: "At dusk, 18:15: about 3,900 times brighter than needed", cloud: DUSK_CLOUD });
+  assert.equal(predictions.jupiter.cloud, DUSK_CLOUD);
+  assert.equal(predictions.saturn.cloud, DUSK_CLOUD);
+  // Mars was bright enough at dusk too, and was best at dawn, at 05:42, nearest 06:00.
+  assert.deepEqual(predictions.mars, {
+    kind: "detectable",
+    label: "Visible",
+    detail: "At dawn, 05:42: about 1,100 times brighter than needed · also visible at dusk",
+    cloud: `${DUSK_CLOUD} · Dawn: no cloud at 06:00`,
+  });
+  // Cloud can't change the answer for a planet too faint to see.
+  assert.deepEqual(predictions.mercury, { kind: "undetectable", label: "Too faint", detail: "Best chance at dawn, 06:40: about 3.1 times too faint", cloud: null });
+});
+
+test("viewForVisibility: a planet bright enough to see is probably clouded out when low or mid cloud covered at least 90 % at its best moment, in every twilight it was bright enough in", async () => {
+  const overcast = withHour("2025-01-10T23:00", { cloud_cover_mid: 90 });
+  const predictions = await nightPredictions(overcast);
+  // The brightness answer stays, and the cloud says why.
+  assert.deepEqual(predictions.venus, {
+    kind: "clouded",
+    label: "Probably clouded out",
+    detail: "At dusk, 18:15: about 3,900 times brighter than needed",
+    cloud: "Dusk: 90\u00a0% cloud at 18:00 (low 0\u00a0%, mid 90\u00a0%, high 88\u00a0%)",
+  });
+  assert.equal(predictions.jupiter.kind, "clouded");
+  assert.equal(predictions.saturn.kind, "clouded");
+  // Mars had a clear dawn, so it could still be seen then; Mercury was too faint either way.
+  assert.equal(predictions.mars.label, "Visible");
+  assert.equal(predictions.mercury.label, "Too faint");
+  // Once its dawn is overcast too, Mars is clouded out.
+  const both = await nightPredictions(withHour("2025-01-10T11:00", { cloud_cover: 95, cloud_cover_low: 95 }, overcast));
+  assert.deepEqual(both.mars, {
+    kind: "clouded",
+    label: "Probably clouded out",
+    detail: "At dawn, 05:42: about 1,100 times brighter than needed · also visible at dusk",
+    cloud: "Dusk: 90\u00a0% cloud at 18:00 (low 0\u00a0%, mid 90\u00a0%, high 88\u00a0%) · Dawn: 95\u00a0% cloud at 06:00 (low 95\u00a0%, mid 0\u00a0%, high 0\u00a0%)",
+  });
+  // Low cloud counts as mid cloud does; high cloud alone never does, however
+  // much of it; and 89 % is under the bar.
+  const venus = async (values) => (await nightPredictions(withHour("2025-01-10T23:00", values))).venus.label;
+  assert.equal(await venus({ cloud_cover_low: 90 }), "Probably clouded out");
+  assert.equal(await venus({ cloud_cover: 100, cloud_cover_mid: 0, cloud_cover_high: 100 }), "Visible");
+  assert.equal(await venus({ cloud_cover_mid: 89 }), "Visible");
+});
+
+test("viewForVisibility: a twilight with no reading at a planet's best moment shows no cloud for it, and can't make the planet clouded out", async () => {
+  const overcast = withHour("2025-01-10T23:00", { cloud_cover_mid: 90 });
+  const unread = (hour) => (weather) => ({ ...weather, hourly: { ...weather.hourly, [hour]: null } });
+  // Mars's dawn has no reading, so only its dusk is shown, and a clear dawn can't be ruled out.
+  const { mars } = await nightPredictions(overcast, unread("2025-01-10T11:00"));
+  assert.deepEqual([mars.label, mars.cloud], ["Visible", "Dusk: 90\u00a0% cloud at 18:00 (low 0\u00a0%, mid 90\u00a0%, high 88\u00a0%)"]);
+  // With no reading at all, nothing is shown, and the planet keeps its verdict.
+  const { venus } = await nightPredictions(overcast, unread("2025-01-10T23:00"));
+  assert.deepEqual([venus.label, venus.cloud], ["Visible", null]);
 });
 
 test("viewForVisibility: before a check, the page offers one and says what it sends, and after a refusal or failure it says why", async () => {

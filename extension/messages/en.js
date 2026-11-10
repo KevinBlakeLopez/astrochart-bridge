@@ -807,6 +807,8 @@ export default {
     predictions: {
       detectable: "Visible",
       undetectable: "Too faint",
+      // With that night's weather in: bright enough to see, but under thick low or mid cloud.
+      clouded: "Probably clouded out",
       "below-horizon": "Below the horizon",
       indeterminate: "No prediction",
       unavailable: "Couldn't be worked out",
@@ -878,7 +880,7 @@ export default {
         "Brightness is measured in magnitudes, which run backwards: the lower the number, the brighter. Venus is about −4, and the faintest stars a dark sky shows are about 6. Each step of 1 is about 2.5 times in brightness.",
         "Twilight hides faint things. Every 2 minutes from sunset to the end of astronomical twilight, and from its start to sunrise, Swiss Ephemeris works out the faintest magnitude you could see where the planet was: the limiting magnitude. It depends on the Sun's depth, the Moon, and the air and observer under Assumptions. Where the Sun never gets 18° below the horizon, the twilights end or start at its lowest point.",
         "A planet brighter than the limit can be seen. The table gives its best moment, and how many times brighter or fainter than needed it was then; the details give the magnitudes.",
-        "The chart doesn't record the weather or the observer's eyes. Haze dims a planet most when it's low in the sky, so even one many times brighter than needed could have been hidden. Check that night's weather gives ERA5's cloud and air.",
+        "The chart doesn't record the weather or the observer's eyes. Haze dims a planet most when it's low in the sky, so even one many times brighter than needed could have been hidden. Check that night's weather gives ERA5's cloud and air, and calls a planet probably clouded out under thick low or mid cloud.",
         "The prediction uses the planet's true place, its latitude included, while the condition uses longitude alone, so the two can disagree.",
       ],
       more: "The method, and how it was checked",
@@ -896,8 +898,10 @@ export default {
       both: (evening, morning) => `${evening} · ${morning}`,
       cloudAt: (percent, time) => `${percent}\u00a0% cloud at ${time}`,
       clearAt: (time) => `no cloud at ${time}`,
+      // "90 % cloud at 18:00 (low 0 %, mid 86 %, high 88 %)", under a planet's prediction.
+      withLayers: (said, layers) => `${said} (${layers})`,
       reworked:
-        "The planets below are worked out again with that night's air. ERA5's cloud is for a square about 25\u00a0km across, and a bright planet can show through thin high cloud or a gap.",
+        "The planets below are worked out again with that night's air. Under each one bright enough to see is ERA5's cloud at its best moment, for a square about 25\u00a0km across: low or mid cloud over at least 90\u00a0% of it probably hid the planet, though a bright one can show through thin high cloud or a gap.",
       // The credit Open-Meteo's licence and ERA5's ask for, drawn as "Weather
       // data by Open-Meteo.com (CC BY 4.0), generated using …", its first part
       // linked to Open-Meteo and the licence to the licence.

@@ -791,6 +791,7 @@ export default {
     predictions: {
       detectable: "Lahko se vidi",
       undetectable: "Prešibek sij",
+      clouded: "Verjetno za oblaki",
       "below-horizon": "Pod obzorjem",
       indeterminate: "Brez napovedi",
       unavailable: "Ni bilo mogoče izračunati",
@@ -856,7 +857,7 @@ export default {
         "Svetlost se meri v magnitudah, ki tečejo obratno: manjše ko je število, svetlejše je telo. Venera ima okoli −4, najšibkejše zvezde, ki jih pokaže temno nebo, pa okoli 6. Vsak korak za 1 pomeni približno 2,5-krat drugačno svetlost.",
         "Somrak skrije šibke stvari. Vsaki 2 minuti od sončnega zahoda do konca astronomskega somraka in od njegovega začetka do sončnega vzhoda Swiss Ephemeris izračuna najšibkejšo magnitudo, ki bi se videla tam, kjer je bil planet: mejno magnitudo. Odvisna je od globine Sonca, Lune ter zraka in opazovalca iz Predpostavk. Kjer se Sonce nikoli ne spusti 18° pod obzorje, se somraka končata ali začneta v njegovi najnižji točki.",
         "Planet, svetlejši od meje, se lahko vidi. Tabela navede njegov najboljši trenutek in kolikokrat več ali manj svetlobe, kot je potrebno, je imel takrat; podrobnosti navedejo magnitude.",
-        "Horoskop ne beleži ne vremena ne vida opazovalca. Meglica planet najbolj zatemni, ko je nizko na nebu, zato je lahko ostal skrit tudi planet z večkrat več svetlobe, kot je potrebno. Preveri vreme tisto noč pokaže oblačnost in zrak po ERA5.",
+        "Horoskop ne beleži ne vremena ne vida opazovalca. Meglica planet najbolj zatemni, ko je nizko na nebu, zato je lahko ostal skrit tudi planet z večkrat več svetlobe, kot je potrebno. Preveri vreme tisto noč pokaže oblačnost in zrak po ERA5 ter pove, kdaj so planet verjetno zakrili gosti nizki ali srednji oblaki.",
         "Napoved upošteva pravi položaj planeta, tudi njegovo širino, stanje pa samo dolžino, zato se lahko razlikujeta.",
       ],
       more: "Metoda in kako je bila preverjena",
@@ -873,8 +874,9 @@ export default {
       both: (evening, morning) => `${evening} · ${morning}`,
       cloudAt: (percent, time) => `${percent}\u00a0% oblačnosti ob ${time}`,
       clearAt: (time) => `brez oblakov ob ${time}`,
+      withLayers: (said, layers) => `${said} (${layers})`,
       reworked:
-        "Planeti spodaj so izračunani znova z zrakom tiste noči. Oblačnost ERA5 velja za kvadrat s stranico približno 25\u00a0km, svetel planet pa se lahko vidi skozi tanke visoke oblake ali skozi vrzel.",
+        "Planeti spodaj so izračunani znova z zrakom tiste noči. Pod vsakim, ki je bil dovolj svetel, da bi se videl, je oblačnost ERA5 v njegovem najboljšem trenutku, za kvadrat s stranico približno 25\u00a0km: nizki ali srednji oblaki nad vsaj 90\u00a0% kvadrata so planet verjetno zakrili, svetel planet pa se lahko vidi skozi tanke visoke oblake ali skozi vrzel.",
       credit: {
         data: "Vremenski podatki: Open-Meteo.com",
         licence: "CC BY 4.0",

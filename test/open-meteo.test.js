@@ -103,6 +103,17 @@ test("an hour the answer doesn't have, or has no value for yet, is null", () => 
   });
 });
 
+// Each planet's cloud is read at the hour nearest its own best moment, which
+// isn't known until the planets are worked out with that night's air.
+test("readWeather with no hours given reads every hour of the answer", () => {
+  const { kind, at } = readWeather(ANSWER);
+  assert.equal(kind, "weather");
+  assert.deepEqual(Object.keys(at), ANSWER.hourly.time);
+  assert.deepEqual(at["2025-01-11T00:00"].cloud, { total: 98, low: 0, mid: 98, high: 96 });
+  assert.equal(readWeather(withHour("2025-01-10T23:00", { relative_humidity_2m: null })).at["2025-01-10T23:00"], null);
+  assert.deepEqual(readWeather({ error: true }), { kind: "failed", reason: "unexpected-answer" });
+});
+
 test("an answer that isn't in the shape asked for is refused, not guessed at", () => {
   const refused = { kind: "failed", reason: "unexpected-answer" };
   const hours = ["2025-01-10T23:00"];
