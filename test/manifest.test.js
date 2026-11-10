@@ -97,3 +97,10 @@ test("the description fits the Chrome Web Store's summary", () => {
     assert.ok(message.length <= 132, `${code}: ${message.length} characters`);
   }
 });
+
+// Both stores take up to four dot-separated whole numbers, and each upload
+// needs one they haven't had. The popup shows it, so a loaded copy can be
+// told from another.
+test("the version is dot-separated whole numbers, as both stores take", () => {
+  assert.match(manifest.version, /^(0|[1-9]\d*)(\.(0|[1-9]\d*)){0,3}$/);
+});

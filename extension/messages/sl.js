@@ -55,6 +55,7 @@ export default {
     popup: {
       title: "AstroChart Bridge",
       reading: "Branje strani …",
+      version: (number) => `AstroChart Bridge ${number}`,
     },
     screenshot: {
       title: "AstroChart Bridge: branje posnetka zaslona",

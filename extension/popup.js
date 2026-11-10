@@ -39,6 +39,10 @@ localizePage(document, navigator.languages);
 
 const app = document.getElementById("app");
 
+// Which copy of the extension this is, from its manifest, so a loaded copy
+// can be told from another.
+document.getElementById("version").textContent = text().pages.popup.version(chrome.runtime.getManifest().version);
+
 // Where the values for an astro.com tab are kept. The browser empties it when it quits.
 const held = chrome.storage.session;
 
