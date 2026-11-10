@@ -22,21 +22,24 @@ export function openLink(container, { url, savesByHand }, sky = null) {
 }
 
 /**
- * The receiving page beside this one, wherever the site is served: on
- * GitHub Pages, or on this computer while it is tried out.
+ * A page beside this one, wherever the site is served: on GitHub Pages, or on
+ * this computer while it is tried out.
  *
+ * @param {string} page  the page's file, chart.html or helioscope.html
  * @param {string} href  this page's address, location.href
  */
-export const chartPageUrl = (href) => new URL("chart.html", href).href;
+export const pageUrl = (page, href) => new URL(page, href).href;
 
 /**
- * Share… on the web: the receiving page beside this one in a new tab, with
- * the chart in its link. Called while the click is still being handled, with
- * nothing awaited first, since Safari blocks a window opened after an await.
+ * Share… or Which planets were visible on the web: the receiving page or
+ * Helioscope's page beside this one in a new tab, with the chart in its link.
+ * Called while the click is still being handled, with nothing awaited first,
+ * since Safari blocks a window opened after an await.
  *
+ * @param {string} page  the page's file, chart.html or helioscope.html
  * @param {object} chart  a portable chart
  * @param {string} href  this page's address, location.href
  */
-export function openChartPage(chart, href) {
-  window.open(linkFor(chartPageUrl(href), chart), "_blank", "noopener");
+export function openPage(page, chart, href) {
+  window.open(linkFor(pageUrl(page, href), chart), "_blank", "noopener");
 }

@@ -2,8 +2,9 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { astroSeekSaveUrl } from "../extension/core/astroseek.js";
 import { linkFor, readLink } from "../extension/chart-model.js";
+import { chartFromLink } from "../extension/helioscope-model.js";
 import { chartForEntry } from "../extension/paste-model.js";
-import { chartPageUrl, openChartPage, openLink } from "../extension/web-page.js";
+import { openLink, openPage, pageUrl } from "../extension/web-page.js";
 
 // Just enough of a page for view.js to draw into, as in view.test.js, and a
 // window whose open is recorded.
@@ -28,20 +29,32 @@ const buttons = (box) => box.parts.filter(({ tag }) => tag === "button");
 
 const SKY = { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 };
 
-test("the web's receiving page is chart.html beside the page, wherever the site is served", () => {
+test("the web's receiving page and Helioscope's page are beside the page, wherever the site is served", () => {
   assert.equal(
-    chartPageUrl("https://kevinblakelopez.github.io/astrochart-bridge/paste.html?x=1#y"),
+    pageUrl("chart.html", "https://kevinblakelopez.github.io/astrochart-bridge/paste.html?x=1#y"),
     "https://kevinblakelopez.github.io/astrochart-bridge/chart.html",
   );
-  assert.equal(chartPageUrl("http://127.0.0.1:8000/import.html"), "http://127.0.0.1:8000/chart.html");
+  assert.equal(pageUrl("chart.html", "http://127.0.0.1:8000/import.html"), "http://127.0.0.1:8000/chart.html");
+  assert.equal(
+    pageUrl("helioscope.html", "https://kevinblakelopez.github.io/astrochart-bridge/import.html"),
+    "https://kevinblakelopez.github.io/astrochart-bridge/helioscope.html",
+  );
 });
 
 test("Share… on the web opens the receiving page beside this one, with the chart in its link, in a new tab", () => {
   opened.length = 0;
   const { chart } = chartForEntry({ date: "2024-04-17", time: "08:00:00", lat: SKY.lat, lng: SKY.lng, offsetMinutes: -240 }, []);
-  openChartPage(chart, "https://kevinblakelopez.github.io/astrochart-bridge/screenshot.html");
+  openPage("chart.html", chart, "https://kevinblakelopez.github.io/astrochart-bridge/screenshot.html");
   assert.deepEqual(opened, [[linkFor("https://kevinblakelopez.github.io/astrochart-bridge/chart.html", chart), "_blank", "noopener"]]);
   assert.notEqual(readLink(new URL(opened[0][0]).hash)?.kind, "refused");
+});
+
+test("Which planets were visible on the web opens Helioscope's page beside this one, with the chart in its link", () => {
+  opened.length = 0;
+  const { chart } = chartForEntry({ date: "2024-04-17", time: "08:00:00", lat: SKY.lat, lng: SKY.lng, offsetMinutes: -240 }, []);
+  openPage("helioscope.html", chart, "https://kevinblakelopez.github.io/astrochart-bridge/paste.html");
+  assert.deepEqual(opened, [[linkFor("https://kevinblakelopez.github.io/astrochart-bridge/helioscope.html", chart), "_blank", "noopener"]]);
+  assert.equal(chartFromLink(new URL(opened[0][0]).hash).kind, "chart");
 });
 
 test("a link on the web opens in a new tab, and nothing is drawn", () => {

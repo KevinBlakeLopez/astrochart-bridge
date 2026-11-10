@@ -25,6 +25,7 @@ import {
   viewForAstroComNotFilled,
   viewForAstroComTab,
   viewForAstroSeekSave,
+  viewForHelioscopeRefusal,
   viewForShareRefusal,
   viewForSky,
   withOtherWays,
@@ -237,11 +238,12 @@ function showChart(base) {
   });
 }
 
-// What a chart screen's own buttons do: open a link, Share…, whose refusal
-// goes back to the screen on Cancel, or one of Read a different chart's other
-// ways. desktop-page.js takes the desktop ones.
+// What a chart screen's own buttons do: open a link, Share… or Which planets
+// were visible, whose refusals go back to the screen on Cancel, or one of Read
+// a different chart's other ways. desktop-page.js takes the desktop ones.
 function chartButtons(button, sky, screen) {
   if (button.does === "share") return share(sky, screen.view, screen.onButton);
+  if (button.does === "helioscope") return openHelioscope(sky, screen.view, screen.onButton);
   if (button.page || button.does === "import-from-desktop") return otherWay(button);
   return openLink(button, sky);
 }
@@ -256,6 +258,19 @@ async function share(sky, back, onButton) {
     return;
   }
   await chrome.tabs.create({ url: linkFor(chrome.runtime.getURL("chart.html"), shared.chart) });
+  window.close();
+}
+
+// Which planets were visible opens Helioscope's page in a tab, with the chart
+// in its link as Share… puts it there, but never its name or town: the page
+// needs only the moment and the place.
+async function openHelioscope(sky, back, onButton) {
+  const shared = chartToShare(sharing, sky, "page");
+  if (shared.kind === "refused") {
+    render(app, viewForHelioscopeRefusal(shared.reason), onButton, back);
+    return;
+  }
+  await chrome.tabs.create({ url: linkFor(chrome.runtime.getURL("helioscope.html"), shared.chart) });
   window.close();
 }
 

@@ -38,9 +38,9 @@ const SAME_NIGHT = 0.5;
 const FIRST_JD = julianDay("1582-10-15T00:00:00Z");
 const END_JD = julianDay("3000-01-01T00:00:00Z");
 
-// Metres: the elevations the engine takes, swe_heliacal_ut's limits.
-const LOWEST = -500;
-const HIGHEST = 25_000;
+// Metres: the elevations the engine takes, swe_heliacal_ut's limits, which
+// Helioscope's page takes too.
+export const ELEVATION_LIMITS = Object.freeze({ lowest: -500, highest: 25_000 });
 
 const refused = (reason) => ({ kind: "refused", reason });
 
@@ -74,7 +74,9 @@ export function visibility(chart, planet, engine, { elevation, underTheBeams = C
   const jd = julianDay(chart.utc);
   if (jd < FIRST_JD || jd >= END_JD) return refused("date-out-of-range");
   const metres = elevation === undefined ? 0 : elevation;
-  if (!Number.isFinite(metres) || metres < LOWEST || metres > HIGHEST) return refused("invalid-elevation");
+  if (!Number.isFinite(metres) || metres < ELEVATION_LIMITS.lowest || metres > ELEVATION_LIMITS.highest) {
+    return refused("invalid-elevation");
+  }
 
   const place = { lat: chart.lat, lng: chart.lng, elevation: metres };
   const evening = sampled(eveningWindow(engine, jd, place), engine, place, planet);

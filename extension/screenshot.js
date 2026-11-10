@@ -7,11 +7,11 @@ import Tesseract from "./vendor/tesseract/tesseract.esm.min.js";
 import { analyzeScreenshot } from "./core/index.js";
 import { linkFor } from "./chart-model.js";
 import { isExtensionCopy } from "./extension-copy.js";
-import { chartToShare, viewForShareRefusal } from "./popup-model.js";
+import { chartToShare, viewForHelioscopeRefusal, viewForShareRefusal } from "./popup-model.js";
 import { viewForScreenshot } from "./screenshot-model.js";
 import { localizePage, text } from "./messages/index.js";
 import { paragraph, render } from "./view.js";
-import { openChartPage, openLink as openWebLink } from "./web-page.js";
+import { openPage, openLink as openWebLink } from "./web-page.js";
 
 // The browser's language, chosen before anything is drawn.
 localizePage(document, navigator.languages);
@@ -109,20 +109,29 @@ async function recognize(file) {
   return data.text;
 }
 
-// As in the popup: Send to Stellarium Desktop, and Share…, which opens the
-// receiving page in a tab with the chart in its link, or says why a chart the
-// format can't carry can't go, with Cancel back to the chart.
+// As in the popup: Send to Stellarium Desktop; Share…, which opens the
+// receiving page in a tab with the chart in its link; and Which planets were
+// visible, which opens Helioscope's page the same way, without the chart's
+// name or town. A chart the format can't carry says why, with Cancel back to
+// the chart.
 function showChart(result) {
   const view = viewForScreenshot(result, { onTheWeb });
+  const pages = {
+    share: { page: "chart.html", labels: { town: result.town, name: result.name }, refusal: viewForShareRefusal },
+    helioscope: { page: "helioscope.html", labels: {}, refusal: viewForHelioscopeRefusal },
+  };
   const onButton = async (button, sky, screen) => {
-    if (button.does !== "share") return openLink(button, sky);
-    const shared = chartToShare(result, sky, "screenshot", { town: result.town, name: result.name });
+    if (!Object.hasOwn(pages, button.does)) return openLink(button, sky);
+    const { page, labels, refusal } = pages[button.does];
+    const shared = chartToShare(result, sky, "screenshot", labels);
     if (shared.kind === "refused") {
-      render(app, viewForShareRefusal(shared.reason), screen.onButton, screen.view);
+      // renderChart passes its screen; the plain render below, without the
+      // desktop button, doesn't, and then this page's own are the way back.
+      render(app, refusal(shared.reason), screen?.onButton ?? onButton, screen?.view ?? view);
       return;
     }
-    if (onTheWeb) openChartPage(shared.chart, location.href);
-    else await chrome.tabs.create({ url: linkFor(chrome.runtime.getURL("chart.html"), shared.chart) });
+    if (onTheWeb) openPage(page, shared.chart, location.href);
+    else await chrome.tabs.create({ url: linkFor(chrome.runtime.getURL(page), shared.chart) });
   };
   // With Send to Stellarium Desktop in the extension, as in the popup;
   // without it on the web, or should Stellarium's side fail.

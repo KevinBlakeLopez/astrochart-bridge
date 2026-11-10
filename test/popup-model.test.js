@@ -21,8 +21,10 @@ const RUNNING = "The clock starts running at once; its pause button stops it.";
 const LOS_ANGELES = { timeZone: "America/Los_Angeles" };
 const NY_PLACE = ["Place", "40°43'N, 74°0'W"];
 // Every screen with a chart of its own can share it; the button opens the
-// receiving page in a tab once a UTC is decided.
+// receiving page in a tab once a UTC is decided. Helioscope's page opens the
+// same way, from the button right before it.
 const SHARE = { label: "Share…", does: "share", secondary: true };
+const HELIOSCOPE = { label: "Which planets were visible", does: "helioscope", secondary: true };
 const OPEN_SKY = { label: "Open Stellarium Web", opens: "stellarium" };
 
 test("ready: New York, seen from Los Angeles", () => {
@@ -41,7 +43,7 @@ test("ready: New York, seen from Los Angeles", () => {
       PRIVACY_NOTE,
     ],
     sky: { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 },
-    buttons: [OPEN_SKY, SHARE],
+    buttons: [OPEN_SKY, HELIOSCOPE, SHARE],
     // test/astro-com-handoff.test.js covers the astro.com screen itself.
     next: {
       label: "Enter in astro.com…",
@@ -52,7 +54,7 @@ test("ready: New York, seen from Los Angeles", () => {
 
 test("ready: an Astro-Seek chart placed by coordinates can be saved in Astro-Seek, with no note", () => {
   const view = viewFor(analyze("manual-ut-2024-04-17-0000"), LOS_ANGELES);
-  assert.deepEqual(view.buttons, [OPEN_SKY, { label: "Save in Astro-Seek…", saves: { town: null, name: null, gender: null }, secondary: true }, SHARE]);
+  assert.deepEqual(view.buttons, [OPEN_SKY, { label: "Save in Astro-Seek…", saves: { town: null, name: null, gender: null }, secondary: true }, HELIOSCOPE, SHARE]);
   // The chart is already on astro-seek.com, so no note says what saving sends there.
   assert.deepEqual(view.notes, [view.notes[0], PRIVACY_NOTE]);
   assert.equal(view.next.label, "Enter in astro.com…");
@@ -88,6 +90,7 @@ test("ready: an astro.com chart shows its stated offset and no zone label, and c
       { label: "Open Stellarium Web", opens: "stellarium" },
       { label: "Open chart in Astro-Seek", opens: "astro-seek" },
       { label: "Save in Astro-Seek…", saves: { town: null, name: null, gender: null }, secondary: true },
+      HELIOSCOPE,
       SHARE,
     ],
   });
@@ -169,7 +172,7 @@ test("choose: the skipped time offers both readings and opens nothing yet", () =
       },
     ],
     notes: NOTES,
-    buttons: [OPEN_SKY, SHARE],
+    buttons: [OPEN_SKY, HELIOSCOPE, SHARE],
   });
 });
 
@@ -182,7 +185,7 @@ test("enter-offset: no printed UT asks for the offset and previews the UTC", () 
   assert.deepEqual(view.rows, [["Local time", "17 Apr 2024, 08:00 (EDT, DST)"], NY_PLACE]);
   assert.equal(view.message, "Astro-Seek didn't print a Universal Time. Enter the UTC offset at the birth place, as ±HH:MM.");
   assert.deepEqual(view.notes, NOTES);
-  assert.deepEqual(view.buttons, [OPEN_SKY, SHARE]);
+  assert.deepEqual(view.buttons, [OPEN_SKY, HELIOSCOPE, SHARE]);
   assert.deepEqual(offsetPreview(view, " -04:00 "), {
     utcText: "2024-04-17 12:00",
     sky: { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 },

@@ -59,7 +59,7 @@ test("the Slovenian catalog has every English message, of the same kind", () => 
 
 // Each page's elements with data-text or data-label: the attribute, the
 // message's path, and what the HTML itself says there, its text or its aria-label.
-const PAGES = ["popup", "screenshot", "paste", "import", "chart"];
+const PAGES = ["popup", "screenshot", "paste", "import", "chart", "helioscope"];
 function marked(page) {
   const html = readFileSync(new URL(`../extension/${page}.html`, import.meta.url), "utf8");
   const marks = [

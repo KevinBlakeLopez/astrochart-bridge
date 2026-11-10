@@ -5,13 +5,14 @@
 // file handles the file and the page. Text from the file is only ever
 // inserted with textContent.
 import { decodeAafFile, viewForAafText } from "./aaf-model.js";
-import { takeFileForImport } from "./chart-model.js";
+import { linkFor, takeFileForImport } from "./chart-model.js";
 import { isHorFile } from "./core/morinus-hor.js";
 import { isExtensionCopy } from "./extension-copy.js";
 import { viewForHorFile } from "./hor-model.js";
 import { localizePage } from "./messages/index.js";
+import { chartToShare, viewForHelioscopeRefusal } from "./popup-model.js";
 import { paragraph, render } from "./view.js";
-import { openLink as openWebLink } from "./web-page.js";
+import { openPage, openLink as openWebLink } from "./web-page.js";
 
 // The browser's language, chosen before anything is drawn.
 localizePage(document, navigator.languages);
@@ -60,14 +61,14 @@ function show(view, warning) {
   app.replaceChildren();
 
   if (view.items.length === 1) {
-    showChart(view.items[0].view);
+    showChart(view.items[0]);
   } else if (view.items.length > 1) {
     const choices = document.createElement("fieldset");
     for (const item of view.items) {
       const input = document.createElement("input");
       input.type = "radio";
       input.name = "chart";
-      input.addEventListener("change", () => showChart(item.view));
+      input.addEventListener("change", () => showChart(item));
       const label = document.createElement("label");
       label.append(input, item.label);
       choices.append(label);
@@ -78,10 +79,26 @@ function show(view, warning) {
 }
 
 // A chart, with Send to Stellarium Desktop in the extension, as in the popup;
-// without it on the web, or should Stellarium's side fail. A refusal is drawn as it is.
-function showChart(chart) {
-  if (desktop) desktop.renderChart(app, chart, openLink).catch(() => render(app, chart, openLink));
-  else render(app, chart, openLink);
+// without it on the web, or should Stellarium's side fail. A refusal is drawn
+// as it is. Which planets were visible opens Helioscope's page in a tab with
+// the chart in its link, but not its name or town, as on the screenshot and
+// paste pages, and a chart the link can't carry says why, with Cancel back to
+// the chart.
+function showChart({ view, chart }) {
+  const onButton = async (button, sky, screen) => {
+    if (button.does !== "helioscope") return openLink(button, sky);
+    const shared = chartToShare(chart, sky, "file");
+    if (shared.kind === "refused") {
+      // renderChart passes its screen; the plain render below, without the
+      // desktop button, doesn't, and then this page's own are the way back.
+      render(app, viewForHelioscopeRefusal(shared.reason), screen?.onButton ?? onButton, screen?.view ?? view);
+      return;
+    }
+    if (onTheWeb) openPage("helioscope.html", shared.chart, location.href);
+    else await chrome.tabs.create({ url: linkFor(chrome.runtime.getURL("helioscope.html"), shared.chart) });
+  };
+  if (desktop) desktop.renderChart(app, view, onButton).catch(() => render(app, view, onButton));
+  else render(app, view, onButton);
 }
 
 // Links, the astro.com buttons and Save in Astro-Seek…, as on the screenshot and paste pages.

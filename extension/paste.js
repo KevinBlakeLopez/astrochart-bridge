@@ -5,10 +5,10 @@
 import { linkFor } from "./chart-model.js";
 import { isExtensionCopy } from "./extension-copy.js";
 import { chartForEntry, checkField, entryFor, formForText, localEntryFor, viewForEntry, viewForLocalEntry } from "./paste-model.js";
-import { viewForShareRefusal } from "./popup-model.js";
+import { viewForHelioscopeRefusal, viewForShareRefusal } from "./popup-model.js";
 import { localizePage, text } from "./messages/index.js";
 import { paragraph, render } from "./view.js";
-import { openChartPage, openLink as openWebLink } from "./web-page.js";
+import { openPage, openLink as openWebLink } from "./web-page.js";
 
 // The browser's language, chosen before anything is drawn.
 localizePage(document, navigator.languages);
@@ -144,22 +144,30 @@ function fieldElement(field, onValue) {
 }
 
 // As on the screenshot page: Share… opens the receiving page in a tab with the
-// chart in its link, and a chart the format can't carry says why, with Cancel
-// back to this screen.
+// chart in its link, and Which planets were visible opens Helioscope's page
+// the same way, without the chart's name or town. A chart the format can't
+// carry says why, with Cancel back to this screen.
 function showReady(formElementToKeep, entry, form) {
   const screen = document.createElement("div");
   const view = viewForEntry(entry, { warnings: form.warnings, name: form.name, town: form.town, gender: form.gender, onTheWeb });
+  const pages = {
+    share: { page: "chart.html", labels: { town: form.town, name: form.name }, refusal: viewForShareRefusal },
+    helioscope: { page: "helioscope.html", labels: {}, refusal: viewForHelioscopeRefusal },
+  };
   const onButton = async (button, sky, drawn) => {
     // Links, Save in Astro-Seek…, and the astro.com buttons of the step after
     // this screen, as on the screenshot page.
-    if (button.does !== "share") return openPageLink(screen, button, sky);
-    const shared = chartForEntry(entry, form.statedOffsets, { town: form.town, name: form.name });
+    if (!Object.hasOwn(pages, button.does)) return openPageLink(screen, button, sky);
+    const { page, labels, refusal } = pages[button.does];
+    const shared = chartForEntry(entry, form.statedOffsets, labels);
     if (shared.kind === "refused") {
-      render(screen, viewForShareRefusal(shared.reason), drawn.onButton, drawn.view);
+      // renderChart passes what it drew; the plain render below, without the
+      // desktop button, doesn't, and then this screen's own are the way back.
+      render(screen, refusal(shared.reason), drawn?.onButton ?? onButton, drawn?.view ?? view);
       return;
     }
-    if (onTheWeb) openChartPage(shared.chart, location.href);
-    else await chrome.tabs.create({ url: linkFor(chrome.runtime.getURL("chart.html"), shared.chart) });
+    if (onTheWeb) openPage(page, shared.chart, location.href);
+    else await chrome.tabs.create({ url: linkFor(chrome.runtime.getURL(page), shared.chart) });
   };
   // With Send to Stellarium Desktop in the extension, as in the popup;
   // without it on the web, or should Stellarium's side fail.

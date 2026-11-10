@@ -45,6 +45,7 @@ test("a chart from AAF opens like an astro.com chart, with its name and birthpla
     astroSeekButtons()[0],
     { ...astroSeekButtons()[1], keeps: { town: "New York, NY (US)", name: { first: "New York", last: "Test" }, gender: null } },
     { label: "Save in Astro-Seek…", saves: { town: "New York, NY (US)", name: "New York Test", gender: null }, secondary: true },
+    { label: "Which planets were visible", does: "helioscope", secondary: true },
   ]);
   assert.deepEqual(view.notes, [...plain.notes, astroSeekNotes()[0], astroSeekSaveNamedNote()]);
   assert.deepEqual(view.warnings, []);
@@ -123,6 +124,8 @@ test("a record parseAaf couldn't read is listed with its line and value", () => 
   assert.deepEqual(list.items[0], {
     label: "Line 1: unreadable record",
     view: { state: "refused", message: "Line 1: AstroChart Bridge couldn't read the date \"31.4.2024\".", code: "bad-date" },
+    // Nothing to open, so no chart for Which planets were visible.
+    chart: null,
   });
   assert.equal(list.items[1].view.state, "ready");
 });

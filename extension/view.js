@@ -202,7 +202,14 @@ function stepList(steps) {
   return list;
 }
 
-function rowList(rows) {
+/**
+ * A list of labelled values, such as a chart's rows. Helioscope's page draws
+ * its details with it too.
+ *
+ * @param {[string, string][]} rows
+ * @returns {HTMLDListElement}
+ */
+export function rowList(rows) {
   const list = document.createElement("dl");
   for (const [label, value] of rows) {
     const term = document.createElement("dt");
