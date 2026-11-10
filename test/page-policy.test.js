@@ -26,9 +26,11 @@ function policyOf(page) {
 }
 
 // Every page the site publishes (tools/site.mjs).
-const PUBLISHED = ["chart.html", "paste.html", "import.html", "screenshot.html", "helioscope.html"];
+const PUBLISHED = ["index.html", "chart.html", "paste.html", "import.html", "screenshot.html", "helioscope.html"];
 
-const STRICT = { "default-src": ["'none'"], "style-src": ["'self'"], "base-uri": ["'none'"], "form-action": ["'none'"] };
+// Every page may load its own web app manifest (manifest.webmanifest), and its
+// own images: the browser loads the Home Screen icon the page links as one.
+const STRICT = { "default-src": ["'none'"], "style-src": ["'self'"], "img-src": ["'self'"], "manifest-src": ["'self'"], "base-uri": ["'none'"], "form-action": ["'none'"] };
 
 test("every published page fits an iPad's screen and sends no referrer", () => {
   for (const page of PUBLISHED) {
@@ -36,6 +38,14 @@ test("every published page fits an iPad's screen and sends no referrer", () => {
     assert.equal(metaContent(html, "name", "viewport"), "width=device-width, initial-scale=1", page);
     assert.equal(metaContent(html, "name", "referrer"), "no-referrer", page);
   }
+});
+
+test("the receiving page runs only its own scripts, and reaches nothing", () => {
+  assert.deepEqual(policyOf("chart.html"), { ...STRICT, "script-src": ["'self'"] });
+});
+
+test("the home page also starts the site's own service worker", () => {
+  assert.deepEqual(policyOf("index.html"), { ...STRICT, "script-src": ["'self'"], "worker-src": ["'self'"] });
 });
 
 test("the paste and import pages run only their own scripts, and reach only Stellarium Desktop", () => {

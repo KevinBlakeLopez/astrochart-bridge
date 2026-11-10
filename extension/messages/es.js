@@ -41,6 +41,12 @@ export default {
       reading: "Leyendo la página…",
       version: (number) => `AstroChart Bridge ${number}`,
     },
+    home: {
+      intro:
+        "Trae los datos de nacimiento de una carta y luego abre su cielo en Stellarium Web, abre la carta en Astro-Seek o mira qué planetas eran visibles.",
+      privacy:
+        "Las cartas se leen en este dispositivo, y no se envía nada hasta que abras el cielo o la carta. Este sitio guarda copias de sus propios archivos en este dispositivo para funcionar sin conexión, pero nunca una carta.",
+    },
     screenshot: {
       title: "AstroChart Bridge: leer una captura de pantalla",
       heading: "Leer la captura de pantalla de una carta",

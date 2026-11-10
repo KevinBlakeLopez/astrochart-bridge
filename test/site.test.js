@@ -9,9 +9,9 @@ import { buildSite, SITE_FILES } from "../tools/site.mjs";
 const extension = new URL("../extension/", import.meta.url).pathname;
 const read = (file) => readFileSync(join(extension, file), "utf8");
 
-// The pages published on the web: the receiving page, the pages that read a
-// pasted chart, a chart file and a screenshot, and Helioscope's page.
-const PAGES = ["chart.html", "paste.html", "import.html", "screenshot.html", "helioscope.html"];
+// The pages published on the web: the home page, the receiving page, the pages
+// that read a pasted chart, a chart file and a screenshot, and Helioscope's page.
+const PAGES = ["index.html", "chart.html", "paste.html", "import.html", "screenshot.html", "helioscope.html"];
 
 // Modules the pages import only in the extension's copy, which the extension
 // ships: astro.com's and Astro-Seek's forms are filled in, and Stellarium
@@ -31,7 +31,13 @@ const TESSERACT_BY_ADDRESS = [
 // no import names either.
 const SWISSEPH_BY_ADDRESS = ["vendor/swisseph/wasm/swisseph.wasm"];
 
-const LOADED_BY_ADDRESS = [...TESSERACT_BY_ADDRESS, ...SWISSEPH_BY_ADDRESS];
+// The icons the web app's manifest names, which the browser loads from it.
+const MANIFEST_ICONS = JSON.parse(read("manifest.webmanifest")).icons.map(({ src }) => src);
+
+// The service worker the home page registers by address (home.js).
+const SERVICE_WORKER = ["sw.js"];
+
+const LOADED_BY_ADDRESS = [...TESSERACT_BY_ADDRESS, ...SWISSEPH_BY_ADDRESS, ...MANIFEST_ICONS, ...SERVICE_WORKER];
 
 // Files a page doesn't load but must travel with what it loads. Swiss
 // Ephemeris goes out under the AGPL, with swisseph-wasm's notice.
@@ -57,6 +63,15 @@ test("the files Tesseract.js loads by address are the ones screenshot.js names",
   }
   assert.match(code, /langPath: VENDOR,/);
   assert.match(code, /createWorker\("eng",/);
+});
+
+test("the home page registers the service worker, by its name, on the web only, and no other page does", () => {
+  const code = read("home.js");
+  assert.match(code, /^if \(!isExtensionCopy\(location\.href\) && "serviceWorker" in navigator\) navigator\.serviceWorker\.register\("sw\.js"\)/m);
+  assert.deepEqual(SERVICE_WORKER, ["sw.js"]);
+  for (const file of SITE_FILES.filter((file) => /\.m?js$/.test(file) && file !== "home.js")) {
+    assert.doesNotMatch(read(file), /serviceWorker\.register/, file);
+  }
 });
 
 test("the binary Swiss Ephemeris's glue fetches by address is the one beside it", () => {
@@ -97,6 +112,20 @@ test("nothing only the extension can use is published", () => {
       /^(popup\.(html|js)|manifest\.json|astro-com-(page|open)\.js|astro-seek-open\.js|desktop-(page|model)\.js|stellarium-desktop\.js|preference\.js)$/,
       file,
     );
+  }
+});
+
+// An installed web app has no back button, so each page but the home page has
+// a way back to it, which only the web's copy shows (web-page.js's showHomeLink).
+test("every published page but the home page links back to it, hidden until its script shows it on the web", () => {
+  for (const page of PAGES.filter((page) => page !== "index.html")) {
+    const html = read(page);
+    assert.match(html, /<main>\n\s*<p id="home" class="home" hidden><a href="index\.html" data-text="pages\.popup\.title">AstroChart Bridge<\/a><\/p>\n/, page);
+    const script = read(page.replace(".html", ".js"));
+    assert.match(script, /^showHomeLink\(document, location\.href\);$/m, page);
+  }
+  for (const link of ["paste.html", "import.html", "screenshot.html", "chart.html"]) {
+    assert.ok(read("index.html").includes(`<a href="${link}"`), link);
   }
 });
 

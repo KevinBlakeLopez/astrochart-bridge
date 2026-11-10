@@ -14,6 +14,19 @@ import { fileURLToPath } from "node:url";
 const EXTENSION = fileURLToPath(new URL("../extension/", import.meta.url));
 
 export const SITE_FILES = Object.freeze([
+  // The home page, where the installed web app opens. Only the web has it.
+  "index.html",
+  "home.css",
+  "home.js",
+  // The service worker the home page registers, which keeps the site's files
+  // for offline use.
+  "sw.js",
+  // The web app's manifest, which every page links, the Home Screen icon they
+  // link, and the icons the manifest names.
+  "manifest.webmanifest",
+  "icons/icon-180.png",
+  "icons/icon-192.png",
+  "icons/icon-512.png",
   "chart.html",
   "popup.css",
   "chart.css",

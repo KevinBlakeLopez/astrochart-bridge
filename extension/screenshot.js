@@ -11,10 +11,13 @@ import { chartToShare, viewForHelioscopeRefusal, viewForShareRefusal } from "./p
 import { viewForScreenshot } from "./screenshot-model.js";
 import { localizePage, text } from "./messages/index.js";
 import { paragraph, render } from "./view.js";
-import { openPage, openLink as openWebLink } from "./web-page.js";
+import { openPage, openLink as openWebLink, showHomeLink } from "./web-page.js";
 
 // The browser's language, chosen before anything is drawn.
 localizePage(document, navigator.languages);
+
+// The way back to the home page, on the web.
+showHomeLink(document, location.href);
 
 // The extension's copy fills in astro.com's and Astro-Seek's forms and sends
 // to Stellarium Desktop; the web's copy can't, and the site doesn't publish

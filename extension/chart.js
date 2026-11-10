@@ -20,10 +20,13 @@ import { isExtensionCopy } from "./extension-copy.js";
 import { RECEIVER_URL } from "./share-config.js";
 import { localizePage, text } from "./messages/index.js";
 import { paragraph, render } from "./view.js";
-import { openPage } from "./web-page.js";
+import { openPage, showHomeLink } from "./web-page.js";
 
 // The browser's language, chosen before anything is drawn.
 localizePage(document, navigator.languages);
+
+// The way back to the home page, on the web.
+showHomeLink(document, location.href);
 
 const app = document.getElementById("app");
 const status = document.getElementById("status");

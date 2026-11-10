@@ -4,7 +4,7 @@ import { astroSeekSaveUrl } from "../extension/core/astroseek.js";
 import { linkFor, readLink } from "../extension/chart-model.js";
 import { chartFromLink } from "../extension/helioscope-model.js";
 import { chartForEntry } from "../extension/paste-model.js";
-import { openLink, openPage, pageUrl } from "../extension/web-page.js";
+import { openLink, openPage, pageUrl, showHomeLink } from "../extension/web-page.js";
 
 // Just enough of a page for view.js to draw into, as in view.test.js, and a
 // window whose open is recorded.
@@ -55,6 +55,23 @@ test("Which planets were visible on the web opens Helioscope's page beside this 
   openPage("helioscope.html", chart, "https://kevinblakelopez.github.io/astrochart-bridge/paste.html");
   assert.deepEqual(opened, [[linkFor("https://kevinblakelopez.github.io/astrochart-bridge/helioscope.html", chart), "_blank", "noopener"]]);
   assert.equal(chartFromLink(new URL(opened[0][0]).hash).kind, "chart");
+});
+
+test("the way back to the home page shows on the web and stays hidden in the extension", () => {
+  const pageWith = () => {
+    const home = { hidden: true };
+    return { home, getElementById: (id) => (id === "home" ? home : null) };
+  };
+  for (const href of ["https://kevinblakelopez.github.io/astrochart-bridge/paste.html", "http://127.0.0.1:8000/chart.html"]) {
+    const page = pageWith();
+    showHomeLink(page, href);
+    assert.equal(page.home.hidden, false, href);
+  }
+  for (const href of ["chrome-extension://abcdefghijklmnop/paste.html", "moz-extension://1234/chart.html", "safari-web-extension://5678/helioscope.html"]) {
+    const page = pageWith();
+    showHomeLink(page, href);
+    assert.equal(page.home.hidden, true, href);
+  }
 });
 
 test("a link on the web opens in a new tab, and nothing is drawn", () => {

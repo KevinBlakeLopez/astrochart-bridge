@@ -5,8 +5,21 @@
 // in a new tab, and Save in Astro-Seek… by hand leads to Astro-Seek's form
 // filled in by its address alone. Nothing is kept.
 import { linkFor } from "./chart-model.js";
+import { isExtensionCopy } from "./extension-copy.js";
 import { viewForAstroSeekSave } from "./popup-model.js";
 import { render } from "./view.js";
+
+/**
+ * Shows the way back to the site's home page, index.html, on the web's copy
+ * of a page: an installed web app has no back button. The extension's copy
+ * keeps it hidden, since the store zips leave the home page out.
+ *
+ * @param {Document} document  a page with a hidden #home
+ * @param {string} href  this page's address, location.href
+ */
+export function showHomeLink(document, href) {
+  if (!isExtensionCopy(href)) document.getElementById("home").hidden = false;
+}
 
 /**
  * @param {HTMLElement} container  where the page draws its screens
