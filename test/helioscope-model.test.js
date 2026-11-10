@@ -484,6 +484,13 @@ test("viewForVisibility: before a check, the page offers one and says what it se
   // A failure, or Firefox's consent refused, can be tried again.
   assert.deepEqual(weatherIn({ kind: "failed", reason: "network" }), { ...OFFER, message: "Couldn't get the weather.", code: "network" });
   assert.deepEqual(weatherIn({ kind: "refused", reason: "declined" }), { ...OFFER, message: "Firefox wasn't allowed to send it, so nothing was sent." });
+  // Firefox refusing to ask at all, as it does when the manifest it loaded
+  // doesn't declare the consent, says that nothing was sent either.
+  assert.deepEqual(weatherIn({ kind: "failed", reason: "consent-failed" }), {
+    ...OFFER,
+    message: "Firefox couldn't ask for its consent, so nothing was sent.",
+    code: "consent-failed",
+  });
   // The rest can't be, so there's nothing to click.
   const unavailable = {
     "before-1940": "ERA5's weather starts in 1940, so there's none to check for this chart.",

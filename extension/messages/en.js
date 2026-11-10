@@ -913,6 +913,8 @@ export default {
         declined: "Firefox wasn't allowed to send it, so nothing was sent.",
       },
       failed: "Couldn't get the weather.",
+      // Firefox refused to ask, as it does when the manifest it loaded doesn't declare the consent.
+      consentFailed: "Firefox couldn't ask for its consent, so nothing was sent.",
       // Under Assumptions, once the weather is in.
       air: "Atmosphere that night",
       cloud: "Cloud that night",

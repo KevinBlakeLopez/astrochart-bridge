@@ -855,6 +855,7 @@ export default {
         declined: "Firefox no dio permiso para enviarlo, así que no se envió nada.",
       },
       failed: "No se pudo obtener el tiempo.",
+      consentFailed: "Firefox no pudo pedir su consentimiento, así que no se envió nada.",
       air: "Atmósfera esa noche",
       cloud: "Nubes esa noche",
       cloudValue: (low, mid, high) => `bajas ${low} %, medias ${mid} %, altas ${high} %`,

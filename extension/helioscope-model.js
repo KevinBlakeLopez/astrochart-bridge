@@ -211,7 +211,8 @@ function weatherView(weather, chart) {
   }
   const offer = { kind: "offer", button: words.button, note: words.sends, message: null, code: null };
   if (weather.kind === "offer") return offer;
-  if (weather.kind === "failed") return { ...offer, message: words.failed, code: weather.reason };
+  // Firefox refusing to ask for its consent sent nothing, so it says so.
+  if (weather.kind === "failed") return { ...offer, message: weather.reason === "consent-failed" ? words.consentFailed : words.failed, code: weather.reason };
   if (weather.reason === "declined") return { ...offer, message: words.refusals.declined };
   return { kind: "unavailable", message: Object.hasOwn(words.refusals, weather.reason) ? words.refusals[weather.reason] : words.failed };
 }

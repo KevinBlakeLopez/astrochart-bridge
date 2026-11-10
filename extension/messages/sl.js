@@ -888,6 +888,7 @@ export default {
         declined: "Firefox ni dovolil pošiljanja, zato ni bilo poslano nič.",
       },
       failed: "Vremena ni bilo mogoče dobiti.",
+      consentFailed: "Firefox ni mogel vprašati za privolitev, zato ni bilo poslano nič.",
       air: "Ozračje tisto noč",
       cloud: "Oblačnost tisto noč",
       cloudValue: (low, mid, high) => `nizka ${low} %, srednja ${mid} %, visoka ${high} %`,

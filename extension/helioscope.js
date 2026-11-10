@@ -112,7 +112,13 @@ function askWeather(asked, chart, results) {
         if (weather.kind === "weather") asked.engines = await nightEngines(weather);
         return weather;
       },
-      () => ({ kind: "failed", reason: "consent-failed" }),
+      // Firefox refused to ask at all, as it does when the manifest it loaded
+      // doesn't declare the consent: nothing was sent. Its own reason goes to
+      // the console.
+      (error) => {
+        console.warn("AstroChart Bridge: Firefox couldn't ask for its consent to share location information:", error?.message ?? error);
+        return { kind: "failed", reason: "consent-failed" };
+      },
     )
     .catch(() => ({ kind: "failed", reason: "engine-failed" }))
     .then((state) => settle(asked, state));
