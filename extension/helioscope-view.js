@@ -34,8 +34,8 @@ export function drawScreen(container, view) {
 
 // A row for each planet: its name, the moment's condition and side of the
 // Sun, and the prediction, each with its detail under it, and the
-// prediction with the comparison its margin comes from and its Stellarium
-// Web link when it has a best moment. Each result's heading says how it's judged.
+// prediction with its Stellarium Web link when it has a best moment. Each
+// result's heading says how it's judged.
 function planetTable(planets, method) {
   const { columns } = text().helioscope;
   const table = element("table", "planets");
@@ -48,7 +48,6 @@ function planetTable(planets, method) {
   const body = element("tbody");
   for (const { name, moment, prediction, link } of planets) {
     const predicted = twoLines(prediction.label, prediction.detail);
-    if (prediction.basis) predicted.append(element("span", "detail", prediction.basis));
     if (link) predicted.append(skyLink(link));
     body.append(tableRow([heading(name, "row"), twoLines(moment.text, moment.angle), predicted]));
   }

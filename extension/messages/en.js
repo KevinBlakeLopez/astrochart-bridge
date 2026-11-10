@@ -782,6 +782,8 @@ export default {
   // gives them when they aren't on the chart's own day.
   helioscope: {
     decimal: ".",
+    // For numbers written out whole, such as how many times brighter.
+    locale: "en",
     planets: { mercury: "Mercury", venus: "Venus", mars: "Mars", jupiter: "Jupiter", saturn: "Saturn" },
     conditions: { cazimi: "Cazimi", combust: "Combust", "under-the-beams": "Under the beams", clear: "Clear" },
     // The side of the Sun, the apparition: east of it is the evening sky.
@@ -794,18 +796,20 @@ export default {
     inOpposition: "Opposite the Sun",
     notWorkedOut: "Couldn't be worked out",
     predictions: {
-      detectable: "Detectable",
-      undetectable: "Not detectable",
+      detectable: "Visible",
+      undetectable: "Too faint",
       "below-horizon": "Below the horizon",
       indeterminate: "No prediction",
       unavailable: "Couldn't be worked out",
     },
     // The windows by their twilight, so they aren't taken for the side of the Sun.
     windows: { evening: "dusk", morning: "dawn" },
-    // "Best at dusk, 18:15: +9.01"
-    best: (window, time, margin) => `Best at ${window}, ${time}: ${margin}`,
-    // " · dusk +4.16": the other window's margin, when it's above 0 too.
-    also: (window, margin) => ` · ${window} ${margin}`,
+    // "At dusk, 18:15: about 4,000 times brighter than needed"
+    visibleAt: (window, time, ratio) => `At ${window}, ${time}: about ${ratio} times brighter than needed`,
+    // "Best chance at dawn, 06:38: about 2.4 times too faint"
+    tooFaintAt: (window, time, ratio) => `Best chance at ${window}, ${time}: about ${ratio} times too faint`,
+    // " · also visible at dusk", for a planet visible in both windows.
+    alsoVisible: (window) => ` · also visible at ${window}`,
     belowBoth: "Below the horizon at dusk and at dawn",
     noWindow: {
       set: "The Sun doesn't set that day",
@@ -842,9 +846,9 @@ export default {
       other: "None: there's no twilight that night",
     },
     failed: (code) => `Couldn't be worked out: ${code}`,
-    // "18:15: margin +9.01, Venus at −4.53 against a limit of 4.48, 25° up in the southwest, the Sun 16° down"
-    bestMoment: ({ time, margin, planet, magnitude, limit, altitude, direction, sunDepth }) =>
-      `${time}: margin ${margin}, ${planet} at ${magnitude} against a limit of ${limit}, ${altitude}° up in the ${direction}, the Sun ${sunDepth}° down`,
+    // "18:15: magnitude −4.53 against a limiting magnitude of 4.48, a margin of +9.01. 25° up in the southwest, the Sun 16° below the horizon"
+    bestMoment: ({ time, margin, magnitude, limit, altitude, direction, sunDepth }) =>
+      `${time}: magnitude ${magnitude} against a limiting magnitude of ${limit}, a margin of ${margin}. ${altitude}° up in the ${direction}, the Sun ${sunDepth}° below the horizon`,
     // From north, every 45° clockwise.
     directions: ["north", "northeast", "east", "southeast", "south", "southwest", "west", "northwest"],
     timesAt: (offset) => `Times are at ${offset}, the chart's offset.`,
@@ -856,17 +860,16 @@ export default {
       "See it in Stellarium Web sends that moment and the chart's place to stellarium-web.org, whose page passes the link on to Google's advertising tags. Stellarium Web's clock starts running at once; its pause button stops it.",
     // Under each result's heading: how it's judged.
     methodMoment: (cazimi, combust, underTheBeams) =>
-      `From the longitude gap alone: cazimi within ${cazimi}, combust within ${combust}, under the beams within ${underTheBeams}.`,
-    methodPrediction: (minutes) =>
-      `The planet's magnitude against the faintest visible, every ${minutes} minutes through the nearest twilights. Above 0, bright enough to see.`,
-    // Under a prediction's margin: what it's the difference of. "−4.53 against a limit of 4.48"
-    basis: (magnitude, limit) => `${magnitude} against a limit of ${limit}`,
+      `The traditional condition, from the longitude gap alone: cazimi within ${cazimi}, combust ${combust}, under the beams ${underTheBeams}`,
+    methodPrediction: "Whether it was bright enough to see in the twilights nearest the chart's moment",
     // How this is worked out: only what the headings don't say.
     how: {
       title: "How this is worked out",
       steps: [
-        "The twilights are the evening one nearest the chart's moment, from sunset to the end of astronomical twilight, and the morning one, from its start to sunrise. Where the Sun never gets 18° below the horizon, they end or start at its lowest point instead.",
-        "The limit is the faintest magnitude visible at that place and moment, as Swiss Ephemeris works it out from the Sun's depth, the Moon, and the atmosphere and observer under Assumptions. The best of the samples is shown.",
+        "Brightness is measured in magnitudes, which run backwards: the lower the number, the brighter. Venus is about −4, and the faintest stars a dark sky shows are about 6. Each step of 1 is about 2.5 times in brightness.",
+        "Twilight hides faint things. Every 2 minutes from sunset to the end of astronomical twilight, and from its start to sunrise, Swiss Ephemeris works out the faintest magnitude you could see where the planet was: the limiting magnitude. It depends on the Sun's depth, the Moon, and the air and observer under Assumptions. Where the Sun never gets 18° below the horizon, the twilights end or start at its lowest point.",
+        "A planet brighter than the limit can be seen. The table gives its best moment, and how many times brighter or fainter than needed it was then; the details give the magnitudes.",
+        "The weather and the observer's eyes on the night aren't known, so a planet only a few times brighter or fainter than needed could have gone either way.",
         "The prediction uses the planet's true place, its latitude included, while the condition uses longitude alone, so the two can disagree.",
       ],
       more: "The method, and how it was checked",

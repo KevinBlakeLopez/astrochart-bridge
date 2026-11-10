@@ -94,12 +94,12 @@ export function viewForVisibility(chart, results) {
 
 // How each column judges, said under its heading: the traditional condition
 // from the longitude gap alone, with the limits this page used, and the
-// prediction from Swiss Ephemeris's brightness against the twilight sky.
-function methodFor({ conditionLimits: { cazimi, combust, underTheBeams }, stepMinutes }) {
+// prediction, in plain words, whether the planet was bright enough to see.
+function methodFor({ conditionLimits: { cazimi, combust, underTheBeams } }) {
   const words = text().helioscope;
   return {
     moment: words.methodMoment(arc(cazimi), arc(combust), arc(underTheBeams)),
-    prediction: words.methodPrediction(stepMinutes),
+    prediction: words.methodPrediction,
   };
 }
 
@@ -225,28 +225,39 @@ function angleFromSun(gap) {
   return gap > 0 ? words.eastOfSun(degrees) : words.westOfSun(degrees);
 }
 
-// The prediction from the windows, with the best one's time and margin. A
-// planet detectable in both windows, as one near opposition can be, gets the
-// other window's margin too.
+// The prediction from the windows in plain words: the best moment, and how
+// many times brighter or fainter than needed the planet was then. A planet
+// visible in both windows, as one near opposition can be, says so. The
+// magnitudes themselves are in its details.
 function predictionFor({ classification, windows }, chart) {
   const words = text().helioscope;
   const { kind } = classification;
   const label = words.predictions[kind];
   if (kind === "detectable" || kind === "undetectable") {
     const window = classification.window;
-    const best = words.best(words.windows[window], when(windows[window].best.utc, chart), signed(classification.margin));
+    const time = when(windows[window].best.utc, chart);
+    const ratio = times(classification.margin);
+    if (kind === "undetectable") return { kind, label, detail: words.tooFaintAt(words.windows[window], time, ratio) };
     const other = window === "evening" ? "morning" : "evening";
     const second = windows[other];
-    const both = kind === "detectable" && second.kind === "evaluated" && second.best.margin > 0;
-    // The comparison the margin comes from, at the best moment.
-    const moment = windows[window].best;
-    const basis = words.basis(magnitude(moment.objectMagnitude), magnitude(moment.limitingMagnitude));
-    return { kind, label, detail: both ? `${best}${words.also(words.windows[other], signed(second.best.margin))}` : best, basis };
+    const both = second.kind === "evaluated" && second.best.margin > 0;
+    const detail = words.visibleAt(words.windows[window], time, ratio);
+    return { kind, label, detail: both ? `${detail}${words.alsoVisible(words.windows[other])}` : detail };
   }
-  if (kind === "below-horizon") return { kind, label, detail: words.belowBoth, basis: null };
-  if (kind === "indeterminate") return { kind, label, detail: noWindowText(windows), basis: null };
-  return { kind, label, detail: text().view.code(classification.reason), basis: null };
+  if (kind === "below-horizon") return { kind, label, detail: words.belowBoth };
+  if (kind === "indeterminate") return { kind, label, detail: noWindowText(windows) };
+  return { kind, label, detail: text().view.code(classification.reason) };
 }
+
+// How many times brighter, or fainter, than needed: the margin in magnitudes
+// as a ratio of brightness, about 2.5 to a magnitude, to two significant
+// figures in the language's numbers. It's the same margin in other units, not
+// a class: nothing is banded.
+const times = (margin) =>
+  (10 ** (0.4 * Math.abs(margin))).toLocaleString(text().helioscope.locale, {
+    maximumSignificantDigits: 2,
+    minimumSignificantDigits: 2,
+  });
 
 function noWindowText({ evening, morning }) {
   const { noWindow } = text().helioscope;
@@ -260,13 +271,13 @@ function noWindowText({ evening, morning }) {
 
 // Each window, and its best moment when it has one, then the planet's two
 // angles from the Sun.
-function detailRows({ planet, windows, solar }, chart) {
+function detailRows({ windows, solar }, chart) {
   const { labels } = text().helioscope;
   const rows = [];
   for (const name of WINDOWS) {
     const window = windows[name];
     rows.push([labels[name], windowText(window, chart)]);
-    if (window.kind === "evaluated") rows.push([labels.best[name], bestText(planet, window.best, chart)]);
+    if (window.kind === "evaluated") rows.push([labels.best[name], bestText(window.best, chart)]);
   }
   if (solar.kind === "computed") {
     rows.push([labels.longitudeGap, `${signed(solar.longitudeGap)}°`], [labels.elongation, `${decimal(solar.elongation, 2)}°`]);
@@ -283,12 +294,11 @@ function windowText(window, chart) {
   return window.kind === "evaluated" ? `${span}${words.above(window.aboveHorizon, window.samples)}` : `${span}${words.below}`;
 }
 
-function bestText(planet, best, chart) {
+function bestText(best, chart) {
   const words = text().helioscope;
   return words.bestMoment({
     time: when(best.utc, chart),
     margin: signed(best.margin),
-    planet: words.planets[planet],
     magnitude: magnitude(best.objectMagnitude),
     limit: magnitude(best.limitingMagnitude),
     altitude: Math.round(best.altitude),

@@ -742,6 +742,8 @@ export default {
 
   helioscope: {
     decimal: ",",
+    // For numbers written out whole, such as how many times brighter.
+    locale: "es",
     planets: { mercury: "Mercurio", venus: "Venus", mars: "Marte", jupiter: "Júpiter", saturn: "Saturno" },
     conditions: { cazimi: "Cazimi", combust: "Combusto", "under-the-beams": "Bajo los rayos", clear: "Libre de los rayos" },
     sides: { evening: "vespertino", morning: "matutino" },
@@ -752,16 +754,17 @@ export default {
     inOpposition: "En oposición al Sol",
     notWorkedOut: "No se pudo calcular",
     predictions: {
-      detectable: "Detectable",
-      undetectable: "No detectable",
+      detectable: "Visible",
+      undetectable: "Demasiado tenue",
       "below-horizon": "Bajo el horizonte",
       indeterminate: "Sin predicción",
       unavailable: "No se pudo calcular",
     },
     windows: { evening: "anochecer", morning: "amanecer" },
-    // "Mejor al anochecer, a las 18:15: +9,01"
-    best: (window, time, margin) => `Mejor al ${window}, ${at(time)}: ${margin}`,
-    also: (window, margin) => ` · ${window} ${margin}`,
+    // "Al anochecer, a las 18:15: unas 4000 veces más brillante de lo necesario"
+    visibleAt: (window, time, ratio) => `Al ${window}, ${at(time)}: unas ${ratio} veces más brillante de lo necesario`,
+    tooFaintAt: (window, time, ratio) => `Su mejor momento, al ${window}, ${at(time)}: unas ${ratio} veces más tenue de lo necesario`,
+    alsoVisible: (window) => ` · también visible al ${window}`,
     belowBoth: "Bajo el horizonte al anochecer y al amanecer",
     noWindow: {
       set: "El Sol no se pone ese día",
@@ -796,8 +799,8 @@ export default {
       other: "Ninguna: esa noche no hay crepúsculo",
     },
     failed: (code) => `No se pudo calcular: ${code}`,
-    bestMoment: ({ time, margin, planet, magnitude, limit, altitude, direction, sunDepth }) =>
-      `${time}: margen ${margin}, ${planet} en ${magnitude} frente a un límite de ${limit}, a ${altitude}° de altura hacia el ${direction}, con el Sol ${sunDepth}° bajo el horizonte`,
+    bestMoment: ({ time, margin, magnitude, limit, altitude, direction, sunDepth }) =>
+      `${time}: magnitud ${magnitude} frente a una magnitud límite de ${limit}, un margen de ${margin}. A ${altitude}° de altura hacia el ${direction}, con el Sol ${sunDepth}° bajo el horizonte`,
     directions: ["norte", "noreste", "este", "sureste", "sur", "suroeste", "oeste", "noroeste"],
     timesAt: (offset) => `Las horas están en ${offset}, la diferencia horaria de la carta.`,
     // "Ver Venus a las 18:15 en Stellarium Web"
@@ -806,15 +809,15 @@ export default {
     linksNote:
       "Ver en Stellarium Web envía ese momento y el lugar de la carta a stellarium-web.org, cuya página pasa el enlace a las etiquetas publicitarias de Google. El reloj de Stellarium Web empieza a correr enseguida; su botón de pausa lo detiene.",
     methodMoment: (cazimi, combust, underTheBeams) =>
-      `Solo por la diferencia de longitud: cazimi a menos de ${cazimi}, combusto a menos de ${combust}, bajo los rayos a menos de ${underTheBeams}.`,
-    methodPrediction: (minutes) =>
-      `La magnitud del planeta frente a lo más tenue visible, cada ${minutes} minutos en los crepúsculos más cercanos. Por encima de 0, se ve.`,
-    basis: (magnitude, limit) => `${magnitude} frente a un límite de ${limit}`,
+      `La condición tradicional, solo por la diferencia de longitud: cazimi a menos de ${cazimi}, combusto ${combust}, bajo los rayos ${underTheBeams}`,
+    methodPrediction: "Si brillaba lo bastante para verse en los crepúsculos más cercanos al momento de la carta",
     how: {
       title: "Cómo se calcula",
       steps: [
-        "Los crepúsculos son el vespertino más cercano al momento de la carta, desde la puesta del Sol hasta el final del crepúsculo astronómico, y el matutino, desde su comienzo hasta la salida del Sol. Donde el Sol nunca baja 18° bajo el horizonte, terminan o empiezan en su punto más bajo.",
-        "El límite es la magnitud más tenue visible en ese lugar y momento, tal como la calcula Swiss Ephemeris a partir de la profundidad del Sol, la Luna, y la atmósfera y el observador de Supuestos. Se muestra la mejor de las muestras.",
+        "El brillo se mide en magnitudes, que van al revés: cuanto menor el número, más brillante. Venus está en torno a −4, y las estrellas más tenues que muestra un cielo oscuro, en torno a 6. Cada paso de 1 es unas 2,5 veces en brillo.",
+        "El crepúsculo oculta lo tenue. Cada 2 minutos, desde la puesta del Sol hasta el final del crepúsculo astronómico y desde su comienzo hasta la salida del Sol, Swiss Ephemeris calcula la magnitud más tenue que se podría ver donde estaba el planeta: la magnitud límite. Depende de la profundidad del Sol, la Luna, y el aire y el observador de Supuestos. Donde el Sol nunca baja 18° bajo el horizonte, los crepúsculos terminan o empiezan en su punto más bajo.",
+        "Un planeta más brillante que el límite se puede ver. La tabla da su mejor momento y cuántas veces más brillante o más tenue de lo necesario era entonces; los detalles dan las magnitudes.",
+        "No se conocen el tiempo ni los ojos del observador esa noche, así que un planeta solo unas pocas veces más brillante o más tenue de lo necesario pudo verse o no.",
         "La predicción usa la posición real del planeta, con su latitud, y la condición solo la longitud, así que pueden no coincidir.",
       ],
       more: "El método y cómo se comprobó",

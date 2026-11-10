@@ -109,14 +109,14 @@ test("the planets' table has a column heading for each result and a row heading 
   assert.deepEqual(body.children[1].children.map(cellText), [
     "Venus",
     ["Clear · evening", "47.2° east of the Sun"],
-    ["Detectable", "Best at dusk, 18:15: +9.01", "−4.53 against a limit of 4.48", "See it in Stellarium Web"],
+    ["Visible", "At dusk, 18:15: about 4,000 times brighter than needed", "See it in Stellarium Web"],
   ]);
   assert.equal(body.children[1].children[2].children[1].className, "detail");
 });
 
 test("a planet's Stellarium Web link opens in a new tab, with nothing of the page sent with it, and says what it opens", async () => {
   const [, table] = await drawnIn("en");
-  const link = table.children[1].children[1].children[2].children[3];
+  const link = table.children[1].children[1].children[2].children[2];
   assert.equal(link.tag, "a");
   assert.equal(link.href, "https://stellarium-web.org/skysource/Venus?date=2025-01-10T23%3A14%3A32Z&lat=40.7128&lng=-74.006&elev=0&fov=60");
   assert.equal(link.target, "_blank");
@@ -136,7 +136,7 @@ test("each planet's details and the assumptions are closed boxes with their rows
   const boxes = parts.filter(({ className }) => className === "planet" || className === "assumptions").map(box);
   assert.deepEqual(
     boxes.map(({ summary }) => summary),
-    ["Mercury: Not detectable", "Venus: Detectable", "Mars: Detectable", "Jupiter: Detectable", "Saturn: Detectable", "Assumptions"],
+    ["Mercury: Too faint", "Venus: Visible", "Mars: Visible", "Jupiter: Visible", "Saturn: Visible", "Assumptions"],
   );
   assert.deepEqual(boxes[1].rows[0], ["Evening", "From sunset at 16:49 to the end of astronomical twilight at 18:26, above the horizon in 50 of 50 samples"]);
   assert.deepEqual(boxes.at(-1).rows[0], ["Ephemeris", "Swiss Ephemeris 2.10.03, Moshier"]);
@@ -162,7 +162,7 @@ test("in Spanish, the page's words and decimal commas", async () => {
   assert.deepEqual(table.children[1].children[1].children.map(cellText), [
     "Venus",
     ["Libre de los rayos · vespertino", "47,2° al este del Sol"],
-    ["Detectable", "Mejor al anochecer, a las 18:15: +9,01", "−4,53 frente a un límite de 4,48", "Ver en Stellarium Web"],
+    ["Visible", "Al anochecer, a las 18:15: unas 4000 veces más brillante de lo necesario", "Ver en Stellarium Web"],
   ]);
   const venus = box(parts.filter(({ className }) => className === "planet")[1]);
   assert.deepEqual(venus.rows[0], [
@@ -178,7 +178,7 @@ test("in Slovenian, the page's words, decimal commas and counts", async () => {
   assert.deepEqual(table.children[1].children[1].children.map(cellText), [
     "Venera",
     ["Zunaj žarkov · na večernem nebu", "47,2° vzhodno od Sonca"],
-    ["Lahko se vidi", "Najbolje v mraku, ob 18:15: +9,01", "−4,53 ob meji 4,48", "Odpri v Stellarium Web"],
+    ["Lahko se vidi", "Najbolje v mraku, ob 18:15: približno 4000-krat več svetlobe, kot je potrebno", "Odpri v Stellarium Web"],
   ]);
   const boxes = parts.filter(({ className }) => className === "planet" || className === "assumptions").map(box);
   assert.deepEqual(boxes[1].rows[0], [
@@ -192,8 +192,8 @@ test("in Slovenian, the page's words, decimal commas and counts", async () => {
 test("each result's heading carries how it's judged, under its name", async () => {
   const [, table] = await drawnIn("en");
   const [, moment, prediction] = table.children[0].children[0].children;
-  assert.equal(moment.children[0].textContent, "From the longitude gap alone: cazimi within 17′, combust within 8°30′, under the beams within 15°.");
-  assert.match(prediction.children[0].textContent, /^The planet's magnitude against the faintest visible/);
+  assert.equal(moment.children[0].textContent, "The traditional condition, from the longitude gap alone: cazimi within 17′, combust 8°30′, under the beams 15°");
+  assert.match(prediction.children[0].textContent, /^Whether it was bright enough to see/);
 });
 
 test("How this is worked out is a closed box of steps, then a link to the method and its checks", async () => {
@@ -201,8 +201,8 @@ test("How this is worked out is a closed box of steps, then a link to the method
   const [summary, steps, line] = how.children;
   assert.equal(summary.textContent, "How this is worked out");
   assert.equal(steps.tag, "ol");
-  assert.equal(steps.children.length, 3);
-  assert.match(steps.children[0].textContent, /^The twilights are the evening one nearest/);
+  assert.equal(steps.children.length, 5);
+  assert.match(steps.children[0].textContent, /^Brightness is measured in magnitudes, which run backwards/);
   const [link] = line.children;
   assert.equal(link.href, "https://github.com/KevinBlakeLopez/astrochart-bridge/blob/main/docs/HELIOSCOPE_V1_FEASIBILITY.md");
   assert.equal(link.rel, "noopener noreferrer");
