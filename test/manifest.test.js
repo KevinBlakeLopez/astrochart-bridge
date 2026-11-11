@@ -104,7 +104,13 @@ test("the description fits the Chrome Web Store's summary", () => {
 
 // Both stores take up to four dot-separated whole numbers, and each upload
 // needs one they haven't had. The popup shows it, so a loaded copy can be
-// told from another.
+// told from another. AMO's addons-linter refuses leading zeros and numbers
+// over nine digits. Chromium loads both, but the Chrome Web Store's
+// documentation allows each number 65535 at most, which covers Firefox's
+// limit too.
 test("the version is dot-separated whole numbers, as both stores take", () => {
   assert.match(manifest.version, /^(0|[1-9]\d*)(\.(0|[1-9]\d*)){0,3}$/);
+  for (const part of manifest.version.split(".")) {
+    assert.ok(Number(part) <= 65535, `${part} in ${manifest.version} is over 65535`);
+  }
 });
