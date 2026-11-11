@@ -34,7 +34,7 @@ const SWISSEPH_BY_ADDRESS = ["vendor/swisseph/wasm/swisseph.wasm"];
 // The icons the web app's manifest names, which the browser loads from it.
 const MANIFEST_ICONS = JSON.parse(read("manifest.webmanifest")).icons.map(({ src }) => src);
 
-// The service worker the home page registers by address (home.js).
+// The service worker every page registers by address (web-app.js).
 const SERVICE_WORKER = ["sw.js"];
 
 const LOADED_BY_ADDRESS = [...TESSERACT_BY_ADDRESS, ...SWISSEPH_BY_ADDRESS, ...MANIFEST_ICONS, ...SERVICE_WORKER];
@@ -65,11 +65,19 @@ test("the files Tesseract.js loads by address are the ones screenshot.js names",
   assert.match(code, /createWorker\("eng",/);
 });
 
-test("the home page registers the service worker, by its name, on the web only, and no other page does", () => {
-  const code = read("home.js");
-  assert.match(code, /^if \(!isExtensionCopy\(location\.href\) && "serviceWorker" in navigator\) navigator\.serviceWorker\.register\("sw\.js"\)/m);
+// Each page starts it as it opens, so a web app installed from any page has
+// it before something is shared to it.
+const PAGE_SCRIPTS = { "index.html": "home.js", "chart.html": "chart.js", "paste.html": "paste.js", "import.html": "import.js", "screenshot.html": "screenshot.js", "helioscope.html": "helioscope.js" };
+
+test("every page starts the service worker, through web-app.js, which registers it by its name on the web only", () => {
+  assert.deepEqual(Object.keys(PAGE_SCRIPTS).sort(), [...PAGES].sort());
+  for (const [page, script] of Object.entries(PAGE_SCRIPTS)) {
+    assert.ok(read(page).includes(`<script type="module" src="${script}"></script>`), page);
+    assert.match(read(script), /^keepForOffline\(location\.href\);$/m, script);
+  }
+  assert.match(read("web-app.js"), /^  if \(!isExtensionCopy\(href\) && "serviceWorker" in navigator\) navigator\.serviceWorker\.register\("sw\.js"\)/m);
   assert.deepEqual(SERVICE_WORKER, ["sw.js"]);
-  for (const file of SITE_FILES.filter((file) => /\.m?js$/.test(file) && file !== "home.js")) {
+  for (const file of SITE_FILES.filter((file) => /\.m?js$/.test(file) && file !== "web-app.js")) {
     assert.doesNotMatch(read(file), /serviceWorker\.register/, file);
   }
 });

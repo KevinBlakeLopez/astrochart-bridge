@@ -602,6 +602,11 @@ The site can be installed as an app, opens on its home page, `index.html`, and k
 
 - [ ] In Chrome, **Install app** (or **Add to Home screen**) adds **AstroChart** with the icon. It opens on the home page in its own window.
 - [ ] The same checks as B, with flight mode for Airplane Mode. In Firefox for Android, note what **Add to Home screen** gives.
+- [ ] With the app installed from Chrome, take a screenshot of a chart, for example an Astro-Seek chart page, tap **Share** and choose **AstroChart**: the app opens on the screenshot page, which reads the screenshot as if it had been chosen there. Note whether **AstroChart** is in the first row of the share sheet or under **More**.
+- [ ] Share a few lines of birth data from a notes app to **AstroChart**: the paste page opens with them in its box and reads them. Sharing a web page's link opens the paste page with the link in its box.
+- [ ] Repeat both shares with flight mode on: they work the same.
+- [ ] Afterwards, with the phone connected to a computer, in Chrome's **chrome://inspect** on the computer, inspect the app's window. Under **Application → Cache storage** there is no `astrochart-bridge-shared`: nothing shared is left on the phone.
+- [ ] In Firefox for Android, note whether **AstroChart** appears in the share sheet at all.
 
 ## Not covered by hand yet
 
