@@ -10,7 +10,9 @@ import {
   chartFromLink,
   helioscopeSettings,
   nightWeather,
+  orbText,
   readElevation,
+  readOrbs,
   setHelioscopeSettings,
   viewForRefusal,
   viewForVisibility,
@@ -33,7 +35,13 @@ showHomeLink(document, location.href);
 const app = document.getElementById("app");
 const elevationBox = document.getElementById("elevation");
 const elevationRefused = document.getElementById("elevation-refused");
-const limitBoxes = [...document.querySelectorAll('input[name="under-the-beams"]')];
+const orbBoxes = {
+  cazimi: document.getElementById("cazimi"),
+  combust: document.getElementById("combust"),
+  underTheBeams: document.getElementById("under-the-beams"),
+};
+const orbsRefused = document.getElementById("orbs-refused");
+const defaultOrbsButton = document.getElementById("default-orbs");
 
 // The settings, kept on this computer: in the extension's storage, or, for
 // the copy of the page on the web, in the site's localStorage. When the
@@ -42,7 +50,7 @@ const limitBoxes = [...document.querySelectorAll('input[name="under-the-beams"]'
 const remembered = globalThis.chrome?.storage?.local ?? webStorageArea(globalThis);
 let settings = remembered ? await helioscopeSettings(remembered).catch(() => DEFAULT_SETTINGS) : DEFAULT_SETTINGS;
 elevationBox.value = settings.elevation === null ? "" : String(settings.elevation);
-for (const box of limitBoxes) box.checked = Number(box.value) === settings.underTheBeams;
+showOrbs(settings.orbs);
 
 // One engine for the page, with Swiss Ephemeris's default atmosphere and
 // observer, kept while the tab is open. null when it couldn't start.
@@ -190,11 +198,37 @@ elevationBox.addEventListener("change", () => {
   if (!refused) choose({ ...settings, elevation: typed.metres });
 });
 
-for (const box of limitBoxes) {
-  box.addEventListener("change", () => {
-    if (box.checked) choose({ ...settings, underTheBeams: Number(box.value) });
-  });
+// The orbs in their boxes, as the page prints them, with nothing refused.
+function showOrbs(orbs) {
+  for (const [name, box] of Object.entries(orbBoxes)) {
+    box.value = orbText(orbs[name]);
+    box.setAttribute("aria-invalid", "false");
+  }
+  orbsRefused.textContent = "";
+  orbsRefused.hidden = true;
 }
+
+// The three boxes are read together, since the orbs must nest. A box that
+// isn't an orb, or orbs that don't nest, are said under the boxes, and the
+// planets keep the last orbs that did.
+function readOrbBoxes() {
+  const typed = readOrbs(Object.fromEntries(Object.entries(orbBoxes).map(([name, box]) => [name, box.value])));
+  if (typed.kind === "refused") {
+    orbsRefused.textContent = typed.message;
+    orbsRefused.hidden = false;
+    for (const [name, box] of Object.entries(orbBoxes)) box.setAttribute("aria-invalid", String(typed.orb === null || typed.orb === name));
+    return;
+  }
+  showOrbs(typed.orbs);
+  choose({ ...settings, orbs: typed.orbs });
+}
+
+for (const box of Object.values(orbBoxes)) box.addEventListener("change", readOrbBoxes);
+
+defaultOrbsButton.addEventListener("click", () => {
+  showOrbs(DEFAULT_SETTINGS.orbs);
+  choose({ ...settings, orbs: DEFAULT_SETTINGS.orbs });
+});
 
 show();
 // A link pasted into this tab's address bar changes only the fragment, which

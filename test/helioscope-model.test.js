@@ -11,9 +11,12 @@ import { createEngine } from "../extension/helioscope-engine.js";
 import { viewFor } from "../extension/popup-model.js";
 import {
   chartFromLink,
+  DEFAULT_SETTINGS,
   helioscopeSettings,
   nightWeather,
+  orbText,
   readElevation,
+  readOrbs,
   setHelioscopeSettings,
   viewForRefusal,
   viewForVisibility,
@@ -48,8 +51,12 @@ const LONDON = { ...NEW_YORK, local: "2025-06-21T22:00:00", utc: "2025-06-21T21:
 // Tromsø at midsummer: no sunset and no sunrise, so no window and no prediction.
 const TROMSO = { ...NEW_YORK, local: "2025-06-21T02:00:00", utc: "2025-06-21T00:00:00Z", lat: 69.6492, lng: 18.9553, offsetMinutes: 120 };
 
-// No elevation given, and under the beams within 15°: the page's defaults.
-const DEFAULTS = { elevation: null, underTheBeams: 15 };
+// No elevation given, and the orbs most often cited, 17′, 8°30′ and 15°, in
+// minutes of arc: the page's defaults.
+const DEFAULTS = { elevation: null, orbs: { cazimi: 17, combust: 510, underTheBeams: 900 } };
+
+// Under the beams within 17°, the other limit most often cited.
+const SEVENTEEN = { ...DEFAULTS.orbs, underTheBeams: 1020 };
 
 // What a page with a Stellarium Web link says about it, after the offset.
 const LINKS_NOTE =
@@ -108,15 +115,15 @@ test("chartFromLink: no chart in the link is null, and a damaged or newer one is
   assert.deepEqual(chartFromLink("#v2=abc"), { kind: "refused", reason: "unsupported-version" });
 });
 
-test("visibilities: the five planets in order, each worked out with the page's elevation and limit for under the beams", async () => {
-  const { kind, results } = await worked(NEW_YORK, { elevation: 120, underTheBeams: 17 });
+test("visibilities: the five planets in order, each worked out with the page's elevation and orbs", async () => {
+  const { kind, results } = await worked(NEW_YORK, { elevation: 120, orbs: SEVENTEEN });
   assert.equal(kind, "results");
   assert.deepEqual(Object.keys(results), ["mercury", "venus", "mars", "jupiter", "saturn"]);
   for (const [planet, result] of Object.entries(results)) {
     assert.equal(result.kind, "visibility");
     assert.equal(result.planet, planet);
     assert.deepEqual(result.assumptions.elevation, { metres: 120, source: "given" });
-    assert.equal(result.assumptions.conditionLimits.underTheBeams, 17);
+    assert.deepEqual(result.assumptions.conditionLimits, { cazimi: 17 / 60, combust: 8.5, underTheBeams: 17 });
   }
 });
 
@@ -129,7 +136,7 @@ test("visibilities: with no elevation given, each result says it assumed 0 m", a
 test("visibilities: a chart visibility() refuses is refused once, for the whole page", async () => {
   const late = { ...NEW_YORK, local: "3000-01-01T12:00:00", utc: "3000-01-01T17:00:00Z" };
   assert.deepEqual(await worked(late), { kind: "refused", reason: "date-out-of-range" });
-  assert.deepEqual(await worked(NEW_YORK, { elevation: 30_000, underTheBeams: 15 }), { kind: "refused", reason: "invalid-elevation" });
+  assert.deepEqual(await worked(NEW_YORK, { elevation: 30_000, orbs: DEFAULTS.orbs }), { kind: "refused", reason: "invalid-elevation" });
 });
 
 test("viewForVisibility: the chart screen's own rows, then the five planets in order", async () => {
@@ -149,6 +156,15 @@ test("viewForVisibility: each planet's condition and side of the Sun at the char
   assert.deepEqual(planets.mars.moment, { condition: "clear", side: "morning", text: "Clear · morning", angle: "172.7° west of the Sun" });
   assert.deepEqual(planets.jupiter.moment, { condition: "clear", side: "evening", text: "Clear · evening", angle: "141.3° east of the Sun" });
   assert.deepEqual(planets.saturn.moment, { condition: "clear", side: "evening", text: "Clear · evening", angle: "54.4° east of the Sun" });
+});
+
+test("viewForVisibility: each planet's condition follows the page's orbs, and its prediction doesn't: Mercury 17.3° west of the Sun", async () => {
+  const { planets } = await screen(NEW_YORK);
+  const beams = await screen(NEW_YORK, { elevation: null, orbs: { ...DEFAULTS.orbs, underTheBeams: 1050 } });
+  assert.equal(beams.planets.mercury.moment.text, "Under the beams · morning");
+  const combust = await screen(NEW_YORK, { elevation: null, orbs: { cazimi: 17, combust: 1050, underTheBeams: 1200 } });
+  assert.equal(combust.planets.mercury.moment.text, "Combust · morning");
+  assert.deepEqual(combust.planets.mercury.prediction, planets.mercury.prediction);
 });
 
 test("viewForVisibility: each prediction says, in plain words, its best moment at the chart's offset to the nearest minute, and how many times brighter or fainter than needed", async () => {
@@ -227,7 +243,7 @@ test("viewForVisibility: a planet with a best moment links to Stellarium Web at 
     planets.mars.link.url,
     "https://stellarium-web.org/skysource/Mars?date=2025-01-10T10%3A42%3A08Z&lat=40.7128&lng=-74.006&elev=0&fov=60",
   );
-  const high = await screen(NEW_YORK, { elevation: 120, underTheBeams: 15 });
+  const high = await screen(NEW_YORK, { elevation: 120, orbs: DEFAULTS.orbs });
   assert.match(high.planets.venus.link.url, /&elev=120&fov=60$/);
 });
 
@@ -267,9 +283,11 @@ test("viewForVisibility: the notes say whose offset the times are at and what a 
     ["Limits", "Cazimi 17′, combust 8°30′, under the beams 15°"],
   ]);
 
-  const chosen = await screen(NEW_YORK, { elevation: 120, underTheBeams: 17 });
+  const chosen = await screen(NEW_YORK, { elevation: 120, orbs: SEVENTEEN });
   assert.deepEqual(chosen.view.assumptions.find(([label]) => label === "Elevation"), ["Elevation", "120\u00a0m"]);
   assert.deepEqual(chosen.view.assumptions.find(([label]) => label === "Limits"), ["Limits", "Cazimi 17′, combust 8°30′, under the beams 17°"]);
+  const own = await screen(NEW_YORK, { elevation: null, orbs: { cazimi: 16, combust: 480, underTheBeams: 1050 } });
+  assert.deepEqual(own.view.assumptions.find(([label]) => label === "Limits"), ["Limits", "Cazimi 16′, combust 8°, under the beams 17°30′"]);
 });
 
 test("viewForRefusal: no chart, a link's refusal, a chart that can't be worked out, and Swiss Ephemeris failing to start each say why, with a code", () => {
@@ -317,6 +335,82 @@ test("readElevation: anything else is refused, with what to type instead", () =>
   }
 });
 
+// What the orb boxes hold when the page opens: the defaults, as the page
+// prints them.
+const DEFAULT_BOXES = { cazimi: "17′", combust: "8°30′", underTheBeams: "15°" };
+
+test("orbText: an orb in minutes of arc, as the page prints it", () => {
+  assert.deepEqual([17, 510, 900, 60, 1, 1050].map(orbText), ["17′", "8°30′", "15°", "1°", "1′", "17°30′"]);
+});
+
+test("readOrbs: the boxes' own text reads back, and so does an orb typed in whole degrees and minutes, with or without their marks", () => {
+  assert.deepEqual(readOrbs(DEFAULT_BOXES), { kind: "orbs", orbs: DEFAULTS.orbs });
+  const typed = [
+    // Minutes alone need a minute mark: a prime, an apostrophe or the curly
+    // one iPhones and Macs type for it.
+    ["16′", 16],
+    ["16'", 16],
+    ["16’", 16],
+    [" 16 ' ", 16],
+    ["0 16", 16],
+    ["0°16′", 16],
+    ["8 30", 510],
+    ["8°30'", 510],
+    ["8° 30′", 510],
+    // º, the ordinal mark Spanish keyboards type for degrees.
+    ["8º30", 510],
+    ["8\u00a030", 510],
+    ["08 05", 485],
+    ["8", 480],
+    ["8°", 480],
+    ["8 °", 480],
+    ["8º", 480],
+  ];
+  for (const [combust, minutes] of typed) {
+    assert.deepEqual(readOrbs({ cazimi: "1′", combust, underTheBeams: "15°" }), { kind: "orbs", orbs: { cazimi: 1, combust: minutes, underTheBeams: 900 } }, combust);
+  }
+});
+
+test("readOrbs: a plain number is minutes in the cazimi box, as cazimi is always given, and degrees in the other two", () => {
+  assert.deepEqual(readOrbs({ cazimi: "16", combust: "8", underTheBeams: "17" }), { kind: "orbs", orbs: { cazimi: 16, combust: 480, underTheBeams: 1020 } });
+  // With a degree mark, or degrees and minutes, the cazimi box reads as the others do.
+  assert.equal(readOrbs({ ...DEFAULT_BOXES, cazimi: "1°" }).orbs.cazimi, 60);
+  assert.equal(readOrbs({ ...DEFAULT_BOXES, cazimi: "1 0" }).orbs.cazimi, 60);
+  assert.equal(readOrbs({ ...DEFAULT_BOXES, cazimi: "0 16" }).orbs.cazimi, 16);
+  // Minutes alone are under 60 there, as they are with a minute mark.
+  assert.equal(readOrbs({ ...DEFAULT_BOXES, cazimi: "60" }).reason, "not-degrees-and-minutes");
+});
+
+test("readOrbs: an empty box is that orb's default", () => {
+  assert.deepEqual(readOrbs({ cazimi: "", combust: " ", underTheBeams: "17" }), { kind: "orbs", orbs: SEVENTEEN });
+});
+
+test("readOrbs: a box that isn't whole degrees and minutes is refused, naming the first such box", () => {
+  const message = "Enter whole degrees and minutes, such as 8\u00a030, or minutes alone, such as 17′.";
+  for (const combust of ["8.5", "8,5", "8 60", "8 30 15", "830", "-8", "8°30″", "eight", "°30", "100"]) {
+    assert.deepEqual(readOrbs({ ...DEFAULT_BOXES, combust }), { kind: "refused", reason: "not-degrees-and-minutes", orb: "combust", message }, combust);
+  }
+  assert.equal(readOrbs({ cazimi: "x", combust: "y", underTheBeams: "15°" }).orb, "cazimi");
+  assert.equal(readOrbs({ ...DEFAULT_BOXES, underTheBeams: "15.5" }).orb, "underTheBeams");
+});
+
+test("readOrbs: orbs that don't nest, from cazimi out to under the beams at most 30°, are refused", () => {
+  const message = "Cazimi must be narrower than combust, and combust than under the beams, which can be at most 30°.";
+  const cases = [
+    { ...DEFAULT_BOXES, combust: "15" },
+    { ...DEFAULT_BOXES, combust: "16" },
+    { ...DEFAULT_BOXES, cazimi: "8 30" },
+    { ...DEFAULT_BOXES, cazimi: "0" },
+    { ...DEFAULT_BOXES, cazimi: "0′" },
+    { ...DEFAULT_BOXES, underTheBeams: "30 1" },
+    { ...DEFAULT_BOXES, underTheBeams: "31" },
+  ];
+  for (const typed of cases) {
+    assert.deepEqual(readOrbs(typed), { kind: "refused", reason: "out-of-order", orb: null, message }, JSON.stringify(typed));
+  }
+  assert.deepEqual(readOrbs({ ...DEFAULT_BOXES, underTheBeams: "30" }), { kind: "orbs", orbs: { ...DEFAULTS.orbs, underTheBeams: 1800 } });
+});
+
 // A stand-in for chrome.storage.local, as test/preference.test.js has it.
 function storage(initial = {}) {
   const items = { ...initial };
@@ -334,22 +428,40 @@ function storage(initial = {}) {
   };
 }
 
-test("helioscopeSettings: no elevation and 15° until the user chooses, then what they chose", async () => {
+test("helioscopeSettings: no elevation and the default orbs until the user chooses, then what they chose, in minutes of arc", async () => {
+  assert.deepEqual(DEFAULT_SETTINGS, DEFAULTS);
   const area = storage();
   assert.deepEqual(await helioscopeSettings(area), DEFAULTS);
-  await setHelioscopeSettings(area, { elevation: 120, underTheBeams: 17 });
-  assert.deepEqual(area.items, { "helioscope-settings": { elevation: 120, underTheBeams: 17 } });
-  assert.deepEqual(await helioscopeSettings(area), { elevation: 120, underTheBeams: 17 });
+  const chosen = { elevation: 120, orbs: { cazimi: 16, combust: 480, underTheBeams: 1020 } };
+  await setHelioscopeSettings(area, chosen);
+  assert.deepEqual(area.items, { "helioscope-settings": chosen });
+  assert.deepEqual(await helioscopeSettings(area), chosen);
+  // Orbs of one's own are kept with no elevation given too.
+  const orbsAlone = storage();
+  await setHelioscopeSettings(orbsAlone, { elevation: null, orbs: SEVENTEEN });
+  assert.deepEqual(orbsAlone.items, { "helioscope-settings": { elevation: null, orbs: SEVENTEEN } });
 });
 
 test("helioscopeSettings: going back to the defaults forgets the choice, and a stored value that doesn't fit is the default", async () => {
-  const area = storage({ "helioscope-settings": { elevation: 120, underTheBeams: 17 } });
+  const area = storage({ "helioscope-settings": { elevation: 120, orbs: SEVENTEEN } });
   await setHelioscopeSettings(area, DEFAULTS);
   assert.deepEqual(area.items, {});
-  const odd = storage({ "helioscope-settings": { elevation: "high", underTheBeams: 16 } });
-  assert.deepEqual(await helioscopeSettings(odd), DEFAULTS);
-  const far = storage({ "helioscope-settings": { elevation: 30_000, underTheBeams: 17 } });
-  assert.deepEqual(await helioscopeSettings(far), { elevation: null, underTheBeams: 17 });
+  const unnested = storage({ "helioscope-settings": { elevation: "high", orbs: { cazimi: 17, combust: 900, underTheBeams: 510 } } });
+  assert.deepEqual(await helioscopeSettings(unnested), DEFAULTS);
+  const fractional = storage({ "helioscope-settings": { elevation: 120, orbs: { ...SEVENTEEN, cazimi: 16.5 } } });
+  assert.deepEqual(await helioscopeSettings(fractional), { elevation: 120, orbs: DEFAULTS.orbs });
+  const far = storage({ "helioscope-settings": { elevation: 30_000, orbs: SEVENTEEN } });
+  assert.deepEqual(await helioscopeSettings(far), { elevation: null, orbs: SEVENTEEN });
+});
+
+test("helioscopeSettings: under the beams as 0.3.0 kept it, 15° or 17° beside the elevation, still reads", async () => {
+  const seventeen = storage({ "helioscope-settings": { elevation: 120, underTheBeams: 17 } });
+  assert.deepEqual(await helioscopeSettings(seventeen), { elevation: 120, orbs: SEVENTEEN });
+  const fifteen = storage({ "helioscope-settings": { elevation: null, underTheBeams: 15 } });
+  assert.deepEqual(await helioscopeSettings(fifteen), DEFAULTS);
+  // 0.3.0 kept nothing else.
+  const other = storage({ "helioscope-settings": { elevation: null, underTheBeams: 16 } });
+  assert.deepEqual(await helioscopeSettings(other), DEFAULTS);
 });
 
 test("viewForVisibility: each result's heading says how it's judged, with the limits the page used", async () => {
@@ -358,7 +470,7 @@ test("viewForVisibility: each result's heading says how it's judged, with the li
     moment: "The traditional condition, from the longitude gap alone: cazimi within 17′, combust 8°30′, under the beams 15°",
     prediction: "Whether it was bright enough to see in the twilights nearest the chart's moment",
   });
-  const wider = await screen(NEW_YORK, { elevation: null, underTheBeams: 17 });
+  const wider = await screen(NEW_YORK, { elevation: null, orbs: SEVENTEEN });
   assert.match(wider.view.method.moment, /under the beams 17°$/);
 });
 

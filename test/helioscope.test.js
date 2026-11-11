@@ -4,10 +4,11 @@ import { readFileSync } from "node:fs";
 import {
   apparition,
   classify,
+  conditionLimitsFit,
+  DEFAULT_CONDITION_LIMITS,
   longitudeGap,
   sampleInstants,
   traditionalCondition,
-  UNDER_THE_BEAMS_LIMITS,
   visibility,
 } from "../extension/core/helioscope.js";
 import { createEngine } from "../extension/helioscope-engine.js";
@@ -178,28 +179,52 @@ test("visibility: a chart Helioscope can't evaluate is refused before anything i
   }
 });
 
-test("visibility: under the beams is 15° unless 17° is chosen: Venus 16.08° west of the Sun on 1 November 2025", async () => {
+test("visibility: the condition follows the limits given, and the prediction doesn't: Venus 16.08° west of the Sun on 1 November 2025", async () => {
   const chart = { ...CHART, local: "2025-11-01T13:00:00", utc: "2025-11-01T17:00:00Z", offsetMinutes: -240 };
   const engine = await createEngine();
   try {
     const fifteen = visibility(chart, "venus", engine);
-    const seventeen = visibility(chart, "venus", engine, { underTheBeams: 17 });
+    const seventeen = visibility(chart, "venus", engine, { conditionLimits: { ...DEFAULT_CONDITION_LIMITS, underTheBeams: 17 } });
+    const wider = visibility(chart, "venus", engine, { conditionLimits: { cazimi: 1, combust: 16.5, underTheBeams: 20 } });
     assert.equal(fifteen.solar.condition, "clear");
     assert.equal(seventeen.solar.condition, "under-the-beams");
-    assert.equal(fifteen.assumptions.conditionLimits.underTheBeams, 15);
-    assert.equal(seventeen.assumptions.conditionLimits.underTheBeams, 17);
+    assert.equal(wider.solar.condition, "combust");
+    assert.deepEqual(fifteen.assumptions.conditionLimits, { cazimi: 17 / 60, combust: 8.5, underTheBeams: 15 });
+    assert.deepEqual(seventeen.assumptions.conditionLimits, { cazimi: 17 / 60, combust: 8.5, underTheBeams: 17 });
+    assert.deepEqual(wider.assumptions.conditionLimits, { cazimi: 1, combust: 16.5, underTheBeams: 20 });
     // The traditional condition is kept apart from the prediction, which doesn't change.
-    assert.deepEqual(seventeen.windows, fifteen.windows);
-    assert.deepEqual(seventeen.classification, fifteen.classification);
+    for (const other of [seventeen, wider]) {
+      assert.deepEqual(other.windows, fifteen.windows);
+      assert.deepEqual(other.classification, fifteen.classification);
+    }
   } finally {
     engine.dispose();
   }
 });
 
-test("visibility: under the beams is 15° or 17°, the two limits most often cited, and nothing else", () => {
-  assert.deepEqual(UNDER_THE_BEAMS_LIMITS, [15, 17]);
-  for (const underTheBeams of [16, 15.0001, "15", null]) {
-    assert.throws(() => visibility(CHART, "venus", UNUSED, { underTheBeams }), /under the beams/, String(underTheBeams));
+test("visibility: takes limits in degrees that nest, from cazimi out to under the beams at most 30°, and nothing else", () => {
+  // 17′, 8°30′ and 15°, the values most often cited.
+  assert.deepEqual(DEFAULT_CONDITION_LIMITS, { cazimi: 17 / 60, combust: 8.5, underTheBeams: 15 });
+  for (const limits of [DEFAULT_CONDITION_LIMITS, { cazimi: 1 / 60, combust: 2 / 60, underTheBeams: 3 / 60 }, { cazimi: 1, combust: 17, underTheBeams: 30 }]) {
+    assert.equal(conditionLimitsFit(limits), true, JSON.stringify(limits));
+  }
+  const refused = [
+    { cazimi: 0, combust: 8.5, underTheBeams: 15 },
+    { cazimi: -17 / 60, combust: 8.5, underTheBeams: 15 },
+    { cazimi: 17 / 60, combust: 17 / 60, underTheBeams: 15 },
+    { cazimi: 17 / 60, combust: 15, underTheBeams: 15 },
+    { cazimi: 17 / 60, combust: 16, underTheBeams: 15 },
+    { cazimi: 17 / 60, combust: 8.5, underTheBeams: 30.01 },
+    { cazimi: 17 / 60, combust: 8.5, underTheBeams: Number.POSITIVE_INFINITY },
+    { cazimi: 17 / 60, combust: Number.NaN, underTheBeams: 15 },
+    { cazimi: 17 / 60, combust: "8.5", underTheBeams: 15 },
+    { cazimi: 17 / 60, combust: 8.5 },
+    null,
+    15,
+  ];
+  for (const conditionLimits of refused) {
+    assert.equal(conditionLimitsFit(conditionLimits), false, String(conditionLimits?.combust ?? conditionLimits));
+    assert.throws(() => visibility(CHART, "venus", UNUSED, { conditionLimits }), /condition limits/, String(conditionLimits?.combust ?? conditionLimits));
   }
 });
 
@@ -298,7 +323,8 @@ test("traditionalCondition: cazimi within 17′, combust within 8°30′, under 
   for (const [gap, condition] of cases) assert.equal(traditionalCondition(gap), condition, String(gap));
 });
 
-test("traditionalCondition: under the beams within 17°, when that's the limit chosen", () => {
+test("traditionalCondition: with the limits given, such as under the beams within 17°, or all three wider", () => {
+  const seventeen = { ...DEFAULT_CONDITION_LIMITS, underTheBeams: 17 };
   const cases = [
     [17 / 60, "cazimi"],
     [8.5, "combust"],
@@ -306,7 +332,17 @@ test("traditionalCondition: under the beams within 17°, when that's the limit c
     [-17, "under-the-beams"],
     [17.01, "clear"],
   ];
-  for (const [gap, condition] of cases) assert.equal(traditionalCondition(gap, 17), condition, String(gap));
+  for (const [gap, condition] of cases) assert.equal(traditionalCondition(gap, seventeen), condition, String(gap));
+  const wider = { cazimi: 1, combust: 10, underTheBeams: 20 };
+  const widerCases = [
+    [-1, "cazimi"],
+    [1.01, "combust"],
+    [10, "combust"],
+    [-10.01, "under-the-beams"],
+    [20, "under-the-beams"],
+    [20.01, "clear"],
+  ];
+  for (const [gap, condition] of widerCases) assert.equal(traditionalCondition(gap, wider), condition, String(gap));
 });
 
 test("apparition: east of the Sun is the evening sky, west the morning, and neither at conjunction or opposition", () => {

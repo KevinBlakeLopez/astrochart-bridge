@@ -18,15 +18,33 @@
 // low or mid cloud covered nearly all of ERA5's square at every best moment
 // it had. High cloud alone never hides one: a bright planet can show through.
 import { natalChartFor, readLink } from "./chart-model.js";
-import { ELEVATION_LIMITS, PLANETS, UNDER_THE_BEAMS_LIMITS, classify, visibility } from "./core/helioscope.js";
+import { DEFAULT_CONDITION_LIMITS, ELEVATION_LIMITS, PLANETS, classify, conditionLimitsFit, visibility } from "./core/helioscope.js";
 import { nearestHour, readWeather, weatherRequest } from "./core/open-meteo.js";
 import { stellariumUrl } from "./core/stellarium.js";
 import { text } from "./messages/index.js";
 import { offsetText, viewFor } from "./popup-model.js";
 
-// No elevation given, so the results assume 0 m and say so, and under the
-// beams within 15°, as visibility() has them.
-export const DEFAULT_SETTINGS = Object.freeze({ elevation: null, underTheBeams: 15 });
+/**
+ * The page's settings. The orbs are the limits of the traditional condition,
+ * in whole minutes of arc, as they're typed and kept.
+ *
+ * @typedef {{ cazimi: number, combust: number, underTheBeams: number }} Orbs
+ * @typedef {{ elevation: number | null, orbs: Orbs }} Settings  elevation is null when none was given
+ */
+
+// The orbs, from the inside out.
+const ORBS = Object.freeze(["cazimi", "combust", "underTheBeams"]);
+
+// Orbs in whole minutes of arc from limits in degrees, and back.
+const inMinutes = (limits) => Object.fromEntries(ORBS.map((name) => [name, Math.round(limits[name] * 60)]));
+const inDegrees = (orbs) => Object.fromEntries(ORBS.map((name) => [name, orbs[name] / 60]));
+
+// visibility()'s own limits, 17′, 8°30′ and 15°, the values most often cited.
+const DEFAULT_ORBS = Object.freeze(inMinutes(DEFAULT_CONDITION_LIMITS));
+
+// No elevation given, so the results assume 0 m and say so, and the default
+// orbs.
+export const DEFAULT_SETTINGS = Object.freeze({ elevation: null, orbs: DEFAULT_ORBS });
 
 // The settings' key in the extension's storage on this computer.
 const SETTINGS_KEY = "helioscope-settings";
@@ -66,11 +84,12 @@ export function chartFromLink(hash) {
  *
  * @param {object} chart  a normalized chart
  * @param {import("./helioscope-engine.js").Engine} engine
- * @param {{ elevation: number | null, underTheBeams: number }} settings  elevation is null when none was given
+ * @param {Settings} settings
  * @returns {{ kind: "results", results: Record<string, object> } | { kind: "refused", reason: string }}
  */
-export function visibilities(chart, engine, { elevation, underTheBeams }) {
-  const options = elevation === null || elevation === undefined ? { underTheBeams } : { elevation, underTheBeams };
+export function visibilities(chart, engine, { elevation, orbs }) {
+  const conditionLimits = inDegrees(orbs);
+  const options = elevation === null || elevation === undefined ? { conditionLimits } : { elevation, conditionLimits };
   const results = {};
   for (const planet of PLANETS) {
     const result = visibility(chart, planet, engine, options);
@@ -89,7 +108,7 @@ export function visibilities(chart, engine, { elevation, underTheBeams }) {
  *
  * @param {object} chart  a normalized chart
  * @param {{ evening: import("./helioscope-engine.js").Engine, morning: import("./helioscope-engine.js").Engine }} engines
- * @param {{ elevation: number | null, underTheBeams: number }} settings
+ * @param {Settings} settings
  * @returns {ReturnType<typeof visibilities>}
  */
 export function visibilitiesWithAir(chart, { evening, morning }, settings) {
@@ -286,12 +305,74 @@ export function readElevation(typed) {
   return { kind: "elevation", metres };
 }
 
+// An orb as it's typed: a plain number, whole degrees, whole degrees and
+// minutes, or minutes alone with a minute mark. ° or º marks the degrees, and
+// ′, ' or ’ the minutes: º is what Spanish keyboards type for degrees, and ’
+// what iPhones and Macs type for an apostrophe. A plain number is degrees,
+// except in the cazimi box, as the owner chose on 10 November 2026: cazimi is
+// always given in minutes.
+const PLAIN = /^(\d{1,2})$/;
+const DEGREES = /^(\d{1,2})\s*[°º]$/;
+const DEGREES_AND_MINUTES = /^(\d{1,2})\s*(?:[°º]\s*|\s+)(\d{1,2})\s*['′’]?$/;
+const MINUTES = /^(\d{1,2})\s*['′’]$/;
+
+/**
+ * An orb as the page prints it, in its box and under Assumptions: 17′,
+ * 8°30′, 15°.
+ *
+ * @param {number} minutes  whole minutes of arc
+ * @returns {string}
+ */
+export const orbText = (minutes) => arc(minutes / 60);
+
+/**
+ * What the three orb boxes hold: each orb in whole degrees and minutes, or
+ * its default when its box is empty, and the three nested, from cazimi out
+ * to under the beams, which is at most 30°.
+ *
+ * @param {{ cazimi: string, combust: string, underTheBeams: string }} typed
+ * @returns {{ kind: "orbs", orbs: Orbs }
+ *   | { kind: "refused", reason: "not-degrees-and-minutes", orb: keyof Orbs, message: string }
+ *   | { kind: "refused", reason: "out-of-order", orb: null, message: string }}
+ *   the first box that isn't an orb, from the inside out, or null when the orbs don't nest
+ */
+export function readOrbs(typed) {
+  const words = text().helioscope;
+  const orbs = {};
+  for (const name of ORBS) {
+    const trimmed = typed[name].trim();
+    const minutes = trimmed === "" ? DEFAULT_ORBS[name] : minutesIn(trimmed, name === "cazimi");
+    if (minutes === null) return { kind: "refused", reason: "not-degrees-and-minutes", orb: name, message: words.orbRefused };
+    orbs[name] = minutes;
+  }
+  if (!orbsFit(orbs)) return { kind: "refused", reason: "out-of-order", orb: null, message: words.orbsOutOfOrder };
+  return { kind: "orbs", orbs };
+}
+
+// Whole minutes of arc from what's typed, or null when it isn't an orb. A
+// plain number is minutes when plainIsMinutes, and minutes alone are under 60.
+function minutesIn(typed, plainIsMinutes) {
+  const plain = typed.match(PLAIN);
+  if (plain && plainIsMinutes) return Number(plain[1]) < 60 ? Number(plain[1]) : null;
+  if (plain) return Number(plain[1]) * 60;
+  const degrees = typed.match(DEGREES);
+  if (degrees) return Number(degrees[1]) * 60;
+  const both = typed.match(DEGREES_AND_MINUTES);
+  if (both) return Number(both[2]) < 60 ? Number(both[1]) * 60 + Number(both[2]) : null;
+  const minutes = typed.match(MINUTES);
+  if (minutes) return Number(minutes[1]) < 60 ? Number(minutes[1]) : null;
+  return null;
+}
+
+// Whether orbs are whole minutes of arc that visibility() takes.
+const orbsFit = (orbs) => ORBS.every((name) => Number.isInteger(orbs?.[name])) && conditionLimitsFit(inDegrees(orbs));
+
 /**
  * The page's settings, as the user last left them on this computer.
  *
  * @param {chrome.storage.StorageArea} storage  chrome.storage.local, webStorageArea's localStorage on
  *   the web, or a stand-in in tests
- * @returns {Promise<{ elevation: number | null, underTheBeams: number }>}  DEFAULT_SETTINGS until the user chooses
+ * @returns {Promise<Settings>}  DEFAULT_SETTINGS until the user chooses
  */
 export async function helioscopeSettings(storage) {
   const { [SETTINGS_KEY]: stored } = await storage.get(SETTINGS_KEY);
@@ -302,21 +383,26 @@ export async function helioscopeSettings(storage) {
  * Keeps the page's settings, or forgets them when they're the defaults again.
  *
  * @param {chrome.storage.StorageArea} storage
- * @param {{ elevation: number | null, underTheBeams: number }} settings
+ * @param {Settings} settings
  */
 export async function setHelioscopeSettings(storage, settings) {
   const kept = settingsFrom(settings);
-  const isDefault = kept.elevation === DEFAULT_SETTINGS.elevation && kept.underTheBeams === DEFAULT_SETTINGS.underTheBeams;
+  const isDefault = kept.elevation === DEFAULT_SETTINGS.elevation && ORBS.every((name) => kept.orbs[name] === DEFAULT_ORBS[name]);
   if (isDefault) await storage.remove(SETTINGS_KEY);
   else await storage.set({ [SETTINGS_KEY]: kept });
 }
 
 // Each setting as stored, or its default where the stored value doesn't fit:
-// storage can hold anything an older version or a hand edit left there.
+// storage can hold anything an older version or a hand edit left there. The
+// orbs go back to their defaults together, since one alone may not nest with
+// the others. 0.3.0 kept under the beams alone, as 15 or 17 degrees beside
+// the elevation.
 function settingsFrom(value) {
+  const fromOlder = [15, 17].includes(value?.underTheBeams) ? { ...DEFAULT_ORBS, underTheBeams: value.underTheBeams * 60 } : null;
+  const orbs = value?.orbs ?? fromOlder;
   return {
     elevation: fits(value?.elevation) ? value.elevation : DEFAULT_SETTINGS.elevation,
-    underTheBeams: UNDER_THE_BEAMS_LIMITS.includes(value?.underTheBeams) ? value.underTheBeams : DEFAULT_SETTINGS.underTheBeams,
+    orbs: orbsFit(orbs) ? { cazimi: orbs.cazimi, combust: orbs.combust, underTheBeams: orbs.underTheBeams } : DEFAULT_ORBS,
   };
 }
 

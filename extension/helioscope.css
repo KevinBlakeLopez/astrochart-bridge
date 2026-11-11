@@ -21,8 +21,8 @@ h2 {
   font-size: 15px;
 }
 
-/* The elevation box and the two limits for under the beams, on one line
-   where they fit. */
+/* The elevation box and the three orbs, on one line where they fit, each
+   orb's box beside its label, then the button that puts the defaults back. */
 .settings {
   display: flex;
   flex-wrap: wrap;
@@ -33,9 +33,18 @@ h2 {
 
 .settings fieldset {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 12px;
+  gap: 8px 12px;
   margin: 0;
+}
+
+.settings input.orb {
+  width: 5em;
+}
+
+.settings fieldset button {
+  width: auto;
 }
 
 .settings legend {

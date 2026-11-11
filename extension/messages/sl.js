@@ -120,7 +120,11 @@ export default {
       title: "AstroChart Bridge: kateri planeti so bili vidni",
       heading: "Kateri planeti so bili vidni",
       elevation: "Nadmorska višina v metrih",
+      orbs: "Orbi",
+      cazimi: "Kazimi do",
+      combust: "Zgorevanje do",
       underTheBeams: "Pod žarki do",
+      defaultOrbs: "Nazaj na privzete orbe",
       working: "Računanje planetov …",
       notice:
         "AstroChart Bridge, © 2026 Kevin Blake Lopez, to izračuna na tej napravi s Swiss Ephemeris, © 1997–2021 Astrodienst AG, prek swisseph-wasm. Vsi trije so prosto programje: lahko jih delite in spreminjate pod pogoji licence GNU Affero General Public License, različice 3 ali novejše. Zanje ne velja nobeno jamstvo.",
@@ -927,5 +931,7 @@ export default {
       other: "Planetov za ta horoskop ni mogoče izračunati.",
     },
     elevationRefused: ELEVATION_RANGE,
+    orbRefused: "Vnesite cele stopinje in minute, na primer 8\u00a030, ali samo minute, na primer 17′.",
+    orbsOutOfOrder: "Orb za kazimi mora biti ožji od orba za zgorevanje, ta pa ožji od orba pod žarki, ki je lahko največ 30°.",
   },
 };

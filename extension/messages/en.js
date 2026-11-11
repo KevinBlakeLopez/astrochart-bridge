@@ -95,7 +95,11 @@ export default {
       title: "AstroChart Bridge: which planets were visible",
       heading: "Which planets were visible",
       elevation: "Elevation in metres",
+      orbs: "Orbs",
+      cazimi: "Cazimi within",
+      combust: "Combust within",
       underTheBeams: "Under the beams within",
+      defaultOrbs: "Back to the default orbs",
       working: "Working out the planets…",
       notice:
         "AstroChart Bridge, © 2026 Kevin Blake Lopez, works this out on this device with Swiss Ephemeris, © 1997–2021 Astrodienst AG, through swisseph-wasm. All three are free software: you may share and change them under the GNU Affero General Public License, version 3 or later. They come with no warranty.",
@@ -957,5 +961,7 @@ export default {
       other: "The planets can't be worked out for this chart.",
     },
     elevationRefused: ELEVATION_RANGE,
+    orbRefused: "Enter whole degrees and minutes, such as 8\u00a030, or minutes alone, such as 17′.",
+    orbsOutOfOrder: "Cazimi must be narrower than combust, and combust than under the beams, which can be at most 30°.",
   },
 };

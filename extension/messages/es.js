@@ -103,7 +103,11 @@ export default {
       title: "AstroChart Bridge: qué planetas eran visibles",
       heading: "Qué planetas eran visibles",
       elevation: "Altitud en metros",
+      orbs: "Orbes",
+      cazimi: "Cazimi a menos de",
+      combust: "Combusto a menos de",
       underTheBeams: "Bajo los rayos a menos de",
+      defaultOrbs: "Volver a los orbes predeterminados",
       working: "Calculando los planetas…",
       notice:
         "AstroChart Bridge, © 2026 Kevin Blake Lopez, lo calcula en este dispositivo con Swiss Ephemeris, © 1997–2021 Astrodienst AG, a través de swisseph-wasm. Los tres son software libre: puedes compartirlos y modificarlos según la Licencia Pública General Affero de GNU, versión 3 o posterior. No tienen ninguna garantía.",
@@ -894,5 +898,7 @@ export default {
       other: "No se pueden calcular los planetas para esta carta.",
     },
     elevationRefused: ELEVATION_RANGE,
+    orbRefused: "Escribe grados y minutos enteros, como 8\u00a030, o solo minutos, como 17′.",
+    orbsOutOfOrder: "El orbe de cazimi debe ser menor que el de combusto, y este, menor que el de bajo los rayos, que puede ser de 30° como máximo.",
   },
 };

@@ -4,7 +4,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { createEngine } from "../extension/helioscope-engine.js";
-import { viewForRefusal, viewForVisibility, visibilities } from "../extension/helioscope-model.js";
+import { DEFAULT_SETTINGS, viewForRefusal, viewForVisibility, visibilities } from "../extension/helioscope-model.js";
 import { drawScreen } from "../extension/helioscope-view.js";
 import { setLanguage } from "../extension/messages/index.js";
 
@@ -53,7 +53,7 @@ async function drawnIn(code, chart = NEW_YORK, weather = undefined, onWeather = 
   setLanguage([code]);
   const engine = await createEngine();
   try {
-    const { results } = visibilities(chart, engine, { elevation: null, underTheBeams: 15 });
+    const { results } = visibilities(chart, engine, DEFAULT_SETTINGS);
     return drawn(viewForVisibility(chart, results, weather), onWeather);
   } finally {
     engine.dispose();

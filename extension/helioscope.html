@@ -20,12 +20,15 @@
         <label for="elevation"><span data-text="pages.helioscope.elevation">Elevation in metres</span></label>
         <input id="elevation" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" placeholder="0" aria-describedby="elevation-refused">
         <fieldset>
-          <legend data-text="pages.helioscope.underTheBeams">Under the beams within</legend>
-          <label><input type="radio" name="under-the-beams" value="15" checked> 15°</label>
-          <label><input type="radio" name="under-the-beams" value="17"> 17°</label>
+          <legend data-text="pages.helioscope.orbs">Orbs</legend>
+          <label><span data-text="pages.helioscope.cazimi">Cazimi within</span> <input id="cazimi" class="orb" type="text" autocomplete="off" spellcheck="false" value="17′" aria-describedby="orbs-refused"></label>
+          <label><span data-text="pages.helioscope.combust">Combust within</span> <input id="combust" class="orb" type="text" autocomplete="off" spellcheck="false" value="8°30′" aria-describedby="orbs-refused"></label>
+          <label><span data-text="pages.helioscope.underTheBeams">Under the beams within</span> <input id="under-the-beams" class="orb" type="text" autocomplete="off" spellcheck="false" value="15°" aria-describedby="orbs-refused"></label>
+          <button id="default-orbs" class="secondary" type="button" data-text="pages.helioscope.defaultOrbs">Back to the default orbs</button>
         </fieldset>
       </div>
       <p id="elevation-refused" class="warning" role="alert" hidden></p>
+      <p id="orbs-refused" class="warning" role="alert" hidden></p>
       <div id="app"><p class="note" data-text="pages.helioscope.working">Working out the planets…</p></div>
       <p class="note" data-text="pages.helioscope.notice">AstroChart Bridge, © 2026 Kevin Blake Lopez, works this out on this device with Swiss Ephemeris, © 1997–2021 Astrodienst AG, through swisseph-wasm. All three are free software: you may share and change them under the GNU Affero General Public License, version 3 or later. They come with no warranty.</p>
       <p class="note"><a href="https://github.com/KevinBlakeLopez/astrochart-bridge" target="_blank" rel="noopener noreferrer" data-text="pages.helioscope.source">Source code and licence</a></p>

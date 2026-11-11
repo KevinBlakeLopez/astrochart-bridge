@@ -15,8 +15,9 @@ function memoryStorage(initial = {}) {
   };
 }
 
-// An elevation, and under the beams within 17°.
-const CHOSEN = { elevation: 120, underTheBeams: 17 };
+// An elevation, and cazimi within 16′, combust 8° and under the beams 17°, in
+// minutes of arc.
+const CHOSEN = { elevation: 120, orbs: { cazimi: 16, combust: 480, underTheBeams: 1020 } };
 
 test("on the web, Helioscope's settings are kept in localStorage under the site's own name, and forgotten at the defaults", async () => {
   const localStorage = memoryStorage();
@@ -24,7 +25,7 @@ test("on the web, Helioscope's settings are kept in localStorage under the site'
   assert.deepEqual(await helioscopeSettings(area), DEFAULT_SETTINGS);
   await setHelioscopeSettings(area, CHOSEN);
   assert.deepEqual(Object.fromEntries(localStorage.items), {
-    "astrochart-bridge:helioscope-settings": '{"elevation":120,"underTheBeams":17}',
+    "astrochart-bridge:helioscope-settings": '{"elevation":120,"orbs":{"cazimi":16,"combust":480,"underTheBeams":1020}}',
   });
   assert.deepEqual(await helioscopeSettings(area), CHOSEN);
   await setHelioscopeSettings(area, DEFAULT_SETTINGS);
@@ -41,7 +42,7 @@ test("on the web, something that isn't JSON under the key is nothing kept, and t
   await setHelioscopeSettings(area, { ...DEFAULT_SETTINGS, elevation: 5 });
   assert.deepEqual(Object.fromEntries(localStorage.items), {
     ...others,
-    "astrochart-bridge:helioscope-settings": '{"elevation":5,"underTheBeams":15}',
+    "astrochart-bridge:helioscope-settings": '{"elevation":5,"orbs":{"cazimi":17,"combust":510,"underTheBeams":900}}',
   });
 });
 
