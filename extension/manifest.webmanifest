@@ -17,6 +17,15 @@
       "files": [{ "name": "image", "accept": ["image/*"] }]
     }
   },
+  "file_handlers": [
+    {
+      "action": "import.html",
+      "accept": {
+        "application/x-aaf": [".aaf"],
+        "application/x-morinus-hor": [".hor"]
+      }
+    }
+  ],
   "background_color": "#0b1d3a",
   "theme_color": "#0b1d3a",
   "icons": [

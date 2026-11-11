@@ -119,3 +119,15 @@ try {
   handed = null;
 }
 if (handed) readBytes(handed.name, handed.bytes);
+
+// An AAF or Morinus file the installed web app was opened with, from the
+// computer's file manager, in Chrome and Edge on the desktop
+// (manifest.webmanifest's file_handlers): read like a chosen file, the first
+// of several too. The browser hands this page the file itself, which stays on
+// this computer. Other launches, the extension's copy and browsers without
+// file handling give it none. Last too, once openLink is defined.
+if ("launchQueue" in window) {
+  window.launchQueue.setConsumer(async ({ files = [] }) => {
+    if (files.length > 0) readFile(await files[0].getFile());
+  });
+}

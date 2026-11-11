@@ -7,6 +7,9 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { inflateSync } from "node:zlib";
+import { decodeAafFile, viewForAafText } from "../extension/aaf-model.js";
+import { isHorFile } from "../extension/core/morinus-hor.js";
+import { viewForHorFile } from "../extension/hor-model.js";
 import { SIZES, WEB_SIZES, iconPng } from "../tools/make-icons.mjs";
 import { SITE_FILES } from "../tools/site.mjs";
 
@@ -31,6 +34,48 @@ test("it opens the home page, inside the site, in a window of its own", () => {
   assert.equal(manifest.id, "./");
   assert.equal(manifest.display, "standalone");
   assert.ok(SITE_FILES.includes(manifest.start_url));
+});
+
+// --- Opening chart files (file_handlers) ---
+// Chrome and Edge on the desktop offer the installed app for these files in
+// the computer's file manager, and import.js reads the one it's opened with.
+
+const fixture = (path) => readFileSync(new URL(`../fixtures/${path}`, import.meta.url));
+
+test("it opens AAF and Morinus files on the import page, and claims no other kind of file", () => {
+  assert.deepEqual(manifest.file_handlers, [
+    { action: "import.html", accept: { "application/x-aaf": [".aaf"], "application/x-morinus-hor": [".hor"] } },
+  ]);
+  const site = "https://kevinblakelopez.github.io/astrochart-bridge/manifest.webmanifest";
+  for (const { action, accept } of manifest.file_handlers) {
+    assert.ok(SITE_FILES.includes(action), action);
+    assert.ok(new URL(action, site).href.startsWith(new URL(manifest.scope, site).href), action);
+    // Types of their own, never a shared one such as text/plain, application/json,
+    // application/octet-stream or an image, which would offer the app for every such file.
+    for (const type of Object.keys(accept)) assert.match(type, /^application\/x-[a-z-]+$/, type);
+  }
+});
+
+test("each file it opens is one the import page reads into a chart", () => {
+  const aaf = viewForAafText(decodeAafFile(fixture("aaf/astrolog-8.00-new-york.aaf")).text, { onTheWeb: true });
+  assert.equal(aaf.items.length, 1);
+  assert.ok(aaf.items[0].chart);
+  const hor = fixture("morinus/greenwich-with-dst.p2.hor");
+  assert.ok(isHorFile("greenwich-with-dst.p2.hor", hor));
+  const morinus = viewForHorFile(hor, { onTheWeb: true });
+  assert.equal(morinus.items.length, 1);
+  assert.ok(morinus.items[0].chart);
+});
+
+test("the import page reads the file it's opened with as it reads a chosen one, once the page is ready", () => {
+  const code = read("import.js").toString("utf8");
+  const consumer = code.indexOf('if ("launchQueue" in window) {');
+  assert.ok(consumer > code.indexOf("const openLink = "), "after openLink is defined");
+  assert.ok(consumer > code.indexOf("if (handed) readBytes("), "after the file the receiving page hands over");
+  assert.match(
+    code.slice(consumer),
+    /^if \("launchQueue" in window\) \{\n  window\.launchQueue\.setConsumer\(async \(\{ files = \[\] \}\) => \{\n    if \(files\.length > 0\) readFile\(await files\[0\]\.getFile\(\)\);\n  \}\);\n\}\n$/,
+  );
 });
 
 // A Home Screen label shows about 12 characters before it's cut short.
