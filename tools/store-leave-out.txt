@@ -10,3 +10,6 @@ index.html
 home.css
 home.js
 sw.js
+#
+# Parans, until a page uses them, as Helioscope's were until its page arrived.
+core/parans.js
