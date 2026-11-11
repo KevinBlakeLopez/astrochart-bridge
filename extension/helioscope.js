@@ -22,6 +22,7 @@ import {
 import { drawScreen } from "./helioscope-view.js";
 import { localizePage } from "./messages/index.js";
 import { showHomeLink } from "./web-page.js";
+import { webStorageArea } from "./web-storage.js";
 
 // The browser's language, chosen before anything is drawn.
 localizePage(document, navigator.languages);
@@ -34,10 +35,11 @@ const elevationBox = document.getElementById("elevation");
 const elevationRefused = document.getElementById("elevation-refused");
 const limitBoxes = [...document.querySelectorAll('input[name="under-the-beams"]')];
 
-// The settings, kept in the extension's storage on this computer. A copy of
-// the page outside the extension has nowhere to keep them, so it starts from
-// the defaults each time.
-const remembered = globalThis.chrome?.storage?.local ?? null;
+// The settings, kept on this computer: in the extension's storage, or, for
+// the copy of the page on the web, in the site's localStorage. When the
+// browser won't let the page use it, there's nowhere to keep them, and the
+// page starts from the defaults each time.
+const remembered = globalThis.chrome?.storage?.local ?? webStorageArea(globalThis);
 let settings = remembered ? await helioscopeSettings(remembered).catch(() => DEFAULT_SETTINGS) : DEFAULT_SETTINGS;
 elevationBox.value = settings.elevation === null ? "" : String(settings.elevation);
 for (const box of limitBoxes) box.checked = Number(box.value) === settings.underTheBeams;

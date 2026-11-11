@@ -289,7 +289,8 @@ export function readElevation(typed) {
 /**
  * The page's settings, as the user last left them on this computer.
  *
- * @param {chrome.storage.StorageArea} storage  chrome.storage.local, or a stand-in in tests
+ * @param {chrome.storage.StorageArea} storage  chrome.storage.local, webStorageArea's localStorage on
+ *   the web, or a stand-in in tests
  * @returns {Promise<{ elevation: number | null, underTheBeams: number }>}  DEFAULT_SETTINGS until the user chooses
  */
 export async function helioscopeSettings(storage) {

@@ -101,6 +101,8 @@ export const SITE_FILES = Object.freeze([
   "helioscope-model.js",
   "helioscope-view.js",
   "core/helioscope.js",
+  // Where the page keeps its settings on the web, the site's localStorage.
+  "web-storage.js",
   // Check that night's weather: the request to Open-Meteo, which the page
   // sends only on its click, and reading the answer.
   "core/open-meteo.js",
