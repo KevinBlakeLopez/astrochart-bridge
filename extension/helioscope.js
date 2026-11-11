@@ -24,6 +24,7 @@ import {
 import { drawScreen } from "./helioscope-view.js";
 import { localizePage } from "./messages/index.js";
 import { showHomeLink } from "./web-page.js";
+import { keepForOffline } from "./web-app.js";
 import { webStorageArea } from "./web-storage.js";
 
 // The browser's language, chosen before anything is drawn.
@@ -31,6 +32,7 @@ localizePage(document, navigator.languages);
 
 // The way back to the home page, on the web.
 showHomeLink(document, location.href);
+keepForOffline(location.href);
 
 const app = document.getElementById("app");
 const elevationBox = document.getElementById("elevation");

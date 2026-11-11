@@ -9,12 +9,14 @@ import { viewForHelioscopeRefusal, viewForShareRefusal } from "./popup-model.js"
 import { localizePage, text } from "./messages/index.js";
 import { paragraph, render } from "./view.js";
 import { openPage, openLink as openWebLink, showHomeLink } from "./web-page.js";
+import { keepForOffline, takeShared } from "./web-app.js";
 
 // The browser's language, chosen before anything is drawn.
 localizePage(document, navigator.languages);
 
-// The way back to the home page, on the web.
+// The way back to the home page, and the offline copy, on the web.
 showHomeLink(document, location.href);
+keepForOffline(location.href);
 
 // The extension's copy fills in astro.com's and Astro-Seek's forms and sends
 // to Stellarium Desktop; the web's copy can't, and the site doesn't publish
@@ -45,6 +47,13 @@ document.getElementById("from-clipboard").addEventListener("click", async () => 
     return;
   }
   textArea.value = pasted;
+  read();
+});
+// Text shared to the installed web app from another app is read as a paste
+// is, onto the form to check.
+takeShared("text", location.href).then((shared) => {
+  if (shared === null) return;
+  textArea.value = shared;
   read();
 });
 

@@ -88,11 +88,22 @@ function worker() {
     skipWaiting: () => calls.push("skipWaiting"),
     clients: { claim: async () => calls.push("claim") },
   };
+  // Each copy is kept as its bytes, under "<cache> <address>", with its type.
+  const types = new Map();
   const caches = {
-    open: async (name) => ({ put: async (key, response) => kept.set(`${name} ${key}`, await response.text()) }),
+    open: async (name) => ({
+      put: async (key, response) => {
+        kept.set(`${name} ${key}`, Buffer.from(await response.arrayBuffer()));
+        types.set(`${name} ${key}`, response.headers.get("Content-Type"));
+      },
+    }),
     match: async (key, { cacheName }) => {
       const body = kept.get(`${cacheName} ${key}`);
       return body === undefined ? undefined : new Response(body);
+    },
+    delete: async (name) => {
+      for (const key of [...kept.keys()].filter((key) => key.startsWith(`${name} `))) kept.delete(key);
+      return true;
     },
   };
   const fetch = async (request) => {
@@ -112,7 +123,7 @@ function worker() {
     await Promise.all(waits);
     return response;
   }
-  return { request, kept, network, calls, listeners };
+  return { request, kept, types, network, calls, listeners };
 }
 
 test("the worker takes over as soon as it's installed", async () => {
@@ -171,4 +182,132 @@ test("it leaves alone what isn't a plain GET of one of the site's own files", as
   }
   assert.deepEqual(network.fetched, []);
   assert.equal(kept.size, 0);
+});
+
+// --- What's shared to the web app (share_target, sw.js, web-app.js) ---
+// Android lists an installed web app in its share sheet from share_target,
+// and sends what's shared as a POST of form data to its action.
+
+test("it takes a shared image, text or link as form data, sent to share inside the site", () => {
+  assert.deepEqual(manifest.share_target, {
+    action: "share",
+    method: "POST",
+    enctype: "multipart/form-data",
+    params: { text: "text", url: "url", files: [{ name: "image", accept: ["image/*"] }] },
+  });
+  assert.equal(new URL(manifest.share_target.action, SCOPE).href, `${SCOPE}share`);
+});
+
+const PNG = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 1, 2, 3]);
+
+function shared({ image, text, url } = {}) {
+  const form = new FormData();
+  if (image) form.append("image", image);
+  if (text !== undefined) form.append("text", text);
+  if (url !== undefined) form.append("url", url);
+  return { method: "POST", body: form };
+}
+
+const redirectOf = (response) => ({ status: response.status, location: response.headers.get("Location") });
+
+test("a shared screenshot is kept on the device for the screenshot page, which opens with #shared", async () => {
+  const { request, kept, types, network } = worker();
+  const response = await request(`${SCOPE}share`, shared({ image: new File([PNG], "Screenshot.png", { type: "image/png" }), text: "A chart" }));
+  assert.deepEqual(redirectOf(response), { status: 303, location: `${SCOPE}screenshot.html#shared` });
+  assert.deepEqual([...kept.keys()], [`astrochart-bridge-shared ${SCOPE}shared-image`]);
+  assert.ok(kept.get(`astrochart-bridge-shared ${SCOPE}shared-image`).equals(PNG));
+  assert.equal(types.get(`astrochart-bridge-shared ${SCOPE}shared-image`), "image/png");
+  assert.deepEqual(network.fetched, []);
+});
+
+test("shared text, with a shared link after it, is kept for the paste page", async () => {
+  const { request, kept, network } = worker();
+  const response = await request(`${SCOPE}share`, shared({ text: "Born 15 June 1985, 23:30, Seattle", url: "https://example.com/chart" }));
+  assert.deepEqual(redirectOf(response), { status: 303, location: `${SCOPE}paste.html#shared` });
+  assert.deepEqual([...kept.keys()], [`astrochart-bridge-shared ${SCOPE}shared-text`]);
+  assert.equal(kept.get(`astrochart-bridge-shared ${SCOPE}shared-text`).toString("utf8"), "Born 15 June 1985, 23:30, Seattle\nhttps://example.com/chart");
+  assert.deepEqual(network.fetched, []);
+});
+
+test("a share with no image and no text opens the home page, and keeps nothing", async () => {
+  const { request, kept } = worker();
+  for (const init of [shared(), shared({ text: "  " }), shared({ image: new File(["not a picture"], "notes.txt", { type: "text/plain" }) }), { method: "POST", body: "x" }]) {
+    assert.deepEqual(redirectOf(await request(`${SCOPE}share`, init)), { status: 303, location: `${SCOPE}index.html` });
+  }
+  assert.equal(kept.size, 0);
+});
+
+test("a new share replaces what an earlier one left, and leaves the site's own copies alone", async () => {
+  const { request, kept } = worker();
+  await request(`${SCOPE}paste.html`);
+  await request(`${SCOPE}share`, shared({ image: new File([PNG], "a.png", { type: "image/png" }) }));
+  await request(`${SCOPE}share`, shared({ text: "Another chart" }));
+  assert.deepEqual([...kept.keys()].sort(), [`astrochart-bridge ${SCOPE}paste.html`, `astrochart-bridge-shared ${SCOPE}shared-text`]);
+});
+
+test("only a POST to share itself is taken as a share", async () => {
+  const { request } = worker();
+  assert.equal(await request(`${SCOPE}share?x=1`, shared({ text: "A chart" })), null);
+  assert.equal(await request(`${SCOPE}share/more`, shared({ text: "A chart" })), null);
+  assert.equal(await request("https://kevinblakelopez.github.io/another-site/share", shared({ text: "A chart" })), null);
+});
+
+// web-app.js, run with a stand-in Cache API in place of the browser's.
+const { takeShared } = await import("../extension/web-app.js");
+
+function pageCaches(items) {
+  const kept = new Map(Object.entries(items));
+  const asked = [];
+  globalThis.caches = {
+    match: async (key, { cacheName }) => {
+      asked.push(`${cacheName} ${key}`);
+      const item = kept.get(`${cacheName} ${key}`);
+      return item === undefined ? undefined : new Response(item.body, { headers: { "Content-Type": item.type } });
+    },
+    delete: async (name) => {
+      for (const key of [...kept.keys()].filter((key) => key.startsWith(`${name} `))) kept.delete(key);
+      return true;
+    },
+  };
+  return { kept, asked };
+}
+
+test("the screenshot page takes the shared screenshot once, and the cache is emptied", async () => {
+  const { kept } = pageCaches({ [`astrochart-bridge-shared ${SCOPE}shared-image`]: { body: PNG, type: "image/png" } });
+  const image = await takeShared("image", `${SCOPE}screenshot.html#shared`);
+  assert.equal(image.type, "image/png");
+  assert.ok(Buffer.from(await image.arrayBuffer()).equals(PNG));
+  assert.equal(kept.size, 0);
+  assert.equal(await takeShared("image", `${SCOPE}screenshot.html#shared`), null);
+});
+
+test("the paste page takes shared text", async () => {
+  pageCaches({ [`astrochart-bridge-shared ${SCOPE}shared-text`]: { body: "Born 15 June 1985", type: "text/plain;charset=utf-8" } });
+  assert.equal(await takeShared("text", `${SCOPE}paste.html#shared`), "Born 15 June 1985");
+});
+
+test("a page opened without #shared takes nothing, and still empties what a share left", async () => {
+  const { kept, asked } = pageCaches({ [`astrochart-bridge-shared ${SCOPE}shared-image`]: { body: PNG, type: "image/png" } });
+  assert.equal(await takeShared("image", `${SCOPE}screenshot.html`), null);
+  assert.deepEqual(asked, []);
+  assert.equal(kept.size, 0);
+});
+
+test("the extension's copy of a page never looks for a share", async () => {
+  const { kept, asked } = pageCaches({ [`astrochart-bridge-shared ${SCOPE}shared-image`]: { body: PNG, type: "image/png" } });
+  assert.equal(await takeShared("image", "chrome-extension://abcdefghijklmnop/screenshot.html#shared"), null);
+  assert.deepEqual(asked, []);
+  assert.equal(kept.size, 1);
+});
+
+test("the names the pages look under are the ones the worker keeps under", () => {
+  const worker = read("sw.js").toString("utf8");
+  const page = read("web-app.js").toString("utf8");
+  for (const name of ['"astrochart-bridge-shared"', '"shared-image"', '"shared-text"']) {
+    assert.ok(worker.includes(name), `sw.js ${name}`);
+    assert.ok(page.includes(name), `web-app.js ${name}`);
+  }
+  assert.match(worker, /screenshot\.html#shared/);
+  assert.match(worker, /paste\.html#shared/);
+  assert.ok(page.includes('"#shared"'));
 });

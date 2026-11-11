@@ -54,6 +54,8 @@ export const SITE_FILES = Object.freeze([
   "vendor/lean-qr/LICENSE",
   // The paste, import and screenshot pages, and what they share.
   "web-page.js",
+  // The web app's offline copy and what is shared to it, which every page uses.
+  "web-app.js",
   "paste.html",
   "paste.css",
   "paste.js",

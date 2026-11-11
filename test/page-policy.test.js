@@ -32,7 +32,17 @@ const PUBLISHED = ["index.html", "chart.html", "paste.html", "import.html", "scr
 
 // Every page may load its own web app manifest (manifest.webmanifest), and its
 // own images: the browser loads the Home Screen icon the page links as one.
-const STRICT = { "default-src": ["'none'"], "style-src": ["'self'"], "img-src": ["'self'"], "manifest-src": ["'self'"], "base-uri": ["'none'"], "form-action": ["'none'"] };
+// Every page also starts the site's own service worker (web-app.js), so an
+// app installed from any page takes a share.
+const STRICT = {
+  "default-src": ["'none'"],
+  "worker-src": ["'self'"],
+  "style-src": ["'self'"],
+  "img-src": ["'self'"],
+  "manifest-src": ["'self'"],
+  "base-uri": ["'none'"],
+  "form-action": ["'none'"],
+};
 
 test("every published page fits an iPad's screen and sends no referrer", () => {
   for (const page of PUBLISHED) {
@@ -42,12 +52,10 @@ test("every published page fits an iPad's screen and sends no referrer", () => {
   }
 });
 
-test("the receiving page runs only its own scripts, and reaches nothing", () => {
-  assert.deepEqual(policyOf("chart.html"), { ...STRICT, "script-src": ["'self'"] });
-});
-
-test("the home page also starts the site's own service worker", () => {
-  assert.deepEqual(policyOf("index.html"), { ...STRICT, "script-src": ["'self'"], "worker-src": ["'self'"] });
+test("the home page and the receiving page run only their own scripts, and reach nothing", () => {
+  for (const page of ["index.html", "chart.html"]) {
+    assert.deepEqual(policyOf(page), { ...STRICT, "script-src": ["'self'"] }, page);
+  }
 });
 
 test("the paste and import pages run only their own scripts, and reach only Stellarium Desktop", () => {
@@ -59,10 +67,10 @@ test("the paste and import pages run only their own scripts, and reach only Stel
 test("the screenshot page also lets Tesseract.js start its worker, compile its WebAssembly and load its language data", () => {
   // The worker may take the page's policy, as the extension's does, so the
   // page allows what the worker does: WebAssembly, and fetching from the site.
+  // Its worker-src, which every page has, starts Tesseract.js's worker too.
   assert.deepEqual(policyOf("screenshot.html"), {
     ...STRICT,
     "script-src": ["'self'", "'wasm-unsafe-eval'"],
-    "worker-src": ["'self'"],
     "connect-src": ["'self'", STELLARIUM_DESKTOP],
   });
 });
