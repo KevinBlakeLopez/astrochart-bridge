@@ -5,7 +5,7 @@
 import { linkFor } from "./chart-model.js";
 import { isExtensionCopy } from "./extension-copy.js";
 import { chartForEntry, checkField, entryFor, formForText, localEntryFor, viewForEntry, viewForLocalEntry } from "./paste-model.js";
-import { viewForHelioscopeRefusal, viewForShareRefusal } from "./popup-model.js";
+import { viewForHelioscopeRefusal, viewForParansRefusal, viewForShareRefusal } from "./popup-model.js";
 import { localizePage, text } from "./messages/index.js";
 import { paragraph, render } from "./view.js";
 import { openPage, openLink as openWebLink, showHomeLink } from "./web-page.js";
@@ -147,15 +147,17 @@ function fieldElement(field, onValue) {
 }
 
 // As on the screenshot page: Share… opens the receiving page in a tab with the
-// chart in its link, and Which planets were visible opens Helioscope's page
-// the same way, without the chart's name or town. A chart the format can't
-// carry says why, with Cancel back to this screen.
+// chart in its link, and Which planets were visible and Parans open
+// Helioscope's page and the parans page the same way, without the chart's
+// name or town. A chart the format can't carry says why, with Cancel back to
+// this screen.
 function showReady(formElementToKeep, entry, form) {
   const screen = document.createElement("div");
   const view = viewForEntry(entry, { warnings: form.warnings, name: form.name, town: form.town, gender: form.gender, onTheWeb });
   const pages = {
     share: { page: "chart.html", labels: { town: form.town, name: form.name }, refusal: viewForShareRefusal },
     helioscope: { page: "helioscope.html", labels: {}, refusal: viewForHelioscopeRefusal },
+    parans: { page: "parans.html", labels: {}, refusal: viewForParansRefusal },
   };
   const onButton = async (button, sky, drawn) => {
     // Links, Save in Astro-Seek…, and the astro.com buttons of the step after

@@ -202,6 +202,7 @@ export default {
       openAstroSeekForm: "Abrir el formulario de Astro-Seek",
       astroSeekTab: "Ir a la pestaña de Astro-Seek",
       helioscope: "Qué planetas eran visibles",
+      parans: "Parans",
       share: "Compartir…",
       enterInAstroCom: "Completar en astro.com…",
       openAstroComForm: "Abrir el formulario de astro.com",
@@ -272,6 +273,9 @@ export default {
     helioscopeBeforeGregorian:
       "AstroChart Bridge todavía no puede calcular los planetas de una carta con fecha anterior al 15 de octubre de 1582: no puede saber en qué calendario está la fecha.",
     helioscopeRefused: "AstroChart Bridge no puede calcular los planetas de esta carta.",
+    paransBeforeGregorian:
+      "AstroChart Bridge todavía no puede calcular los parans de una carta con fecha anterior al 15 de octubre de 1582: no puede saber en qué calendario está la fecha.",
+    paransRefused: "AstroChart Bridge no puede calcular los parans de esta carta.",
 
     townNote: (town) =>
       town === null

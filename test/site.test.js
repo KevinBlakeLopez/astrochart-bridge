@@ -10,8 +10,9 @@ const extension = new URL("../extension/", import.meta.url).pathname;
 const read = (file) => readFileSync(join(extension, file), "utf8");
 
 // The pages published on the web: the home page, the receiving page, the pages
-// that read a pasted chart, a chart file and a screenshot, and Helioscope's page.
-const PAGES = ["index.html", "chart.html", "paste.html", "import.html", "screenshot.html", "helioscope.html"];
+// that read a pasted chart, a chart file and a screenshot, Helioscope's page
+// and the parans page.
+const PAGES = ["index.html", "chart.html", "paste.html", "import.html", "screenshot.html", "helioscope.html", "parans.html"];
 
 // Modules the pages import only in the extension's copy, which the extension
 // ships: astro.com's and Astro-Seek's forms are filled in, and Stellarium
@@ -133,15 +134,17 @@ test("Tesseract.js's and Swiss Ephemeris's source maps and type declarations, wh
   for (const file of SITE_FILES) assert.doesNotMatch(file, /\.map$|\.d\.ts$/, file);
 });
 
-// Publishing Helioscope's page hands Swiss Ephemeris's WebAssembly to every
-// visitor, which the project's AGPL-3.0-or-later licence covers
-// (docs/HELIOSCOPE_V1_FEASIBILITY.md §4, route A). The AGPL asks the page to
-// say so, and to offer the source.
-test("Swiss Ephemeris goes out with its licence and notice, and Helioscope's page says so and links the source", () => {
+// Publishing Helioscope's page and the parans page hands Swiss Ephemeris's
+// WebAssembly to every visitor, which the project's AGPL-3.0-or-later licence
+// covers (docs/HELIOSCOPE_V1_FEASIBILITY.md §4, route A). The AGPL asks each
+// page to say so, and to offer the source.
+test("Swiss Ephemeris goes out with its licence and notice, and Helioscope's page and the parans page say so and link the source", () => {
   for (const file of ["vendor/swisseph/LICENSE", "vendor/swisseph/NOTICE"]) assert.ok(SITE_FILES.includes(file), file);
-  const html = read("helioscope.html");
-  assert.match(html, /data-text="pages\.helioscope\.notice"/);
-  assert.match(html, /<a href="https:\/\/github\.com\/KevinBlakeLopez\/astrochart-bridge"[^>]*data-text="pages\.helioscope\.source"/);
+  for (const page of ["helioscope", "parans"]) {
+    const html = read(`${page}.html`);
+    assert.match(html, new RegExp(`data-text="pages\\.${page}\\.notice"`), page);
+    assert.match(html, new RegExp(`<a href="https://github\\.com/KevinBlakeLopez/astrochart-bridge"[^>]*data-text="pages\\.${page}\\.source"`), page);
+  }
 });
 
 test("the receiving page's own files are in it", () => {

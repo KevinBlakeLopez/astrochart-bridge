@@ -224,6 +224,7 @@ export default {
       openAstroSeekForm: "Odpri obrazec Astro-Seeka",
       astroSeekTab: "Pojdi na zavihek Astro-Seek",
       helioscope: "Kateri planeti so bili vidni",
+      parans: "Parani",
       share: "Deli …",
       enterInAstroCom: "Vnesi na astro.com …",
       openAstroComForm: "Odpri obrazec astro.com",
@@ -294,6 +295,9 @@ export default {
     helioscopeBeforeGregorian:
       "AstroChart Bridge še ne more izračunati planetov za horoskop z datumom pred 15. oktobrom 1582: ne more ugotoviti, v katerem koledarju je datum.",
     helioscopeRefused: "AstroChart Bridge za ta horoskop ne more izračunati planetov.",
+    paransBeforeGregorian:
+      "AstroChart Bridge še ne more izračunati paranov za horoskop z datumom pred 15. oktobrom 1582: ne more ugotoviti, v katerem koledarju je datum.",
+    paransRefused: "AstroChart Bridge za ta horoskop ne more izračunati paranov.",
 
     townNote: (town) =>
       town === null

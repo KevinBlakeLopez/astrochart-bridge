@@ -7,7 +7,7 @@ import Tesseract from "./vendor/tesseract/tesseract.esm.min.js";
 import { analyzeScreenshot } from "./core/index.js";
 import { linkFor } from "./chart-model.js";
 import { isExtensionCopy } from "./extension-copy.js";
-import { chartToShare, viewForHelioscopeRefusal, viewForShareRefusal } from "./popup-model.js";
+import { chartToShare, viewForHelioscopeRefusal, viewForParansRefusal, viewForShareRefusal } from "./popup-model.js";
 import { viewForScreenshot } from "./screenshot-model.js";
 import { localizePage, text } from "./messages/index.js";
 import { paragraph, render } from "./view.js";
@@ -114,14 +114,15 @@ async function recognize(file) {
 
 // As in the popup: Send to Stellarium Desktop; Share…, which opens the
 // receiving page in a tab with the chart in its link; and Which planets were
-// visible, which opens Helioscope's page the same way, without the chart's
-// name or town. A chart the format can't carry says why, with Cancel back to
-// the chart.
+// visible and Parans, which open Helioscope's page and the parans page the
+// same way, without the chart's name or town. A chart the format can't carry
+// says why, with Cancel back to the chart.
 function showChart(result) {
   const view = viewForScreenshot(result, { onTheWeb });
   const pages = {
     share: { page: "chart.html", labels: { town: result.town, name: result.name }, refusal: viewForShareRefusal },
     helioscope: { page: "helioscope.html", labels: {}, refusal: viewForHelioscopeRefusal },
+    parans: { page: "parans.html", labels: {}, refusal: viewForParansRefusal },
   };
   const onButton = async (button, sky, screen) => {
     if (!Object.hasOwn(pages, button.does)) return openLink(button, sky);

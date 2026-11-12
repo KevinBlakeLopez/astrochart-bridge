@@ -208,11 +208,11 @@ async function onButton(button) {
     share({ title: text().chart.shareTitle, files: [shareableFile] });
     return;
   }
-  // Helioscope's page beside this one, in either copy, with the chart in its
-  // link but not its name or town. Opened before anything is awaited, so
-  // Safari still counts the click.
-  if (does === "helioscope") {
-    if (chart !== null) openPage("helioscope.html", chartToPassOn(chart, {}), location.href);
+  // Helioscope's page or the parans page beside this one, in either copy,
+  // with the chart in its link but not its name or town. Opened before
+  // anything is awaited, so Safari still counts the click.
+  if (does === "helioscope" || does === "parans") {
+    if (chart !== null) openPage(does === "parans" ? "parans.html" : "helioscope.html", chartToPassOn(chart, {}), location.href);
     return;
   }
   if (url) window.open(url, "_blank", "noopener,noreferrer");

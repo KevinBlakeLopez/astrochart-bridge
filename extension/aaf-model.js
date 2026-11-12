@@ -11,6 +11,7 @@ import {
   astroSeekWarnings,
   genderRows,
   helioscopeButton,
+  paransButton,
   viewFor,
   withAstroSeekSave,
 } from "./popup-model.js";
@@ -84,9 +85,9 @@ export function viewForAafChart(result, options) {
         rows: [...(chart.name ? [[words.popup.rows.name, chart.name]] : []), ...genderRows(gender), ...rows],
         warnings: [...warnings.map((code) => WARNINGS[code]?.(chart) ?? code), ...astroSeekWarnings(chart.lng)],
         notes: [...view.notes, ...astroSeekNotes()],
-        // The import page has no Share…, so Which planets were visible ends
-        // the buttons on its own.
-        buttons: [...astroSeekButtons(), helioscopeButton()],
+        // The import page has no Share…, so Which planets were visible and
+        // Parans end the buttons on their own.
+        buttons: [...astroSeekButtons(), helioscopeButton(), paransButton()],
         ...(view.sky ? { next: astroComStepFor(options)(view.sky, { local: chart.local, name: aafName(chart.aaf), town, gender }) } : {}),
       },
       { town, name: aafName(chart.aaf), gender },

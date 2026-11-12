@@ -2,7 +2,8 @@
 # Chrome Web Store and Firefox Add-ons take, one a line, and
 # test/store-packages.test.js checks that no page the zip keeps loads any of
 # them. The source zip keeps everything. Helioscope's were here until its page
-# arrived on 9 November 2026 (docs/HELIOSCOPE_V1_FEASIBILITY.md §9).
+# arrived on 9 November 2026 (docs/HELIOSCOPE_V1_FEASIBILITY.md §9), and the
+# parans page's until the popup and the chart page opened it, on 11 November.
 #
 # The web app's home page and its service worker, which only the site uses:
 # in the extension, the popup is the way in, and nothing registers the worker.
@@ -10,12 +11,3 @@ index.html
 home.css
 home.js
 sw.js
-#
-# Parans' page and what only it loads, until the popup and the chart page
-# open it, as Helioscope's were until its page arrived.
-parans.html
-parans.css
-parans.js
-parans-view.js
-parans-model.js
-core/parans.js

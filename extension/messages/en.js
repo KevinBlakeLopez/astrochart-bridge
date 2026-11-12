@@ -201,6 +201,7 @@ export default {
       openAstroSeekForm: "Open Astro-Seek's form",
       astroSeekTab: "Go to the Astro-Seek tab",
       helioscope: "Which planets were visible",
+      parans: "Parans",
       share: "Share…",
       enterInAstroCom: "Enter in astro.com…",
       openAstroComForm: "Open astro.com's form",
@@ -273,6 +274,9 @@ export default {
     helioscopeBeforeGregorian:
       "AstroChart Bridge can't work out the planets for a chart dated before 15 October 1582 yet: it can't tell which calendar the date is in.",
     helioscopeRefused: "AstroChart Bridge can't work out the planets for this chart.",
+    paransBeforeGregorian:
+      "AstroChart Bridge can't work out the parans for a chart dated before 15 October 1582 yet: it can't tell which calendar the date is in.",
+    paransRefused: "AstroChart Bridge can't work out the parans for this chart.",
 
     // town is what AstroChart Bridge types in, or null.
     townNote: (town) =>

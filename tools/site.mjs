@@ -101,8 +101,16 @@ export const SITE_FILES = Object.freeze([
   "helioscope-model.js",
   "helioscope-view.js",
   "core/helioscope.js",
-  // Its times at the chart's offset, which the parans page will share.
+  // Times at the chart's offset, which it shares with the parans page.
   "chart-time.js",
+  // The parans page, which works out which bodies were on the angles
+  // together, with the same Swiss Ephemeris.
+  "parans.html",
+  "parans.css",
+  "parans.js",
+  "parans-model.js",
+  "parans-view.js",
+  "core/parans.js",
   // Check that night's weather: the request to Open-Meteo, which the page
   // sends only on its click, and reading the answer.
   "core/open-meteo.js",

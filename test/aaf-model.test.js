@@ -46,6 +46,7 @@ test("a chart from AAF opens like an astro.com chart, with its name and birthpla
     { ...astroSeekButtons()[1], keeps: { town: "New York, NY (US)", name: { first: "New York", last: "Test" }, gender: null } },
     { label: "Save in Astro-Seek…", saves: { town: "New York, NY (US)", name: "New York Test", gender: null }, secondary: true },
     { label: "Which planets were visible", does: "helioscope", secondary: true },
+    { label: "Parans", does: "parans", secondary: true },
   ]);
   assert.deepEqual(view.notes, [...plain.notes, astroSeekNotes()[0], astroSeekSaveNamedNote()]);
   assert.deepEqual(view.warnings, []);
