@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { DEFAULT_SETTINGS, helioscopeSettings, setHelioscopeSettings } from "../extension/helioscope-model.js";
+import { DEFAULT_SETTINGS as PARANS_DEFAULTS, paransSettings, setParansSettings } from "../extension/parans-model.js";
 import { webStorageArea } from "../extension/web-storage.js";
 
 // A stand-in for localStorage: getItem, setItem and removeItem, keeping
@@ -44,6 +45,19 @@ test("on the web, something that isn't JSON under the key is nothing kept, and t
     ...others,
     "astrochart-bridge:helioscope-settings": '{"elevation":5,"orbs":{"cazimi":17,"combust":510,"underTheBeams":900}}',
   });
+});
+
+test("on the web, the parans page's settings are kept in localStorage beside Helioscope's, and forgotten at the defaults", async () => {
+  const localStorage = memoryStorage({ "astrochart-bridge:helioscope-settings": '{"elevation":120}' });
+  const area = webStorageArea({ localStorage });
+  assert.deepEqual(await paransSettings(area), PARANS_DEFAULTS);
+  const chosen = { orb: 0.5, bodies: ["sun", "venus", "eris"], horizon: "almanac", elevation: 120 };
+  await setParansSettings(area, chosen);
+  assert.equal(localStorage.items.get("astrochart-bridge:parans-settings"), JSON.stringify(chosen));
+  assert.deepEqual(await paransSettings(area), chosen);
+  await setParansSettings(area, PARANS_DEFAULTS);
+  // Helioscope's are left as they were.
+  assert.deepEqual(Object.fromEntries(localStorage.items), { "astrochart-bridge:helioscope-settings": '{"elevation":120}' });
 });
 
 test("a browser that won't let the page use localStorage leaves it nowhere to keep anything", () => {

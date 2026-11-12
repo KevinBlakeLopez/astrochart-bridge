@@ -30,14 +30,18 @@ const clock = (time) => (time.startsWith("01:") ? `la ${time}` : `las ${time}`);
 const at = (time) => `a ${clock(time)}`;
 
 // The parans page's bodies as the subject of a sentence, and what they do,
-// as Stellarium's Spanish says it: sale, se pone, culmina.
+// as Stellarium's Spanish says it: sale, se pone, culmina. The bodies' names
+// are Stellarium's (its stellarium-sky catalog), and Ixion, which it doesn't
+// name, the Spanish Wikipedia's.
 const SUBJECTS = {
   sun: "El Sol", moon: "La Luna", mercury: "Mercurio", venus: "Venus", mars: "Marte",
   jupiter: "Júpiter", saturn: "Saturno", uranus: "Urano", neptune: "Neptuno", pluto: "Plutón",
-  ceres: "Ceres", eris: "Eris", makemake: "Makemake", haumea: "Haumea", varuna: "Varuna", ixion: "Ixión", orcus: "Orco",
+  ceres: "Ceres", eris: "Eris", makemake: "Makemake", haumea: "Haumea", varuna: "Varuna", ixion: "Ixion", orcus: "Orcus",
   sedna: "Sedna",
 };
-const VERBS = { rise: "sale", set: "se pone", "upper-transit": "culmina", "lower-transit": "anticulmina" };
+// The lower transit by Spanish astronomy's term, culminación inferior: no
+// Spanish source was found that says "anticulmina".
+const VERBS = { rise: "sale", set: "se pone", "upper-transit": "culmina", "lower-transit": "tiene su culminación inferior" };
 // Each a key itself where it has no words, as in en.js.
 const subject = (body) => SUBJECTS[body] ?? body;
 const verb = (event) => VERBS[event] ?? event;
@@ -140,7 +144,7 @@ export default {
       names: {
         sun: "Sol", moon: "Luna", mercury: "Mercurio", venus: "Venus", mars: "Marte",
         jupiter: "Júpiter", saturn: "Saturno", uranus: "Urano", neptune: "Neptuno", pluto: "Plutón",
-        ceres: "Ceres", eris: "Eris", makemake: "Makemake", haumea: "Haumea", varuna: "Varuna", ixion: "Ixión", orcus: "Orco",
+        ceres: "Ceres", eris: "Eris", makemake: "Makemake", haumea: "Haumea", varuna: "Varuna", ixion: "Ixion", orcus: "Orcus",
         sedna: "Sedna",
       },
       dwarfPlanets: "Planetas enanos",

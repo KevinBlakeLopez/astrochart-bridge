@@ -384,7 +384,7 @@ test("viewForParans: Sydney in 1987, in Slovenian, with a 0.25° orb: Neptune an
   const rows = Object.fromEntries(view.assumptions.rows);
   assert.equal(rows.Okno, "Od 02:20 do 02:20 dne 6. dec., 12 ur pred trenutkom horoskopa in po njem");
   assert.equal(rows.Iskanje, "Vsak dogodek je tisti, ki ga najde drugo iskanje, začeto 3 minute prej kot izid prvega");
-  assert.equal(rows.Orba, "Znotraj 0,25° ARMC, največ 12 ur narazen");
+  assert.equal(rows.Orb, "Znotraj 0,25° ARMC, največ 12 ur narazen");
   assert.deepEqual(view.notes.slice(0, 1), ["Časi so po zamiku UTC+11:00, ki ga ima horoskop."]);
 });
 
@@ -461,6 +461,8 @@ test("viewForFailure: names the search that failed, with Swiss Ephemeris's reaso
   });
   const spanish = await inLanguage("es", () => viewForFailure({ ...failed, event: "set" }));
   assert.equal(spanish.message, "Swiss Ephemeris no pudo calcular cuándo el Sol se pone, así que no se pueden calcular los parans.");
+  const lower = await inLanguage("es", () => viewForFailure({ ...failed, point: "orcus", event: "lower-transit" }));
+  assert.equal(lower.message, "Swiss Ephemeris no pudo calcular cuándo Orcus tiene su culminación inferior, así que no se pueden calcular los parans.");
   const slovenian = await inLanguage("sl", () => viewForFailure({ point: "moon", event: "lower-transit", failure: { reason: "search-stalled" } }));
   assert.deepEqual(slovenian, {
     state: "refused",

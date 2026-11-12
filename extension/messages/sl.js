@@ -27,11 +27,13 @@ const UP_TO_CHARACTERS = { one: "znaka", two: "znakov", few: "znakov", other: "z
 const CHARTS_IN_FILE = { one: "je # horoskop", two: "sta # horoskopa", few: "so # horoskopi", other: "je # horoskopov" };
 
 // The parans page's bodies as the subject of a sentence, and what they do.
-// Stellarium's Slovenian has Vzhod, Zahod and Prehod for the nouns.
+// Stellarium's Slovenian has Vzhod, Zahod and Prehod for the nouns. The
+// bodies' names are Stellarium's (its stellarium-sky catalog), and Iksion,
+// which it doesn't name, the Slovenian Wikipedia's.
 const SUBJECTS = {
   sun: "Sonce", moon: "Luna", mercury: "Merkur", venus: "Venera", mars: "Mars",
   jupiter: "Jupiter", saturn: "Saturn", uranus: "Uran", neptune: "Neptun", pluto: "Pluton",
-  ceres: "Cerera", eris: "Erida", makemake: "Makemake", haumea: "Haumea", varuna: "Varuna", ixion: "Iksion", orcus: "Orkus",
+  ceres: "Cerera", eris: "Erida", makemake: "Makemake", haumea: "Haumea", varuna: "Varuna", ixion: "Iksion", orcus: "Ork",
   sedna: "Sedna",
 };
 const VERBS = { rise: "vzide", set: "zaide", "upper-transit": "je v zgornji kulminaciji", "lower-transit": "je v spodnji kulminaciji" };
@@ -151,7 +153,7 @@ export default {
     parans: {
       title: "AstroChart Bridge: parani",
       heading: "Parani",
-      orb: "Orba",
+      orb: "Orb",
       horizon: "Obzorje",
       geometric: "Geometrijsko",
       almanac: "Kot v almanahu",
@@ -160,7 +162,7 @@ export default {
       names: {
         sun: "Sonce", moon: "Luna", mercury: "Merkur", venus: "Venera", mars: "Mars",
         jupiter: "Jupiter", saturn: "Saturn", uranus: "Uran", neptune: "Neptun", pluto: "Pluton",
-        ceres: "Cerera", eris: "Erida", makemake: "Makemake", haumea: "Haumea", varuna: "Varuna", ixion: "Iksion", orcus: "Orkus",
+        ceres: "Cerera", eris: "Erida", makemake: "Makemake", haumea: "Haumea", varuna: "Varuna", ixion: "Iksion", orcus: "Ork",
         sedna: "Sedna",
       },
       dwarfPlanets: "Pritlikavi planeti",
@@ -1019,7 +1021,7 @@ export default {
       elevation: "Nadmorska višina",
       elevationGiven: (metres) => `${metres} m`,
       elevationDefault: (metres) => `${metres} m, ker ni bila podana`,
-      orb: "Orba",
+      orb: "Orb",
       orbValue: (orb) => `Znotraj ${orb}° ARMC, največ 12 ur narazen`,
     },
     timesAt: (offset) => `Časi so po zamiku ${offset}, ki ga ima horoskop.`,
