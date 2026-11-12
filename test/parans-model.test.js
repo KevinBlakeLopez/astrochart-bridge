@@ -334,14 +334,14 @@ test("EPHEMERIS_FILES are the files native Swiss Ephemeris's Ceres was worked ou
   assert.deepEqual(EPHEMERIS_FILES, Object.keys(asteroids.files));
 });
 
-// Ceres's files, as the page loads them.
-const CERES_FILES = Object.fromEntries(EPHEMERIS_FILES.map((name) => [
+// The dwarf planets' files, as the page loads them.
+const PAGE_FILES = Object.fromEntries(EPHEMERIS_FILES.map((name) => [
   name,
   new Uint8Array(readFileSync(new URL(`../extension/vendor/swisseph/ephe/${name}`, import.meta.url))),
 ]));
 
 test("viewForParans: London with Ceres ticked: its four events among the rest, and where the dwarf planets come from under Assumptions", async () => {
-  const view = await screen(LONDON, { ...DEFAULTS, bodies: [...BODIES] }, { ephemerisFiles: CERES_FILES });
+  const view = await screen(LONDON, { ...DEFAULTS, bodies: [...PLANETS, "ceres"] }, { ephemerisFiles: PAGE_FILES });
   assert.equal(view.events.rows.length, 44);
   const ceres = view.events.rows.filter(([, said]) => said.startsWith("Ceres "));
   // In time order, as native Swiss Ephemeris has them: Ceres culminated first, in the morning.

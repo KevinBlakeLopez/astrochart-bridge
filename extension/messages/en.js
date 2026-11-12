@@ -25,7 +25,8 @@ const ELEVATION_RANGE = "Enter whole metres, from -500 to 25000.";
 const SUBJECTS = {
   sun: "The Sun", moon: "The Moon", mercury: "Mercury", venus: "Venus", mars: "Mars",
   jupiter: "Jupiter", saturn: "Saturn", uranus: "Uranus", neptune: "Neptune", pluto: "Pluto",
-  ceres: "Ceres",
+  ceres: "Ceres", eris: "Eris", makemake: "Makemake", haumea: "Haumea", varuna: "Varuna", ixion: "Ixion", orcus: "Orcus",
+  sedna: "Sedna",
 };
 const VERBS = { rise: "rises", set: "sets", "upper-transit": "culminates", "lower-transit": "anticulminates" };
 // Each a key itself where it has no words, as when test/messages.test.js
@@ -128,7 +129,8 @@ export default {
       names: {
         sun: "Sun", moon: "Moon", mercury: "Mercury", venus: "Venus", mars: "Mars",
         jupiter: "Jupiter", saturn: "Saturn", uranus: "Uranus", neptune: "Neptune", pluto: "Pluto",
-        ceres: "Ceres",
+        ceres: "Ceres", eris: "Eris", makemake: "Makemake", haumea: "Haumea", varuna: "Varuna", ixion: "Ixion", orcus: "Orcus",
+        sedna: "Sedna",
       },
       dwarfPlanets: "Dwarf planets",
       working: "Working out the parans…",

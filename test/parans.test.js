@@ -45,24 +45,28 @@ const ephemerisFiles = () => Object.fromEntries(Object.keys(ASTEROIDS.files).map
   new Uint8Array(readFileSync(new URL(`../extension/vendor/swisseph/ephe/${name}`, import.meta.url))),
 ]));
 
-test("angularEvents: Ceres's events, with its files, are native Swiss Ephemeris's, and the files are named in the assumptions", async (t) => {
+test("angularEvents: the dwarf planets' events, with their files, are native Swiss Ephemeris's, and the files are named in the assumptions", async (t) => {
   const engine = await createEngine({ ephemerisFiles: ephemerisFiles() });
   t.after(() => engine.dispose());
   for (const reference of ASTEROIDS.results) {
     const result = angularEvents(natal(reference.utc, reference.lat, reference.lng), engine, {
-      bodies: ["sun", "ceres"],
+      bodies: ["sun", ...DWARF_PLANETS],
       horizon: horizonOf(reference.horizon),
     });
     assert.equal(result.kind, "events", reference.name);
-    const ceres = result.events.filter(({ point }) => point === "ceres");
-    assert.deepEqual(ceres.map(({ event }) => event), reference.events.map(({ event }) => event), reference.name);
-    ceres.forEach(({ jd }, i) => {
-      const seconds = Math.abs(jd - reference.events[i].jdUt) * DAY_SECONDS;
-      assert.ok(seconds <= ASTEROID_SECONDS, `${reference.name}: ${ceres[i].event} ${seconds} s from native's`);
-    });
-    const missing = result.noRiseOrSet.filter(({ point }) => point === "ceres").map(({ event }) => event);
-    assert.deepEqual(missing, reference.noRiseOrSet.map(([, event]) => event), reference.name);
-    assert.deepEqual(result.assumptions.ephemerisFiles, ["seas_12.se1", "seas_18.se1", "seas_24.se1"]);
+    for (const body of DWARF_PLANETS) {
+      const label = `${reference.name}: ${body}`;
+      const ours = result.events.filter(({ point }) => point === body);
+      const native = reference.events.filter(({ point }) => point === body);
+      assert.deepEqual(ours.map(({ event }) => event), native.map(({ event }) => event), label);
+      ours.forEach(({ jd, event }, i) => {
+        const seconds = Math.abs(jd - native[i].jdUt) * DAY_SECONDS;
+        assert.ok(seconds <= ASTEROID_SECONDS, `${label} ${event}: ${seconds} s from native's`);
+      });
+      const missing = result.noRiseOrSet.filter(({ point }) => point === body).map(({ event }) => event);
+      assert.deepEqual(missing, reference.noRiseOrSet.filter(([point]) => point === body).map(([, event]) => event), label);
+    }
+    assert.deepEqual(result.assumptions.ephemerisFiles, Object.keys(ASTEROIDS.files));
   }
 });
 
@@ -361,9 +365,9 @@ test("angularEvents: an elevation given is used and said to be given", () => {
   assert.deepEqual(result.assumptions.elevation, { metres: 120, source: "given" });
 });
 
-test("angularEvents: bodies are a list of the ten and Ceres, each once; anything else is a mistake in the caller", () => {
+test("angularEvents: bodies are a list of the ten and the dwarf planets, each once; anything else is a mistake in the caller", () => {
   assert.deepEqual(PLANETS, ["sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto"]);
-  assert.deepEqual(DWARF_PLANETS, ["ceres"]);
+  assert.deepEqual(DWARF_PLANETS, ["ceres", "eris", "makemake", "haumea", "varuna", "ixion", "orcus", "sedna"]);
   assert.deepEqual(BODIES, [...PLANETS, ...DWARF_PLANETS]);
   const engine = scriptedEngine({});
   for (const bodies of [[], ["sun", "sun"], ["earth"], ["Sun"], "sun", undefined]) {

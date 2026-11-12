@@ -34,7 +34,8 @@ const at = (time) => `a ${clock(time)}`;
 const SUBJECTS = {
   sun: "El Sol", moon: "La Luna", mercury: "Mercurio", venus: "Venus", mars: "Marte",
   jupiter: "Júpiter", saturn: "Saturno", uranus: "Urano", neptune: "Neptuno", pluto: "Plutón",
-  ceres: "Ceres",
+  ceres: "Ceres", eris: "Eris", makemake: "Makemake", haumea: "Haumea", varuna: "Varuna", ixion: "Ixión", orcus: "Orco",
+  sedna: "Sedna",
 };
 const VERBS = { rise: "sale", set: "se pone", "upper-transit": "culmina", "lower-transit": "anticulmina" };
 // Each a key itself where it has no words, as in en.js.
@@ -135,7 +136,8 @@ export default {
       names: {
         sun: "Sol", moon: "Luna", mercury: "Mercurio", venus: "Venus", mars: "Marte",
         jupiter: "Júpiter", saturn: "Saturno", uranus: "Urano", neptune: "Neptuno", pluto: "Plutón",
-        ceres: "Ceres",
+        ceres: "Ceres", eris: "Eris", makemake: "Makemake", haumea: "Haumea", varuna: "Varuna", ixion: "Ixión", orcus: "Orco",
+        sedna: "Sedna",
       },
       dwarfPlanets: "Planetas enanos",
       working: "Calculando los parans…",

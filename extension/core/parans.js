@@ -27,9 +27,10 @@ import { julianDay, utcFromJulianDay } from "./stellarium-desktop.js";
 export const PLANETS = Object.freeze([
   "sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto",
 ]);
-// Ceres, from Astrodienst's asteroid files, which the engine has to be given:
-// without them, its searches fail.
-export const DWARF_PLANETS = Object.freeze(["ceres"]);
+// Ceres and the dwarf planets and candidates beyond Neptune, from
+// Astrodienst's asteroid files, which the engine has to be given: without
+// them, their searches fail.
+export const DWARF_PLANETS = Object.freeze(["ceres", "eris", "makemake", "haumea", "varuna", "ixion", "orcus", "sedna"]);
 export const BODIES = Object.freeze([...PLANETS, ...DWARF_PLANETS]);
 // The order events of one body are searched in, and so the order of events
 // at the same instant.

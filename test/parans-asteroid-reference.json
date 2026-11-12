@@ -4,13 +4,27 @@
  "swissEphemeris": "2.10.03",
  "flags": "moshier",
  "files": {
+  "s136108.se1": "48a46d498031b060d55de5465a1416864baef19e23a76f470aa233b3b8547f78",
+  "s136199.se1": "b26cd86e1d0a6f6d1b3a45ec9b3de7771d540f281f56a0b86c9e828c3aaba152",
+  "s136472.se1": "81bd2f212fadc2b855ef05b0537ac1e4927e0caae4702954ef29b8862565d63d",
+  "se20000.se1": "27a7009e7722401801c13240cb5032ae01a5d55b1a8d9c4abc2e845563ff71da",
+  "se28978.se1": "0a05bff0237f69c834d422b4f1b0262c556a76b18e5374d36d99f901d8908253",
+  "se90377.se1": "2ee55a7cbe1644f820671e957b0036f8c9dcf168398e20173f2c58fc6a42d292",
+  "se90482.se1": "fc45f7dd52561881e322044cc14c2bf430fca60c44732f342286324a9da63f25",
   "seas_12.se1": "3345555097e2080f4e2582026a6008ebbccfdca27600ba48019ca9c6e3e7a211",
   "seas_18.se1": "a2cd8fc33807c78ca9a700c91c2e042258b12fc4796519e00781440b5ad8b2e2",
   "seas_24.se1": "1b4160a4d289c3d2df55efcc016d407a1516c079b725b2bf2b073a70211aa391"
  },
  "cases": "test/parans-reference.json's",
  "bodies": [
-  "ceres"
+  "ceres",
+  "eris",
+  "makemake",
+  "haumea",
+  "varuna",
+  "ixion",
+  "orcus",
+  "sedna"
  ],
  "results": [
   {
@@ -26,9 +40,64 @@
    },
    "events": [
     {
+     "point": "ixion",
+     "event": "rise",
+     "jdUt": 2460410.6063824976
+    },
+    {
+     "point": "sedna",
+     "event": "lower-transit",
+     "jdUt": 2460410.615062955
+    },
+    {
+     "point": "varuna",
+     "event": "set",
+     "jdUt": 2460410.6755469325
+    },
+    {
+     "point": "ixion",
+     "event": "upper-transit",
+     "jdUt": 2460410.717226565
+    },
+    {
      "point": "ceres",
      "event": "upper-transit",
      "jdUt": 2460410.7527310858
+    },
+    {
+     "point": "eris",
+     "event": "rise",
+     "jdUt": 2460410.7738601053
+    },
+    {
+     "point": "varuna",
+     "event": "lower-transit",
+     "jdUt": 2460410.8131737243
+    },
+    {
+     "point": "ixion",
+     "event": "set",
+     "jdUt": 2460410.828062185
+    },
+    {
+     "point": "sedna",
+     "event": "rise",
+     "jdUt": 2460410.834022491
+    },
+    {
+     "point": "makemake",
+     "event": "set",
+     "jdUt": 2460410.837980557
+    },
+    {
+     "point": "haumea",
+     "event": "set",
+     "jdUt": 2460410.8610025733
+    },
+    {
+     "point": "orcus",
+     "event": "lower-transit",
+     "jdUt": 2460410.886016298
     },
     {
      "point": "ceres",
@@ -36,14 +105,104 @@
      "jdUt": 2460410.909798909
     },
     {
+     "point": "varuna",
+     "event": "rise",
+     "jdUt": 2460410.950803249
+    },
+    {
+     "point": "makemake",
+     "event": "lower-transit",
+     "jdUt": 2460411.003323591
+    },
+    {
+     "point": "eris",
+     "event": "upper-transit",
+     "jdUt": 2460411.021581647
+    },
+    {
+     "point": "haumea",
+     "event": "lower-transit",
+     "jdUt": 2460411.0554534174
+    },
+    {
+     "point": "sedna",
+     "event": "upper-transit",
+     "jdUt": 2460411.1137121394
+    },
+    {
+     "point": "makemake",
+     "event": "rise",
+     "jdUt": 2460411.16865902
+    },
+    {
+     "point": "orcus",
+     "event": "rise",
+     "jdUt": 2460411.1811271994
+    },
+    {
+     "point": "ixion",
+     "event": "lower-transit",
+     "jdUt": 2460411.215857793
+    },
+    {
+     "point": "haumea",
+     "event": "rise",
+     "jdUt": 2460411.2498925226
+    },
+    {
      "point": "ceres",
      "event": "lower-transit",
      "jdUt": 2460411.251651011
     },
     {
+     "point": "eris",
+     "event": "set",
+     "jdUt": 2460411.2693107617
+    },
+    {
+     "point": "varuna",
+     "event": "upper-transit",
+     "jdUt": 2460411.311803017
+    },
+    {
+     "point": "orcus",
+     "event": "upper-transit",
+     "jdUt": 2460411.384634998
+    },
+    {
+     "point": "sedna",
+     "event": "set",
+     "jdUt": 2460411.393409063
+    },
+    {
+     "point": "makemake",
+     "event": "upper-transit",
+     "jdUt": 2460411.501935466
+    },
+    {
+     "point": "eris",
+     "event": "lower-transit",
+     "jdUt": 2460411.520229641
+    },
+    {
+     "point": "haumea",
+     "event": "upper-transit",
+     "jdUt": 2460411.5540666287
+    },
+    {
+     "point": "orcus",
+     "event": "set",
+     "jdUt": 2460411.5881569884
+    },
+    {
      "point": "ceres",
      "event": "rise",
      "jdUt": 2460411.59357815
+    },
+    {
+     "point": "ixion",
+     "event": "rise",
+     "jdUt": 2460411.6036818316
     }
    ],
    "noRiseOrSet": []
@@ -61,9 +220,59 @@
    },
    "events": [
     {
+     "point": "sedna",
+     "event": "lower-transit",
+     "jdUt": 2460410.615062955
+    },
+    {
+     "point": "varuna",
+     "event": "set",
+     "jdUt": 2460410.679369736
+    },
+    {
+     "point": "ixion",
+     "event": "upper-transit",
+     "jdUt": 2460410.717226565
+    },
+    {
      "point": "ceres",
      "event": "upper-transit",
      "jdUt": 2460410.7527310858
+    },
+    {
+     "point": "eris",
+     "event": "rise",
+     "jdUt": 2460410.77129488
+    },
+    {
+     "point": "varuna",
+     "event": "lower-transit",
+     "jdUt": 2460410.8131737243
+    },
+    {
+     "point": "sedna",
+     "event": "rise",
+     "jdUt": 2460410.8313755677
+    },
+    {
+     "point": "ixion",
+     "event": "set",
+     "jdUt": 2460410.8326549213
+    },
+    {
+     "point": "makemake",
+     "event": "set",
+     "jdUt": 2460410.841201592
+    },
+    {
+     "point": "haumea",
+     "event": "set",
+     "jdUt": 2460410.8638353036
+    },
+    {
+     "point": "orcus",
+     "event": "lower-transit",
+     "jdUt": 2460410.886016298
     },
     {
      "point": "ceres",
@@ -71,14 +280,104 @@
      "jdUt": 2460410.913128663
     },
     {
+     "point": "varuna",
+     "event": "rise",
+     "jdUt": 2460410.9469804456
+    },
+    {
+     "point": "makemake",
+     "event": "lower-transit",
+     "jdUt": 2460411.003323591
+    },
+    {
+     "point": "eris",
+     "event": "upper-transit",
+     "jdUt": 2460411.021581647
+    },
+    {
+     "point": "haumea",
+     "event": "lower-transit",
+     "jdUt": 2460411.0554534174
+    },
+    {
+     "point": "sedna",
+     "event": "upper-transit",
+     "jdUt": 2460411.1137121394
+    },
+    {
+     "point": "makemake",
+     "event": "rise",
+     "jdUt": 2460411.1654381445
+    },
+    {
+     "point": "orcus",
+     "event": "rise",
+     "jdUt": 2460411.1783907902
+    },
+    {
+     "point": "ixion",
+     "event": "lower-transit",
+     "jdUt": 2460411.215857793
+    },
+    {
+     "point": "haumea",
+     "event": "rise",
+     "jdUt": 2460411.2470597913
+    },
+    {
      "point": "ceres",
      "event": "lower-transit",
      "jdUt": 2460411.251651011
     },
     {
+     "point": "eris",
+     "event": "set",
+     "jdUt": 2460411.2718761456
+    },
+    {
+     "point": "varuna",
+     "event": "upper-transit",
+     "jdUt": 2460411.311803017
+    },
+    {
+     "point": "orcus",
+     "event": "upper-transit",
+     "jdUt": 2460411.384634998
+    },
+    {
+     "point": "sedna",
+     "event": "set",
+     "jdUt": 2460411.396055986
+    },
+    {
+     "point": "makemake",
+     "event": "upper-transit",
+     "jdUt": 2460411.501935466
+    },
+    {
+     "point": "eris",
+     "event": "lower-transit",
+     "jdUt": 2460411.520229641
+    },
+    {
+     "point": "haumea",
+     "event": "upper-transit",
+     "jdUt": 2460411.5540666287
+    },
+    {
      "point": "ceres",
      "event": "rise",
      "jdUt": 2460411.5902463295
+    },
+    {
+     "point": "orcus",
+     "event": "set",
+     "jdUt": 2460411.5908933976
+    },
+    {
+     "point": "ixion",
+     "event": "rise",
+     "jdUt": 2460411.5990876853
     }
    ],
    "noRiseOrSet": []
@@ -101,9 +400,119 @@
      "jdUt": 2460482.5036368845
     },
     {
+     "point": "eris",
+     "event": "rise",
+     "jdUt": 2460482.5263596857
+    },
+    {
+     "point": "sedna",
+     "event": "rise",
+     "jdUt": 2460482.5490898774
+    },
+    {
+     "point": "varuna",
+     "event": "lower-transit",
+     "jdUt": 2460482.565623277
+    },
+    {
+     "point": "orcus",
+     "event": "lower-transit",
+     "jdUt": 2460482.636324755
+    },
+    {
+     "point": "haumea",
+     "event": "set",
+     "jdUt": 2460482.684147168
+    },
+    {
+     "point": "makemake",
+     "event": "lower-transit",
+     "jdUt": 2460482.7513863123
+    },
+    {
+     "point": "eris",
+     "event": "upper-transit",
+     "jdUt": 2460482.77379943
+    },
+    {
+     "point": "haumea",
+     "event": "lower-transit",
+     "jdUt": 2460482.802973957
+    },
+    {
+     "point": "sedna",
+     "event": "upper-transit",
+     "jdUt": 2460482.866715529
+    },
+    {
+     "point": "haumea",
+     "event": "rise",
+     "jdUt": 2460482.9218147285
+    },
+    {
+     "point": "ixion",
+     "event": "lower-transit",
+     "jdUt": 2460482.9630381092
+    },
+    {
+     "point": "orcus",
+     "event": "rise",
+     "jdUt": 2460482.9849096625
+    },
+    {
      "point": "ceres",
      "event": "lower-transit",
      "jdUt": 2460483.0019809995
+    },
+    {
+     "point": "eris",
+     "event": "set",
+     "jdUt": 2460483.0212417934
+    },
+    {
+     "point": "varuna",
+     "event": "upper-transit",
+     "jdUt": 2460483.064288024
+    },
+    {
+     "point": "orcus",
+     "event": "upper-transit",
+     "jdUt": 2460483.1349736964
+    },
+    {
+     "point": "sedna",
+     "event": "set",
+     "jdUt": 2460483.1843477585
+    },
+    {
+     "point": "makemake",
+     "event": "upper-transit",
+     "jdUt": 2460483.250015167
+    },
+    {
+     "point": "eris",
+     "event": "lower-transit",
+     "jdUt": 2460483.272441032
+    },
+    {
+     "point": "orcus",
+     "event": "set",
+     "jdUt": 2460483.285045276
+    },
+    {
+     "point": "haumea",
+     "event": "upper-transit",
+     "jdUt": 2460483.3015952013
+    },
+    {
+     "point": "sedna",
+     "event": "lower-transit",
+     "jdUt": 2460483.3653665343
+    },
+    {
+     "point": "ixion",
+     "event": "upper-transit",
+     "jdUt": 2460483.461637498
     }
    ],
    "noRiseOrSet": [
@@ -113,6 +522,30 @@
     ],
     [
      "ceres",
+     "set"
+    ],
+    [
+     "ixion",
+     "rise"
+    ],
+    [
+     "ixion",
+     "set"
+    ],
+    [
+     "makemake",
+     "rise"
+    ],
+    [
+     "makemake",
+     "set"
+    ],
+    [
+     "varuna",
+     "rise"
+    ],
+    [
+     "varuna",
      "set"
     ]
    ]
@@ -135,9 +568,119 @@
      "jdUt": 2460482.5036368845
     },
     {
+     "point": "eris",
+     "event": "rise",
+     "jdUt": 2460482.52176838
+    },
+    {
+     "point": "sedna",
+     "event": "rise",
+     "jdUt": 2460482.543938923
+    },
+    {
+     "point": "varuna",
+     "event": "lower-transit",
+     "jdUt": 2460482.565623277
+    },
+    {
+     "point": "orcus",
+     "event": "lower-transit",
+     "jdUt": 2460482.636324755
+    },
+    {
+     "point": "haumea",
+     "event": "set",
+     "jdUt": 2460482.691312282
+    },
+    {
+     "point": "makemake",
+     "event": "lower-transit",
+     "jdUt": 2460482.7513863123
+    },
+    {
+     "point": "eris",
+     "event": "upper-transit",
+     "jdUt": 2460482.77379943
+    },
+    {
+     "point": "haumea",
+     "event": "lower-transit",
+     "jdUt": 2460482.802973957
+    },
+    {
+     "point": "sedna",
+     "event": "upper-transit",
+     "jdUt": 2460482.866715529
+    },
+    {
+     "point": "haumea",
+     "event": "rise",
+     "jdUt": 2460482.914649456
+    },
+    {
+     "point": "ixion",
+     "event": "lower-transit",
+     "jdUt": 2460482.9630381092
+    },
+    {
+     "point": "orcus",
+     "event": "rise",
+     "jdUt": 2460482.9791884115
+    },
+    {
      "point": "ceres",
      "event": "lower-transit",
      "jdUt": 2460483.0019809995
+    },
+    {
+     "point": "eris",
+     "event": "set",
+     "jdUt": 2460483.025832941
+    },
+    {
+     "point": "varuna",
+     "event": "upper-transit",
+     "jdUt": 2460483.064288024
+    },
+    {
+     "point": "orcus",
+     "event": "upper-transit",
+     "jdUt": 2460483.1349736964
+    },
+    {
+     "point": "sedna",
+     "event": "set",
+     "jdUt": 2460483.1894987123
+    },
+    {
+     "point": "makemake",
+     "event": "upper-transit",
+     "jdUt": 2460483.250015167
+    },
+    {
+     "point": "eris",
+     "event": "lower-transit",
+     "jdUt": 2460483.272441032
+    },
+    {
+     "point": "orcus",
+     "event": "set",
+     "jdUt": 2460483.290766527
+    },
+    {
+     "point": "haumea",
+     "event": "upper-transit",
+     "jdUt": 2460483.3015952013
+    },
+    {
+     "point": "sedna",
+     "event": "lower-transit",
+     "jdUt": 2460483.3653665343
+    },
+    {
+     "point": "ixion",
+     "event": "upper-transit",
+     "jdUt": 2460483.461637498
     }
    ],
    "noRiseOrSet": [
@@ -147,6 +690,30 @@
     ],
     [
      "ceres",
+     "set"
+    ],
+    [
+     "ixion",
+     "rise"
+    ],
+    [
+     "ixion",
+     "set"
+    ],
+    [
+     "makemake",
+     "rise"
+    ],
+    [
+     "makemake",
+     "set"
+    ],
+    [
+     "varuna",
+     "rise"
+    ],
+    [
+     "varuna",
      "set"
     ]
    ]
@@ -164,9 +731,49 @@
    },
    "events": [
     {
+     "point": "makemake",
+     "event": "rise",
+     "jdUt": 2447134.1741832313
+    },
+    {
      "point": "ceres",
      "event": "lower-transit",
      "jdUt": 2447134.1870083963
+    },
+    {
+     "point": "haumea",
+     "event": "rise",
+     "jdUt": 2447134.189552488
+    },
+    {
+     "point": "eris",
+     "event": "set",
+     "jdUt": 2447134.2065213737
+    },
+    {
+     "point": "sedna",
+     "event": "set",
+     "jdUt": 2447134.233369849
+    },
+    {
+     "point": "orcus",
+     "event": "upper-transit",
+     "jdUt": 2447134.233520801
+    },
+    {
+     "point": "ixion",
+     "event": "rise",
+     "jdUt": 2447134.246604305
+    },
+    {
+     "point": "varuna",
+     "event": "set",
+     "jdUt": 2447134.32153847
+    },
+    {
+     "point": "makemake",
+     "event": "upper-transit",
+     "jdUt": 2447134.342899143
     },
     {
      "point": "ceres",
@@ -174,14 +781,114 @@
      "jdUt": 2447134.379746936
     },
     {
+     "point": "haumea",
+     "event": "upper-transit",
+     "jdUt": 2447134.3937886576
+    },
+    {
+     "point": "eris",
+     "event": "lower-transit",
+     "jdUt": 2447134.4364079987
+    },
+    {
+     "point": "orcus",
+     "event": "set",
+     "jdUt": 2447134.4741850123
+    },
+    {
+     "point": "sedna",
+     "event": "lower-transit",
+     "jdUt": 2447134.48923651
+    },
+    {
+     "point": "makemake",
+     "event": "set",
+     "jdUt": 2447134.511604967
+    },
+    {
+     "point": "ixion",
+     "event": "upper-transit",
+     "jdUt": 2447134.5180371325
+    },
+    {
+     "point": "haumea",
+     "event": "set",
+     "jdUt": 2447134.5980202584
+    },
+    {
+     "point": "varuna",
+     "event": "lower-transit",
+     "jdUt": 2447134.607947471
+    },
+    {
+     "point": "eris",
+     "event": "rise",
+     "jdUt": 2447134.666295869
+    },
+    {
      "point": "ceres",
      "event": "upper-transit",
      "jdUt": 2447134.6862113047
     },
     {
+     "point": "orcus",
+     "event": "lower-transit",
+     "jdUt": 2447134.732141094
+    },
+    {
+     "point": "sedna",
+     "event": "rise",
+     "jdUt": 2447134.7451022696
+    },
+    {
+     "point": "ixion",
+     "event": "set",
+     "jdUt": 2447134.7894756226
+    },
+    {
+     "point": "makemake",
+     "event": "lower-transit",
+     "jdUt": 2447134.8415398635
+    },
+    {
+     "point": "haumea",
+     "event": "lower-transit",
+     "jdUt": 2447134.892437385
+    },
+    {
+     "point": "varuna",
+     "event": "rise",
+     "jdUt": 2447134.8943565916
+    },
+    {
+     "point": "eris",
+     "event": "upper-transit",
+     "jdUt": 2447134.9350349363
+    },
+    {
+     "point": "sedna",
+     "event": "upper-transit",
+     "jdUt": 2447134.987861333
+    },
+    {
+     "point": "orcus",
+     "event": "rise",
+     "jdUt": 2447134.990095003
+    },
+    {
      "point": "ceres",
      "event": "set",
      "jdUt": 2447134.9926049146
+    },
+    {
+     "point": "ixion",
+     "event": "lower-transit",
+     "jdUt": 2447135.0167024466
+    },
+    {
+     "point": "varuna",
+     "event": "upper-transit",
+     "jdUt": 2447135.1065532393
     }
    ],
    "noRiseOrSet": []
@@ -199,9 +906,49 @@
    },
    "events": [
     {
+     "point": "makemake",
+     "event": "rise",
+     "jdUt": 2447134.171478293
+    },
+    {
      "point": "ceres",
      "event": "lower-transit",
      "jdUt": 2447134.1870083963
+    },
+    {
+     "point": "haumea",
+     "event": "rise",
+     "jdUt": 2447134.187385899
+    },
+    {
+     "point": "eris",
+     "event": "set",
+     "jdUt": 2447134.208491983
+    },
+    {
+     "point": "orcus",
+     "event": "upper-transit",
+     "jdUt": 2447134.233520801
+    },
+    {
+     "point": "sedna",
+     "event": "set",
+     "jdUt": 2447134.2352975425
+    },
+    {
+     "point": "ixion",
+     "event": "rise",
+     "jdUt": 2447134.244619709
+    },
+    {
+     "point": "varuna",
+     "event": "set",
+     "jdUt": 2447134.3236262226
+    },
+    {
+     "point": "makemake",
+     "event": "upper-transit",
+     "jdUt": 2447134.342899143
     },
     {
      "point": "ceres",
@@ -209,14 +956,114 @@
      "jdUt": 2447134.377421719
     },
     {
+     "point": "haumea",
+     "event": "upper-transit",
+     "jdUt": 2447134.3937886576
+    },
+    {
+     "point": "eris",
+     "event": "lower-transit",
+     "jdUt": 2447134.4364079987
+    },
+    {
+     "point": "orcus",
+     "event": "set",
+     "jdUt": 2447134.476116362
+    },
+    {
+     "point": "sedna",
+     "event": "lower-transit",
+     "jdUt": 2447134.48923651
+    },
+    {
+     "point": "makemake",
+     "event": "set",
+     "jdUt": 2447134.5143099055
+    },
+    {
+     "point": "ixion",
+     "event": "upper-transit",
+     "jdUt": 2447134.5180371325
+    },
+    {
+     "point": "haumea",
+     "event": "set",
+     "jdUt": 2447134.600186847
+    },
+    {
+     "point": "varuna",
+     "event": "lower-transit",
+     "jdUt": 2447134.607947471
+    },
+    {
+     "point": "eris",
+     "event": "rise",
+     "jdUt": 2447134.66432526
+    },
+    {
      "point": "ceres",
      "event": "upper-transit",
      "jdUt": 2447134.6862113047
     },
     {
+     "point": "orcus",
+     "event": "lower-transit",
+     "jdUt": 2447134.732141094
+    },
+    {
+     "point": "sedna",
+     "event": "rise",
+     "jdUt": 2447134.7431747345
+    },
+    {
+     "point": "ixion",
+     "event": "set",
+     "jdUt": 2447134.7914603776
+    },
+    {
+     "point": "makemake",
+     "event": "lower-transit",
+     "jdUt": 2447134.8415398635
+    },
+    {
+     "point": "varuna",
+     "event": "rise",
+     "jdUt": 2447134.8922688393
+    },
+    {
+     "point": "haumea",
+     "event": "lower-transit",
+     "jdUt": 2447134.892437385
+    },
+    {
+     "point": "eris",
+     "event": "upper-transit",
+     "jdUt": 2447134.9350349363
+    },
+    {
+     "point": "sedna",
+     "event": "upper-transit",
+     "jdUt": 2447134.987861333
+    },
+    {
+     "point": "orcus",
+     "event": "rise",
+     "jdUt": 2447134.9881636533
+    },
+    {
      "point": "ceres",
      "event": "set",
      "jdUt": 2447134.994928542
+    },
+    {
+     "point": "ixion",
+     "event": "lower-transit",
+     "jdUt": 2447135.0167024466
+    },
+    {
+     "point": "varuna",
+     "event": "upper-transit",
+     "jdUt": 2447135.1065532393
     }
    ],
    "noRiseOrSet": []

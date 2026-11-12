@@ -221,25 +221,30 @@ test("angularEvent: mounting the files changes nothing for the ten bodies, which
   }
 });
 
-// Native Swiss Ephemeris's Ceres, pysweph on the same files with the same
-// Moshier setting, written by tools/make-asteroid-reference.py for
-// test/parans-reference.json's six cases.
+// Native Swiss Ephemeris's Ceres and dwarf planets, pysweph on the same
+// files with the same Moshier setting, written by
+// tools/make-asteroid-reference.py for test/parans-reference.json's six cases.
 const ASTEROIDS = JSON.parse(readFileSync(new URL("parans-asteroid-reference.json", import.meta.url), "utf8"));
-// Measured on 12 November 2026 over the 20 events: the culminations are
-// native's exactly, and the risings and settings at most 9.6 ms from it
-// (Sydney's), where the ten bodies' are native's exactly too. Ceres's
-// position is native's to about 1e-12°, so it's swe_rise_trans's search:
-// reading swecl.c, asteroids take its slower method, which stops within a
-// few milliseconds, and a last digit can move where. About 2.5 times that
-// is allowed.
+// Measured on 12 November 2026 over the 177 events: the culminations are
+// native's exactly, and the risings and settings at most 9.6 ms from it,
+// where the ten bodies' are native's exactly too. Ceres's position is
+// native's to about 1e-12°, so it's swe_rise_trans's search: reading
+// swecl.c, asteroids take its slower method, which stops within a few
+// milliseconds, and a last digit can move where. About 2.5 times that is
+// allowed.
 const ASTEROID_SECONDS = { "rise-set": 0.025, transits: 1e-3 };
+// Every file in vendor/swisseph/ephe/: Ceres's three and each dwarf planet's own.
+const ALL_FILES = [
+  "s136108.se1", "s136199.se1", "s136472.se1", "se20000.se1", "se28978.se1", "se90377.se1", "se90482.se1", ...CERES_FILES,
+];
 
-test("angularEvent: Ceres's events are native Swiss Ephemeris's, on the same files, in all six cases", async (t) => {
-  assert.deepEqual(Object.keys(ASTEROIDS.files), CERES_FILES);
+test("angularEvent: Ceres's and the dwarf planets' events are native Swiss Ephemeris's, on the same files, in all six cases", async (t) => {
+  assert.deepEqual(Object.keys(ASTEROIDS.files), ALL_FILES);
+  assert.deepEqual(ASTEROIDS.bodies, ["ceres", "eris", "makemake", "haumea", "varuna", "ixion", "orcus", "sedna"]);
   for (const [name, sha256] of Object.entries(ASTEROIDS.files)) {
     assert.equal(createHash("sha256").update(readFileSync(new URL(name, EPHE))).digest("hex"), sha256, `${name} is the file the reference used`);
   }
-  const engine = await withFiles(t, CERES_FILES);
+  const engine = await withFiles(t, ALL_FILES);
   let compared = 0;
   for (const result of ASTEROIDS.results) {
     const place = placeOf(result);
@@ -253,12 +258,27 @@ test("angularEvent: Ceres's events are native Swiss Ephemeris's, on the same fil
       assert.ok(seconds <= allowed, `${label}: ${seconds} s from native's`);
       compared += 1;
     }
-    // What native says doesn't happen doesn't happen here either: Ceres never rises at Tromsø that day.
+    // What native says doesn't happen doesn't happen here either: at Tromsø
+    // that day Ceres and Ixion never rise, and Makemake and Varuna never set.
     for (const [point, event] of result.noRiseOrSet) {
       assert.deepEqual(engine.angularEvent(result.window.startJdUt, place, point, event, horizon), { kind: "none" }, `${result.name}: ${point} ${event}`);
     }
   }
-  assert.equal(compared, 20);
+  assert.equal(compared, 177);
+});
+
+test("angularEvent: each dwarf planet, from its long file alone, is worked out from the first Gregorian day to the end of 2999, and fails without it", async (t) => {
+  const files = { eris: "s136199.se1", makemake: "s136472.se1", haumea: "s136108.se1", varuna: "se20000.se1",
+    ixion: "se28978.se1", orcus: "se90482.se1", sedna: "se90377.se1" };
+  const none = await fresh(t);
+  for (const [body, file] of Object.entries(files)) {
+    const engine = await withFiles(t, [file]);
+    for (const jd of [OCTOBER_1582, JD, 2816786.5]) {
+      assert.equal(engine.angularEvent(jd, PLACE, body, "upper-transit", GEOMETRIC).kind, "found", `${body} at ${jd}`);
+    }
+    const failed = none.angularEvent(JD, PLACE, body, "upper-transit", GEOMETRIC);
+    assert.equal(failed.reason, "no-ephemeris-file", body);
+  }
 });
 
 test("createEngine: its assumptions name the files it mounted, and files that aren't .se1 files by name with their bytes are refused", async (t) => {

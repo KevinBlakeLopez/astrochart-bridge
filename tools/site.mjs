@@ -145,6 +145,13 @@ export const SITE_FILES = Object.freeze([
   "vendor/swisseph/wasm/swisseph.mjs",
   "vendor/swisseph/wasm/swisseph.wasm",
   // The asteroid files the parans page fetches for the dwarf planets.
+  "vendor/swisseph/ephe/s136108.se1",
+  "vendor/swisseph/ephe/s136199.se1",
+  "vendor/swisseph/ephe/s136472.se1",
+  "vendor/swisseph/ephe/se20000.se1",
+  "vendor/swisseph/ephe/se28978.se1",
+  "vendor/swisseph/ephe/se90377.se1",
+  "vendor/swisseph/ephe/se90482.se1",
   "vendor/swisseph/ephe/seas_12.se1",
   "vendor/swisseph/ephe/seas_18.se1",
   "vendor/swisseph/ephe/seas_24.se1",

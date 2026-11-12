@@ -34,9 +34,13 @@ export const HORIZONS = Object.freeze({
 export const DEFAULT_SETTINGS = Object.freeze({ orb: 1, bodies: PLANETS, horizon: "geometric", elevation: null });
 
 // The asteroid files the page loads from vendor/swisseph/ephe/ for the dwarf
-// planets: Ceres's, for 1200 to 2999, which covers every window the page
-// takes.
-export const EPHEMERIS_FILES = Object.freeze(["seas_12.se1", "seas_18.se1", "seas_24.se1"]);
+// planets, about 1.6 MB in all: each one's long file, for 3000 BC to 2999,
+// and Ceres's three main asteroid files, for 1200 to 2999. Between them they
+// cover every window the page takes.
+export const EPHEMERIS_FILES = Object.freeze([
+  "s136108.se1", "s136199.se1", "s136472.se1", "se20000.se1", "se28978.se1", "se90377.se1", "se90482.se1",
+  "seas_12.se1", "seas_18.se1", "seas_24.se1",
+]);
 
 // The settings' key in the extension's storage on this computer.
 const SETTINGS_KEY = "parans-settings";

@@ -31,7 +31,8 @@ const CHARTS_IN_FILE = { one: "je # horoskop", two: "sta # horoskopa", few: "so 
 const SUBJECTS = {
   sun: "Sonce", moon: "Luna", mercury: "Merkur", venus: "Venera", mars: "Mars",
   jupiter: "Jupiter", saturn: "Saturn", uranus: "Uran", neptune: "Neptun", pluto: "Pluton",
-  ceres: "Cerera",
+  ceres: "Cerera", eris: "Erida", makemake: "Makemake", haumea: "Haumea", varuna: "Varuna", ixion: "Iksion", orcus: "Orkus",
+  sedna: "Sedna",
 };
 const VERBS = { rise: "vzide", set: "zaide", "upper-transit": "je v zgornji kulminaciji", "lower-transit": "je v spodnji kulminaciji" };
 // Each a key itself where it has no words, as in en.js.
@@ -155,7 +156,8 @@ export default {
       names: {
         sun: "Sonce", moon: "Luna", mercury: "Merkur", venus: "Venera", mars: "Mars",
         jupiter: "Jupiter", saturn: "Saturn", uranus: "Uran", neptune: "Neptun", pluto: "Pluton",
-        ceres: "Cerera",
+        ceres: "Cerera", eris: "Erida", makemake: "Makemake", haumea: "Haumea", varuna: "Varuna", ixion: "Iksion", orcus: "Orkus",
+        sedna: "Sedna",
       },
       dwarfPlanets: "Pritlikavi planeti",
       working: "Računanje paranov …",

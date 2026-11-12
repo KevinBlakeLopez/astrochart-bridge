@@ -15,9 +15,10 @@
 //   whose caches start empty.
 // - It falls back from ephemeris files to Moshier without saying so, so
 //   Moshier is always asked for, and checked where the flags come back.
-//   Asteroids have no Moshier theory: Ceres is read from the asteroid files
-//   in vendor/swisseph/ephe/, when the engine is given them, with the Sun and
-//   Earth still from Moshier, and without its file its calls fail.
+//   Asteroids have no Moshier theory: Ceres and the dwarf planets are read
+//   from the asteroid files in vendor/swisseph/ephe/, when the engine is
+//   given them, with the Sun and Earth still from Moshier, and without a
+//   body's file its calls fail.
 // - It takes impossible places and dates, so those are refused before any
 //   call, as are results that aren't finite.
 // - It reads a name it doesn't know as a fixed star's, so swe_vis_limit_mag,
@@ -50,10 +51,21 @@ const PLANETS = Object.freeze({ mercury: 2, venus: 3, mars: 4, jupiter: 5, satur
 
 // The bodies whose rising, setting and transits parans take, by Swiss
 // Ephemeris's numbers. Ceres, SE_CERES, is in the main asteroid files,
-// seas_*.se1, each of which covers 600 years.
+// seas_*.se1, each of which covers 600 years. The others are numbered
+// asteroids, SE_AST_OFFSET plus their Minor Planet Center number, each in a
+// file of its own: the long one, se20000.se1 or s136199.se1, covers 3000 BC
+// to 2999.
+const SE_AST_OFFSET = 10000;
 const BODIES = Object.freeze({
   sun: SE_SUN, moon: 1, mercury: 2, venus: 3, mars: 4, jupiter: 5, saturn: 6, uranus: 7, neptune: 8, pluto: 9,
   ceres: 17,
+  eris: SE_AST_OFFSET + 136199,
+  makemake: SE_AST_OFFSET + 136472,
+  haumea: SE_AST_OFFSET + 136108,
+  varuna: SE_AST_OFFSET + 20000,
+  ixion: SE_AST_OFFSET + 28978,
+  orcus: SE_AST_OFFSET + 90482,
+  sedna: SE_AST_OFFSET + 90377,
 });
 
 // An ephemeris file's name, as Swiss Ephemeris looks it up: seas_18.se1,

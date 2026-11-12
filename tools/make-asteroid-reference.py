@@ -38,8 +38,18 @@ OUT = ROOT / "test" / "parans-asteroid-reference.json"
 # The engine's setting for every body: Moshier, which Swiss Ephemeris also
 # uses for the Sun and Earth when it reads an asteroid from its file.
 FLAGS = swe.FLG_MOSEPH
-# The bodies, by the engine's names and Swiss Ephemeris's numbers.
-BODIES = {"ceres": swe.CERES}
+# The bodies, by the engine's names and Swiss Ephemeris's numbers: Ceres in
+# the main asteroid files, the rest numbered asteroids in files of their own.
+BODIES = {
+    "ceres": swe.CERES,
+    "eris": swe.AST_OFFSET + 136199,
+    "makemake": swe.AST_OFFSET + 136472,
+    "haumea": swe.AST_OFFSET + 136108,
+    "varuna": swe.AST_OFFSET + 20000,
+    "ixion": swe.AST_OFFSET + 28978,
+    "orcus": swe.AST_OFFSET + 90482,
+    "sedna": swe.AST_OFFSET + 90377,
+}
 
 EVENTS = {
     "rise": swe.CALC_RISE,
@@ -121,16 +131,24 @@ def case(reference, horizons):
 
 
 def check_claims(results):
-    """Tromsø's Ceres neither rises nor sets because it never rises: its upper culmination is below the horizon."""
+    """A body with no rising or setting really never rises, its upper culmination below the horizon, or never sets,
+    its lower one above it, by its declination at its upper culmination; and each misses both. Ceres never rises at
+    Tromsø that day."""
     for result in results:
-        if not result["name"].startswith("tromso"):
-            continue
-        assert result["noRiseOrSet"] == [["ceres", "rise"], ["ceres", "set"]], result["name"]
-        jd = next(e["jdUt"] for e in result["events"] if e["event"] == "upper-transit")
-        (_, declination, *_), _, _ = swe.calc_ut(jd, swe.CERES, FLAGS | swe.FLG_EQUATORIAL)
-        altitude = declination + 90 - result["lat"]
-        assert altitude < 0, f"{result['name']}: Ceres culminates {altitude:.2f}° up"
-        print(f"{result['name']}: Ceres culminates {-altitude:.2f}° below the horizon, at declination {declination:.2f}°")
+        lat = abs(result["lat"])
+        bodies = sorted({body for body, _ in result["noRiseOrSet"]})
+        for body in bodies:
+            assert [body, "rise"] in result["noRiseOrSet"] and [body, "set"] in result["noRiseOrSet"], f"{result['name']}: {body}"
+            jd = next(e["jdUt"] for e in result["events"] if e["point"] == body and e["event"] == "upper-transit")
+            (_, declination, *_), _, _ = swe.calc_ut(jd, BODIES[body], FLAGS | swe.FLG_EQUATORIAL)
+            # Towards the pole the observer is near, for either hemisphere.
+            toward = declination if result["lat"] > 0 else -declination
+            upper, lower = toward + 90 - lat, toward - (90 - lat)
+            assert upper < 0 or lower > 0, f"{result['name']}: {body} at declination {declination:.2f}° should rise and set"
+            kind = "never rises" if upper < 0 else "never sets"
+            print(f"{result['name']}: {body} {kind}, at declination {declination:.2f}°")
+        if result["name"].startswith("tromso"):
+            assert "ceres" in bodies, result["name"]
 
 
 def build():
