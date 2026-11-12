@@ -131,6 +131,7 @@ test("visibility, Venus from New York: the assumptions go with the result", () =
     ephemeris: "moshier",
     helflag: 4,
     moon: "included",
+    ephemerisFiles: [],
     observer: {
       requested: { age: 0, snellenRatio: 0 },
       completed: { age: 36, snellenRatio: 1, binocular: 1, magnification: 1, aperture: 0, transmission: 0 },

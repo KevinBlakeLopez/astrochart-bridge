@@ -38,18 +38,19 @@ export function openLink(container, { url, savesByHand }, sky = null) {
  * A page beside this one, wherever the site is served: on GitHub Pages, or on
  * this computer while it is tried out.
  *
- * @param {string} page  the page's file, chart.html or helioscope.html
+ * @param {string} page  the page's file: chart.html, helioscope.html or parans.html
  * @param {string} href  this page's address, location.href
  */
 export const pageUrl = (page, href) => new URL(page, href).href;
 
 /**
- * Share… or Which planets were visible on the web: the receiving page or
- * Helioscope's page beside this one in a new tab, with the chart in its link.
- * Called while the click is still being handled, with nothing awaited first,
- * since Safari blocks a window opened after an await.
+ * Share…, Which planets were visible or Parans on the web: the receiving
+ * page, Helioscope's page or the parans page beside this one in a new tab,
+ * with the chart in its link. Called while the click is still being handled,
+ * with nothing awaited first, since Safari blocks a window opened after an
+ * await.
  *
- * @param {string} page  the page's file, chart.html or helioscope.html
+ * @param {string} page  the page's file: chart.html, helioscope.html or parans.html
  * @param {object} chart  a portable chart
  * @param {string} href  this page's address, location.href
  */

@@ -1,8 +1,9 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, readFileSync, readdirSync, rmSync, statSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, relative } from "node:path";
+import { EPHEMERIS_FILES } from "../extension/parans-model.js";
 import { loadedBy } from "../tools/loaded-by.mjs";
 import { buildSite, SITE_FILES } from "../tools/site.mjs";
 
@@ -10,8 +11,9 @@ const extension = new URL("../extension/", import.meta.url).pathname;
 const read = (file) => readFileSync(join(extension, file), "utf8");
 
 // The pages published on the web: the home page, the receiving page, the pages
-// that read a pasted chart, a chart file and a screenshot, and Helioscope's page.
-const PAGES = ["index.html", "chart.html", "paste.html", "import.html", "screenshot.html", "helioscope.html"];
+// that read a pasted chart, a chart file and a screenshot, Helioscope's page
+// and the parans page.
+const PAGES = ["index.html", "chart.html", "paste.html", "import.html", "screenshot.html", "helioscope.html", "parans.html"];
 
 // Modules the pages import only in the extension's copy, which the extension
 // ships: astro.com's and Astro-Seek's forms are filled in, and Stellarium
@@ -31,13 +33,16 @@ const TESSERACT_BY_ADDRESS = [
 // no import names either.
 const SWISSEPH_BY_ADDRESS = ["vendor/swisseph/wasm/swisseph.wasm"];
 
+// The asteroid files the parans page fetches by address for the dwarf planets.
+const EPHEMERIS_BY_ADDRESS = EPHEMERIS_FILES.map((name) => `vendor/swisseph/ephe/${name}`);
+
 // The icons the web app's manifest names, which the browser loads from it.
 const MANIFEST_ICONS = JSON.parse(read("manifest.webmanifest")).icons.map(({ src }) => src);
 
 // The service worker every page registers by address (web-app.js).
 const SERVICE_WORKER = ["sw.js"];
 
-const LOADED_BY_ADDRESS = [...TESSERACT_BY_ADDRESS, ...SWISSEPH_BY_ADDRESS, ...MANIFEST_ICONS, ...SERVICE_WORKER];
+const LOADED_BY_ADDRESS = [...TESSERACT_BY_ADDRESS, ...SWISSEPH_BY_ADDRESS, ...EPHEMERIS_BY_ADDRESS, ...MANIFEST_ICONS, ...SERVICE_WORKER];
 
 // Files a page doesn't load but must travel with what it loads. Swiss
 // Ephemeris goes out under the AGPL, with swisseph-wasm's notice.
@@ -67,7 +72,7 @@ test("the files Tesseract.js loads by address are the ones screenshot.js names",
 
 // Each page starts it as it opens, so a web app installed from any page has
 // it before something is shared to it.
-const PAGE_SCRIPTS = { "index.html": "home.js", "chart.html": "chart.js", "paste.html": "paste.js", "import.html": "import.js", "screenshot.html": "screenshot.js", "helioscope.html": "helioscope.js" };
+const PAGE_SCRIPTS = { "index.html": "home.js", "chart.html": "chart.js", "paste.html": "paste.js", "import.html": "import.js", "screenshot.html": "screenshot.js", "helioscope.html": "helioscope.js", "parans.html": "parans.js" };
 
 test("every page starts the service worker, through web-app.js, which registers it by its name on the web only", () => {
   assert.deepEqual(Object.keys(PAGE_SCRIPTS).sort(), [...PAGES].sort());
@@ -86,6 +91,13 @@ test("the binary Swiss Ephemeris's glue fetches by address is the one beside it"
   const glue = read("vendor/swisseph/wasm/swisseph.mjs");
   assert.ok(glue.includes('new URL("swisseph.wasm",import.meta.url)'));
   assert.deepEqual(SWISSEPH_BY_ADDRESS, ["vendor/swisseph/wasm/swisseph.wasm"]);
+});
+
+test("the parans page fetches the dwarf planets' files by address beside it, each of them there", () => {
+  const code = read("parans.js");
+  assert.match(code, /fetch\(new URL\(`vendor\/swisseph\/ephe\/\$\{name\}`, import\.meta\.url\)\)/);
+  assert.match(code, /EPHEMERIS_FILES\.map\(read\)/);
+  for (const file of EPHEMERIS_BY_ADDRESS) assert.ok(existsSync(join(extension, file)), file);
 });
 
 test("the paste, import and screenshot pages load the code that fills in forms and sends to Stellarium Desktop only in the extension's copy", () => {
@@ -141,15 +153,17 @@ test("Tesseract.js's and Swiss Ephemeris's source maps and type declarations, wh
   for (const file of SITE_FILES) assert.doesNotMatch(file, /\.map$|\.d\.ts$/, file);
 });
 
-// Publishing Helioscope's page hands Swiss Ephemeris's WebAssembly to every
-// visitor, which the project's AGPL-3.0-or-later licence covers
-// (docs/HELIOSCOPE_V1_FEASIBILITY.md §4, route A). The AGPL asks the page to
-// say so, and to offer the source.
-test("Swiss Ephemeris goes out with its licence and notice, and Helioscope's page says so and links the source", () => {
+// Publishing Helioscope's page and the parans page hands Swiss Ephemeris's
+// WebAssembly to every visitor, which the project's AGPL-3.0-or-later licence
+// covers (docs/HELIOSCOPE_V1_FEASIBILITY.md §4, route A). The AGPL asks each
+// page to say so, and to offer the source.
+test("Swiss Ephemeris goes out with its licence and notice, and Helioscope's page and the parans page say so and link the source", () => {
   for (const file of ["vendor/swisseph/LICENSE", "vendor/swisseph/NOTICE"]) assert.ok(SITE_FILES.includes(file), file);
-  const html = read("helioscope.html");
-  assert.match(html, /data-text="pages\.helioscope\.notice"/);
-  assert.match(html, /<a href="https:\/\/github\.com\/KevinBlakeLopez\/astrochart-bridge"[^>]*data-text="pages\.helioscope\.source"/);
+  for (const page of ["helioscope", "parans"]) {
+    const html = read(`${page}.html`);
+    assert.match(html, new RegExp(`data-text="pages\\.${page}\\.notice"`), page);
+    assert.match(html, new RegExp(`<a href="https://github\\.com/KevinBlakeLopez/astrochart-bridge"[^>]*data-text="pages\\.${page}\\.source"`), page);
+  }
 });
 
 test("the receiving page's own files are in it", () => {

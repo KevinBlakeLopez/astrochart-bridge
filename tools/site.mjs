@@ -105,6 +105,16 @@ export const SITE_FILES = Object.freeze([
   "core/helioscope.js",
   // Where the page keeps its settings on the web, the site's localStorage.
   "web-storage.js",
+  // Times at the chart's offset, which it shares with the parans page.
+  "chart-time.js",
+  // The parans page, which works out which bodies were on the angles
+  // together, with the same Swiss Ephemeris.
+  "parans.html",
+  "parans.css",
+  "parans.js",
+  "parans-model.js",
+  "parans-view.js",
+  "core/parans.js",
   // Check that night's weather: the request to Open-Meteo, which the page
   // sends only on its click, and reading the answer.
   "core/open-meteo.js",
@@ -138,6 +148,17 @@ export const SITE_FILES = Object.freeze([
   "vendor/swisseph/dist/generated/stars.js",
   "vendor/swisseph/wasm/swisseph.mjs",
   "vendor/swisseph/wasm/swisseph.wasm",
+  // The asteroid files the parans page fetches for the dwarf planets.
+  "vendor/swisseph/ephe/s136108.se1",
+  "vendor/swisseph/ephe/s136199.se1",
+  "vendor/swisseph/ephe/s136472.se1",
+  "vendor/swisseph/ephe/se20000.se1",
+  "vendor/swisseph/ephe/se28978.se1",
+  "vendor/swisseph/ephe/se90377.se1",
+  "vendor/swisseph/ephe/se90482.se1",
+  "vendor/swisseph/ephe/seas_12.se1",
+  "vendor/swisseph/ephe/seas_18.se1",
+  "vendor/swisseph/ephe/seas_24.se1",
   "vendor/swisseph/LICENSE",
   "vendor/swisseph/NOTICE",
 ]);

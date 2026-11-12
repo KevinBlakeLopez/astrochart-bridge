@@ -5,7 +5,8 @@ import { loadedBy } from "../tools/loaded-by.mjs";
 
 // The paths tools/package-stores.sh leaves out of the zip the Chrome Web
 // Store and Firefox Add-ons take. Helioscope's were, until its page arrived
-// on 9 November 2026 (docs/HELIOSCOPE_V1_FEASIBILITY.md §9).
+// on 9 November 2026 (docs/HELIOSCOPE_V1_FEASIBILITY.md §9), and the parans
+// page's until the popup and the chart page opened it, on 11 November.
 const LEFT_OUT = readFileSync(new URL("../tools/store-leave-out.txt", import.meta.url), "utf8")
   .split("\n")
   .filter((line) => line !== "" && !line.startsWith("#"));
@@ -26,10 +27,11 @@ test("no page the extension ships loads anything the store zips leave out", () =
   }
 });
 
-// Everything Helioscope loads must be a page's, since none of it is left out.
-test("everything Helioscope loads is left out of the store zips, unless a page loads it too", () => {
+// Everything Helioscope and parans load must be a page's, since none of it is
+// left out.
+test("everything Helioscope and parans load is left out of the store zips, unless a page loads it too", () => {
   const usedByPages = new Set(PAGES.flatMap((page) => [...loadedBy(page)]));
-  for (const start of ["helioscope-engine.js", "core/helioscope.js"]) {
+  for (const start of ["helioscope-engine.js", "core/helioscope.js", "core/parans.js", "parans-model.js"]) {
     for (const file of loadedBy(start)) {
       assert.ok(leftOut(file) || usedByPages.has(file), `${start} loads ${file}, which would ship unused`);
     }

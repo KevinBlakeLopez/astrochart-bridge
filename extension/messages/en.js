@@ -21,6 +21,21 @@ const PRE_GREGORIAN = "AstroChart Bridge opens dates from 15 October 1582 on, wh
 const QR_TOO_LONG = "This link is too long for a QR code that scans reliably.";
 const ELEVATION_RANGE = "Enter whole metres, from -500 to 25000.";
 
+// The parans page's bodies as the subject of a sentence, and what they do.
+const SUBJECTS = {
+  sun: "The Sun", moon: "The Moon", mercury: "Mercury", venus: "Venus", mars: "Mars",
+  jupiter: "Jupiter", saturn: "Saturn", uranus: "Uranus", neptune: "Neptune", pluto: "Pluto",
+  ceres: "Ceres", eris: "Eris", makemake: "Makemake", haumea: "Haumea", varuna: "Varuna", ixion: "Ixion", orcus: "Orcus",
+  sedna: "Sedna",
+};
+const VERBS = { rise: "rises", set: "sets", "upper-transit": "culminates", "lower-transit": "anticulminates" };
+// Each a key itself where it has no words, as when test/messages.test.js
+// fills every value with X.
+const subject = (body) => SUBJECTS[body] ?? body;
+const verb = (event) => VERBS[event] ?? event;
+// "the Sun", inside a sentence.
+const inSentence = (body) => subject(body).replace(/^The /, "the ");
+
 // "a, b and c"
 const and = (items) => (items.length < 2 ? items.join("") : `${items.slice(0, -1).join(", ")} and ${items.at(-1)}`);
 
@@ -105,6 +120,28 @@ export default {
         "AstroChart Bridge, © 2026 Kevin Blake Lopez, works this out on this device with Swiss Ephemeris, © 1997–2021 Astrodienst AG, through swisseph-wasm. All three are free software: you may share and change them under the GNU Affero General Public License, version 3 or later. They come with no warranty.",
       source: "Source code and licence",
     },
+    parans: {
+      title: "AstroChart Bridge: parans",
+      heading: "Parans",
+      orb: "Orb",
+      horizon: "Horizon",
+      geometric: "Geometric",
+      almanac: "Almanac",
+      elevation: "Elevation in metres",
+      bodies: "Bodies",
+      // The bodies' boxes, in core/parans.js's BODIES.
+      names: {
+        sun: "Sun", moon: "Moon", mercury: "Mercury", venus: "Venus", mars: "Mars",
+        jupiter: "Jupiter", saturn: "Saturn", uranus: "Uranus", neptune: "Neptune", pluto: "Pluto",
+        ceres: "Ceres", eris: "Eris", makemake: "Makemake", haumea: "Haumea", varuna: "Varuna", ixion: "Ixion", orcus: "Orcus",
+        sedna: "Sedna",
+      },
+      dwarfPlanets: "Dwarf planets",
+      working: "Working out the parans…",
+      notice:
+        "AstroChart Bridge, © 2026 Kevin Blake Lopez, works this out on this device with Swiss Ephemeris, © 1997–2021 Astrodienst AG, through swisseph-wasm. All three are free software: you may share and change them under the GNU Affero General Public License, version 3 or later. They come with no warranty.",
+      source: "Source code and licence",
+    },
     // astro-com-page.js's, on the pages that stay open while a form fills in.
     astroComFilled: "AstroChart Bridge filled in astro.com's form in its tab.",
     astroSeekFilled: "AstroChart Bridge filled in Astro-Seek's form in its tab. Check Gender there, then press Add person.",
@@ -173,6 +210,7 @@ export default {
       openAstroSeekForm: "Open Astro-Seek's form",
       astroSeekTab: "Go to the Astro-Seek tab",
       helioscope: "Which planets were visible",
+      parans: "Parans",
       share: "Share…",
       enterInAstroCom: "Enter in astro.com…",
       openAstroComForm: "Open astro.com's form",
@@ -245,6 +283,9 @@ export default {
     helioscopeBeforeGregorian:
       "AstroChart Bridge can't work out the planets for a chart dated before 15 October 1582 yet: it can't tell which calendar the date is in.",
     helioscopeRefused: "AstroChart Bridge can't work out the planets for this chart.",
+    paransBeforeGregorian:
+      "AstroChart Bridge can't work out the parans for a chart dated before 15 October 1582 yet: it can't tell which calendar the date is in.",
+    paransRefused: "AstroChart Bridge can't work out the parans for this chart.",
 
     // town is what AstroChart Bridge types in, or null.
     townNote: (town) =>
@@ -789,9 +830,17 @@ export default {
     shareTitle: "AstroChart Bridge chart",
   },
 
+  // An instant at a chart's offset, from chart-time.js, on Helioscope's page
+  // and the parans page: "18:15", or "18:15 on 10 Jan" when it isn't on the
+  // chart's own day.
+  times: {
+    onDay: (time, day) => `${time} on ${day}`,
+    dayMonth: (day, month) => `${day} ${MONTHS[month - 1]}`,
+  },
+
   // Helioscope's page, from helioscope-model.js. Numbers arrive written out,
-  // with decimal as their decimal mark, and times as "18:15", or as onDay
-  // gives them when they aren't on the chart's own day. A number and its
+  // with decimal as their decimal mark, and times as chart-time.js gives
+  // them. A number and its
   // unit are joined by a no-break space, \u00a0, so no line ends between them.
   helioscope: {
     decimal: ".",
@@ -832,9 +881,6 @@ export default {
       both: "The Sun doesn't set or rise that day",
       other: "There's no twilight to judge by that night",
     },
-    // "18:15 on 10 Jan"
-    onDay: (time, day) => `${time} on ${day}`,
-    dayMonth: (day, month) => `${day} ${MONTHS[month - 1]}`,
     // A planet's details, one row each.
     labels: {
       evening: "Evening",
@@ -963,5 +1009,67 @@ export default {
     elevationRefused: ELEVATION_RANGE,
     orbRefused: "Enter whole degrees and minutes, such as 8\u00a030, or minutes alone, such as 17′.",
     orbsOutOfOrder: "Cazimi must be narrower than combust, and combust than under the beams, which can be at most 30°.",
+  },
+
+  // The parans page, from parans-model.js. Bodies and events arrive as keys,
+  // the bodies in core/parans.js's BODIES, the events rise, set,
+  // upper-transit and lower-transit. Numbers arrive written out, with decimal
+  // as their decimal mark, and times as chart-time.js gives them.
+  parans: {
+    decimal: ".",
+    // "Venus rises", "The Sun culminates"
+    event: (body, event) => `${subject(body)} ${verb(event)}`,
+    // "Venus rises at 14:02"
+    at: (said, time) => `${said} at ${time}`,
+    withinOrb: (orb) => `Parans within ${orb}° of ARMC`,
+    none: (orb) => `No two of these bodies are on the angles within ${orb}° of ARMC of each other in the 24 hours around the chart's moment.`,
+    columns: { paran: "Paran", apart: "Apart" },
+    // "0.42° of ARMC", then "1 min 41 s" under it.
+    armcGap: (degrees) => `${degrees}° of ARMC`,
+    timeGap: (minutes, seconds) => (minutes === 0 ? `${seconds} s` : `${minutes} min ${seconds} s`),
+    eventsHeading: "Every event",
+    eventsSummary: "Every rising, setting and culmination in the 24 hours around the chart's moment",
+    // "Venus rises · ARMC 123.45°"
+    eventArmc: (said, degrees) => `${said} · ARMC ${degrees}°`,
+    // which is "rise", "set" or "both".
+    missing: (body, which) => `${subject(body)} doesn't ${{ rise: "rise", set: "set", both: "rise or set" }[which] ?? which} that day`,
+    assumptionsHeading: "Assumptions",
+    assumptions: {
+      ephemeris: "Ephemeris",
+      ephemerisValue: (version) => `Swiss Ephemeris ${version}, Moshier`,
+      dwarfPlanets: "Dwarf planets",
+      dwarfPlanetsValue: "From Astrodienst's asteroid files, made from JPL's DE441, with the Sun and Earth from Moshier",
+      time: "Time",
+      timeValue: "The chart's UTC, taken as UT",
+      window: "Window",
+      windowValue: (start, end) => `From ${start} to ${end}, 12 hours either side of the chart's moment`,
+      position: "Positions",
+      positionValue: "Each body's actual place, its latitude included, not its zodiacal degree",
+      horizon: "Horizon",
+      geometric: "Geometric: the centre of the disc, without refraction",
+      almanac: (pressure, temperature) => `The upper limb, with refraction at ${pressure} hPa and ${temperature} °C`,
+      culminations: "Culminations",
+      culminationsValue: "On the meridian, at hour angles 0° and 180°",
+      search: "Search",
+      searchValue: (minutes) => `Each event is the one a second search finds, started ${minutes} minutes before the first's`,
+      elevation: "Elevation",
+      elevationGiven: (metres) => `${metres} m`,
+      elevationDefault: (metres) => `${metres} m, as none was given`,
+      orb: "Orb",
+      orbValue: (orb) => `Within ${orb}° of ARMC, at most 12 hours apart`,
+    },
+    timesAt: (offset) => `Times are at ${offset}, the chart's offset.`,
+    armcNote: "ARMC is the right ascension of the midheaven, sidereal time in degrees: 1° of it passes in about 4 minutes.",
+    empty: "This page works out a chart's parans. Open it from a chart in AstroChart Bridge.",
+    failed: (body, event) => `Swiss Ephemeris couldn't work out when ${inSentence(body)} ${verb(event)}, so the parans can't be worked out.`,
+    refusals: {
+      "date-out-of-range": "AstroChart Bridge works out parans only for dates from 15 October 1582 to the end of 2999, with 12 hours to spare either side.",
+      "invalid-coordinates": "This chart's place isn't a latitude and longitude on the globe.",
+      "at-pole": "At the poles there's no meridian for the bodies to culminate on, so there are no parans.",
+      "invalid-elevation": ELEVATION_RANGE,
+      "engine-failed": "Swiss Ephemeris couldn't start in this browser, so the parans can't be worked out.",
+      other: "The parans can't be worked out for this chart.",
+    },
+    elevationRefused: ELEVATION_RANGE,
   },
 };

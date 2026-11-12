@@ -58,6 +58,8 @@ test("createEngine: Swiss Ephemeris's own defaults, the Moshier ephemeris and th
     // 0 asks Swiss Ephemeris to fill a value in, the way the reference values were computed.
     atmosphere: { pressure: 0, temperature: 0, humidity: 0, meteorologicalRange: 0 },
     observer: { age: 0, snellenRatio: 0 },
+    // Helioscope mounts none: the five planets are Moshier's.
+    ephemerisFiles: [],
   });
 });
 

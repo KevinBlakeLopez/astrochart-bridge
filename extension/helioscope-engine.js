@@ -1,8 +1,8 @@
-// Swiss Ephemeris for Helioscope, from vendor/swisseph/ (@kuntay/swisseph
-// 0.2.2, AGPL-3.0-or-later). This is the only file that loads its
-// WebAssembly. It makes the calls Helioscope needs and reports what Swiss
-// Ephemeris found; what that means for a chart is decided in
-// core/helioscope.js.
+// Swiss Ephemeris for Helioscope and parans, from vendor/swisseph/
+// (@kuntay/swisseph 0.2.2, AGPL-3.0-or-later). This is the only file that
+// loads its WebAssembly. It makes the calls Helioscope and parans need and
+// reports what Swiss Ephemeris found; what that means for a chart is decided
+// in core/helioscope.js.
 //
 // Swiss Ephemeris has edges a caller must handle, which
 // docs/HELIOSCOPE_V1_FEASIBILITY.md §8 lists:
@@ -15,10 +15,15 @@
 //   whose caches start empty.
 // - It falls back from ephemeris files to Moshier without saying so, so
 //   Moshier is always asked for, and checked where the flags come back.
+//   Asteroids have no Moshier theory: Ceres and the dwarf planets are read
+//   from the asteroid files in vendor/swisseph/ephe/, when the engine is
+//   given them, with the Sun and Earth still from Moshier, and without a
+//   body's file its calls fail.
 // - It takes impossible places and dates, so those are refused before any
 //   call, as are results that aren't finite.
-// - It reads a name it doesn't know as a fixed star's, so it's only ever
-//   given the five naked-eye planets.
+// - It reads a name it doesn't know as a fixed star's, so swe_vis_limit_mag,
+//   which takes a name, is only ever given the five naked-eye planets.
+//   swe_rise_trans takes a body's number, and is given those in BODIES.
 import { createSwissEph } from "./vendor/swisseph/dist/index.js";
 
 // swephexp.h
@@ -26,8 +31,12 @@ const SEFLG_MOSEPH = 4;
 const SE_SUN = 0;
 const SE_CALC_RISE = 1;
 const SE_CALC_SET = 2;
+const SE_CALC_MTRANSIT = 4;
 const SE_CALC_ITRANSIT = 8;
+const SE_BIT_DISC_CENTER = 256;
+const SE_BIT_NO_REFRACTION = 512;
 const SE_BIT_ASTRO_TWILIGHT = 4096;
+const SE_BIT_DISC_BOTTOM = 8192;
 
 // What swe_rise_trans returns when the event doesn't happen, and
 // swe_vis_limit_mag when the object is below the horizon.
@@ -39,6 +48,45 @@ const BELOW_HORIZON = -2;
 const HELFLAG = SEFLG_MOSEPH;
 
 const PLANETS = Object.freeze({ mercury: 2, venus: 3, mars: 4, jupiter: 5, saturn: 6 });
+
+// The bodies whose rising, setting and transits parans take, by Swiss
+// Ephemeris's numbers. Ceres, SE_CERES, is in the main asteroid files,
+// seas_*.se1, each of which covers 600 years. The others are numbered
+// asteroids, SE_AST_OFFSET plus their Minor Planet Center number, each in a
+// file of its own: the long one, se20000.se1 or s136199.se1, covers 3000 BC
+// to 2999.
+const SE_AST_OFFSET = 10000;
+const BODIES = Object.freeze({
+  sun: SE_SUN, moon: 1, mercury: 2, venus: 3, mars: 4, jupiter: 5, saturn: 6, uranus: 7, neptune: 8, pluto: 9,
+  ceres: 17,
+  eris: SE_AST_OFFSET + 136199,
+  makemake: SE_AST_OFFSET + 136472,
+  haumea: SE_AST_OFFSET + 136108,
+  varuna: SE_AST_OFFSET + 20000,
+  ixion: SE_AST_OFFSET + 28978,
+  orcus: SE_AST_OFFSET + 90482,
+  sedna: SE_AST_OFFSET + 90377,
+});
+
+// An ephemeris file's name, as Swiss Ephemeris looks it up: seas_18.se1,
+// s136199s.se1.
+const EPHEMERIS_FILE = /^[a-z0-9_]+\.se1$/;
+// What Swiss Ephemeris says when a body's file isn't loaded.
+const FILE_NOT_FOUND = /SwissEph file '[^']+' not found/;
+
+// The four angles, as astro-research's parans-v1 calls swe_rise_trans: the
+// transits are at hour angle 0 and 180. The disc and the refraction apply to
+// rising and setting only.
+const ANGULAR_EVENTS = Object.freeze({
+  rise: SE_CALC_RISE,
+  set: SE_CALC_SET,
+  "upper-transit": SE_CALC_MTRANSIT,
+  "lower-transit": SE_CALC_ITRANSIT,
+});
+// The point of the Sun's or Moon's disc on the horizon. Swiss Ephemeris's
+// default is the upper limb. The planets are points.
+const DISCS = Object.freeze({ "upper-limb": 0, centre: SE_BIT_DISC_CENTER, "lower-limb": SE_BIT_DISC_BOTTOM });
+const ABSOLUTE_ZERO_C = -273.15;
 
 // Sunrise and sunset are the Sun's upper limb at the horizon, refracted for
 // the standard pressure at the observer's elevation and 0 °C: swe_rise_trans
@@ -84,28 +132,34 @@ const INVALID = Object.freeze({ kind: "failed", reason: "invalid-input" });
  * A fresh Swiss Ephemeris, for one atmosphere and observer. Rejects when the
  * WebAssembly can't be loaded.
  *
- * @param {{ atmosphere?: Partial<typeof ATMOSPHERE>, observer?: Partial<typeof OBSERVER> }} [options]
+ * @param {{ atmosphere?: Partial<typeof ATMOSPHERE>, observer?: Partial<typeof OBSERVER>,
+ *   ephemerisFiles?: Record<string, Uint8Array> }} [options]
  *   values for Swiss Ephemeris to use instead of filling them in: pressure in
  *   hPa, temperature in °C, humidity in %, meteorologicalRange in km (below
- *   1, the total extinction coefficient instead), age in years
+ *   1, the total extinction coefficient instead), age in years; and the
+ *   ephemeris files to mount, by name, such as vendor/swisseph/ephe/'s, for
+ *   the bodies Moshier doesn't have
  * @returns {Promise<Engine>}
  */
-export async function createEngine({ atmosphere = {}, observer = {} } = {}) {
+export async function createEngine({ atmosphere = {}, observer = {}, ephemerisFiles = {} } = {}) {
   const requested = {
     atmosphere: Object.freeze(settings("atmosphere", ATMOSPHERE, atmosphere)),
     observer: Object.freeze(settings("observer", OBSERVER, observer)),
   };
+  const files = fileNames(ephemerisFiles);
   const { pressure, temperature, humidity, meteorologicalRange } = requested.atmosphere;
   const datm = [pressure, temperature, humidity, meteorologicalRange];
   const dobs = [requested.observer.age, requested.observer.snellenRatio, 0, 0, 0, 0];
 
   const swe = await createSwissEph();
+  if (files.length > 0) swe.mountEphemeris(ephemerisFiles);
   const wasm = swe.raw;
   const cwrap = (name, count) => wasm.cwrap(name, "number", Array(count).fill("number"));
   const riseTrans = cwrap("swe_rise_trans", 10);
   const calcUt = cwrap("swe_calc_ut", 5);
   const phenoUt = cwrap("swe_pheno_ut", 5);
   const visLimitMag = cwrap("swe_vis_limit_mag", 8);
+  const sidTime = cwrap("swe_sidtime", 1);
   const buffers = {
     geo: wasm._malloc(3 * DOUBLE),
     atm: wasm._malloc(4 * DOUBLE),
@@ -163,10 +217,67 @@ export async function createEngine({ atmosphere = {}, observer = {} } = {}) {
     write(buffers.tret, [Number.NaN]);
     clearError();
     const ret = riseTrans(jd, SE_SUN, 0, SEFLG_MOSEPH, SUN_EVENTS[event], buffers.geo, 0, 0, buffers.tret, buffers.serr);
+    return riseTransResult(ret);
+  }
+
+  // What swe_rise_trans found: tret[0] when it returns 0. It returns -2 for an
+  // event that doesn't happen in the day or so it searches, and -1 when it
+  // fails, as it does for a body whose file isn't loaded for that date.
+  function riseTransResult(ret) {
     if (ret === NOT_FOUND) return { kind: "none" };
-    if (ret < 0) return { kind: "failed", reason: "engine-error", serr: error() };
+    if (ret < 0) {
+      const serr = error();
+      return { kind: "failed", reason: FILE_NOT_FOUND.test(serr) ? "no-ephemeris-file" : "engine-error", serr };
+    }
     const [found] = read(buffers.tret, 1);
     return Number.isFinite(found) ? { kind: "found", jd: found } : { kind: "failed", reason: "not-finite", serr: error() };
+  }
+
+  /**
+   * The next rising, setting, upper or lower transit of body after jd, at
+   * place, as astro-research's parans-v1 asks swe_rise_trans for it. none when
+   * Swiss Ephemeris says the body doesn't rise or set (circumpolar or never
+   * rising: it can't say which).
+   *
+   * Asking for Moshier means there's nothing to fall back from:
+   * swe_rise_trans returns 0, -1 or -2, not the flags it used, so unlike
+   * swe_calc_ut's they can't be checked.
+   *
+   * @param {number} jd  Julian Day (UT)
+   * @param {Place} place
+   * @param {keyof typeof BODIES} body
+   * @param {keyof typeof ANGULAR_EVENTS} event
+   * @param {Horizon} horizon
+   * @returns {{ kind: "found", jd: number } | { kind: "none" } | Failure}
+   */
+  function angularEvent(jd, place, body, event, horizon) {
+    live();
+    const ipl = bodyNumber(body);
+    const rsmi = angularEventFlags(event, horizon);
+    if (!isDate(jd) || !isPlace(place)) return INVALID;
+    // Unused without refraction, as astro-research passes them.
+    const { pressure, temperature } = horizon.refraction ?? { pressure: 0, temperature: 0 };
+    write(buffers.geo, [place.lng, place.lat, place.elevation]);
+    write(buffers.tret, [Number.NaN]);
+    clearError();
+    const ret = riseTrans(jd, ipl, 0, SEFLG_MOSEPH, rsmi, buffers.geo, pressure, temperature, buffers.tret, buffers.serr);
+    return riseTransResult(ret);
+  }
+
+  /**
+   * The ARMC, the right ascension of the meridian, at jd and place: Swiss
+   * Ephemeris's apparent sidereal time, in degrees, plus the longitude.
+   *
+   * @param {number} jd  Julian Day (UT)
+   * @param {Place} place
+   * @returns {{ kind: "computed", armc: number } | Failure}
+   */
+  function armc(jd, place) {
+    live();
+    if (!isDate(jd) || !isPlace(place)) return INVALID;
+    const hours = sidTime(jd);
+    if (!Number.isFinite(hours)) return { kind: "failed", reason: "not-finite" };
+    return { kind: "computed", armc: (((hours * 15 + place.lng) % 360) + 360) % 360 };
   }
 
   /**
@@ -247,10 +358,13 @@ export async function createEngine({ atmosphere = {}, observer = {} } = {}) {
       moon: "included",
       atmosphere: requested.atmosphere,
       observer: requested.observer,
+      ephemerisFiles: files,
     }),
     sunEvent,
     solarGeometry,
     limitingMagnitude,
+    angularEvent,
+    armc,
     dispose,
   });
 }
@@ -302,11 +416,60 @@ function settings(name, defaults, given) {
   return { ...defaults, ...given };
 }
 
+// The ephemeris files' names, sorted, once each has been checked: a file
+// name Swiss Ephemeris would look up, and its bytes.
+function fileNames(ephemerisFiles) {
+  if (ephemerisFiles === null || typeof ephemerisFiles !== "object" || Array.isArray(ephemerisFiles)) {
+    throw new Error(`createEngine takes ephemerisFiles as an object of files by name; got ${JSON.stringify(ephemerisFiles)}`);
+  }
+  for (const [name, bytes] of Object.entries(ephemerisFiles)) {
+    if (!EPHEMERIS_FILE.test(name)) throw new Error(`createEngine takes .se1 files by their own names; got ${name}`);
+    if (!(bytes instanceof Uint8Array) || bytes.length === 0) throw new Error(`createEngine needs ${name}'s bytes, as a Uint8Array`);
+  }
+  return Object.freeze(Object.keys(ephemerisFiles).sort());
+}
+
 function planetNumber(planet) {
   if (!Object.hasOwn(PLANETS, planet)) {
     throw new Error(`Helioscope's engine takes a naked-eye planet: ${Object.keys(PLANETS).join(", ")}; got ${planet}`);
   }
   return PLANETS[planet];
+}
+
+function bodyNumber(body) {
+  if (!Object.hasOwn(BODIES, body)) {
+    throw new Error(`angularEvent takes a body: ${Object.keys(BODIES).join(", ")}; got ${body}`);
+  }
+  return BODIES[body];
+}
+
+// swe_rise_trans's rsmi, from an event and a horizon. A horizon it doesn't
+// know, or a refraction that isn't physical, is a mistake in the caller.
+function angularEventFlags(event, horizon) {
+  if (!Object.hasOwn(ANGULAR_EVENTS, event)) {
+    throw new Error(`angularEvent takes an event: ${Object.keys(ANGULAR_EVENTS).join(", ")}; got ${event}`);
+  }
+  const keys = Object.keys(horizon ?? {}).sort().join();
+  if (keys !== "disc,refraction") {
+    throw new Error(`angularEvent takes a horizon of a disc and a refraction; got ${JSON.stringify(horizon)}`);
+  }
+  if (!Object.hasOwn(DISCS, horizon.disc)) {
+    throw new Error(`angularEvent takes a disc: ${Object.keys(DISCS).join(", ")}; got ${horizon.disc}`);
+  }
+  const { refraction } = horizon;
+  if (refraction !== null) {
+    const { pressure, temperature } = refraction;
+    // Swiss Ephemeris reads a pressure of 0 as "estimate it from the elevation".
+    if (Object.keys(refraction).sort().join() !== "pressure,temperature" ||
+        !(Number.isFinite(pressure) && pressure > 0) ||
+        !(Number.isFinite(temperature) && temperature > ABSOLUTE_ZERO_C)) {
+      throw new Error(`angularEvent takes a refraction of a positive pressure and a temperature above absolute zero; got ${JSON.stringify(refraction)}`);
+    }
+  }
+  let rsmi = ANGULAR_EVENTS[event];
+  if (event === "rise" || event === "set") rsmi |= DISCS[horizon.disc];
+  if (refraction === null) rsmi |= SE_BIT_NO_REFRACTION;
+  return rsmi;
 }
 
 const isDate = (jd) => Number.isFinite(jd) && jd >= FIRST_JD && jd <= LAST_JD;
@@ -323,7 +486,12 @@ function isPlace(place) {
 /**
  * @typedef {{ lat: number, lng: number, elevation: number }} Place
  *   degrees north and east, and metres above sea level
- * @typedef {{ kind: "failed", reason: "invalid-input" | "engine-error" | "not-finite" | "not-moshier", serr?: string }} Failure
- *   invalid-input is refused before Swiss Ephemeris is called
+ * @typedef {{ disc: keyof typeof DISCS, refraction: null | { pressure: number, temperature: number } }} Horizon
+ *   the point of the disc that rises and sets, and the refraction, in hPa
+ *   and °C; null is the geometric horizon
+ * @typedef {{ kind: "failed", reason: "invalid-input" | "engine-error" | "no-ephemeris-file" | "not-finite" | "not-moshier",
+ *   serr?: string }} Failure
+ *   invalid-input is refused before Swiss Ephemeris is called; no-ephemeris-file
+ *   is a body's file not loaded for that date
  * @typedef {Awaited<ReturnType<typeof createEngine>>} Engine
  */

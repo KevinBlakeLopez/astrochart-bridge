@@ -172,6 +172,7 @@ test("a confirmed entry opens the sky or the Astro-Seek chart, from the popup's 
     ...astroSeekButtons(),
     { label: "Save in Astro-Seek…", saves: { town: null, name: null, gender: null }, secondary: true },
     { label: "Which planets were visible", does: "helioscope", secondary: true },
+    { label: "Parans", does: "parans", secondary: true },
     shareButton(),
   ]);
 });

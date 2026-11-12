@@ -26,6 +26,24 @@ const UP_TO_CHARACTERS = { one: "znaka", two: "znakov", few: "znakov", other: "z
 // The verb agrees with the count too: "sta 2 horoskopa", "je 5 horoskopov".
 const CHARTS_IN_FILE = { one: "je # horoskop", two: "sta # horoskopa", few: "so # horoskopi", other: "je # horoskopov" };
 
+// The parans page's bodies as the subject of a sentence, and what they do.
+// Stellarium's Slovenian has Vzhod, Zahod and Prehod for the nouns.
+const SUBJECTS = {
+  sun: "Sonce", moon: "Luna", mercury: "Merkur", venus: "Venera", mars: "Mars",
+  jupiter: "Jupiter", saturn: "Saturn", uranus: "Uran", neptune: "Neptun", pluto: "Pluton",
+  ceres: "Cerera", eris: "Erida", makemake: "Makemake", haumea: "Haumea", varuna: "Varuna", ixion: "Iksion", orcus: "Orkus",
+  sedna: "Sedna",
+};
+const VERBS = { rise: "vzide", set: "zaide", "upper-transit": "je v zgornji kulminaciji", "lower-transit": "je v spodnji kulminaciji" };
+// Each a key itself where it has no words, as in en.js.
+const subject = (body) => SUBJECTS[body] ?? body;
+const verb = (event) => VERBS[event] ?? event;
+// After "kdaj", "je" comes before the subject: "kdaj je Luna v spodnji
+// kulminaciji", but "kdaj Sonce vzide".
+const CULMINATIONS = { "upper-transit": "zgornji", "lower-transit": "spodnji" };
+const clause = (body, event) =>
+  Object.hasOwn(CULMINATIONS, event) ? `je ${subject(body)} v ${CULMINATIONS[event]} kulminaciji` : `${subject(body)} ${verb(event)}`;
+
 // "a, b in c"
 const and = (items) => (items.length < 2 ? items.join("") : `${items.slice(0, -1).join(", ")} in ${items.at(-1)}`);
 
@@ -130,6 +148,27 @@ export default {
         "AstroChart Bridge, © 2026 Kevin Blake Lopez, to izračuna na tej napravi s Swiss Ephemeris, © 1997–2021 Astrodienst AG, prek swisseph-wasm. Vsi trije so prosto programje: lahko jih delite in spreminjate pod pogoji licence GNU Affero General Public License, različice 3 ali novejše. Zanje ne velja nobeno jamstvo.",
       source: "Izvorna koda in licenca",
     },
+    parans: {
+      title: "AstroChart Bridge: parani",
+      heading: "Parani",
+      orb: "Orba",
+      horizon: "Obzorje",
+      geometric: "Geometrijsko",
+      almanac: "Kot v almanahu",
+      elevation: "Nadmorska višina v metrih",
+      bodies: "Telesa",
+      names: {
+        sun: "Sonce", moon: "Luna", mercury: "Merkur", venus: "Venera", mars: "Mars",
+        jupiter: "Jupiter", saturn: "Saturn", uranus: "Uran", neptune: "Neptun", pluto: "Pluton",
+        ceres: "Cerera", eris: "Erida", makemake: "Makemake", haumea: "Haumea", varuna: "Varuna", ixion: "Iksion", orcus: "Orkus",
+        sedna: "Sedna",
+      },
+      dwarfPlanets: "Pritlikavi planeti",
+      working: "Računanje paranov …",
+      notice:
+        "AstroChart Bridge, © 2026 Kevin Blake Lopez, to izračuna na tej napravi s Swiss Ephemeris, © 1997–2021 Astrodienst AG, prek swisseph-wasm. Vsi trije so prosto programje: lahko jih delite in spreminjate pod pogoji licence GNU Affero General Public License, različice 3 ali novejše. Zanje ne velja nobeno jamstvo.",
+      source: "Izvorna koda in licenca",
+    },
     astroComFilled: "AstroChart Bridge je izpolnil obrazec astro.com v njegovem zavihku.",
     astroSeekFilled: "AstroChart Bridge je izpolnil obrazec Astro-Seeka v njegovem zavihku. Tam preverite Gender, nato pritisnite Add person.",
   },
@@ -194,6 +233,7 @@ export default {
       openAstroSeekForm: "Odpri obrazec Astro-Seeka",
       astroSeekTab: "Pojdi na zavihek Astro-Seek",
       helioscope: "Kateri planeti so bili vidni",
+      parans: "Parani",
       share: "Deli …",
       enterInAstroCom: "Vnesi na astro.com …",
       openAstroComForm: "Odpri obrazec astro.com",
@@ -264,6 +304,9 @@ export default {
     helioscopeBeforeGregorian:
       "AstroChart Bridge še ne more izračunati planetov za horoskop z datumom pred 15. oktobrom 1582: ne more ugotoviti, v katerem koledarju je datum.",
     helioscopeRefused: "AstroChart Bridge za ta horoskop ne more izračunati planetov.",
+    paransBeforeGregorian:
+      "AstroChart Bridge še ne more izračunati paranov za horoskop z datumom pred 15. oktobrom 1582: ne more ugotoviti, v katerem koledarju je datum.",
+    paransRefused: "AstroChart Bridge za ta horoskop ne more izračunati paranov.",
 
     townNote: (town) =>
       town === null
@@ -778,6 +821,12 @@ export default {
     shareTitle: "Horoskop AstroChart Bridge",
   },
 
+  // "18:15", ali "18:15 dne 10. jan."
+  times: {
+    onDay: (time, day) => `${time} dne ${day}`,
+    dayMonth: (day, month) => `${day}. ${MONTHS[month - 1]}`,
+  },
+
   helioscope: {
     decimal: ",",
     // For numbers written out whole, such as how many times brighter.
@@ -813,9 +862,6 @@ export default {
       both: "Sonce ta dan ne zaide in ne vzide",
       other: "Ta noč nima somraka, po katerem bi lahko presodili",
     },
-    // "18:15 dne 10. jan."
-    onDay: (time, day) => `${time} dne ${day}`,
-    dayMonth: (day, month) => `${day}. ${MONTHS[month - 1]}`,
     labels: {
       evening: "Večer",
       morning: "Jutro",
@@ -933,5 +979,61 @@ export default {
     elevationRefused: ELEVATION_RANGE,
     orbRefused: "Vnesite cele stopinje in minute, na primer 8\u00a030, ali samo minute, na primer 17′.",
     orbsOutOfOrder: "Orb za kazimi mora biti ožji od orba za zgorevanje, ta pa ožji od orba pod žarki, ki je lahko največ 30°.",
+  },
+
+  parans: {
+    decimal: ",",
+    // "Venera vzide", "Sonce je v zgornji kulminaciji"
+    event: (body, event) => `${subject(body)} ${verb(event)}`,
+    // "Venera vzide ob 14:02"
+    at: (said, time) => `${said} ob ${time}`,
+    withinOrb: (orb) => `Parani znotraj ${orb}° ARMC`,
+    none: (orb) => `Nobeni dve od teh teles nista na kotih znotraj ${orb}° ARMC drugo od drugega v 24 urah okoli trenutka horoskopa.`,
+    columns: { paran: "Paran", apart: "Razmik" },
+    armcGap: (degrees) => `${degrees}° ARMC`,
+    timeGap: (minutes, seconds) => (minutes === 0 ? `${seconds} s` : `${minutes} min ${seconds} s`),
+    eventsHeading: "Vsi dogodki",
+    eventsSummary: "Vsak vzhod, zahod in kulminacija v 24 urah okoli trenutka horoskopa",
+    eventArmc: (said, degrees) => `${said} · ARMC ${degrees}°`,
+    missing: (body, which) => `${subject(body)} ta dan ${{ rise: "ne vzide", set: "ne zaide", both: "ne vzide in ne zaide" }[which] ?? which}`,
+    assumptionsHeading: "Predpostavke",
+    assumptions: {
+      ephemeris: "Efemeride",
+      ephemerisValue: (version) => `Swiss Ephemeris ${version}, Moshier`,
+      dwarfPlanets: "Pritlikavi planeti",
+      dwarfPlanetsValue: "Iz Astrodienstovih datotek asteroidov, narejenih iz JPL-jevega DE441, s Soncem in Zemljo po Moshierju",
+      time: "Čas",
+      timeValue: "UTC horoskopa, vzet kot UT",
+      window: "Okno",
+      windowValue: (start, end) => `Od ${start} do ${end}, 12 ur pred trenutkom horoskopa in po njem`,
+      position: "Položaji",
+      positionValue: "Dejanski položaj vsakega telesa, z njegovo širino, ne njegova stopinja v zodiaku",
+      horizon: "Obzorje",
+      geometric: "Geometrijsko: središče ploskvice, brez refrakcije",
+      almanac: (pressure, temperature) => `Zgornji rob, z refrakcijo pri ${pressure} hPa in ${temperature} °C`,
+      culminations: "Kulminacije",
+      culminationsValue: "Na poldnevniku, pri urnem kotu 0° in 180°",
+      search: "Iskanje",
+      // "začeto 3 minute prej kot izid prvega"
+      searchValue: (minutes) => `Vsak dogodek je tisti, ki ga najde drugo iskanje, začeto ${count(minutes, MINUTES)} prej kot izid prvega`,
+      elevation: "Nadmorska višina",
+      elevationGiven: (metres) => `${metres} m`,
+      elevationDefault: (metres) => `${metres} m, ker ni bila podana`,
+      orb: "Orba",
+      orbValue: (orb) => `Znotraj ${orb}° ARMC, največ 12 ur narazen`,
+    },
+    timesAt: (offset) => `Časi so po zamiku ${offset}, ki ga ima horoskop.`,
+    armcNote: "ARMC je rektascenzija sredine neba, zvezdni čas v stopinjah: 1° mine v približno 4 minutah.",
+    empty: "Ta stran izračuna parane horoskopa. Odprite jo iz horoskopa v AstroChart Bridge.",
+    failed: (body, event) => `Swiss Ephemeris ni mogel izračunati, kdaj ${clause(body, event)}, zato paranov ni mogoče izračunati.`,
+    refusals: {
+      "date-out-of-range": "AstroChart Bridge izračuna parane le za datume od 15. oktobra 1582 do konca leta 2999, z 12 urami rezerve na vsako stran.",
+      "invalid-coordinates": "Kraj tega horoskopa ni zemljepisna širina in dolžina na Zemlji.",
+      "at-pole": "Na polih ni poldnevnika, na katerem bi telesa kulminirala, zato paranov ni.",
+      "invalid-elevation": ELEVATION_RANGE,
+      "engine-failed": "Swiss Ephemeris se v tem brskalniku ni mogel zagnati, zato paranov ni mogoče izračunati.",
+      other: "Paranov za ta horoskop ni mogoče izračunati.",
+    },
+    elevationRefused: ELEVATION_RANGE,
   },
 };

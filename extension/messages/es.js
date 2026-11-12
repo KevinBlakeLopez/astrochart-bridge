@@ -29,6 +29,21 @@ const and = (items) => {
 const clock = (time) => (time.startsWith("01:") ? `la ${time}` : `las ${time}`);
 const at = (time) => `a ${clock(time)}`;
 
+// The parans page's bodies as the subject of a sentence, and what they do,
+// as Stellarium's Spanish says it: sale, se pone, culmina.
+const SUBJECTS = {
+  sun: "El Sol", moon: "La Luna", mercury: "Mercurio", venus: "Venus", mars: "Marte",
+  jupiter: "Júpiter", saturn: "Saturno", uranus: "Urano", neptune: "Neptuno", pluto: "Plutón",
+  ceres: "Ceres", eris: "Eris", makemake: "Makemake", haumea: "Haumea", varuna: "Varuna", ixion: "Ixión", orcus: "Orco",
+  sedna: "Sedna",
+};
+const VERBS = { rise: "sale", set: "se pone", "upper-transit": "culmina", "lower-transit": "anticulmina" };
+// Each a key itself where it has no words, as in en.js.
+const subject = (body) => SUBJECTS[body] ?? body;
+const verb = (event) => VERBS[event] ?? event;
+// "el Sol", inside a sentence.
+const inSentence = (body) => subject(body).replace(/^El /, "el ").replace(/^La /, "la ");
+
 const TOOLBAR_STEP = "vuelve a hacer clic en el icono de AstroChart Bridge de la barra de herramientas para completar el formulario.";
 
 const LOCAL_ZONE =
@@ -113,6 +128,27 @@ export default {
         "AstroChart Bridge, © 2026 Kevin Blake Lopez, lo calcula en este dispositivo con Swiss Ephemeris, © 1997–2021 Astrodienst AG, a través de swisseph-wasm. Los tres son software libre: puedes compartirlos y modificarlos según la Licencia Pública General Affero de GNU, versión 3 o posterior. No tienen ninguna garantía.",
       source: "Código fuente y licencia",
     },
+    parans: {
+      title: "AstroChart Bridge: parans",
+      heading: "Parans",
+      orb: "Orbe",
+      horizon: "Horizonte",
+      geometric: "Geométrico",
+      almanac: "De almanaque",
+      elevation: "Altitud en metros",
+      bodies: "Cuerpos",
+      names: {
+        sun: "Sol", moon: "Luna", mercury: "Mercurio", venus: "Venus", mars: "Marte",
+        jupiter: "Júpiter", saturn: "Saturno", uranus: "Urano", neptune: "Neptuno", pluto: "Plutón",
+        ceres: "Ceres", eris: "Eris", makemake: "Makemake", haumea: "Haumea", varuna: "Varuna", ixion: "Ixión", orcus: "Orco",
+        sedna: "Sedna",
+      },
+      dwarfPlanets: "Planetas enanos",
+      working: "Calculando los parans…",
+      notice:
+        "AstroChart Bridge, © 2026 Kevin Blake Lopez, lo calcula en este dispositivo con Swiss Ephemeris, © 1997–2021 Astrodienst AG, a través de swisseph-wasm. Los tres son software libre: puedes compartirlos y modificarlos según la Licencia Pública General Affero de GNU, versión 3 o posterior. No tienen ninguna garantía.",
+      source: "Código fuente y licencia",
+    },
     astroComFilled: "AstroChart Bridge completó el formulario de astro.com en su pestaña.",
     astroSeekFilled: "AstroChart Bridge completó el formulario de Astro-Seek en su pestaña. Comprueba allí Gender y después haz clic en Add person.",
   },
@@ -175,6 +211,7 @@ export default {
       openAstroSeekForm: "Abrir el formulario de Astro-Seek",
       astroSeekTab: "Ir a la pestaña de Astro-Seek",
       helioscope: "Qué planetas eran visibles",
+      parans: "Parans",
       share: "Compartir…",
       enterInAstroCom: "Completar en astro.com…",
       openAstroComForm: "Abrir el formulario de astro.com",
@@ -245,6 +282,9 @@ export default {
     helioscopeBeforeGregorian:
       "AstroChart Bridge todavía no puede calcular los planetas de una carta con fecha anterior al 15 de octubre de 1582: no puede saber en qué calendario está la fecha.",
     helioscopeRefused: "AstroChart Bridge no puede calcular los planetas de esta carta.",
+    paransBeforeGregorian:
+      "AstroChart Bridge todavía no puede calcular los parans de una carta con fecha anterior al 15 de octubre de 1582: no puede saber en qué calendario está la fecha.",
+    paransRefused: "AstroChart Bridge no puede calcular los parans de esta carta.",
 
     townNote: (town) =>
       town === null
@@ -751,6 +791,12 @@ export default {
     shareTitle: "Carta de AstroChart Bridge",
   },
 
+  // "18:15", o "18:15 del 10 ene"
+  times: {
+    onDay: (time, day) => `${time} del ${day}`,
+    dayMonth: (day, month) => `${day} ${MONTHS[month - 1]}`,
+  },
+
   helioscope: {
     decimal: ",",
     // For numbers written out whole, such as how many times brighter.
@@ -784,9 +830,6 @@ export default {
       both: "El Sol no se pone ni sale ese día",
       other: "Esa noche no hay crepúsculo con el que juzgar",
     },
-    // "18:15 del 10 ene"
-    onDay: (time, day) => `${time} del ${day}`,
-    dayMonth: (day, month) => `${day} ${MONTHS[month - 1]}`,
     labels: {
       evening: "Anochecer",
       morning: "Amanecer",
@@ -900,5 +943,62 @@ export default {
     elevationRefused: ELEVATION_RANGE,
     orbRefused: "Escribe grados y minutos enteros, como 8\u00a030, o solo minutos, como 17′.",
     orbsOutOfOrder: "El orbe de cazimi debe ser menor que el de combusto, y este, menor que el de bajo los rayos, que puede ser de 30° como máximo.",
+  },
+
+  parans: {
+    decimal: ",",
+    // "Venus sale", "El Sol culmina"
+    event: (body, event) => `${subject(body)} ${verb(event)}`,
+    // "Venus sale a las 14:02"
+    at: (said, time) => `${said} ${at(time)}`,
+    withinOrb: (orb) => `Parans a menos de ${orb}° de ARMC`,
+    none: (orb) => `Ningún par de estos cuerpos está en los ángulos a menos de ${orb}° de ARMC en las 24 horas alrededor del momento de la carta.`,
+    columns: { paran: "Paran", apart: "Separación" },
+    armcGap: (degrees) => `${degrees}° de ARMC`,
+    timeGap: (minutes, seconds) => (minutes === 0 ? `${seconds} s` : `${minutes} min ${seconds} s`),
+    eventsHeading: "Todos los eventos",
+    eventsSummary: "Cada salida, puesta y culminación en las 24 horas alrededor del momento de la carta",
+    eventArmc: (said, degrees) => `${said} · ARMC ${degrees}°`,
+    missing: (body, which) => `${subject(body)} no ${{ rise: "sale", set: "se pone", both: "sale ni se pone" }[which] ?? which} ese día`,
+    assumptionsHeading: "Supuestos",
+    assumptions: {
+      ephemeris: "Efemérides",
+      ephemerisValue: (version) => `Swiss Ephemeris ${version}, Moshier`,
+      dwarfPlanets: "Planetas enanos",
+      dwarfPlanetsValue: "De los archivos de asteroides de Astrodienst, hechos a partir del DE441 del JPL, con el Sol y la Tierra de Moshier",
+      time: "Hora",
+      timeValue: "La UTC de la carta, tomada como UT",
+      window: "Intervalo",
+      // "De las 03:15 del 9 ene a las 03:15 del 10 ene, …"
+      windowValue: (start, end) => `De ${clock(start)} ${at(end)}, 12 horas antes y después del momento de la carta`,
+      position: "Posiciones",
+      positionValue: "El lugar real de cada cuerpo, con su latitud, no su grado zodiacal",
+      horizon: "Horizonte",
+      geometric: "Geométrico: el centro del disco, sin refracción",
+      almanac: (pressure, temperature) => `El borde superior, con refracción a ${pressure} hPa y ${temperature} °C`,
+      culminations: "Culminaciones",
+      culminationsValue: "En el meridiano, con ángulo horario de 0° y 180°",
+      search: "Búsqueda",
+      searchValue: (minutes) => `Cada evento es el que encuentra una segunda búsqueda, iniciada ${minutes} minutos antes del resultado de la primera`,
+      elevation: "Altitud",
+      elevationGiven: (metres) => `${metres} m`,
+      elevationDefault: (metres) => `${metres} m, porque no se indicó ninguna`,
+      orb: "Orbe",
+      orbValue: (orb) => `A menos de ${orb}° de ARMC, con 12 horas de separación como mucho`,
+    },
+    timesAt: (offset) => `Las horas están en ${offset}, la diferencia horaria de la carta.`,
+    armcNote: "ARMC es la ascensión recta del medio cielo, el tiempo sidéreo en grados: 1° pasa en unos 4 minutos.",
+    empty: "Esta página calcula los parans de una carta. Ábrela desde una carta en AstroChart Bridge.",
+    failed: (body, event) =>
+      `Swiss Ephemeris no pudo calcular cuándo ${inSentence(body)} ${verb(event)}, así que no se pueden calcular los parans.`,
+    refusals: {
+      "date-out-of-range": "AstroChart Bridge calcula parans solo para fechas del 15 de octubre de 1582 al final de 2999, con 12 horas de margen a cada lado.",
+      "invalid-coordinates": "El lugar de esta carta no es una latitud y una longitud del globo.",
+      "at-pole": "En los polos no hay meridiano en el que culminen los cuerpos, así que no hay parans.",
+      "invalid-elevation": ELEVATION_RANGE,
+      "engine-failed": "Swiss Ephemeris no pudo iniciarse en este navegador, así que no se pueden calcular los parans.",
+      other: "No se pueden calcular los parans para esta carta.",
+    },
+    elevationRefused: ELEVATION_RANGE,
   },
 };

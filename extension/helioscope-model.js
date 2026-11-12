@@ -18,6 +18,9 @@
 // low or mid cloud covered nearly all of ERA5's square at every best moment
 // it had. High cloud alone never hides one: a bright planet can show through.
 import { natalChartFor, readLink } from "./chart-model.js";
+// A UTC instant at the chart's offset, to the nearest minute, with its date
+// when that isn't the chart's own.
+import { atChartOffset as when } from "./chart-time.js";
 import { DEFAULT_CONDITION_LIMITS, ELEVATION_LIMITS, PLANETS, classify, conditionLimitsFit, visibility } from "./core/helioscope.js";
 import { nearestHour, readWeather, weatherRequest } from "./core/open-meteo.js";
 import { stellariumUrl } from "./core/stellarium.js";
@@ -575,18 +578,6 @@ function bestText(best, chart) {
 // One of eight points, from the engine's azimuth, which runs from north
 // through east: Venus after sunset comes out at 231°, in the southwest.
 const compassPoint = (azimuth) => ((Math.round(azimuth / 45) % 8) + 8) % 8;
-
-// A UTC instant at the chart's offset, to the nearest minute, with its date
-// when that isn't the chart's own.
-function when(utc, chart) {
-  const words = text().helioscope;
-  const minute = 60_000;
-  const local = new Date(Math.round((Date.parse(utc) + chart.offsetMinutes * minute) / minute) * minute).toISOString();
-  const time = local.slice(11, 16);
-  if (local.slice(0, 10) === chart.local.slice(0, 10)) return time;
-  const [, month, day] = local.slice(0, 10).split("-").map(Number);
-  return words.onDay(time, words.dayMonth(day, month));
-}
 
 // The atmosphere and observer as Swiss Ephemeris completed them, from the
 // first planet with a sample above the horizon: they're the same at one
