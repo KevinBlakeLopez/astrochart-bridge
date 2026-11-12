@@ -122,6 +122,24 @@ export default {
         "AstroChart Bridge, © 2026 Kevin Blake Lopez, lo calcula en este dispositivo con Swiss Ephemeris, © 1997–2021 Astrodienst AG, a través de swisseph-wasm. Los tres son software libre: puedes compartirlos y modificarlos según la Licencia Pública General Affero de GNU, versión 3 o posterior. No tienen ninguna garantía.",
       source: "Código fuente y licencia",
     },
+    parans: {
+      title: "AstroChart Bridge: parans",
+      heading: "Parans",
+      orb: "Orbe",
+      horizon: "Horizonte",
+      geometric: "Geométrico",
+      almanac: "De almanaque",
+      elevation: "Altitud en metros",
+      bodies: "Cuerpos",
+      names: {
+        sun: "Sol", moon: "Luna", mercury: "Mercurio", venus: "Venus", mars: "Marte",
+        jupiter: "Júpiter", saturn: "Saturno", uranus: "Urano", neptune: "Neptuno", pluto: "Plutón",
+      },
+      working: "Calculando los parans…",
+      notice:
+        "AstroChart Bridge, © 2026 Kevin Blake Lopez, lo calcula en este dispositivo con Swiss Ephemeris, © 1997–2021 Astrodienst AG, a través de swisseph-wasm. Los tres son software libre: puedes compartirlos y modificarlos según la Licencia Pública General Affero de GNU, versión 3 o posterior. No tienen ninguna garantía.",
+      source: "Código fuente y licencia",
+    },
     astroComFilled: "AstroChart Bridge completó el formulario de astro.com en su pestaña.",
     astroSeekFilled: "AstroChart Bridge completó el formulario de Astro-Seek en su pestaña. Comprueba allí Gender y después haz clic en Add person.",
   },
@@ -964,5 +982,6 @@ export default {
       "engine-failed": "Swiss Ephemeris no pudo iniciarse en este navegador, así que no se pueden calcular los parans.",
       other: "No se pueden calcular los parans para esta carta.",
     },
+    elevationRefused: ELEVATION_RANGE,
   },
 };

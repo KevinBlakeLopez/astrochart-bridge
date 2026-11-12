@@ -1,0 +1,112 @@
+/* The parans page is a page in a tab, not a popup: the popup's look, as wide
+   as the parans' table needs and no wider, as Helioscope's page has it. */
+body.page {
+  width: auto;
+  max-width: 720px;
+  margin: 0 auto;
+  font-size: 14px;
+}
+
+main {
+  padding: 16px;
+}
+
+h1 {
+  margin: 8px 0 12px;
+  font-size: 20px;
+}
+
+h2 {
+  margin: 16px 0 8px;
+  font-size: 15px;
+}
+
+/* The orb, the horizon and the elevation box, on one line where they fit,
+   then the bodies' boxes, wrapping. */
+.settings,
+fieldset.bodies {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 20px;
+  margin: 0 0 12px;
+}
+
+.settings fieldset {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+}
+
+fieldset.bodies {
+  gap: 8px 16px;
+}
+
+.settings legend,
+fieldset.bodies legend {
+  float: left;
+  padding: 0;
+}
+
+.settings label,
+fieldset.bodies label {
+  align-items: center;
+}
+
+#app {
+  margin: 0 0 16px;
+}
+
+table.parans {
+  width: 100%;
+  margin: 12px 0;
+  border-collapse: collapse;
+}
+
+table.parans th,
+table.parans td {
+  padding: 8px 12px 8px 0;
+  text-align: left;
+  vertical-align: top;
+  border-top: 1px solid var(--line);
+}
+
+table.parans thead th {
+  border-top: 0;
+  font-weight: normal;
+  color: var(--muted);
+}
+
+/* The second event, and a gap's time, under the first line of each cell. */
+table.parans .detail {
+  display: block;
+}
+
+table.parans td + td .detail {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+details.events,
+details.assumptions {
+  margin: 0 0 8px;
+}
+
+details.events summary,
+details.assumptions summary {
+  cursor: pointer;
+}
+
+details dl {
+  margin: 8px 0 8px 16px;
+}
+
+details .note {
+  margin: 8px 0 8px 16px;
+}
+
+/* A long row wraps instead of widening the page. */
+dd {
+  overflow-wrap: anywhere;
+}

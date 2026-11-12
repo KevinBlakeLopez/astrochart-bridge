@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; connect-src 'self'; style-src 'self'; img-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'">
+    <meta name="referrer" content="no-referrer">
+    <title data-text="pages.parans.title">AstroChart Bridge: parans</title>
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="icons/icon-180.png">
+    <link rel="stylesheet" href="popup.css">
+    <link rel="stylesheet" href="parans.css">
+    <script type="module" src="parans.js"></script>
+  </head>
+  <body class="page">
+    <main>
+      <p id="home" class="home" hidden><a href="index.html" data-text="pages.popup.title">AstroChart Bridge</a></p>
+      <h1 data-text="pages.parans.heading">Parans</h1>
+      <div class="settings">
+        <fieldset>
+          <legend data-text="pages.parans.orb">Orb</legend>
+          <label><input type="radio" name="orb" value="0.25"> <span class="orb">0.25°</span></label>
+          <label><input type="radio" name="orb" value="0.5"> <span class="orb">0.5°</span></label>
+          <label><input type="radio" name="orb" value="1" checked> <span class="orb">1°</span></label>
+          <label><input type="radio" name="orb" value="2"> <span class="orb">2°</span></label>
+        </fieldset>
+        <fieldset>
+          <legend data-text="pages.parans.horizon">Horizon</legend>
+          <label><input type="radio" name="horizon" value="geometric" checked> <span data-text="pages.parans.geometric">Geometric</span></label>
+          <label><input type="radio" name="horizon" value="almanac"> <span data-text="pages.parans.almanac">Almanac</span></label>
+        </fieldset>
+        <label for="elevation"><span data-text="pages.parans.elevation">Elevation in metres</span></label>
+        <input id="elevation" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" placeholder="0" aria-describedby="elevation-refused">
+      </div>
+      <fieldset class="bodies">
+        <legend data-text="pages.parans.bodies">Bodies</legend>
+        <label><input type="checkbox" name="body" value="sun" checked> <span data-text="pages.parans.names.sun">Sun</span></label>
+        <label><input type="checkbox" name="body" value="moon" checked> <span data-text="pages.parans.names.moon">Moon</span></label>
+        <label><input type="checkbox" name="body" value="mercury" checked> <span data-text="pages.parans.names.mercury">Mercury</span></label>
+        <label><input type="checkbox" name="body" value="venus" checked> <span data-text="pages.parans.names.venus">Venus</span></label>
+        <label><input type="checkbox" name="body" value="mars" checked> <span data-text="pages.parans.names.mars">Mars</span></label>
+        <label><input type="checkbox" name="body" value="jupiter" checked> <span data-text="pages.parans.names.jupiter">Jupiter</span></label>
+        <label><input type="checkbox" name="body" value="saturn" checked> <span data-text="pages.parans.names.saturn">Saturn</span></label>
+        <label><input type="checkbox" name="body" value="uranus" checked> <span data-text="pages.parans.names.uranus">Uranus</span></label>
+        <label><input type="checkbox" name="body" value="neptune" checked> <span data-text="pages.parans.names.neptune">Neptune</span></label>
+        <label><input type="checkbox" name="body" value="pluto" checked> <span data-text="pages.parans.names.pluto">Pluto</span></label>
+      </fieldset>
+      <p id="elevation-refused" class="warning" role="alert" hidden></p>
+      <div id="app"><p class="note" data-text="pages.parans.working">Working out the parans…</p></div>
+      <p class="note" data-text="pages.parans.notice">AstroChart Bridge, © 2026 Kevin Blake Lopez, works this out on this device with Swiss Ephemeris, © 1997–2021 Astrodienst AG, through swisseph-wasm. All three are free software: you may share and change them under the GNU Affero General Public License, version 3 or later. They come with no warranty.</p>
+      <p class="note"><a href="https://github.com/KevinBlakeLopez/astrochart-bridge" target="_blank" rel="noopener noreferrer" data-text="pages.parans.source">Source code and licence</a></p>
+    </main>
+  </body>
+</html>

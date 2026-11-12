@@ -114,6 +114,25 @@ export default {
         "AstroChart Bridge, © 2026 Kevin Blake Lopez, works this out on this device with Swiss Ephemeris, © 1997–2021 Astrodienst AG, through swisseph-wasm. All three are free software: you may share and change them under the GNU Affero General Public License, version 3 or later. They come with no warranty.",
       source: "Source code and licence",
     },
+    parans: {
+      title: "AstroChart Bridge: parans",
+      heading: "Parans",
+      orb: "Orb",
+      horizon: "Horizon",
+      geometric: "Geometric",
+      almanac: "Almanac",
+      elevation: "Elevation in metres",
+      bodies: "Bodies",
+      // The bodies' boxes, in core/parans.js's BODIES.
+      names: {
+        sun: "Sun", moon: "Moon", mercury: "Mercury", venus: "Venus", mars: "Mars",
+        jupiter: "Jupiter", saturn: "Saturn", uranus: "Uranus", neptune: "Neptune", pluto: "Pluto",
+      },
+      working: "Working out the parans…",
+      notice:
+        "AstroChart Bridge, © 2026 Kevin Blake Lopez, works this out on this device with Swiss Ephemeris, © 1997–2021 Astrodienst AG, through swisseph-wasm. All three are free software: you may share and change them under the GNU Affero General Public License, version 3 or later. They come with no warranty.",
+      source: "Source code and licence",
+    },
     // astro-com-page.js's, on the pages that stay open while a form fills in.
     astroComFilled: "AstroChart Bridge filled in astro.com's form in its tab.",
     astroSeekFilled: "AstroChart Bridge filled in Astro-Seek's form in its tab. Check Gender there, then press Add person.",
@@ -1034,5 +1053,6 @@ export default {
       "engine-failed": "Swiss Ephemeris couldn't start in this browser, so the parans can't be worked out.",
       other: "The parans can't be worked out for this chart.",
     },
+    elevationRefused: ELEVATION_RANGE,
   },
 };

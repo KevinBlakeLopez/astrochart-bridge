@@ -142,6 +142,24 @@ export default {
         "AstroChart Bridge, © 2026 Kevin Blake Lopez, to izračuna na tej napravi s Swiss Ephemeris, © 1997–2021 Astrodienst AG, prek swisseph-wasm. Vsi trije so prosto programje: lahko jih delite in spreminjate pod pogoji licence GNU Affero General Public License, različice 3 ali novejše. Zanje ne velja nobeno jamstvo.",
       source: "Izvorna koda in licenca",
     },
+    parans: {
+      title: "AstroChart Bridge: parani",
+      heading: "Parani",
+      orb: "Orba",
+      horizon: "Obzorje",
+      geometric: "Geometrijsko",
+      almanac: "Kot v almanahu",
+      elevation: "Nadmorska višina v metrih",
+      bodies: "Telesa",
+      names: {
+        sun: "Sonce", moon: "Luna", mercury: "Merkur", venus: "Venera", mars: "Mars",
+        jupiter: "Jupiter", saturn: "Saturn", uranus: "Uran", neptune: "Neptun", pluto: "Pluton",
+      },
+      working: "Računanje paranov …",
+      notice:
+        "AstroChart Bridge, © 2026 Kevin Blake Lopez, to izračuna na tej napravi s Swiss Ephemeris, © 1997–2021 Astrodienst AG, prek swisseph-wasm. Vsi trije so prosto programje: lahko jih delite in spreminjate pod pogoji licence GNU Affero General Public License, različice 3 ali novejše. Zanje ne velja nobeno jamstvo.",
+      source: "Izvorna koda in licenca",
+    },
     astroComFilled: "AstroChart Bridge je izpolnil obrazec astro.com v njegovem zavihku.",
     astroSeekFilled: "AstroChart Bridge je izpolnil obrazec Astro-Seeka v njegovem zavihku. Tam preverite Gender, nato pritisnite Add person.",
   },
@@ -999,5 +1017,6 @@ export default {
       "engine-failed": "Swiss Ephemeris se v tem brskalniku ni mogel zagnati, zato paranov ni mogoče izračunati.",
       other: "Paranov za ta horoskop ni mogoče izračunati.",
     },
+    elevationRefused: ELEVATION_RANGE,
   },
 };

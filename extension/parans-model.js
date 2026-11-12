@@ -96,7 +96,8 @@ export function paransWithin(events, orb) {
  * @param {object} chart  a normalized chart
  * @param {{ events: import("./core/parans.js").AngularEvents, parans: Paran[] }} worked  from paransFor
  * @param {Settings} settings  the ones paransFor was given
- * @returns {{ state: "ready", rows: [string, string][], parans: { heading: string, rows: object[], none: string | null },
+ * @returns {{ state: "ready", rows: [string, string][],
+ *   parans: { heading: string, columns: { paran: string, apart: string }, rows: object[], none: string | null },
  *   events: { heading: string, summary: string, rows: [string, string][], missing: string[] },
  *   assumptions: { heading: string, rows: [string, string][] }, notes: string[] }}
  */
@@ -109,6 +110,7 @@ export function viewForParans(chart, { events, parans }, { orb, horizon }) {
     rows: viewFor(chart).rows,
     parans: {
       heading: words.withinOrb(plain(orb)),
+      columns: { ...words.columns },
       rows: parans.map(({ first, second, armc, seconds }) => ({
         first: words.at(said(first), when(first)),
         second: words.at(said(second), when(second)),
@@ -205,6 +207,40 @@ const aroundCircle = (degrees) => (Math.round(degrees * 100) / 100) % 360;
 
 // A value as it's set, with the language's decimal mark: 0.25, 1, 1013.25.
 const plain = (x) => String(x).replace(".", text().parans.decimal);
+
+/**
+ * An orb as its radio button says it, with the language's decimal mark: "0.25°", "0,25°".
+ *
+ * @param {number} orb  one of ORBS
+ */
+export const orbLabel = (orb) => `${plain(orb)}°`;
+
+/**
+ * The bodies whose boxes can't be unticked: both of the last two, since a
+ * paran takes two bodies. None while there are more.
+ *
+ * @param {string[]} bodies  the ticked ones, as the settings have them
+ * @returns {string[]}
+ */
+export const lockedBodies = (bodies) => (bodies.length <= 2 ? [...bodies] : []);
+
+/**
+ * What the elevation box holds: nothing, which is no elevation, or whole
+ * metres in the range the engine takes, as on Helioscope's page.
+ *
+ * @param {string} typed
+ * @returns {{ kind: "elevation", metres: number | null } | { kind: "refused", reason: "not-whole-metres" | "out-of-range", message: string }}
+ */
+export function readElevation(typed) {
+  const trimmed = typed.trim();
+  if (trimmed === "") return { kind: "elevation", metres: null };
+  const message = text().parans.elevationRefused;
+  if (!/^-?\d+$/.test(trimmed)) return { kind: "refused", reason: "not-whole-metres", message };
+  // || 0 turns "-0" into 0.
+  const metres = Number(trimmed) || 0;
+  if (!fits(metres)) return { kind: "refused", reason: "out-of-range", message };
+  return { kind: "elevation", metres };
+}
 
 /**
  * The page's settings, as the user last left them on this computer.

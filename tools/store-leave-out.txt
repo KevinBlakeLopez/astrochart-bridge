@@ -11,6 +11,11 @@ home.css
 home.js
 sw.js
 #
-# Parans, until a page uses them, as Helioscope's were until its page arrived.
-core/parans.js
+# Parans' page and what only it loads, until the popup and the chart page
+# open it, as Helioscope's were until its page arrived.
+parans.html
+parans.css
+parans.js
+parans-view.js
 parans-model.js
+core/parans.js

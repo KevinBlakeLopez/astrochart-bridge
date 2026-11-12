@@ -12,7 +12,10 @@ import {
   DEFAULT_SETTINGS,
   HORIZONS,
   ORBS,
+  lockedBodies,
+  orbLabel,
   paransFor,
+  readElevation,
   paransSettings,
   paransWithin,
   setParansSettings,
@@ -207,6 +210,33 @@ test("paransSettings: each stored value that doesn't fit is its default, and the
   assert.equal((await read({ elevation: 25_000 })).elevation, 25_000);
 });
 
+// ---- The page's boxes -------------------------------------------------------
+
+test("readElevation: nothing is no elevation, whole metres in the engine's range are taken, and anything else is refused with the range", () => {
+  assert.deepEqual(readElevation("  "), { kind: "elevation", metres: null });
+  assert.deepEqual(readElevation(" 120 "), { kind: "elevation", metres: 120 });
+  assert.deepEqual(readElevation("-0"), { kind: "elevation", metres: 0 });
+  assert.deepEqual(readElevation("-500"), { kind: "elevation", metres: -500 });
+  assert.deepEqual(readElevation("25000"), { kind: "elevation", metres: 25_000 });
+  const message = "Enter whole metres, from -500 to 25000.";
+  for (const typed of ["1.5", "12 m", "1e3", "+5", "abc"]) {
+    assert.deepEqual(readElevation(typed), { kind: "refused", reason: "not-whole-metres", message }, typed);
+  }
+  for (const typed of ["-501", "25001"]) assert.deepEqual(readElevation(typed), { kind: "refused", reason: "out-of-range", message }, typed);
+});
+
+test("orbLabel: each orb with the language's decimal mark", async () => {
+  assert.deepEqual(ORBS.map(orbLabel), ["0.25°", "0.5°", "1°", "2°"]);
+  assert.deepEqual(await inLanguage("es", () => ORBS.map(orbLabel)), ["0,25°", "0,5°", "1°", "2°"]);
+  assert.deepEqual(await inLanguage("sl", () => ORBS.map(orbLabel)), ["0,25°", "0,5°", "1°", "2°"]);
+});
+
+test("lockedBodies: the last two ticked can't be unticked, and none while there are more", () => {
+  assert.deepEqual(lockedBodies(["sun", "moon"]), ["sun", "moon"]);
+  assert.deepEqual(lockedBodies(["sun", "moon", "mars"]), []);
+  assert.deepEqual(lockedBodies([...BODIES]), []);
+});
+
 // ---- The screen -------------------------------------------------------------
 
 // The reference cases' charts as the page's link gives them, at their own
@@ -247,6 +277,7 @@ test("viewForParans: London on 10 April 2024, in English: the parans closest fir
   assert.equal(view.state, "ready");
   assert.deepEqual(view.rows, [["Local time", "10 Apr 2024, 15:30"], ["Offset", "UTC+01:00"], ["UTC", "2024-04-10 14:30"], ["Place", "51°30'N, 0°8'W"]]);
   assert.equal(view.parans.heading, "Parans within 1° of ARMC");
+  assert.deepEqual(view.parans.columns, { paran: "Paran", apart: "Apart" });
   assert.equal(view.parans.none, null);
   // Mars and Saturn were in conjunction that day, so they're on every angle together.
   assert.deepEqual(view.parans.rows, [
