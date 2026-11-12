@@ -62,12 +62,13 @@ These need the paid Apple Developer Program. Nothing here has been tried.
 
 - **TestFlight or the App Store:** in Xcode, choose **Product → Archive** for each platform, then upload the archives to App Store Connect. The template gives the Mac and iPad apps the same bundle identifier, so one App Store record can hold both.
 - **App Store Connect's packager:** App Store Connect can package a web extension without Xcode. It uses the account's Xcode Cloud hours. [Apple's guide](https://developer.apple.com/documentation/safariservices/packaging-and-distributing-safari-web-extensions-with-app-store-connect)
-- **Leave Helioscope and parans out of either.** Swiss Ephemeris is under the AGPL, whose terms and the App Store's may conflict ([HELIOSCOPE_V1_FEASIBILITY.md](HELIOSCOPE_V1_FEASIBILITY.md), §4). `tools/package-safari.sh` links to `extension/` as it is, so make a TestFlight or App Store build's project from a copy without their files, such as `git archive` writes with exclude pathspecs:
+- **Leave Helioscope, parans and declinations out of either.** Swiss Ephemeris is under the AGPL, whose terms and the App Store's may conflict ([HELIOSCOPE_V1_FEASIBILITY.md](HELIOSCOPE_V1_FEASIBILITY.md), §4). `tools/package-safari.sh` links to `extension/` as it is, so make a TestFlight or App Store build's project from a copy without their files, such as `git archive` writes with exclude pathspecs:
   - Helioscope's: `helioscope.html`, `helioscope.js`, `helioscope.css`, `helioscope-model.js`, `helioscope-view.js`, `helioscope-engine.js` and `core/helioscope.js`
   - the parans page's: `parans.html`, `parans.js`, `parans.css`, `parans-model.js`, `parans-view.js` and `core/parans.js`
-  - and `vendor/swisseph/`, which both use.
+  - the declinations page's: `declinations.html`, `declinations.js`, `declinations.css`, `declinations-model.js`, `declinations-view.js` and `core/declinations.js`
+  - and `vendor/swisseph/`, which all three use.
 
-  Whatever opens either page has to go too: the Which planets were visible and Parans buttons, which `popup-model.js`'s `chartButtons`, `aaf-model.js`, `hor-model.js` and `chart-model.js` add to the chart screens. Builds for your own devices can keep them.
+  Whatever opens these pages has to go too: the Which planets were visible, Parans and Declinations buttons, which `popup-model.js`'s `chartButtons`, `aaf-model.js`, `hor-model.js` and `chart-model.js` add to the chart screens. Builds for your own devices can keep them.
 
 ## Known risks to check on an iPad
 

@@ -115,6 +115,14 @@ export const SITE_FILES = Object.freeze([
   "parans-model.js",
   "parans-view.js",
   "core/parans.js",
+  // The declinations page, which works out the dwarf planets' parallels and
+  // contra-parallels, with the same Swiss Ephemeris and asteroid files.
+  "declinations.html",
+  "declinations.css",
+  "declinations.js",
+  "declinations-model.js",
+  "declinations-view.js",
+  "core/declinations.js",
   // Check that night's weather: the request to Open-Meteo, which the page
   // sends only on its click, and reading the answer.
   "core/open-meteo.js",
@@ -148,7 +156,7 @@ export const SITE_FILES = Object.freeze([
   "vendor/swisseph/dist/generated/stars.js",
   "vendor/swisseph/wasm/swisseph.mjs",
   "vendor/swisseph/wasm/swisseph.wasm",
-  // The asteroid files the parans page fetches for the dwarf planets.
+  // The asteroid files the parans and declinations pages fetch for the dwarf planets.
   "vendor/swisseph/ephe/s136108.se1",
   "vendor/swisseph/ephe/s136199.se1",
   "vendor/swisseph/ephe/s136472.se1",

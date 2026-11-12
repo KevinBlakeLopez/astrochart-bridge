@@ -32,6 +32,7 @@ test("a screenshot opens the sky or the Astro-Seek chart, or shares it", () => {
     { label: "Save in Astro-Seek…", saves: { town: null, name: null, gender: null }, secondary: true },
     { label: "Which planets were visible", does: "helioscope", secondary: true },
     { label: "Parans", does: "parans", secondary: true },
+    { label: "Declinations", does: "declinations", secondary: true },
     { label: "Share…", does: "share", secondary: true },
   ]);
 });
@@ -107,6 +108,7 @@ test("a Solar Fire chart with nothing to check its offset says so, after the pop
     { label: "Save in Astro-Seek…", saves: { town: null, name: null, gender: null }, secondary: true },
     { label: "Which planets were visible", does: "helioscope", secondary: true },
     { label: "Parans", does: "parans", secondary: true },
+    { label: "Declinations", does: "declinations", secondary: true },
     shareButton(),
   ]);
   assert.deepEqual(view.notes.slice(-2), [astroSeekNotes()[0], astroSeekSaveNote()]);

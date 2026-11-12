@@ -91,6 +91,7 @@ test("with Stellarium Desktop the default, a ready screen leads with it and Open
     { label: "Open Stellarium Web", opens: "stellarium", secondary: true },
     { label: "Which planets were visible", does: "helioscope", secondary: true },
     { label: "Parans", does: "parans", secondary: true },
+    { label: "Declinations", does: "declinations", secondary: true },
     { label: "Share…", does: "share", secondary: true },
   ]);
   assert.deepEqual(preferred.defaultChoice, {

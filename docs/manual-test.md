@@ -72,7 +72,7 @@ https://horoscopes.astro-seek.com/calculate-birth-chart-horoscope-online/?input_
 ```
 
 - [ ] The popup shows Local time `17 Apr 2024, 08:00 (EDT, DST)`, Offset `UTC-04:00`, UTC `2024-04-17 12:00` and Place `40°43'N, 74°0'W`.
-- [ ] Below them are two grey notes, the one about Google last. Under "See the sky" is a blue **Open Stellarium Web** button, then outlined **Which planets were visible** (test 25) and **Parans** buttons, and under "Take the chart elsewhere" an outlined **Share…** button (test 20).
+- [ ] Below them are two grey notes, the one about Google last. Under "See the sky" is a blue **Open Stellarium Web** button, then outlined **Which planets were visible** (test 25), **Parans** and **Declinations** (test 27) buttons, and under "Take the chart elsewhere" an outlined **Share…** button (test 20).
 - [ ] The first note names the time Stellarium's clock will show in your computer's time zone, and says that's 08:00 on 17 Apr at the birthplace. On a Mac set to Pacific time it says 05:00 on 17 Apr.
 - [ ] After **Open Stellarium Web**, Stellarium's clock (bottom right) shows the time the note named, give or take the seconds it has been running.
 - [ ] Clicking **Open Stellarium Web** opens a Stellarium Web tab and closes the popup. The new tab's address contains `date=2024-04-17T12%3A00%3A00Z&lat=40.716667&lng=-74`.
@@ -552,7 +552,7 @@ If AstroChart Bridge already has access to www.astro-seek.com, remove it first, 
 
 **Which planets were visible** opens Helioscope's page in a new tab, with the chart in its link but not its name or town. The page works out on this computer, with Swiss Ephemeris's WebAssembly, whether each naked-eye planet could be seen in the twilight around the chart's moment, and when asked, gets that night's weather from Open-Meteo. Run it in Firefox first: Firefox hasn't run that WebAssembly before, and only Firefox asks for consent before the weather is fetched.
 
-- [ ] On the test 1 chart, **Which planets were visible** comes under "See the sky", after the Stellarium buttons and, when Stellarium Desktop is the default, after the line saying so, with only **Parans** after it. It opens a tab at `moz-extension://…/helioscope.html` (`chrome-extension://…` in Chrome, Brave and Edge) and closes the popup.
+- [ ] On the test 1 chart, **Which planets were visible** comes under "See the sky", after the Stellarium buttons and, when Stellarium Desktop is the default, after the line saying so, with only **Parans** and **Declinations** after it. It opens a tab at `moz-extension://…/helioscope.html` (`chrome-extension://…` in Chrome, Brave and Edge) and closes the popup.
 - [ ] The tab is headed "Which planets were visible" and shows the popup's rows, from Local time `17 Apr 2024, 08:00 (EDT, DST)` to Place `40°43'N, 74°0'W`, then a table of the five planets. Mercury reads **Under the beams · morning**, `9.4° west of the Sun`, **Too faint**, `Best chance at dawn, 06:08: about 77,000 times too faint`. Jupiter reads **Clear · evening**, `23.0° east of the Sun`, **Visible**, `At dusk, 20:34: about 28 times brighter than needed`. Under each column heading, a grey line says how it's judged.
 - [ ] Under **Details**, each planet's box opens to its evening and morning windows. **Assumptions** opens to Ephemeris `Swiss Ephemeris 2.10.03, Moshier`, Elevation `0 m, as none was given` and Limits `Cazimi 17′, combust 8°30′, under the beams 15°`, among others. **How this is worked out** opens to five steps, the first on magnitudes. A grey note says "Times are at UTC-04:00, the chart's offset."
 - [ ] Open the tab's Console (**Cmd+Option+I**; in Firefox, **Tools → Browser Tools → Web Developer Tools**) and reload the tab. The Console stays empty, with nothing about WebAssembly or streaming. In the **Network** tab, until you click **Check that night's weather**, every request is a `moz-extension://` address (`chrome-extension://` in Chrome, Brave and Edge), and none goes to `cdn.jsdelivr.net`, the address in Swiss Ephemeris's files that the store listing says is never used.
@@ -571,7 +571,7 @@ If AstroChart Bridge already has access to www.astro-seek.com, remove it first, 
 - [ ] On a chart from before 1940, such as the Astro-Seek page in `fixtures/astroseek/golden-camus-albert.json`, the page says "ERA5's weather starts in 1940, so there's none to check for this chart.", with no button.
 - [ ] On the test 4 chart, **Which planets were visible** is faded until a reading is picked. Pick the second reading (07:30): the page's Offset row shows `UTC-05:00`.
 - [ ] On the screenshot page (test 13) and the paste page (test 16), **Which planets were visible** opens the page the same way, and the screenshot or paste tab stays open.
-- [ ] On the import page (test 15), `fixtures/aaf/astrolog-8.00-new-york.aaf` and `fixtures/morinus/horary.p2.hor` (test 23) each end "See the sky" with **Which planets were visible** and **Parans**, and neither has **Share…**. It opens the page the same way, and the import tab stays open. The page has no Name or Town row, though both files name the chart.
+- [ ] On the import page (test 15), `fixtures/aaf/astrolog-8.00-new-york.aaf` and `fixtures/morinus/horary.p2.hor` (test 23) each end "See the sky" with **Which planets were visible**, **Parans** and **Declinations**, and neither has **Share…**. It opens the page the same way, and the import tab stays open. The page has no Name or Town row, though both files name the chart.
 - [ ] On a chart with a name and town, such as an astro.com account chart (test 14's), the page has no Name or Town row.
 - [ ] In light and dark mode the page is readable, like the popup in test 10.
 
@@ -608,6 +608,20 @@ The site can be installed as an app, opens on its home page, `index.html`, and k
 - [ ] Repeat both shares with flight mode on: they work the same.
 - [ ] Afterwards, with the phone connected to a computer, in Chrome's **chrome://inspect** on the computer, inspect the app's window. Under **Application → Cache storage** there is no `astrochart-bridge-shared`: nothing shared is left on the phone.
 - [ ] In Firefox for Android, note whether **AstroChart** appears in the share sheet at all.
+
+## Test 27: declinations
+
+Firefox first, then the other browsers.
+
+- [ ] On the test 1 chart, **Declinations** comes last under "See the sky", right after **Parans**. It opens a tab at `moz-extension://…/declinations.html` (`chrome-extension://…` in Chrome, Brave and Edge) and closes the popup.
+- [ ] The tab is headed "Declinations", with a grey line under it about Ceres and the dwarf planets, and **Orb** with **0.5°**, **1°** (chosen) and **1.5°**. Below are the popup's rows, from Local time `17 Apr 2024, 08:00 (EDT, DST)` to Place `40°43'N, 74°0'W`, then "Parallels and contra-parallels within 1°" over two rows: **Makemake – Pluto**, *Contra-parallel*, `0°43′` over `21°54′ N and 22°37′ S`; and **Sedna – Mercury**, *Parallel*, `0°37′` over `8°37′ N and 8°00′ N`.
+- [ ] **Every declination** opens to 21 rows, the eight dwarf planets first, then Ascendant `20°48′ N`, MC `17°50′ S` and Vertex `11°37′ S`, then the Sun `10°45′ N` to Pluto `22°37′ S`. **Assumptions** opens to Ephemeris `Swiss Ephemeris 2.10.03, Moshier` and Angles, which ends `true obliquity of 23°26′`. A grey note says the Descendant, IC and anti-Vertex mirror the Ascendant, MC and Vertex.
+- [ ] Choose **1.5°**: the table has seven rows, from **Ceres – Pluto** to **Sedna – Saturn**, by dwarf planet. Reload the tab: **1.5°** is still chosen. Choose **1°** again and reload: **1°** is chosen.
+- [ ] Open the tab's Console (in Firefox, **Tools → Browser Tools → Web Developer Tools**) and reload. The Console stays empty. In the **Network** tab, every request is a `moz-extension://` address (`chrome-extension://` in Chrome, Brave and Edge), the ten `.se1` files among them, and none goes to the web.
+- [ ] With the browser's language set to Spanish, the page is headed "Declinaciones" and the table's rows read *Contraparalelo* and *Paralelo*, with `0,5°` and `1,5°` among the orbs. In Slovenian, "Deklinacije", with `S` and `J` for north and south.
+- [ ] On the screenshot page (test 13), the paste page (test 16) and the import page (test 15), **Declinations** opens the page the same way, and their tab stays open. On a chart with a name and town, the page has no Name or Town row.
+- [ ] On the website (test 26), the receiving page's **Declinations** opens `declinations.html` beside it, with the same table, and the orb chosen there is kept in the site's storage.
+- [ ] In light and dark mode the page is readable, like the popup in test 10.
 
 ## Not covered by hand yet
 

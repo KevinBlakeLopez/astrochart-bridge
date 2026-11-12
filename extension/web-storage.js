@@ -1,6 +1,6 @@
 // localStorage in the shape of chrome.storage.local, for the copy of a page
-// on the web, which has no extension storage: the settings helioscope-model.js
-// and parans-model.js keep take either. Each key goes under "astrochart-bridge:", since the
+// on the web, which has no extension storage: the settings helioscope-model.js,
+// parans-model.js and declinations-model.js keep take either. Each key goes under "astrochart-bridge:", since the
 // site's origin, kevinblakelopez.github.io, is shared by every GitHub Pages
 // site of its account. Only the calls the models make are here: get with one
 // key, set and remove, each a promise, so a refused write rejects as

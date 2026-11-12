@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; connect-src 'self'; style-src 'self'; img-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'">
+    <meta name="referrer" content="no-referrer">
+    <title data-text="pages.declinations.title">AstroChart Bridge: declinations</title>
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="icons/icon-180.png">
+    <link rel="stylesheet" href="popup.css">
+    <link rel="stylesheet" href="declinations.css">
+    <script type="module" src="declinations.js"></script>
+  </head>
+  <body class="page">
+    <main>
+      <p id="home" class="home" hidden><a href="index.html" data-text="pages.popup.title">AstroChart Bridge</a></p>
+      <h1 data-text="pages.declinations.heading">Declinations</h1>
+      <p class="note" data-text="pages.declinations.intro">The parallels and contra-parallels of Ceres and the dwarf planets with the chart's Ascendant, MC, Vertex and planets.</p>
+      <div class="settings">
+        <fieldset>
+          <legend data-text="pages.declinations.orb">Orb</legend>
+          <label><input type="radio" name="orb" value="0.5"> <span class="orb">0.5°</span></label>
+          <label><input type="radio" name="orb" value="1" checked> <span class="orb">1°</span></label>
+          <label><input type="radio" name="orb" value="1.5"> <span class="orb">1.5°</span></label>
+        </fieldset>
+      </div>
+      <div id="app"><p class="note" data-text="pages.declinations.working">Working out the declinations…</p></div>
+      <p class="note" data-text="pages.declinations.notice">AstroChart Bridge, © 2026 Kevin Blake Lopez, works this out on this device with Swiss Ephemeris, © 1997–2021 Astrodienst AG, through swisseph-wasm. All three are free software: you may share and change them under the GNU Affero General Public License, version 3 or later. They come with no warranty.</p>
+      <p class="note"><a href="https://github.com/KevinBlakeLopez/astrochart-bridge" target="_blank" rel="noopener noreferrer" data-text="pages.declinations.source">Source code and licence</a></p>
+    </main>
+  </body>
+</html>

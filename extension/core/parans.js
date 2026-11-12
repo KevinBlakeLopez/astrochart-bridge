@@ -45,14 +45,35 @@ const REFINE_LEAD_DAYS = REFINE_LEAD_MINUTES / 1440;
 const NEXT_SEARCH_DAYS = 1 / 1440;
 
 // As Helioscope's: from 1582-10-15, the first Gregorian day, until 3000,
-// inside the Moshier ephemeris. Here the whole window has to fit.
-const FIRST_JD = julianDay("1582-10-15T00:00:00Z");
-const END_JD = julianDay("3000-01-01T00:00:00Z");
+// inside the Moshier ephemeris. For parans the whole window has to fit.
+export const FIRST_JD = julianDay("1582-10-15T00:00:00Z");
+export const END_JD = julianDay("3000-01-01T00:00:00Z");
 // Metres: the elevations the engine takes.
 export const ELEVATION_LIMITS = Object.freeze({ lowest: -500, highest: 25_000 });
 
 const refused = (reason) => ({ kind: "refused", reason });
 const instant = (jd) => ({ jd, utc: utcFromJulianDay(jd) });
+
+/**
+ * A natal chart's moment and place, as parans and declinations take them:
+ * only natal charts with a decided UTC, and not at the poles, where the
+ * meridian, and so the angles, aren't defined. Whether the date is in range
+ * is each one's own check.
+ *
+ * @param {object} chart  a normalized chart, as analyzePage or analyzeEntry gives it
+ * @returns {{ kind: "refused", reason: "not-natal" | "needs-offset" | "needs-choice" | "invalid-coordinates" | "at-pole" }
+ *   | { kind: "moment", jd: number, lat: number, lng: number }}
+ */
+export function natalMoment(chart) {
+  if (chart?.kind !== "natal") return refused("not-natal");
+  if (typeof chart.utc !== "string") return refused(chart.utcSource === "needs-choice" ? "needs-choice" : "needs-offset");
+  const { lat, lng } = chart;
+  if (!(Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180)) {
+    return refused("invalid-coordinates");
+  }
+  if (Math.abs(lat) === 90) return refused("at-pole");
+  return { kind: "moment", jd: julianDay(chart.utc), lat, lng };
+}
 
 /**
  * Every rising, setting, upper and lower transit of bodies within the chart's
@@ -73,14 +94,9 @@ const instant = (jd) => ({ jd, utc: utcFromJulianDay(jd) });
  */
 export function angularEvents(chart, engine, { bodies, horizon, elevation } = {}) {
   checkBodies(bodies);
-  if (chart?.kind !== "natal") return refused("not-natal");
-  if (typeof chart.utc !== "string") return refused(chart.utcSource === "needs-choice" ? "needs-choice" : "needs-offset");
-  const { lat, lng } = chart;
-  if (!(Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180)) {
-    return refused("invalid-coordinates");
-  }
-  if (Math.abs(lat) === 90) return refused("at-pole");
-  const jd = julianDay(chart.utc);
+  const moment = natalMoment(chart);
+  if (moment.kind === "refused") return moment;
+  const { jd, lat, lng } = moment;
   const start = jd - WINDOW_HOURS / 24;
   const end = jd + WINDOW_HOURS / 24;
   if (start < FIRST_JD || end >= END_JD) return refused("date-out-of-range");

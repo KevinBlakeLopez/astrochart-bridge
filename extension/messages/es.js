@@ -153,6 +153,16 @@ export default {
         "AstroChart Bridge, © 2026 Kevin Blake Lopez, lo calcula en este dispositivo con Swiss Ephemeris, © 1997–2021 Astrodienst AG, a través de swisseph-wasm. Los tres son software libre: puedes compartirlos y modificarlos según la Licencia Pública General Affero de GNU, versión 3 o posterior. No tienen ninguna garantía.",
       source: "Código fuente y licencia",
     },
+    declinations: {
+      title: "AstroChart Bridge: declinaciones",
+      heading: "Declinaciones",
+      intro: "Los paralelos y contraparalelos de Ceres y los planetas enanos con el Ascendente, el MC, el Vértex y los planetas de la carta.",
+      orb: "Orbe",
+      working: "Calculando las declinaciones…",
+      notice:
+        "AstroChart Bridge, © 2026 Kevin Blake Lopez, lo calcula en este dispositivo con Swiss Ephemeris, © 1997–2021 Astrodienst AG, a través de swisseph-wasm. Los tres son software libre: puedes compartirlos y modificarlos según la Licencia Pública General Affero de GNU, versión 3 o posterior. No tienen ninguna garantía.",
+      source: "Código fuente y licencia",
+    },
     astroComFilled: "AstroChart Bridge completó el formulario de astro.com en su pestaña.",
     astroSeekFilled: "AstroChart Bridge completó el formulario de Astro-Seek en su pestaña. Comprueba allí Gender y después haz clic en Add person.",
   },
@@ -216,6 +226,7 @@ export default {
       astroSeekTab: "Ir a la pestaña de Astro-Seek",
       helioscope: "Qué planetas eran visibles",
       parans: "Parans",
+      declinations: "Declinaciones",
       share: "Compartir…",
       enterInAstroCom: "Completar en astro.com…",
       openAstroComForm: "Abrir el formulario de astro.com",
@@ -289,6 +300,9 @@ export default {
     paransBeforeGregorian:
       "AstroChart Bridge todavía no puede calcular los parans de una carta con fecha anterior al 15 de octubre de 1582: no puede saber en qué calendario está la fecha.",
     paransRefused: "AstroChart Bridge no puede calcular los parans de esta carta.",
+    declinationsBeforeGregorian:
+      "AstroChart Bridge todavía no puede calcular las declinaciones de una carta con fecha anterior al 15 de octubre de 1582: no puede saber en qué calendario está la fecha.",
+    declinationsRefused: "AstroChart Bridge no puede calcular las declinaciones de esta carta.",
 
     townNote: (town) =>
       town === null
@@ -1004,5 +1018,52 @@ export default {
       other: "No se pueden calcular los parans para esta carta.",
     },
     elevationRefused: ELEVATION_RANGE,
+  },
+  declinations: {
+    decimal: ",",
+    names: {
+      ascendant: "Ascendente", midheaven: "MC", vertex: "Vértex",
+      sun: "Sol", moon: "Luna", mercury: "Mercurio", venus: "Venus", mars: "Marte",
+      jupiter: "Júpiter", saturn: "Saturno", uranus: "Urano", neptune: "Neptuno", pluto: "Plutón",
+      ceres: "Ceres", eris: "Eris", makemake: "Makemake", haumea: "Haumea", varuna: "Varuna", ixion: "Ixion", orcus: "Orcus",
+      sedna: "Sedna",
+    },
+    withinOrb: (orb) => `Paralelos y contraparalelos a menos de ${orb}`,
+    none: (orb) => `Ningún planeta enano está en paralelo ni en contraparalelo con el Ascendente, el MC, el Vértex o un planeta a menos de ${orb}.`,
+    columns: { contact: "Aspecto", orb: "Orbe" },
+    pair: (dwarfPlanet, partner) => `${dwarfPlanet} – ${partner}`,
+    contacts: { parallel: "Paralelo", "contra-parallel": "Contraparalelo" },
+    both: (first, second) => `${first} y ${second}`,
+    side: (degrees, side) => `${degrees} ${{ north: "N", south: "S" }[side] ?? side}`,
+    declinationsHeading: "Todas las declinaciones",
+    assumptionsHeading: "Supuestos",
+    assumptions: {
+      ephemeris: "Efemérides",
+      ephemerisValue: (version) => `Swiss Ephemeris ${version}, Moshier`,
+      dwarfPlanets: "Planetas enanos",
+      dwarfPlanetsValue: "De los archivos de asteroides de Astrodienst, hechos a partir del DE441 del JPL, con el Sol y la Tierra de Moshier",
+      time: "Hora",
+      timeValue: "La UTC de la carta, tomada como UT",
+      position: "Posiciones",
+      positionValue: "El lugar real de cada cuerpo, con su latitud, no su grado zodiacal: visto desde el centro de la Tierra, sobre el ecuador verdadero de la fecha",
+      angles: "Ángulos",
+      anglesValue: (obliquity) => `El Ascendente, el MC y el Vértex como puntos de la eclíptica, con su oblicuidad verdadera de ${obliquity}`,
+      orb: "Orbe",
+      orbValue: (orb) => `A ${orb} de declinación como mucho, ${orb} incluido`,
+    },
+    mirrorNote:
+      "El Descendente, el IC y el anti-Vértex tienen las declinaciones del Ascendente, el MC y el Vértex al otro lado del ecuador, así que un paralelo con uno de ellos es un contraparalelo con su pareja.",
+    empty: "Esta página calcula los paralelos y contraparalelos de los planetas enanos de una carta. Ábrela desde una carta en AstroChart Bridge.",
+    // "de el Sol" is "del Sol".
+    failed: (body) =>
+      `Swiss Ephemeris no pudo calcular la declinación de ${inSentence(body)}, así que no se pueden calcular los aspectos.`.replace(" de el ", " del "),
+    anglesFailed: "Swiss Ephemeris no pudo calcular el Ascendente, el MC y el Vértex, así que no se pueden calcular los aspectos.",
+    refusals: {
+      "date-out-of-range": "AstroChart Bridge calcula declinaciones solo para fechas del 15 de octubre de 1582 al final de 2999.",
+      "invalid-coordinates": "El lugar de esta carta no es una latitud y una longitud del globo.",
+      "at-pole": "En los polos el Ascendente, el MC y el Vértex no están definidos, así que no se pueden calcular los aspectos.",
+      "engine-failed": "Swiss Ephemeris no pudo iniciarse en este navegador, así que no se pueden calcular las declinaciones.",
+      other: "No se pueden calcular las declinaciones para esta carta.",
+    },
   },
 };

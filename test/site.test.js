@@ -11,9 +11,9 @@ const extension = new URL("../extension/", import.meta.url).pathname;
 const read = (file) => readFileSync(join(extension, file), "utf8");
 
 // The pages published on the web: the home page, the receiving page, the pages
-// that read a pasted chart, a chart file and a screenshot, Helioscope's page
-// and the parans page.
-const PAGES = ["index.html", "chart.html", "paste.html", "import.html", "screenshot.html", "helioscope.html", "parans.html"];
+// that read a pasted chart, a chart file and a screenshot, Helioscope's page,
+// the parans page and the declinations page.
+const PAGES = ["index.html", "chart.html", "paste.html", "import.html", "screenshot.html", "helioscope.html", "parans.html", "declinations.html"];
 
 // Modules the pages import only in the extension's copy, which the extension
 // ships: astro.com's and Astro-Seek's forms are filled in, and Stellarium
@@ -33,7 +33,7 @@ const TESSERACT_BY_ADDRESS = [
 // no import names either.
 const SWISSEPH_BY_ADDRESS = ["vendor/swisseph/wasm/swisseph.wasm"];
 
-// The asteroid files the parans page fetches by address for the dwarf planets.
+// The asteroid files the parans and declinations pages fetch by address for the dwarf planets.
 const EPHEMERIS_BY_ADDRESS = EPHEMERIS_FILES.map((name) => `vendor/swisseph/ephe/${name}`);
 
 // The icons the web app's manifest names, which the browser loads from it.
@@ -72,7 +72,7 @@ test("the files Tesseract.js loads by address are the ones screenshot.js names",
 
 // Each page starts it as it opens, so a web app installed from any page has
 // it before something is shared to it.
-const PAGE_SCRIPTS = { "index.html": "home.js", "chart.html": "chart.js", "paste.html": "paste.js", "import.html": "import.js", "screenshot.html": "screenshot.js", "helioscope.html": "helioscope.js", "parans.html": "parans.js" };
+const PAGE_SCRIPTS = { "index.html": "home.js", "chart.html": "chart.js", "paste.html": "paste.js", "import.html": "import.js", "screenshot.html": "screenshot.js", "helioscope.html": "helioscope.js", "parans.html": "parans.js", "declinations.html": "declinations.js" };
 
 test("every page starts the service worker, through web-app.js, which registers it by its name on the web only", () => {
   assert.deepEqual(Object.keys(PAGE_SCRIPTS).sort(), [...PAGES].sort());
@@ -93,10 +93,12 @@ test("the binary Swiss Ephemeris's glue fetches by address is the one beside it"
   assert.deepEqual(SWISSEPH_BY_ADDRESS, ["vendor/swisseph/wasm/swisseph.wasm"]);
 });
 
-test("the parans page fetches the dwarf planets' files by address beside it, each of them there", () => {
-  const code = read("parans.js");
-  assert.match(code, /fetch\(new URL\(`vendor\/swisseph\/ephe\/\$\{name\}`, import\.meta\.url\)\)/);
-  assert.match(code, /EPHEMERIS_FILES\.map\(read\)/);
+test("the parans and declinations pages fetch the dwarf planets' files by address beside them, each of them there", () => {
+  for (const page of ["parans.js", "declinations.js"]) {
+    const code = read(page);
+    assert.match(code, /fetch\(new URL\(`vendor\/swisseph\/ephe\/\$\{name\}`, import\.meta\.url\)\)/, page);
+    assert.match(code, /EPHEMERIS_FILES\.map\(read\)/, page);
+  }
   for (const file of EPHEMERIS_BY_ADDRESS) assert.ok(existsSync(join(extension, file)), file);
 });
 
@@ -157,9 +159,9 @@ test("Tesseract.js's and Swiss Ephemeris's source maps and type declarations, wh
 // WebAssembly to every visitor, which the project's AGPL-3.0-or-later licence
 // covers (docs/HELIOSCOPE_V1_FEASIBILITY.md §4, route A). The AGPL asks each
 // page to say so, and to offer the source.
-test("Swiss Ephemeris goes out with its licence and notice, and Helioscope's page and the parans page say so and link the source", () => {
+test("Swiss Ephemeris goes out with its licence and notice, and the pages that use it say so and link the source", () => {
   for (const file of ["vendor/swisseph/LICENSE", "vendor/swisseph/NOTICE"]) assert.ok(SITE_FILES.includes(file), file);
-  for (const page of ["helioscope", "parans"]) {
+  for (const page of ["helioscope", "parans", "declinations"]) {
     const html = read(`${page}.html`);
     assert.match(html, new RegExp(`data-text="pages\\.${page}\\.notice"`), page);
     assert.match(html, new RegExp(`<a href="https://github\\.com/KevinBlakeLopez/astrochart-bridge"[^>]*data-text="pages\\.${page}\\.source"`), page);

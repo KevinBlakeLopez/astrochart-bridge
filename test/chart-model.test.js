@@ -39,6 +39,7 @@ const BUTTONS = [
   { label: "Open chart in Astro-Seek", opens: "astro-seek" },
   { label: "Which planets were visible", does: "helioscope", secondary: true },
   { label: "Parans", does: "parans", secondary: true },
+  { label: "Declinations", does: "declinations", secondary: true },
   { label: "Copy link", does: "copy", secondary: true, shares: true },
   { label: "Show QR code", does: "qr", secondary: true, shares: true },
   { label: "Download file", does: "download", secondary: true, shares: true },
@@ -387,8 +388,8 @@ const SHARE_NOTE = "Share link… and Share file… send the chart to the app yo
 test("Share link… comes before Copy link, where the browser can share links", () => {
   const view = viewForImport(received(NY, NY_SOURCE), { ...LOS_ANGELES, canShare: true });
   // After the two buttons that see the chart, Open Stellarium Web and Open chart
-  // in Astro-Seek, and Which planets were visible and Parans.
-  assert.deepEqual(view.buttons, [...BUTTONS.slice(0, 4), SHARE_LINK, ...BUTTONS.slice(4)]);
+  // in Astro-Seek, and Which planets were visible, Parans and Declinations.
+  assert.deepEqual(view.buttons, [...BUTTONS.slice(0, 5), SHARE_LINK, ...BUTTONS.slice(5)]);
   assert.equal(view.notes.at(-1), SHARE_NOTE);
 });
 
@@ -407,7 +408,7 @@ test("neither share button, and no note, where the browser can't share", () => {
 test("with nowhere to point a link, Share link… goes too, but Share file… stays", () => {
   const view = viewForImport(received(NY, NY_SOURCE), { ...LOS_ANGELES, canCopy: false, canShare: true, canShareFiles: true });
   assert.deepEqual(view.buttons.map((button) => button.label), [
-    "Open Stellarium Web", "Open chart in Astro-Seek", "Which planets were visible", "Parans", "Download file", "Share file…",
+    "Open Stellarium Web", "Open chart in Astro-Seek", "Which planets were visible", "Parans", "Declinations", "Download file", "Share file…",
   ]);
 });
 
