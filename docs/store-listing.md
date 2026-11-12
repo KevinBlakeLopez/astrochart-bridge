@@ -17,7 +17,7 @@ npm run package:stores
 
 `tools/package-stores.sh` packs `main`. To pack another commit, pass it: `npm run package:stores -- <commit>`. It writes two files to `build/stores/`:
 
-- `astrochart-bridge-<version>.zip`, the extension with `manifest.json` at its top, which both stores take. It leaves out the paths in `tools/store-leave-out.txt`: the web app's home page and service worker, which only the site uses, and Swiss Ephemeris's asteroid files in `vendor/swisseph/ephe/` until the parans page loads them.
+- `astrochart-bridge-<version>.zip`, the extension with `manifest.json` at its top, which both stores take. It leaves out the paths in `tools/store-leave-out.txt`: the web app's home page and service worker, which only the site uses.
 - `astrochart-bridge-<version>-source.zip`, the whole repository at that commit, in case an AMO reviewer asks for the source.
 
 It packs a commit rather than the working tree, so a store gets what was committed and tested. Every upload needs a version the store hasn't had, so raise `version` in `manifest.json` before packing an update.

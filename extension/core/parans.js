@@ -23,9 +23,14 @@
 // hole in it would look complete.
 import { julianDay, utcFromJulianDay } from "./stellarium-desktop.js";
 
-export const BODIES = Object.freeze([
+// The Sun, the Moon and the planets out to Pluto, from Moshier's theory.
+export const PLANETS = Object.freeze([
   "sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto",
 ]);
+// Ceres, from Astrodienst's asteroid files, which the engine has to be given:
+// without them, its searches fail.
+export const DWARF_PLANETS = Object.freeze(["ceres"]);
+export const BODIES = Object.freeze([...PLANETS, ...DWARF_PLANETS]);
 // The order events of one body are searched in, and so the order of events
 // at the same instant.
 const EVENTS = Object.freeze(["rise", "set", "upper-transit", "lower-transit"]);
@@ -94,7 +99,7 @@ export function angularEvents(chart, engine, { bodies, horizon, elevation } = {}
   }
   // Stable, so events at the same instant keep the order they were searched in.
   events.sort((a, b) => a.jd - b.jd);
-  const { swissEphemeris, ephemeris } = engine.assumptions;
+  const { swissEphemeris, ephemeris, ephemerisFiles = [] } = engine.assumptions;
   return {
     kind: "events",
     window: { start: instant(start), end: instant(end) },
@@ -107,6 +112,8 @@ export function angularEvents(chart, engine, { bodies, horizon, elevation } = {}
     assumptions: {
       swissEphemeris,
       ephemeris,
+      // The asteroid files the engine read the dwarf planets from, if any.
+      ephemerisFiles: [...ephemerisFiles],
       timeScale: "utc-as-ut",
       windowHours: WINDOW_HOURS,
       refineLeadMinutes: REFINE_LEAD_MINUTES,

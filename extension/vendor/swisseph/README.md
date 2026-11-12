@@ -24,7 +24,7 @@ The package's tarball has the SHA-512 the npm registry gives as its integrity va
 
 ## What Helioscope and parans use
 
-Only `createSwissEph()`, for a fresh WebAssembly instance, its `mountEphemeris()`, and its `raw` Emscripten module, through which `helioscope-engine.js` calls `swe_rise_trans`, `swe_calc_ut`, `swe_pheno_ut`, `swe_vis_limit_mag` and `swe_sidtime`. It always asks for the Moshier ephemeris, which is compiled into the binary. When it's given the files in `ephe/`, it mounts them, and Swiss Ephemeris reads Ceres from them, with the Sun and Earth still from Moshier; without them, Ceres can't be worked out. The package's `FetchEphemeris`, and the CDN it downloads files from by default, are never used.
+Only `createSwissEph()`, for a fresh WebAssembly instance, its `mountEphemeris()`, and its `raw` Emscripten module, through which `helioscope-engine.js` calls `swe_rise_trans`, `swe_calc_ut`, `swe_pheno_ut`, `swe_vis_limit_mag` and `swe_sidtime`. It always asks for the Moshier ephemeris, which is compiled into the binary. When it's given the files in `ephe/`, it mounts them, and Swiss Ephemeris reads Ceres from them, with the Sun and Earth still from Moshier; without them, Ceres can't be worked out. The parans page fetches them from its own copy and gives them to the engine; Helioscope's page doesn't. `test/parans-asteroid-reference.json`, which `tools/make-asteroid-reference.py` writes with native Swiss Ephemeris on the same files, is what the engine's Ceres is checked against. The package's `FetchEphemeris`, and the CDN it downloads files from by default, are never used.
 
 ## Updating
 

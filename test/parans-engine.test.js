@@ -1,5 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { createEngine } from "../extension/helioscope-engine.js";
 
@@ -218,6 +219,46 @@ test("angularEvent: mounting the files changes nothing for the ten bodies, which
       );
     }
   }
+});
+
+// Native Swiss Ephemeris's Ceres, pysweph on the same files with the same
+// Moshier setting, written by tools/make-asteroid-reference.py for
+// test/parans-reference.json's six cases.
+const ASTEROIDS = JSON.parse(readFileSync(new URL("parans-asteroid-reference.json", import.meta.url), "utf8"));
+// Measured on 12 November 2026 over the 20 events: the culminations are
+// native's exactly, and the risings and settings at most 9.6 ms from it
+// (Sydney's), where the ten bodies' are native's exactly too. Ceres's
+// position is native's to about 1e-12°, so it's swe_rise_trans's search:
+// reading swecl.c, asteroids take its slower method, which stops within a
+// few milliseconds, and a last digit can move where. About 2.5 times that
+// is allowed.
+const ASTEROID_SECONDS = { "rise-set": 0.025, transits: 1e-3 };
+
+test("angularEvent: Ceres's events are native Swiss Ephemeris's, on the same files, in all six cases", async (t) => {
+  assert.deepEqual(Object.keys(ASTEROIDS.files), CERES_FILES);
+  for (const [name, sha256] of Object.entries(ASTEROIDS.files)) {
+    assert.equal(createHash("sha256").update(readFileSync(new URL(name, EPHE))).digest("hex"), sha256, `${name} is the file the reference used`);
+  }
+  const engine = await withFiles(t, CERES_FILES);
+  let compared = 0;
+  for (const result of ASTEROIDS.results) {
+    const place = placeOf(result);
+    const horizon = horizonOf(result.horizon);
+    for (const { point, event, jdUt } of result.events) {
+      const label = `${result.name}: ${point} ${event}`;
+      const found = engine.angularEvent(jdUt - REFINE_LEAD_DAYS, place, point, event, horizon);
+      assert.equal(found.kind, "found", label);
+      const allowed = event.endsWith("transit") ? ASTEROID_SECONDS.transits : ASTEROID_SECONDS["rise-set"];
+      const seconds = Math.abs(found.jd - jdUt) * 86400;
+      assert.ok(seconds <= allowed, `${label}: ${seconds} s from native's`);
+      compared += 1;
+    }
+    // What native says doesn't happen doesn't happen here either: Ceres never rises at Tromsø that day.
+    for (const [point, event] of result.noRiseOrSet) {
+      assert.deepEqual(engine.angularEvent(result.window.startJdUt, place, point, event, horizon), { kind: "none" }, `${result.name}: ${point} ${event}`);
+    }
+  }
+  assert.equal(compared, 20);
 });
 
 test("createEngine: its assumptions name the files it mounted, and files that aren't .se1 files by name with their bytes are refused", async (t) => {

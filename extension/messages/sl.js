@@ -31,6 +31,7 @@ const CHARTS_IN_FILE = { one: "je # horoskop", two: "sta # horoskopa", few: "so 
 const SUBJECTS = {
   sun: "Sonce", moon: "Luna", mercury: "Merkur", venus: "Venera", mars: "Mars",
   jupiter: "Jupiter", saturn: "Saturn", uranus: "Uran", neptune: "Neptun", pluto: "Pluton",
+  ceres: "Cerera",
 };
 const VERBS = { rise: "vzide", set: "zaide", "upper-transit": "je v zgornji kulminaciji", "lower-transit": "je v spodnji kulminaciji" };
 // Each a key itself where it has no words, as in en.js.
@@ -154,7 +155,9 @@ export default {
       names: {
         sun: "Sonce", moon: "Luna", mercury: "Merkur", venus: "Venera", mars: "Mars",
         jupiter: "Jupiter", saturn: "Saturn", uranus: "Uran", neptune: "Neptun", pluto: "Pluton",
+        ceres: "Cerera",
       },
+      dwarfPlanets: "Pritlikavi planeti",
       working: "Računanje paranov …",
       notice:
         "AstroChart Bridge, © 2026 Kevin Blake Lopez, to izračuna na tej napravi s Swiss Ephemeris, © 1997–2021 Astrodienst AG, prek swisseph-wasm. Vsi trije so prosto programje: lahko jih delite in spreminjate pod pogoji licence GNU Affero General Public License, različice 3 ali novejše. Zanje ne velja nobeno jamstvo.",
@@ -989,6 +992,8 @@ export default {
     assumptions: {
       ephemeris: "Efemeride",
       ephemerisValue: (version) => `Swiss Ephemeris ${version}, Moshier`,
+      dwarfPlanets: "Pritlikavi planeti",
+      dwarfPlanetsValue: "Iz Astrodienstovih datotek asteroidov, narejenih iz JPL-jevega DE441, s Soncem in Zemljo po Moshierju",
       time: "Čas",
       timeValue: "UTC horoskopa, vzet kot UT",
       window: "Okno",

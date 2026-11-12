@@ -12,7 +12,7 @@
 // day. Both are this page's rule: astro-research's parans-v1 has no orb.
 import { natalChartFor, readLink } from "./chart-model.js";
 import { atChartOffset } from "./chart-time.js";
-import { BODIES, ELEVATION_LIMITS, angularEvents, paranGaps } from "./core/parans.js";
+import { BODIES, DWARF_PLANETS, ELEVATION_LIMITS, PLANETS, angularEvents, paranGaps } from "./core/parans.js";
 import { text } from "./messages/index.js";
 import { offsetText, viewFor } from "./popup-model.js";
 
@@ -28,9 +28,15 @@ export const HORIZONS = Object.freeze({
   almanac: Object.freeze({ disc: "upper-limb", refraction: Object.freeze({ pressure: 1013.25, temperature: 10 }) }),
 });
 
-// A 1° orb, every body, the geometric horizon and no elevation given, so
-// the results assume 0 m and say so.
-export const DEFAULT_SETTINGS = Object.freeze({ orb: 1, bodies: BODIES, horizon: "geometric", elevation: null });
+// A 1° orb, the Sun, the Moon and the planets, the geometric horizon and no
+// elevation given, so the results assume 0 m and say so. The dwarf planets
+// are left to be ticked.
+export const DEFAULT_SETTINGS = Object.freeze({ orb: 1, bodies: PLANETS, horizon: "geometric", elevation: null });
+
+// The asteroid files the page loads from vendor/swisseph/ephe/ for the dwarf
+// planets: Ceres's, for 1200 to 2999, which covers every window the page
+// takes.
+export const EPHEMERIS_FILES = Object.freeze(["seas_12.se1", "seas_18.se1", "seas_24.se1"]);
 
 // The settings' key in the extension's storage on this computer.
 const SETTINGS_KEY = "parans-settings";
@@ -172,14 +178,17 @@ function missingLines(noRiseOrSet) {
 }
 
 // The window, as angularEvents had it, then how each event was found, the
-// horizon, the elevation and the orb.
-function assumptionRows({ window, assumptions }, chart, orb, horizon) {
+// horizon, the elevation and the orb. Where the dwarf planets come from is
+// said only when one was chosen.
+function assumptionRows({ window, assumptions, bodies }, chart, orb, horizon) {
   const words = text().parans.assumptions;
   const { metres, source } = assumptions.elevation;
   const elevation = `${metres < 0 ? MINUS : ""}${Math.abs(metres)}`;
   const { refraction } = HORIZONS[horizon];
+  const dwarfPlanets = bodies.some((body) => DWARF_PLANETS.includes(body)) ? [[words.dwarfPlanets, words.dwarfPlanetsValue]] : [];
   return [
     [words.ephemeris, words.ephemerisValue(assumptions.swissEphemeris)],
+    ...dwarfPlanets,
     [words.time, words.timeValue],
     [words.window, words.windowValue(atChartOffset(window.start.utc, chart), atChartOffset(window.end.utc, chart))],
     [words.position, words.positionValue],
@@ -261,10 +270,10 @@ export async function paransSettings(storage) {
  */
 export async function setParansSettings(storage, settings) {
   const kept = settingsFrom(settings);
-  // Kept bodies are distinct and known, so as many as BODIES is all of them.
+  // Kept bodies are in BODIES's order, as the default's are.
   const isDefault =
     kept.orb === DEFAULT_SETTINGS.orb &&
-    kept.bodies.length === DEFAULT_SETTINGS.bodies.length &&
+    kept.bodies.join() === DEFAULT_SETTINGS.bodies.join() &&
     kept.horizon === DEFAULT_SETTINGS.horizon &&
     kept.elevation === DEFAULT_SETTINGS.elevation;
   if (isDefault) await storage.remove(SETTINGS_KEY);

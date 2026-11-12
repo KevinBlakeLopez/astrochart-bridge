@@ -5,11 +5,12 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { BODIES, paranGaps } from "../extension/core/parans.js";
+import { BODIES, PLANETS, paranGaps } from "../extension/core/parans.js";
 import { createEngine } from "../extension/helioscope-engine.js";
 import { setLanguage } from "../extension/messages/index.js";
 import {
   DEFAULT_SETTINGS,
+  EPHEMERIS_FILES,
   HORIZONS,
   ORBS,
   lockedBodies,
@@ -26,7 +27,8 @@ import {
 
 const REFERENCE = JSON.parse(readFileSync(new URL("parans-reference.json", import.meta.url), "utf8"));
 
-const DEFAULTS = { orb: 1, bodies: [...BODIES], horizon: "geometric", elevation: null };
+// The dwarf planets are left to be ticked.
+const DEFAULTS = { orb: 1, bodies: [...PLANETS], horizon: "geometric", elevation: null };
 const HALF_DAY_SECONDS = 12 * 3600;
 
 const dashed = (name) => name.replaceAll("_", "-");
@@ -188,10 +190,18 @@ test("paransSettings: going back to the defaults forgets the choice", async () =
   const area = storage({ "parans-settings": { orb: 0.5, bodies: ["sun", "moon"], horizon: "almanac", elevation: 120 } });
   await setParansSettings(area, DEFAULTS);
   assert.deepEqual(area.items, {});
-  // Every body, in another order, is still every body.
+  // The default bodies, in another order, are still the defaults.
   const reordered = storage({ "parans-settings": { orb: 2 } });
-  await setParansSettings(reordered, { ...DEFAULTS, bodies: [...BODIES].reverse() });
+  await setParansSettings(reordered, { ...DEFAULTS, bodies: [...PLANETS].reverse() });
   assert.deepEqual(reordered.items, {});
+  // Every body, Ceres too, isn't the defaults, so it's kept.
+  const withCeres = storage();
+  await setParansSettings(withCeres, { ...DEFAULTS, bodies: [...BODIES] });
+  assert.deepEqual(withCeres.items, { "parans-settings": { ...DEFAULTS, bodies: [...BODIES] } });
+  // Nine planets and Ceres are as many as the defaults, but not them.
+  const swapped = storage();
+  await setParansSettings(swapped, { ...DEFAULTS, bodies: [...PLANETS.slice(1), "ceres"] });
+  assert.deepEqual(swapped.items["parans-settings"].bodies, [...PLANETS.slice(1), "ceres"]);
 });
 
 test("paransSettings: each stored value that doesn't fit is its default, and the bodies come back in BODIES's order", async () => {
@@ -261,8 +271,8 @@ async function inLanguage(code, check) {
 }
 
 // The screen for a chart, with an engine of its own, as the page has.
-async function screen(chart, settings = DEFAULTS) {
-  const engine = await createEngine();
+async function screen(chart, settings = DEFAULTS, engineOptions = {}) {
+  const engine = await createEngine(engineOptions);
   try {
     const worked = paransFor(chart, engine, settings);
     assert.equal(worked.kind, "parans");
@@ -319,6 +329,29 @@ test("viewForParans: London on 10 April 2024, in English: the parans closest fir
   ]);
 });
 
+test("EPHEMERIS_FILES are the files native Swiss Ephemeris's Ceres was worked out from", () => {
+  const asteroids = JSON.parse(readFileSync(new URL("parans-asteroid-reference.json", import.meta.url), "utf8"));
+  assert.deepEqual(EPHEMERIS_FILES, Object.keys(asteroids.files));
+});
+
+// Ceres's files, as the page loads them.
+const CERES_FILES = Object.fromEntries(EPHEMERIS_FILES.map((name) => [
+  name,
+  new Uint8Array(readFileSync(new URL(`../extension/vendor/swisseph/ephe/${name}`, import.meta.url))),
+]));
+
+test("viewForParans: London with Ceres ticked: its four events among the rest, and where the dwarf planets come from under Assumptions", async () => {
+  const view = await screen(LONDON, { ...DEFAULTS, bodies: [...BODIES] }, { ephemerisFiles: CERES_FILES });
+  assert.equal(view.events.rows.length, 44);
+  const ceres = view.events.rows.filter(([, said]) => said.startsWith("Ceres "));
+  // In time order, as native Swiss Ephemeris has them: Ceres culminated first, in the morning.
+  assert.deepEqual(ceres.map(([, said]) => said.split(" · ")[0]), ["Ceres culminates", "Ceres sets", "Ceres anticulminates", "Ceres rises"]);
+  assert.deepEqual(view.assumptions.rows.slice(0, 2), [
+    ["Ephemeris", "Swiss Ephemeris 2.10.03, Moshier"],
+    ["Dwarf planets", "From Astrodienst's asteroid files, made from JPL's DE441, with the Sun and Earth from Moshier"],
+  ]);
+});
+
 test("viewForParans: Tromsø at midsummer, in Spanish, on the almanac's horizon: no parans within 0.5°, and six bodies that neither rise nor set", async () => {
   const view = await inLanguage("es", () => screen(TROMSO, { ...DEFAULTS, orb: 0.5, horizon: "almanac" }));
   assert.equal(view.parans.heading, "Parans a menos de 0,5° de ARMC");
@@ -357,9 +390,10 @@ test("viewForParans: Sydney in 1987, in Slovenian, with a 0.25° orb: Neptune an
 
 // A result with only what viewForParans reads, for what the reference cases
 // don't reach.
-function madeUp({ events = [], noRiseOrSet = [], parans = [], elevation = { metres: 0, source: "default" } }) {
+function madeUp({ events = [], noRiseOrSet = [], parans = [], elevation = { metres: 0, source: "default" }, bodies = ["sun", "moon"] }) {
   return {
     events: {
+      bodies,
       events,
       noRiseOrSet,
       window: { start: { utc: "2024-04-10T02:30:00Z" }, end: { utc: "2024-04-11T02:30:00Z" } },

@@ -11,7 +11,3 @@ index.html
 home.css
 home.js
 sw.js
-#
-# Swiss Ephemeris's asteroid files, until the parans page loads them for
-# Ceres and the dwarf planets.
-vendor/swisseph/ephe

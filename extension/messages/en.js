@@ -25,6 +25,7 @@ const ELEVATION_RANGE = "Enter whole metres, from -500 to 25000.";
 const SUBJECTS = {
   sun: "The Sun", moon: "The Moon", mercury: "Mercury", venus: "Venus", mars: "Mars",
   jupiter: "Jupiter", saturn: "Saturn", uranus: "Uranus", neptune: "Neptune", pluto: "Pluto",
+  ceres: "Ceres",
 };
 const VERBS = { rise: "rises", set: "sets", "upper-transit": "culminates", "lower-transit": "anticulminates" };
 // Each a key itself where it has no words, as when test/messages.test.js
@@ -127,7 +128,9 @@ export default {
       names: {
         sun: "Sun", moon: "Moon", mercury: "Mercury", venus: "Venus", mars: "Mars",
         jupiter: "Jupiter", saturn: "Saturn", uranus: "Uranus", neptune: "Neptune", pluto: "Pluto",
+        ceres: "Ceres",
       },
+      dwarfPlanets: "Dwarf planets",
       working: "Working out the parans…",
       notice:
         "AstroChart Bridge, © 2026 Kevin Blake Lopez, works this out on this device with Swiss Ephemeris, © 1997–2021 Astrodienst AG, through swisseph-wasm. All three are free software: you may share and change them under the GNU Affero General Public License, version 3 or later. They come with no warranty.",
@@ -1026,6 +1029,8 @@ export default {
     assumptions: {
       ephemeris: "Ephemeris",
       ephemerisValue: (version) => `Swiss Ephemeris ${version}, Moshier`,
+      dwarfPlanets: "Dwarf planets",
+      dwarfPlanetsValue: "From Astrodienst's asteroid files, made from JPL's DE441, with the Sun and Earth from Moshier",
       time: "Time",
       timeValue: "The chart's UTC, taken as UT",
       window: "Window",

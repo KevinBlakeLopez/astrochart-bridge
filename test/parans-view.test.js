@@ -100,6 +100,7 @@ test("drawScreen: the risings and settings that didn't happen follow the events"
     LONDON,
     {
       events: {
+        bodies: ["sun", "moon"],
         events: [],
         noRiseOrSet: [{ point: "sun", event: "set" }],
         window: { start: { utc: "2024-04-10T02:30:00Z" }, end: { utc: "2024-04-11T02:30:00Z" } },

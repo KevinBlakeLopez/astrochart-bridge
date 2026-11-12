@@ -34,6 +34,7 @@ const at = (time) => `a ${clock(time)}`;
 const SUBJECTS = {
   sun: "El Sol", moon: "La Luna", mercury: "Mercurio", venus: "Venus", mars: "Marte",
   jupiter: "Júpiter", saturn: "Saturno", uranus: "Urano", neptune: "Neptuno", pluto: "Plutón",
+  ceres: "Ceres",
 };
 const VERBS = { rise: "sale", set: "se pone", "upper-transit": "culmina", "lower-transit": "anticulmina" };
 // Each a key itself where it has no words, as in en.js.
@@ -134,7 +135,9 @@ export default {
       names: {
         sun: "Sol", moon: "Luna", mercury: "Mercurio", venus: "Venus", mars: "Marte",
         jupiter: "Júpiter", saturn: "Saturno", uranus: "Urano", neptune: "Neptuno", pluto: "Plutón",
+        ceres: "Ceres",
       },
+      dwarfPlanets: "Planetas enanos",
       working: "Calculando los parans…",
       notice:
         "AstroChart Bridge, © 2026 Kevin Blake Lopez, lo calcula en este dispositivo con Swiss Ephemeris, © 1997–2021 Astrodienst AG, a través de swisseph-wasm. Los tres son software libre: puedes compartirlos y modificarlos según la Licencia Pública General Affero de GNU, versión 3 o posterior. No tienen ninguna garantía.",
@@ -953,6 +956,8 @@ export default {
     assumptions: {
       ephemeris: "Efemérides",
       ephemerisValue: (version) => `Swiss Ephemeris ${version}, Moshier`,
+      dwarfPlanets: "Planetas enanos",
+      dwarfPlanetsValue: "De los archivos de asteroides de Astrodienst, hechos a partir del DE441 del JPL, con el Sol y la Tierra de Moshier",
       time: "Hora",
       timeValue: "La UTC de la carta, tomada como UT",
       window: "Intervalo",

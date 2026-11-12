@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { julianDay } from "../extension/core/stellarium-desktop.js";
-import { BODIES, angularEvents, paranGaps } from "../extension/core/parans.js";
+import { BODIES, DWARF_PLANETS, PLANETS, angularEvents, paranGaps } from "../extension/core/parans.js";
 import { createEngine } from "../extension/helioscope-engine.js";
 
 // astro-research's parans-v1 events and gaps for the ten bodies, written by
@@ -34,6 +34,49 @@ function horizonOf(name) {
 
 const natal = (utc, lat, lng) => ({ kind: "natal", utc, utcSource: "printed-utc", lat, lng });
 
+// ---- Ceres, with the real engine and its files ----------------------------
+
+// Native Swiss Ephemeris's Ceres, as test/parans-engine.test.js compares the
+// engine with it, there with the same tolerance.
+const ASTEROIDS = JSON.parse(readFileSync(new URL("parans-asteroid-reference.json", import.meta.url), "utf8"));
+const ASTEROID_SECONDS = 0.025;
+const ephemerisFiles = () => Object.fromEntries(Object.keys(ASTEROIDS.files).map((name) => [
+  name,
+  new Uint8Array(readFileSync(new URL(`../extension/vendor/swisseph/ephe/${name}`, import.meta.url))),
+]));
+
+test("angularEvents: Ceres's events, with its files, are native Swiss Ephemeris's, and the files are named in the assumptions", async (t) => {
+  const engine = await createEngine({ ephemerisFiles: ephemerisFiles() });
+  t.after(() => engine.dispose());
+  for (const reference of ASTEROIDS.results) {
+    const result = angularEvents(natal(reference.utc, reference.lat, reference.lng), engine, {
+      bodies: ["sun", "ceres"],
+      horizon: horizonOf(reference.horizon),
+    });
+    assert.equal(result.kind, "events", reference.name);
+    const ceres = result.events.filter(({ point }) => point === "ceres");
+    assert.deepEqual(ceres.map(({ event }) => event), reference.events.map(({ event }) => event), reference.name);
+    ceres.forEach(({ jd }, i) => {
+      const seconds = Math.abs(jd - reference.events[i].jdUt) * DAY_SECONDS;
+      assert.ok(seconds <= ASTEROID_SECONDS, `${reference.name}: ${ceres[i].event} ${seconds} s from native's`);
+    });
+    const missing = result.noRiseOrSet.filter(({ point }) => point === "ceres").map(({ event }) => event);
+    assert.deepEqual(missing, reference.noRiseOrSet.map(([, event]) => event), reference.name);
+    assert.deepEqual(result.assumptions.ephemerisFiles, ["seas_12.se1", "seas_18.se1", "seas_24.se1"]);
+  }
+});
+
+test("angularEvents: Ceres without its files fails the whole result, naming Ceres and the missing file", async (t) => {
+  const engine = await createEngine();
+  t.after(() => engine.dispose());
+  const [reference] = ASTEROIDS.results;
+  const result = angularEvents(natal(reference.utc, reference.lat, reference.lng), engine, { bodies: ["sun", "ceres"], horizon: GEOMETRIC });
+  assert.equal(result.kind, "failed");
+  assert.equal(result.point, "ceres");
+  assert.equal(result.event, "rise");
+  assert.equal(result.failure.reason, "no-ephemeris-file");
+});
+
 // ---- Against astro-research, with the real engine -------------------------
 
 test("angularEvents: the events of the ten bodies are astro-research's, within the engine's tolerance, in all six cases", async (t) => {
@@ -41,7 +84,7 @@ test("angularEvents: the events of the ten bodies are astro-research's, within t
   t.after(() => engine.dispose());
   for (const reference of REFERENCE.cases) {
     const result = angularEvents(natal(reference.utc, reference.lat, reference.lng), engine, {
-      bodies: BODIES,
+      bodies: PLANETS,
       horizon: horizonOf(reference.horizon),
     });
     assert.equal(result.kind, "events", reference.name);
@@ -97,6 +140,7 @@ test("angularEvents: the result says what it assumed, and that it isn't astro-re
   assert.deepEqual(result.assumptions, {
     swissEphemeris: "2.10.03",
     ephemeris: "moshier",
+    ephemerisFiles: [],
     timeScale: "utc-as-ut",
     windowHours: 12,
     refineLeadMinutes: 3,
@@ -317,8 +361,10 @@ test("angularEvents: an elevation given is used and said to be given", () => {
   assert.deepEqual(result.assumptions.elevation, { metres: 120, source: "given" });
 });
 
-test("angularEvents: bodies are a list of the ten, each once; anything else is a mistake in the caller", () => {
-  assert.deepEqual(BODIES, ["sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto"]);
+test("angularEvents: bodies are a list of the ten and Ceres, each once; anything else is a mistake in the caller", () => {
+  assert.deepEqual(PLANETS, ["sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto"]);
+  assert.deepEqual(DWARF_PLANETS, ["ceres"]);
+  assert.deepEqual(BODIES, [...PLANETS, ...DWARF_PLANETS]);
   const engine = scriptedEngine({});
   for (const bodies of [[], ["sun", "sun"], ["earth"], ["Sun"], "sun", undefined]) {
     assert.throws(() => run(engine, bodies), /bod/, JSON.stringify(bodies));

@@ -1,0 +1,225 @@
+{
+ "generatedBy": "tools/make-asteroid-reference.py",
+ "binding": "pysweph 20260201",
+ "swissEphemeris": "2.10.03",
+ "flags": "moshier",
+ "files": {
+  "seas_12.se1": "3345555097e2080f4e2582026a6008ebbccfdca27600ba48019ca9c6e3e7a211",
+  "seas_18.se1": "a2cd8fc33807c78ca9a700c91c2e042258b12fc4796519e00781440b5ad8b2e2",
+  "seas_24.se1": "1b4160a4d289c3d2df55efcc016d407a1516c079b725b2bf2b073a70211aa391"
+ },
+ "cases": "test/parans-reference.json's",
+ "bodies": [
+  "ceres"
+ ],
+ "results": [
+  {
+   "name": "london-mercury-retrograde/geometric",
+   "utc": "2024-04-10T14:30:00Z",
+   "lat": 51.5074,
+   "lng": -0.1278,
+   "elevation": 0,
+   "horizon": "geometric",
+   "window": {
+    "startJdUt": 2460410.6041666665,
+    "endJdUt": 2460411.6041666665
+   },
+   "events": [
+    {
+     "point": "ceres",
+     "event": "upper-transit",
+     "jdUt": 2460410.7527310858
+    },
+    {
+     "point": "ceres",
+     "event": "set",
+     "jdUt": 2460410.909798909
+    },
+    {
+     "point": "ceres",
+     "event": "lower-transit",
+     "jdUt": 2460411.251651011
+    },
+    {
+     "point": "ceres",
+     "event": "rise",
+     "jdUt": 2460411.59357815
+    }
+   ],
+   "noRiseOrSet": []
+  },
+  {
+   "name": "london-mercury-retrograde/almanac",
+   "utc": "2024-04-10T14:30:00Z",
+   "lat": 51.5074,
+   "lng": -0.1278,
+   "elevation": 0,
+   "horizon": "almanac",
+   "window": {
+    "startJdUt": 2460410.6041666665,
+    "endJdUt": 2460411.6041666665
+   },
+   "events": [
+    {
+     "point": "ceres",
+     "event": "upper-transit",
+     "jdUt": 2460410.7527310858
+    },
+    {
+     "point": "ceres",
+     "event": "set",
+     "jdUt": 2460410.913128663
+    },
+    {
+     "point": "ceres",
+     "event": "lower-transit",
+     "jdUt": 2460411.251651011
+    },
+    {
+     "point": "ceres",
+     "event": "rise",
+     "jdUt": 2460411.5902463295
+    }
+   ],
+   "noRiseOrSet": []
+  },
+  {
+   "name": "tromso-midnight-sun/geometric",
+   "utc": "2024-06-21T12:00:00Z",
+   "lat": 69.6492,
+   "lng": 18.9553,
+   "elevation": 0,
+   "horizon": "geometric",
+   "window": {
+    "startJdUt": 2460482.5,
+    "endJdUt": 2460483.5
+   },
+   "events": [
+    {
+     "point": "ceres",
+     "event": "upper-transit",
+     "jdUt": 2460482.5036368845
+    },
+    {
+     "point": "ceres",
+     "event": "lower-transit",
+     "jdUt": 2460483.0019809995
+    }
+   ],
+   "noRiseOrSet": [
+    [
+     "ceres",
+     "rise"
+    ],
+    [
+     "ceres",
+     "set"
+    ]
+   ]
+  },
+  {
+   "name": "tromso-midnight-sun/almanac",
+   "utc": "2024-06-21T12:00:00Z",
+   "lat": 69.6492,
+   "lng": 18.9553,
+   "elevation": 0,
+   "horizon": "almanac",
+   "window": {
+    "startJdUt": 2460482.5,
+    "endJdUt": 2460483.5
+   },
+   "events": [
+    {
+     "point": "ceres",
+     "event": "upper-transit",
+     "jdUt": 2460482.5036368845
+    },
+    {
+     "point": "ceres",
+     "event": "lower-transit",
+     "jdUt": 2460483.0019809995
+    }
+   ],
+   "noRiseOrSet": [
+    [
+     "ceres",
+     "rise"
+    ],
+    [
+     "ceres",
+     "set"
+    ]
+   ]
+  },
+  {
+   "name": "sydney-1987/geometric",
+   "utc": "1987-12-05T03:20:00Z",
+   "lat": -33.8688,
+   "lng": 151.2093,
+   "elevation": 0,
+   "horizon": "geometric",
+   "window": {
+    "startJdUt": 2447134.138888889,
+    "endJdUt": 2447135.138888889
+   },
+   "events": [
+    {
+     "point": "ceres",
+     "event": "lower-transit",
+     "jdUt": 2447134.1870083963
+    },
+    {
+     "point": "ceres",
+     "event": "rise",
+     "jdUt": 2447134.379746936
+    },
+    {
+     "point": "ceres",
+     "event": "upper-transit",
+     "jdUt": 2447134.6862113047
+    },
+    {
+     "point": "ceres",
+     "event": "set",
+     "jdUt": 2447134.9926049146
+    }
+   ],
+   "noRiseOrSet": []
+  },
+  {
+   "name": "sydney-1987/almanac",
+   "utc": "1987-12-05T03:20:00Z",
+   "lat": -33.8688,
+   "lng": 151.2093,
+   "elevation": 0,
+   "horizon": "almanac",
+   "window": {
+    "startJdUt": 2447134.138888889,
+    "endJdUt": 2447135.138888889
+   },
+   "events": [
+    {
+     "point": "ceres",
+     "event": "lower-transit",
+     "jdUt": 2447134.1870083963
+    },
+    {
+     "point": "ceres",
+     "event": "rise",
+     "jdUt": 2447134.377421719
+    },
+    {
+     "point": "ceres",
+     "event": "upper-transit",
+     "jdUt": 2447134.6862113047
+    },
+    {
+     "point": "ceres",
+     "event": "set",
+     "jdUt": 2447134.994928542
+    }
+   ],
+   "noRiseOrSet": []
+  }
+ ]
+}

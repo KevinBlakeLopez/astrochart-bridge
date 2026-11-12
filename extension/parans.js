@@ -7,6 +7,7 @@ import { createEngine } from "./helioscope-engine.js";
 import { localizePage } from "./messages/index.js";
 import {
   DEFAULT_SETTINGS,
+  EPHEMERIS_FILES,
   chartFromLink,
   lockedBodies,
   orbLabel,
@@ -47,8 +48,24 @@ for (const box of orbBoxes) box.checked = Number(box.value) === settings.orb;
 for (const box of horizonBoxes) box.checked = box.value === settings.horizon;
 showBodies();
 
+// The dwarf planets' files, from this copy's own vendor/swisseph/ephe/.
+// Without them the engine still works out the Sun, the Moon and the planets,
+// and a dwarf planet ticked says it couldn't be worked out.
+async function ephemerisFiles() {
+  const read = async (name) => {
+    const response = await fetch(new URL(`vendor/swisseph/ephe/${name}`, import.meta.url));
+    if (!response.ok) throw new Error(`${name}: HTTP ${response.status}`);
+    return [name, new Uint8Array(await response.arrayBuffer())];
+  };
+  return Object.fromEntries(await Promise.all(EPHEMERIS_FILES.map(read)));
+}
+const files = await ephemerisFiles().catch((error) => {
+  console.warn("AstroChart Bridge: couldn't load the dwarf planets' files:", error?.message ?? error);
+  return {};
+});
+
 // One engine for the page, kept while the tab is open. null when it couldn't start.
-const engine = await createEngine().catch(() => null);
+const engine = await createEngine({ ephemerisFiles: files }).catch(() => null);
 
 function show() {
   if (engine === null) {

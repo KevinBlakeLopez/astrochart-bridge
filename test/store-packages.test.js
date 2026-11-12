@@ -15,8 +15,8 @@ const leftOut = (file) => LEFT_OUT.some((path) => file === path || file.startsWi
 // The pages the zip keeps: every page in extension/ but the site's own home page.
 const PAGES = readdirSync(extension).filter((name) => name.endsWith(".html") && !leftOut(name));
 
-test("the store zips leave out only the web app's home page and service worker, and the asteroid files until a page loads them, and each path listed exists", () => {
-  assert.deepEqual(LEFT_OUT, ["index.html", "home.css", "home.js", "sw.js", "vendor/swisseph/ephe"]);
+test("the store zips leave out only the web app's home page and service worker, and each path listed exists", () => {
+  assert.deepEqual(LEFT_OUT, ["index.html", "home.css", "home.js", "sw.js"]);
   for (const path of LEFT_OUT) assert.ok(existsSync(new URL(path, extension)), path);
 });
 

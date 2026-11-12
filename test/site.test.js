@@ -1,8 +1,9 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, readFileSync, readdirSync, rmSync, statSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, relative } from "node:path";
+import { EPHEMERIS_FILES } from "../extension/parans-model.js";
 import { loadedBy } from "../tools/loaded-by.mjs";
 import { buildSite, SITE_FILES } from "../tools/site.mjs";
 
@@ -32,13 +33,16 @@ const TESSERACT_BY_ADDRESS = [
 // no import names either.
 const SWISSEPH_BY_ADDRESS = ["vendor/swisseph/wasm/swisseph.wasm"];
 
+// The asteroid files the parans page fetches by address for the dwarf planets.
+const EPHEMERIS_BY_ADDRESS = EPHEMERIS_FILES.map((name) => `vendor/swisseph/ephe/${name}`);
+
 // The icons the web app's manifest names, which the browser loads from it.
 const MANIFEST_ICONS = JSON.parse(read("manifest.webmanifest")).icons.map(({ src }) => src);
 
 // The service worker the home page registers by address (home.js).
 const SERVICE_WORKER = ["sw.js"];
 
-const LOADED_BY_ADDRESS = [...TESSERACT_BY_ADDRESS, ...SWISSEPH_BY_ADDRESS, ...MANIFEST_ICONS, ...SERVICE_WORKER];
+const LOADED_BY_ADDRESS = [...TESSERACT_BY_ADDRESS, ...SWISSEPH_BY_ADDRESS, ...EPHEMERIS_BY_ADDRESS, ...MANIFEST_ICONS, ...SERVICE_WORKER];
 
 // Files a page doesn't load but must travel with what it loads. Swiss
 // Ephemeris goes out under the AGPL, with swisseph-wasm's notice.
@@ -79,6 +83,13 @@ test("the binary Swiss Ephemeris's glue fetches by address is the one beside it"
   const glue = read("vendor/swisseph/wasm/swisseph.mjs");
   assert.ok(glue.includes('new URL("swisseph.wasm",import.meta.url)'));
   assert.deepEqual(SWISSEPH_BY_ADDRESS, ["vendor/swisseph/wasm/swisseph.wasm"]);
+});
+
+test("the parans page fetches the dwarf planets' files by address beside it, each of them there", () => {
+  const code = read("parans.js");
+  assert.match(code, /fetch\(new URL\(`vendor\/swisseph\/ephe\/\$\{name\}`, import\.meta\.url\)\)/);
+  assert.match(code, /EPHEMERIS_FILES\.map\(read\)/);
+  for (const file of EPHEMERIS_BY_ADDRESS) assert.ok(existsSync(join(extension, file)), file);
 });
 
 test("the paste, import and screenshot pages load the code that fills in forms and sends to Stellarium Desktop only in the extension's copy", () => {
