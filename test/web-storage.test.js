@@ -51,7 +51,7 @@ test("on the web, the parans page's settings are kept in localStorage beside Hel
   const localStorage = memoryStorage({ "astrochart-bridge:helioscope-settings": '{"elevation":120}' });
   const area = webStorageArea({ localStorage });
   assert.deepEqual(await paransSettings(area), PARANS_DEFAULTS);
-  const chosen = { orb: 0.5, bodies: ["sun", "venus", "eris"], horizon: "almanac", elevation: 120 };
+  const chosen = { orb: 0.5, bodies: ["sun", "venus", "eris"], stars: true, horizon: "almanac", elevation: 120 };
   await setParansSettings(area, chosen);
   assert.equal(localStorage.items.get("astrochart-bridge:parans-settings"), JSON.stringify(chosen));
   assert.deepEqual(await paransSettings(area), chosen);

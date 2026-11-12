@@ -12,7 +12,7 @@
 // day. Both are this page's rule: astro-research's parans-v1 has no orb.
 import { natalChartFor, readLink } from "./chart-model.js";
 import { atChartOffset } from "./chart-time.js";
-import { BODIES, DWARF_PLANETS, ELEVATION_LIMITS, PLANETS, angularEvents, paranGaps } from "./core/parans.js";
+import { BODIES, DWARF_PLANETS, ELEVATION_LIMITS, FIXED_STARS, PLANETS, angularEvents, isStar, paranGaps } from "./core/parans.js";
 import { text } from "./messages/index.js";
 import { offsetText, viewFor } from "./popup-model.js";
 
@@ -30,16 +30,17 @@ export const HORIZONS = Object.freeze({
 
 // A 1° orb, the Sun, the Moon and the planets, the geometric horizon and no
 // elevation given, so the results assume 0 m and say so. The dwarf planets
-// are left to be ticked.
-export const DEFAULT_SETTINGS = Object.freeze({ orb: 1, bodies: PLANETS, horizon: "geometric", elevation: null });
+// and the fixed stars are left to be ticked.
+export const DEFAULT_SETTINGS = Object.freeze({ orb: 1, bodies: PLANETS, stars: false, horizon: "geometric", elevation: null });
 
-// The asteroid files the page loads from vendor/swisseph/ephe/ for the dwarf
-// planets, about 1.6 MB in all: each one's long file, for 3000 BC to 2999,
-// and Ceres's three main asteroid files, for 1200 to 2999. Between them they
-// cover every window the page takes.
+// The files the page loads from vendor/swisseph/ephe/, about 1.7 MB in all:
+// for the dwarf planets, each one's long file, for 3000 BC to 2999, and
+// Ceres's three main asteroid files, for 1200 to 2999, which between them
+// cover every window the page takes; and for the fixed stars, Swiss
+// Ephemeris's star catalogue.
 export const EPHEMERIS_FILES = Object.freeze([
   "s136108.se1", "s136199.se1", "s136472.se1", "se20000.se1", "se28978.se1", "se90377.se1", "se90482.se1",
-  "seas_12.se1", "seas_18.se1", "seas_24.se1",
+  "seas_12.se1", "seas_18.se1", "seas_24.se1", "sefstars.txt",
 ]);
 
 // The settings' key in the extension's storage on this computer.
@@ -71,10 +72,14 @@ export function chartFromLink(hash) {
  *   | { kind: "refused", reason: string } | { kind: "failed", point: string, event: string, failure: object }}
  *   angularEvents' refusal or failure as it gave it
  */
-export function paransFor(chart, engine, { orb, bodies, horizon, elevation }) {
+export function paransFor(chart, engine, { orb, bodies, stars, horizon, elevation }) {
   if (!Array.isArray(bodies) || bodies.length < 2) throw new Error(`paransFor needs two bodies or more; got ${JSON.stringify(bodies)}`);
   if (!Object.hasOwn(HORIZONS, horizon)) throw new Error(`paransFor takes a horizon from ${Object.keys(HORIZONS).join(", ")}; got ${horizon}`);
-  const options = { bodies: BODIES.filter((body) => bodies.includes(body)), horizon: HORIZONS[horizon] };
+  const options = {
+    bodies: BODIES.filter((body) => bodies.includes(body)),
+    stars: stars === true ? FIXED_STARS.map(({ designation }) => designation) : [],
+    horizon: HORIZONS[horizon],
+  };
   if (elevation !== null && elevation !== undefined) options.elevation = elevation;
   const events = angularEvents(chart, engine, options);
   if (events.kind !== "events") return events;
@@ -114,7 +119,7 @@ export function paransWithin(events, orb) {
 export function viewForParans(chart, { events, parans }, { orb, horizon }) {
   const words = text().parans;
   const when = (event) => atChartOffset(event.utc, chart);
-  const said = (event) => words.event(event.point, event.event);
+  const said = (event) => words.event(pointName(event.point), event.event);
   return {
     state: "ready",
     rows: viewFor(chart).rows,
@@ -169,7 +174,9 @@ export function viewForFailure({ point, event, failure }) {
   return { state: "refused", message: text().parans.failed(point, event), code: failure.reason };
 }
 
-// The bodies that didn't rise, set or either, in BODIES's order.
+// The bodies that didn't rise, set or either, in BODIES's order, then the
+// stars that didn't rise or set, in one line, brightest first: at a high
+// latitude they can be dozens. A star misses both, never only one.
 function missingLines(noRiseOrSet) {
   const words = text().parans;
   const lines = [];
@@ -178,21 +185,29 @@ function missingLines(noRiseOrSet) {
     const set = noRiseOrSet.some(({ point, event }) => point === body && event === "set");
     if (rise || set) lines.push(words.missing(body, rise && set ? "both" : rise ? "rise" : "set"));
   }
+  const stars = FIXED_STARS.filter(({ designation }) => noRiseOrSet.some(({ point }) => point === designation));
+  if (stars.length > 0) lines.push(words.starsMissing(stars.map(({ name }) => name)));
   return lines;
 }
 
+// A body by its key, which the language's words name, or a star by its
+// catalogue name, which they take as it is.
+const pointName = (point) => (isStar(point) ? FIXED_STARS.find(({ designation }) => designation === point).name : point);
+
 // The window, as angularEvents had it, then how each event was found, the
-// horizon, the elevation and the orb. Where the dwarf planets come from is
-// said only when one was chosen.
-function assumptionRows({ window, assumptions, bodies }, chart, orb, horizon) {
+// horizon, the elevation and the orb. Where the dwarf planets and the stars
+// come from is said only when they were chosen.
+function assumptionRows({ window, assumptions, bodies, stars = [] }, chart, orb, horizon) {
   const words = text().parans.assumptions;
   const { metres, source } = assumptions.elevation;
   const elevation = `${metres < 0 ? MINUS : ""}${Math.abs(metres)}`;
   const { refraction } = HORIZONS[horizon];
   const dwarfPlanets = bodies.some((body) => DWARF_PLANETS.includes(body)) ? [[words.dwarfPlanets, words.dwarfPlanetsValue]] : [];
+  const fixedStars = stars.length > 0 ? [[words.stars, words.starsValue(stars.length)]] : [];
   return [
     [words.ephemeris, words.ephemerisValue(assumptions.swissEphemeris)],
     ...dwarfPlanets,
+    ...fixedStars,
     [words.time, words.timeValue],
     [words.window, words.windowValue(atChartOffset(window.start.utc, chart), atChartOffset(window.end.utc, chart))],
     [words.position, words.positionValue],
@@ -278,6 +293,7 @@ export async function setParansSettings(storage, settings) {
   const isDefault =
     kept.orb === DEFAULT_SETTINGS.orb &&
     kept.bodies.join() === DEFAULT_SETTINGS.bodies.join() &&
+    kept.stars === DEFAULT_SETTINGS.stars &&
     kept.horizon === DEFAULT_SETTINGS.horizon &&
     kept.elevation === DEFAULT_SETTINGS.elevation;
   if (isDefault) await storage.remove(SETTINGS_KEY);
@@ -291,6 +307,8 @@ function settingsFrom(value) {
   return {
     orb: ORBS.includes(value?.orb) ? value.orb : DEFAULT_SETTINGS.orb,
     bodies: someBodies(value?.bodies) ? BODIES.filter((body) => value.bodies.includes(body)) : [...DEFAULT_SETTINGS.bodies],
+    // Only a true ticks them: anything else stored is the default.
+    stars: value?.stars === true,
     horizon: typeof value?.horizon === "string" && Object.hasOwn(HORIZONS, value.horizon) ? value.horizon : DEFAULT_SETTINGS.horizon,
     elevation: fits(value?.elevation) ? value.elevation : DEFAULT_SETTINGS.elevation,
   };
@@ -303,7 +321,7 @@ const someBodies = (bodies) =>
 const fits = (metres) => Number.isInteger(metres) && metres >= ELEVATION_LIMITS.lowest && metres <= ELEVATION_LIMITS.highest;
 
 /**
- * @typedef {{ orb: number, bodies: string[], horizon: keyof typeof HORIZONS, elevation: number | null }} Settings
- *   elevation is null when none was given
+ * @typedef {{ orb: number, bodies: string[], stars: boolean, horizon: keyof typeof HORIZONS, elevation: number | null }} Settings
+ *   stars is whether FIXED_STARS are worked out too; elevation is null when none was given
  * @typedef {ReturnType<typeof paranGaps>[number]} Paran
  */

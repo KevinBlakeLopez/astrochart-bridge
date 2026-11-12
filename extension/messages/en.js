@@ -137,6 +137,8 @@ export default {
         sedna: "Sedna",
       },
       dwarfPlanets: "Dwarf planets",
+      stars: "Fixed stars",
+      starsLabel: "Bright and traditional stars",
       working: "Working out the parans…",
       notice:
         "AstroChart Bridge, © 2026 Kevin Blake Lopez, works this out on this device with Swiss Ephemeris, © 1997–2021 Astrodienst AG, through swisseph-wasm. All three are free software: you may share and change them under the GNU Affero General Public License, version 3 or later. They come with no warranty.",
@@ -1033,12 +1035,17 @@ export default {
     eventArmc: (said, degrees) => `${said} · ARMC ${degrees}°`,
     // which is "rise", "set" or "both".
     missing: (body, which) => `${subject(body)} doesn't ${{ rise: "rise", set: "set", both: "rise or set" }[which] ?? which} that day`,
+    // The stars that neither rise nor set, by name, brightest first: "Capella and Polaris don't rise or set that day"
+    starsMissing: (names) => `${and(names)} ${names.length === 1 ? "doesn't" : "don't"} rise or set that day`,
     assumptionsHeading: "Assumptions",
     assumptions: {
       ephemeris: "Ephemeris",
       ephemerisValue: (version) => `Swiss Ephemeris ${version}, Moshier`,
       dwarfPlanets: "Dwarf planets",
       dwarfPlanetsValue: "From Astrodienst's asteroid files, made from JPL's DE441, with the Sun and Earth from Moshier",
+      stars: "Fixed stars",
+      starsValue: (count) =>
+        `${count} from Swiss Ephemeris's star catalogue: every star brighter than magnitude 2, and traditional ones just fainter. Not Brady's list`,
       time: "Time",
       timeValue: "The chart's UTC, taken as UT",
       window: "Window",

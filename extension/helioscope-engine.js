@@ -23,7 +23,8 @@
 //   call, as are results that aren't finite.
 // - It reads a name it doesn't know as a fixed star's, so swe_vis_limit_mag,
 //   which takes a name, is only ever given the five naked-eye planets.
-//   swe_rise_trans takes a body's number, and is given those in BODIES.
+//   swe_rise_trans takes a body's number, and is given those in BODIES, or a
+//   fixed star's designation in the star catalogue, never a name.
 import { createSwissEph } from "./vendor/swisseph/dist/index.js";
 
 // swephexp.h
@@ -68,9 +69,14 @@ const BODIES = Object.freeze({
   sedna: SE_AST_OFFSET + 90377,
 });
 
+// A fixed star, by its designation in the star catalogue as Swiss Ephemeris
+// takes it: ",alLeo", ",ga-1Leo". Names repeat in the catalogue; designations
+// don't.
+const STAR = /^,([a-z]{2,3}(-\d)?|\d{1,3})[A-Z][a-zA-Z]{2}$/;
+
 // An ephemeris file's name, as Swiss Ephemeris looks it up: seas_18.se1,
-// s136199s.se1.
-const EPHEMERIS_FILE = /^[a-z0-9_]+\.se1$/;
+// s136199s.se1, and the star catalogue, sefstars.txt.
+const EPHEMERIS_FILE = /^([a-z0-9_]+\.se1|sefstars\.txt)$/;
 // What Swiss Ephemeris says when a body's file isn't loaded.
 const FILE_NOT_FOUND = /SwissEph file '[^']+' not found/;
 
@@ -243,24 +249,32 @@ export async function createEngine({ atmosphere = {}, observer = {}, ephemerisFi
    * swe_rise_trans returns 0, -1 or -2, not the flags it used, so unlike
    * swe_calc_ut's they can't be checked.
    *
+   * A fixed star is given by its designation, ",alLeo", and needs the star
+   * catalogue, sefstars.txt, among the engine's files. A designation the
+   * catalogue hasn't is an engine-error.
+   *
    * @param {number} jd  Julian Day (UT)
    * @param {Place} place
-   * @param {keyof typeof BODIES} body
+   * @param {keyof typeof BODIES | string} body  a body, or a star's designation
    * @param {keyof typeof ANGULAR_EVENTS} event
    * @param {Horizon} horizon
    * @returns {{ kind: "found", jd: number } | { kind: "none" } | Failure}
    */
   function angularEvent(jd, place, body, event, horizon) {
     live();
-    const ipl = bodyNumber(body);
+    const star = typeof body === "string" && STAR.test(body);
+    const ipl = star ? 0 : bodyNumber(body);
     const rsmi = angularEventFlags(event, horizon);
     if (!isDate(jd) || !isPlace(place)) return INVALID;
     // Unused without refraction, as astro-research passes them.
     const { pressure, temperature } = horizon.refraction ?? { pressure: 0, temperature: 0 };
     write(buffers.geo, [place.lng, place.lat, place.elevation]);
     write(buffers.tret, [Number.NaN]);
+    // A star's designation afresh each time: Swiss Ephemeris writes the
+    // star's full name over it, "Regulus,alLeo".
+    if (star) wasm.stringToUTF8(body, buffers.name, STRING_BYTES);
     clearError();
-    const ret = riseTrans(jd, ipl, 0, SEFLG_MOSEPH, rsmi, buffers.geo, pressure, temperature, buffers.tret, buffers.serr);
+    const ret = riseTrans(jd, ipl, star ? buffers.name : 0, SEFLG_MOSEPH, rsmi, buffers.geo, pressure, temperature, buffers.tret, buffers.serr);
     return riseTransResult(ret);
   }
 

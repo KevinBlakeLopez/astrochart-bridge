@@ -7,6 +7,7 @@ Helioscope predicts naked-eye planetary visibility with Swiss Ephemeris 2.10.03,
 | `dist/` | `@kuntay/swisseph@0.2.2`, `dist/`: the JavaScript API, with its type declarations and source maps | AGPL-3.0-or-later, `LICENSE` and `NOTICE` |
 | `wasm/swisseph.mjs`, `wasm/swisseph.wasm` | `@kuntay/swisseph@0.2.2`, `wasm/`: the Emscripten glue and the compiled Swiss Ephemeris | AGPL-3.0-or-later. Swiss Ephemeris is Astrodienst AG's, under the AGPL or its Professional License, `NOTICE` |
 | `ephe/seas_12.se1`, `ephe/seas_18.se1`, `ephe/seas_24.se1` | Astrodienst's [aloistr/swisseph](https://github.com/aloistr/swisseph/tree/cae9ecd4b201544d85e411aced17660932514d43/ephe) at commit `cae9ecd` (29 May 2026), `ephe/`: the main asteroid files for 1200–1799, 1800–2399 and 2400–2999, made from JPL's DE441, with Ceres in them | As Swiss Ephemeris's, `NOTICE` |
+| `ephe/sefstars.txt` | Astrodienst's [aloistr/swisseph](https://github.com/aloistr/swisseph/blob/bb65079744e63e6610ab24f188e88b27ac1965f9/ephe/sefstars.txt) at commit `bb65079` (23 March 2025), `ephe/`: Swiss Ephemeris's star catalogue, for the parans page's fixed stars | As Swiss Ephemeris's, `NOTICE` |
 | `ephe/s136199.se1` and the six others below | Alois Treindl's public [Swiss Ephemeris Dropbox](https://www.dropbox.com/scl/fo/y3naz62gy6f6qfrhquu7u/h?rlkey=ejltdhb262zglm7eo6yfj2940&dl=0), which [Astrodienst's download page](https://www.astro.com/ftp/swisseph/ephe/) names, `all_ast/astN/`, downloaded on 12 November 2026: each dwarf planet's long file, for 3000 BC to 2999 | As Swiss Ephemeris's, `NOTICE` |
 
 Each `.se1` file's Git blob hash is the one upstream's tree lists for it at that commit:
@@ -16,6 +17,9 @@ Each `.se1` file's Git blob hash is the one upstream's tree lists for it at that
 | `ephe/seas_12.se1` | 223,396 | `75a837be6323d4580dfbdae51f1828be8f7b7799` | `3345555097e2080f4e2582026a6008ebbccfdca27600ba48019ca9c6e3e7a211` |
 | `ephe/seas_18.se1` | 223,004 | `8f900cab7e557e4c41f758a6bf3a3c3967e7e3db` | `a2cd8fc33807c78ca9a700c91c2e042258b12fc4796519e00781440b5ad8b2e2` |
 | `ephe/seas_24.se1` | 222,674 | `5ec748ae331ed982484f559deab5eedb94db8771` | `1b4160a4d289c3d2df55efcc016d407a1516c079b725b2bf2b073a70211aa391` |
+| `ephe/sefstars.txt` | 136,618 | `0c6a40a880c4fa9d1b93d09474c923a3284f81e2` | `18b0dcafbe5b7240773daba2c038a325f5b3fc4163f61e0a7f4e92abd4f517c6` |
+
+The parans page's 56 stars come from `sefstars.txt`, as `tools/fixed-stars.mjs` picks them: every star in it brighter than magnitude 2.0, and eight traditional ones just fainter. `test/parans-star-reference.json`, which `tools/make-star-reference.py` writes with astro-research on the same catalogue, is what the engine's star events are checked against.
 
 The Dropbox publishes no hashes, so the dwarf planets' files can't be checked against one. Each arrived at the size Dropbox gave for it, and each file's own header names its asteroid and says it was "Created for Astrodienst in Switzerland … based on JPL Ephemeris DE441, long": on 12 March 2026 from L. H. Wasserman's orbits, Ixion's on 3 November 2026 from the Minor Planet Center's.
 

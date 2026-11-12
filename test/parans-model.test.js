@@ -5,9 +5,9 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { BODIES, PLANETS, paranGaps } from "../extension/core/parans.js";
+import { BODIES, FIXED_STARS, PLANETS, paranGaps } from "../extension/core/parans.js";
 import { createEngine } from "../extension/helioscope-engine.js";
-import { setLanguage } from "../extension/messages/index.js";
+import { setLanguage, text } from "../extension/messages/index.js";
 import {
   DEFAULT_SETTINGS,
   EPHEMERIS_FILES,
@@ -28,7 +28,7 @@ import {
 const REFERENCE = JSON.parse(readFileSync(new URL("parans-reference.json", import.meta.url), "utf8"));
 
 // The dwarf planets are left to be ticked.
-const DEFAULTS = { orb: 1, bodies: [...PLANETS], horizon: "geometric", elevation: null };
+const DEFAULTS = { orb: 1, bodies: [...PLANETS], stars: false, horizon: "geometric", elevation: null };
 const HALF_DAY_SECONDS = 12 * 3600;
 
 const dashed = (name) => name.replaceAll("_", "-");
@@ -180,7 +180,7 @@ test("paransSettings: a 1° orb, every body, the geometric horizon and no elevat
   assert.deepEqual({ ...DEFAULT_SETTINGS, bodies: [...DEFAULT_SETTINGS.bodies] }, DEFAULTS);
   const area = storage();
   assert.deepEqual(await paransSettings(area), DEFAULTS);
-  const chosen = { orb: 0.5, bodies: ["sun", "venus", "pluto"], horizon: "almanac", elevation: 120 };
+  const chosen = { orb: 0.5, bodies: ["sun", "venus", "pluto"], stars: true, horizon: "almanac", elevation: 120 };
   await setParansSettings(area, chosen);
   assert.deepEqual(area.items, { "parans-settings": chosen });
   assert.deepEqual(await paransSettings(area), chosen);
@@ -194,6 +194,10 @@ test("paransSettings: going back to the defaults forgets the choice", async () =
   const reordered = storage({ "parans-settings": { orb: 2 } });
   await setParansSettings(reordered, { ...DEFAULTS, bodies: [...PLANETS].reverse() });
   assert.deepEqual(reordered.items, {});
+  // The stars ticked aren't the defaults, so they're kept.
+  const withStars = storage();
+  await setParansSettings(withStars, { ...DEFAULTS, stars: true });
+  assert.deepEqual(withStars.items, { "parans-settings": { ...DEFAULTS, stars: true } });
   // Every body, Ceres too, isn't the defaults, so it's kept.
   const withCeres = storage();
   await setParansSettings(withCeres, { ...DEFAULTS, bodies: [...BODIES] });
@@ -211,6 +215,9 @@ test("paransSettings: each stored value that doesn't fit is its default, and the
     ...DEFAULTS, bodies: ["sun", "moon"], horizon: "almanac", elevation: 0,
   });
   assert.deepEqual(await read({ orb: 0.25, bodies: ["pluto", "moon"] }), { ...DEFAULTS, orb: 0.25, bodies: ["moon", "pluto"] });
+  // Only true ticks the stars.
+  assert.equal((await read({ stars: true })).stars, true);
+  for (const stars of ["true", 1, null, {}]) assert.equal((await read({ stars })).stars, false, JSON.stringify(stars));
   for (const bodies of [["sun"], [], ["sun", "sun"], ["sun", "sirius"], "sun,moon", null]) {
     assert.deepEqual((await read({ bodies })).bodies, DEFAULTS.bodies, JSON.stringify(bodies));
   }
@@ -329,9 +336,9 @@ test("viewForParans: London on 10 April 2024, in English: the parans closest fir
   ]);
 });
 
-test("EPHEMERIS_FILES are the files native Swiss Ephemeris's Ceres was worked out from", () => {
+test("EPHEMERIS_FILES are the files native Swiss Ephemeris's dwarf planets were worked out from, and the star catalogue", () => {
   const asteroids = JSON.parse(readFileSync(new URL("parans-asteroid-reference.json", import.meta.url), "utf8"));
-  assert.deepEqual(EPHEMERIS_FILES, Object.keys(asteroids.files));
+  assert.deepEqual(EPHEMERIS_FILES, [...Object.keys(asteroids.files), "sefstars.txt"]);
 });
 
 // The dwarf planets' files, as the page loads them.
@@ -350,6 +357,43 @@ test("viewForParans: London with Ceres ticked: its four events among the rest, a
     ["Ephemeris", "Swiss Ephemeris 2.10.03, Moshier"],
     ["Dwarf planets", "From Astrodienst's asteroid files, made from JPL's DE441, with the Sun and Earth from Moshier"],
   ]);
+});
+
+test("viewForParans: London with the fixed stars ticked: stars by name, paired with bodies only, those that don't rise or set in one line", async () => {
+  const view = await screen(LONDON, { ...DEFAULTS, stars: true }, { ephemerisFiles: PAGE_FILES });
+  const [, fixedStars] = view.assumptions.rows;
+  assert.deepEqual(fixedStars, [
+    "Fixed stars",
+    "56 from Swiss Ephemeris's star catalogue: every star brighter than magnitude 2, and traditional ones just fainter. Not Brady's list",
+  ]);
+  // Every paran has a body in it: a star pairs with a body, never with another star.
+  const starNames = FIXED_STARS.map(({ name }) => name);
+  const isStarEvent = (said) => starNames.some((name) => said.startsWith(`${name} `));
+  assert.ok(view.parans.rows.length > 0);
+  assert.ok(view.parans.rows.every(({ first, second }) => !(isStarEvent(first) && isStarEvent(second))));
+  assert.ok(view.parans.rows.some(({ first, second }) => isStarEvent(first) || isStarEvent(second)));
+  assert.ok(view.events.rows.some(([, said]) => said.startsWith("Sirius rises · ARMC ")));
+  // The southern stars London never sees, such as Canopus, and the northern
+  // ones it always does, such as Vega, Capella and Polaris: 25, brightest first.
+  const starsLine = view.events.missing.at(-1);
+  assert.match(starsLine, /^Canopus, Rigil Kentaurus, Vega, Capella, .*, Polaris and Algol don't rise or set that day$/);
+  assert.equal(starsLine.split(", ").length + 1, 25);
+});
+
+test("viewForParans: without the stars, nothing is said of them", async () => {
+  const view = await screen(LONDON, DEFAULTS, { ephemerisFiles: PAGE_FILES });
+  assert.ok(view.assumptions.rows.every(([label]) => label !== "Fixed stars"));
+  assert.ok(view.events.missing.every((line) => !line.includes("Canopus")));
+});
+
+test("the stars' line agrees with how many in Spanish and Slovenian", async () => {
+  const words = await inLanguage("es", () => text().parans);
+  assert.equal(words.starsMissing(["Polaris"]), "Polaris no sale ni se pone ese día");
+  assert.equal(words.starsMissing(["Capella", "Polaris"]), "Capella y Polaris no salen ni se ponen ese día");
+  const sl = await inLanguage("sl", () => text().parans);
+  assert.equal(sl.starsMissing(["Polaris"]), "Polaris ta dan ne vzide in ne zaide");
+  assert.equal(sl.starsMissing(["Capella", "Polaris"]), "Capella in Polaris ta dan ne vzideta in ne zaideta");
+  assert.equal(sl.starsMissing(["Deneb", "Capella", "Polaris"]), "Deneb, Capella in Polaris ta dan ne vzidejo in ne zaidejo");
 });
 
 test("viewForParans: Tromsø at midsummer, in Spanish, on the almanac's horizon: no parans within 0.5°, and six bodies that neither rise nor set", async () => {
