@@ -364,20 +364,28 @@ test("viewForParans: London with the fixed stars ticked: stars by name, paired w
   const [, fixedStars] = view.assumptions.rows;
   assert.deepEqual(fixedStars, [
     "Fixed stars",
-    "56 from Swiss Ephemeris's star catalogue: every star brighter than magnitude 2, and traditional ones just fainter. Not Brady's list",
+    "83 from Swiss Ephemeris's star catalogue: every star brighter than magnitude 2, and the 64 Bernadette Brady uses, four of them star clusters",
   ]);
+  // The closest, with the star's other name: Markab and Saturn culminated together.
+  assert.deepEqual(view.parans.rows[0], {
+    first: "Markab (Purvabhadra) culminates at 10:50", second: "Saturn culminates at 10:50", armc: "0.02° of ARMC", time: view.parans.rows[0].time,
+  });
   // Every paran has a body in it: a star pairs with a body, never with another star.
   const starNames = FIXED_STARS.map(({ name }) => name);
   const isStarEvent = (said) => starNames.some((name) => said.startsWith(`${name} `));
   assert.ok(view.parans.rows.length > 0);
   assert.ok(view.parans.rows.every(({ first, second }) => !(isStarEvent(first) && isStarEvent(second))));
   assert.ok(view.parans.rows.some(({ first, second }) => isStarEvent(first) || isStarEvent(second)));
-  assert.ok(view.events.rows.some(([, said]) => said.startsWith("Sirius rises · ARMC ")));
+  assert.ok(view.events.rows.some(([, said]) => said.startsWith("Sirius (Lubdhaka) rises · ARMC ")));
+  // A star cluster of Brady's, which has no other name.
+  assert.ok(view.events.rows.some(([, said]) => said.startsWith("Acumen culminates · ARMC ")));
   // The southern stars London never sees, such as Canopus, and the northern
-  // ones it always does, such as Vega, Capella and Polaris: 25, brightest first.
+  // ones it always does, such as Vega, Capella and Polaris, brightest first,
+  // each with its other names.
   const starsLine = view.events.missing.at(-1);
-  assert.match(starsLine, /^Canopus, Rigil Kentaurus, Vega, Capella, .*, Polaris and Algol don't rise or set that day$/);
-  assert.equal(starsLine.split(", ").length + 1, 25);
+  assert.match(starsLine, /^Canopus \(Agastya\), Rigil Kentaurus \(Rigel Kentaurus, Toliman, Bungula\), Vega \(Abhijit\), .* and Rukbat don't rise or set that day$/);
+  assert.ok(starsLine.includes("Deneb (Deneb Adige)"));
+  assert.ok(starsLine.includes("Capulus"));
 });
 
 test("viewForParans: without the stars, nothing is said of them", async () => {

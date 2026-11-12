@@ -7,14 +7,14 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { FIXED_STARS, angularEvents, isStar, paranGaps } from "../extension/core/parans.js";
 import { createEngine } from "../extension/helioscope-engine.js";
-import { MAGNITUDE_LIMIT, TRADITIONAL, fixedStars } from "../tools/fixed-stars.mjs";
+import { BRADY, MAGNITUDE_LIMIT, fixedStars } from "../tools/fixed-stars.mjs";
 
 const CATALOGUE = new URL("../extension/vendor/swisseph/ephe/sefstars.txt", import.meta.url);
 // astro-research's star events, written by tools/make-star-reference.py.
 const REFERENCE = JSON.parse(readFileSync(new URL("parans-star-reference.json", import.meta.url), "utf8"));
 const CASES = JSON.parse(readFileSync(new URL("parans-reference.json", import.meta.url), "utf8"));
 
-// Measured on 12 November 2026 over the 1,045 events: risings and settings at
+// Measured on 12 November 2026 over the 1,603 events: risings and settings at
 // most 9.6 ms from astro-research's, culminations at most 58 ms, Polaris's,
 // whose place 0.6° from the pole magnifies the ephemerides' difference. About
 // 2.5 times those are allowed.
@@ -36,16 +36,35 @@ async function withCatalogue(t) {
   return engine;
 }
 
-test("FIXED_STARS are the catalogue's stars brighter than magnitude 2.0, with eight traditional ones just fainter, brightest first", () => {
+test("FIXED_STARS are the catalogue's stars brighter than magnitude 2.0 and Brady's 64, brightest first, 83 in all", () => {
   const catalogue = readFileSync(CATALOGUE);
   assert.equal(createHash("sha256").update(catalogue).digest("hex"), REFERENCE.catalogue.sha256);
   assert.deepEqual(FIXED_STARS, fixedStars(catalogue.toString("latin1")));
   assert.equal(MAGNITUDE_LIMIT, 2);
-  assert.equal(FIXED_STARS.filter(({ magnitude }) => magnitude <= MAGNITUDE_LIMIT).length, 48);
-  assert.deepEqual(FIXED_STARS.slice(48).map(({ name }) => name), ["Hamal", "Polaris", "Alpheratz", "Algol", "Denebola", "Alphecca", "Scheat", "Markab"]);
-  assert.deepEqual(TRADITIONAL.map((d) => `,${d}`).sort(), FIXED_STARS.slice(48).map(({ designation }) => designation).sort());
-  assert.deepEqual(REFERENCE.stars, FIXED_STARS.map(({ designation }) => designation));
+  assert.equal(BRADY.length, 64);
+  assert.equal(new Set(BRADY).size, 64);
+  const designations = FIXED_STARS.map(({ designation }) => designation);
+  assert.ok(BRADY.every((d) => designations.includes(`,${d}`)), "every one of Brady's");
+  // 48 brighter than 2.0, 29 of them Brady's too, and her other 35.
+  assert.equal(FIXED_STARS.length, 83);
+  assert.equal(FIXED_STARS.filter(({ designation, magnitude }) => magnitude <= MAGNITUDE_LIMIT && !designation.startsWith(",M") && !designation.startsWith(",NGC")).length, 48);
+  // Her four star clusters.
+  assert.deepEqual(designations.filter((d) => /^,(M|NGC)\d/.test(d)), [",M7", ",NGC869", ",M6", ",M22"]);
+  assert.deepEqual(REFERENCE.stars, designations);
   assert.ok(FIXED_STARS.every(({ name }) => name.length > 0), "every star has a name");
+});
+
+test("FIXED_STARS's other names are the catalogue's, and Brady's where its spelling differs, never another star's", () => {
+  const byDesignation = Object.fromEntries(FIXED_STARS.map((star) => [star.designation, star]));
+  assert.deepEqual(byDesignation[",alCyg"].otherNames, ["Deneb Adige"]);
+  assert.deepEqual(byDesignation[",beCen"].otherNames, ["Agena"]);
+  assert.deepEqual(byDesignation[",alPsc"].otherNames, ["Alrescha", "Al Rescha"]);
+  assert.deepEqual(byDesignation[",alTau"].otherNames, ["Rohini"]);
+  // The catalogue files Proxima Centauri under alpha Centauri's designation, but it's a star of its own.
+  assert.deepEqual(byDesignation[",alCen"].otherNames, ["Rigel Kentaurus", "Toliman", "Bungula"]);
+  // Brady's "Ras Alhague" is the catalogue's Rasalhague with a space.
+  assert.deepEqual(byDesignation[",alOph"].otherNames, []);
+  assert.ok(FIXED_STARS.every(({ name, otherNames }) => !otherNames.includes(name) && new Set(otherNames).size === otherNames.length));
 });
 
 test("angularEvent: every star event is astro-research's, within the tolerance, in all six cases", async (t) => {
@@ -67,7 +86,7 @@ test("angularEvent: every star event is astro-research's, within the tolerance, 
       assert.deepEqual(engine.angularEvent(result.window.startJdUt, place, point, dashed(event), horizon), { kind: "none" }, `${result.name}: ${point} ${event}`);
     }
   }
-  assert.equal(compared, 1045);
+  assert.equal(compared, 1603);
 });
 
 test("angularEvent: a star without the catalogue fails with no-ephemeris-file, and the same star asked twice gives the same event", async (t) => {

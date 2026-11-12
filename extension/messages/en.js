@@ -138,7 +138,7 @@ export default {
       },
       dwarfPlanets: "Dwarf planets",
       stars: "Fixed stars",
-      starsLabel: "Bright and traditional stars",
+      starsLabel: "Bright stars and Brady's 64",
       working: "Working out the parans…",
       notice:
         "AstroChart Bridge, © 2026 Kevin Blake Lopez, works this out on this device with Swiss Ephemeris, © 1997–2021 Astrodienst AG, through swisseph-wasm. All three are free software: you may share and change them under the GNU Affero General Public License, version 3 or later. They come with no warranty.",
@@ -1045,7 +1045,7 @@ export default {
       dwarfPlanetsValue: "From Astrodienst's asteroid files, made from JPL's DE441, with the Sun and Earth from Moshier",
       stars: "Fixed stars",
       starsValue: (count) =>
-        `${count} from Swiss Ephemeris's star catalogue: every star brighter than magnitude 2, and traditional ones just fainter. Not Brady's list`,
+        `${count} from Swiss Ephemeris's star catalogue: every star brighter than magnitude 2, and the 64 Bernadette Brady uses, four of them star clusters`,
       time: "Time",
       timeValue: "The chart's UTC, taken as UT",
       window: "Window",

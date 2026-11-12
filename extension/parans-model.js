@@ -186,13 +186,16 @@ function missingLines(noRiseOrSet) {
     if (rise || set) lines.push(words.missing(body, rise && set ? "both" : rise ? "rise" : "set"));
   }
   const stars = FIXED_STARS.filter(({ designation }) => noRiseOrSet.some(({ point }) => point === designation));
-  if (stars.length > 0) lines.push(words.starsMissing(stars.map(({ name }) => name)));
+  if (stars.length > 0) lines.push(words.starsMissing(stars.map(starLabel)));
   return lines;
 }
 
 // A body by its key, which the language's words name, or a star by its
-// catalogue name, which they take as it is.
-const pointName = (point) => (isStar(point) ? FIXED_STARS.find(({ designation }) => designation === point).name : point);
+// catalogue name and its other names, which they take as they are.
+const pointName = (point) => (isStar(point) ? starLabel(FIXED_STARS.find(({ designation }) => designation === point)) : point);
+
+// "Deneb (Deneb Adige)", "Rigil Kentaurus (Rigel Kentaurus, Toliman, Bungula)", "Vega (Abhijit)", or "Rasalhague".
+const starLabel = ({ name, otherNames }) => (otherNames.length === 0 ? name : `${name} (${otherNames.join(", ")})`);
 
 // The window, as angularEvents had it, then how each event was found, the
 // horizon, the elevation and the orb. Where the dwarf planets and the stars

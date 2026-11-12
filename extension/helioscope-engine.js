@@ -70,9 +70,9 @@ const BODIES = Object.freeze({
 });
 
 // A fixed star, by its designation in the star catalogue as Swiss Ephemeris
-// takes it: ",alLeo", ",ga-1Leo". Names repeat in the catalogue; designations
-// don't.
-const STAR = /^,([a-z]{2,3}(-\d)?|\d{1,3})[A-Z][a-zA-Z]{2}$/;
+// takes it: ",alLeo", ",ga-1Leo", or a star cluster's, ",M7", ",NGC869".
+// Names repeat in the catalogue; designations don't.
+const STAR = /^,(([a-z]{2,3}(-\d)?|\d{1,3})[A-Z][a-zA-Z]{2}|M\d{1,3}|NGC\d{1,4})$/;
 
 // An ephemeris file's name, as Swiss Ephemeris looks it up: seas_18.se1,
 // s136199s.se1, and the star catalogue, sefstars.txt.

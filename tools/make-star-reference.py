@@ -65,7 +65,7 @@ CASES = [
 
 def stars():
     """FIXED_STARS's designations, in its order, from core/parans.js."""
-    found = re.findall(r'\{ designation: "(,[^"]+)", name: "[^"]*", magnitude: [-\d.]+ \}', STARS_SOURCE.read_text())
+    found = re.findall(r'\{ designation: "(,[^"]+)", name: "[^"]*", otherNames: \[[^\]]*\], magnitude: [-\d.]+ \}', STARS_SOURCE.read_text())
     if not found:
         sys.exit(f"{STARS_SOURCE}: no FIXED_STARS found")
     return found

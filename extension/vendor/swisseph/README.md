@@ -19,7 +19,7 @@ Each `.se1` file's Git blob hash is the one upstream's tree lists for it at that
 | `ephe/seas_24.se1` | 222,674 | `5ec748ae331ed982484f559deab5eedb94db8771` | `1b4160a4d289c3d2df55efcc016d407a1516c079b725b2bf2b073a70211aa391` |
 | `ephe/sefstars.txt` | 136,618 | `0c6a40a880c4fa9d1b93d09474c923a3284f81e2` | `18b0dcafbe5b7240773daba2c038a325f5b3fc4163f61e0a7f4e92abd4f517c6` |
 
-The parans page's 56 stars come from `sefstars.txt`, as `tools/fixed-stars.mjs` picks them: every star in it brighter than magnitude 2.0, and eight traditional ones just fainter. `test/parans-star-reference.json`, which `tools/make-star-reference.py` writes with astro-research on the same catalogue, is what the engine's star events are checked against.
+The parans page's 83 stars come from `sefstars.txt`, as `tools/fixed-stars.mjs` picks them: every star in it brighter than magnitude 2.0, and the 64 Bernadette Brady uses, four of them star clusters, each with the catalogue's other names and Brady's spelling where it differs. `test/parans-star-reference.json`, which `tools/make-star-reference.py` writes with astro-research on the same catalogue, is what the engine's star events are checked against.
 
 The Dropbox publishes no hashes, so the dwarf planets' files can't be checked against one. Each arrived at the size Dropbox gave for it, and each file's own header names its asteroid and says it was "Created for Astrodienst in Switzerland … based on JPL Ephemeris DE441, long": on 12 March 2026 from L. H. Wasserman's orbits, Ixion's on 3 November 2026 from the Minor Planet Center's.
 

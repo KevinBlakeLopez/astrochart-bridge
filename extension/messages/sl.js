@@ -167,7 +167,7 @@ export default {
       },
       dwarfPlanets: "Pritlikavi planeti",
       stars: "Zvezde stalnice",
-      starsLabel: "Svetle in tradicionalne zvezde",
+      starsLabel: "Svetle zvezde in Bradyjinih 64",
       working: "Računanje paranov …",
       notice:
         "AstroChart Bridge, © 2026 Kevin Blake Lopez, to izračuna na tej napravi s Swiss Ephemeris, © 1997–2021 Astrodienst AG, prek swisseph-wasm. Vsi trije so prosto programje: lahko jih delite in spreminjate pod pogoji licence GNU Affero General Public License, različice 3 ali novejše. Zanje ne velja nobeno jamstvo.",
@@ -1011,7 +1011,7 @@ export default {
       dwarfPlanetsValue: "Iz Astrodienstovih datotek asteroidov, narejenih iz JPL-jevega DE441, s Soncem in Zemljo po Moshierju",
       stars: "Zvezde stalnice",
       starsValue: (count) =>
-        `${count} iz kataloga zvezd Swiss Ephemeris: vse svetlejše od magnitude 2 in nekaj tradicionalnih, malo šibkejših. To ni Bradyjin seznam`,
+        `${count} iz kataloga zvezd Swiss Ephemeris: vse svetlejše od magnitude 2 in 64, ki jih uporablja Bernadette Brady, med njimi štiri zvezdne kopice`,
       time: "Čas",
       timeValue: "UTC horoskopa, vzet kot UT",
       window: "Okno",

@@ -149,7 +149,7 @@ export default {
       },
       dwarfPlanets: "Planetas enanos",
       stars: "Estrellas fijas",
-      starsLabel: "Estrellas brillantes y tradicionales",
+      starsLabel: "Estrellas brillantes y las 64 de Brady",
       working: "Calculando los parans…",
       notice:
         "AstroChart Bridge, © 2026 Kevin Blake Lopez, lo calcula en este dispositivo con Swiss Ephemeris, © 1997–2021 Astrodienst AG, a través de swisseph-wasm. Los tres son software libre: puedes compartirlos y modificarlos según la Licencia Pública General Affero de GNU, versión 3 o posterior. No tienen ninguna garantía.",
@@ -976,7 +976,7 @@ export default {
       dwarfPlanetsValue: "De los archivos de asteroides de Astrodienst, hechos a partir del DE441 del JPL, con el Sol y la Tierra de Moshier",
       stars: "Estrellas fijas",
       starsValue: (count) =>
-        `${count} del catálogo de estrellas de Swiss Ephemeris: todas las más brillantes que la magnitud 2 y algunas tradicionales un poco más débiles. No es la lista de Brady`,
+        `${count} del catálogo de estrellas de Swiss Ephemeris: todas las más brillantes que la magnitud 2 y las 64 que usa Bernadette Brady, cuatro de ellas cúmulos estelares`,
       time: "Hora",
       timeValue: "La UTC de la carta, tomada como UT",
       window: "Intervalo",
