@@ -22,6 +22,7 @@ import {
 import { drawScreen } from "./parans-view.js";
 import { keepForOffline } from "./web-app.js";
 import { showHomeLink } from "./web-page.js";
+import { webStorageArea } from "./web-storage.js";
 
 // The browser's language, chosen before anything is drawn.
 localizePage(document, navigator.languages);
@@ -40,10 +41,11 @@ const bodyBoxes = [...document.querySelectorAll('input[name="body"]')];
 // Each orb in the language's numbers.
 for (const box of orbBoxes) box.parentElement.querySelector(".orb").textContent = orbLabel(Number(box.value));
 
-// The settings, kept in the extension's storage on this computer. A copy of
-// the page outside the extension has nowhere to keep them, so it starts from
-// the defaults each time.
-const remembered = globalThis.chrome?.storage?.local ?? null;
+// The settings, kept on this computer: in the extension's storage, or, for
+// the copy of the page on the web, in the site's localStorage, as Helioscope's
+// page keeps its own. When the browser won't let the page use it, there's
+// nowhere to keep them, and the page starts from the defaults each time.
+const remembered = globalThis.chrome?.storage?.local ?? webStorageArea(globalThis);
 let settings = remembered ? await paransSettings(remembered).catch(() => DEFAULT_SETTINGS) : DEFAULT_SETTINGS;
 elevationBox.value = settings.elevation === null ? "" : String(settings.elevation);
 for (const box of orbBoxes) box.checked = Number(box.value) === settings.orb;
