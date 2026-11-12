@@ -149,3 +149,83 @@ test("angularEvent: every body the reference covers is one the engine takes", ()
   assert.deepEqual(REFERENCE.bodies, BODIES);
   assert.equal(REFERENCE.astroResearch.timeScale, "clock_as_ut1");
 });
+
+// ---- Ceres, from the asteroid files in vendor/swisseph/ephe/ ---------------
+
+const EPHE = new URL("../extension/vendor/swisseph/ephe/", import.meta.url);
+const CERES_FILES = ["seas_12.se1", "seas_18.se1", "seas_24.se1"];
+const filesOf = (names) => Object.fromEntries(names.map((name) => [name, new Uint8Array(readFileSync(new URL(name, EPHE)))]));
+
+async function withFiles(t, names) {
+  const engine = await createEngine({ ephemerisFiles: filesOf(names) });
+  t.after(() => engine.dispose());
+  return engine;
+}
+
+const EVENTS = ["rise", "set", "upper-transit", "lower-transit"];
+// Julian Days (UT): the first Gregorian day, and a day each side of 1 January 1800, where seas_12 ends and seas_18 begins.
+const OCTOBER_1582 = 2299161;
+const LATE_1799 = 2378495.5;
+const EARLY_1800 = 2378497.5;
+
+test("angularEvent: Ceres's four events, with its files, come in the next day, its transits half a sidereal day apart", async (t) => {
+  const engine = await withFiles(t, CERES_FILES);
+  const found = Object.fromEntries(EVENTS.map((event) => [event, engine.angularEvent(JD, PLACE, "ceres", event, GEOMETRIC)]));
+  for (const [event, result] of Object.entries(found)) {
+    assert.equal(result.kind, "found", event);
+    assert.ok(result.jd > JD && result.jd < JD + 1.01, `${event}: ${result.jd}`);
+  }
+  // Ceres moves about 0.2° a day, so its transits are 11 h 58 min apart, give or take a minute.
+  const apart = Math.abs(found["lower-transit"].jd - found["upper-transit"].jd);
+  const halfSiderealDay = 0.5 / 1.0027379;
+  assert.ok(Math.abs(Math.min(apart, 1 / 1.0027379 - apart) - halfSiderealDay) < 1 / 1440, `${apart * 24} h`);
+});
+
+test("angularEvent: Ceres without its file for that date fails, naming no-ephemeris-file, and isn't taken for a missing rising", async (t) => {
+  const none = await fresh(t);
+  const failed = none.angularEvent(JD, PLACE, "ceres", "rise", GEOMETRIC);
+  assert.equal(failed.kind, "failed");
+  assert.equal(failed.reason, "no-ephemeris-file");
+  assert.match(failed.serr, /seas_18\.se1/);
+  // seas_18 alone covers 1800 to 2399: the day before, Ceres needs seas_12.
+  const onlyOne = await withFiles(t, ["seas_18.se1"]);
+  assert.equal(onlyOne.angularEvent(EARLY_1800, PLACE, "ceres", "upper-transit", GEOMETRIC).kind, "found");
+  const before = onlyOne.angularEvent(LATE_1799, PLACE, "ceres", "upper-transit", GEOMETRIC);
+  assert.equal(before.reason, "no-ephemeris-file");
+  assert.match(before.serr, /seas_12\.se1/);
+});
+
+test("angularEvent: with Ceres's three files, it's worked out from the first Gregorian day to the end of 2999", async (t) => {
+  const engine = await withFiles(t, CERES_FILES);
+  // 2999-12-31, a day before the window the parans page would refuse.
+  for (const jd of [OCTOBER_1582, LATE_1799, EARLY_1800, 2816786.5]) {
+    assert.equal(engine.angularEvent(jd, PLACE, "ceres", "upper-transit", GEOMETRIC).kind, "found", String(jd));
+  }
+});
+
+test("angularEvent: mounting the files changes nothing for the ten bodies, which stay on Moshier", async (t) => {
+  const plain = await fresh(t);
+  const mounted = await withFiles(t, CERES_FILES);
+  for (const reference of REFERENCE.cases) {
+    const place = placeOf(reference);
+    const horizon = horizonOf(reference.horizon);
+    for (const { point, event, jdUt } of reference.events) {
+      const from = jdUt - REFINE_LEAD_DAYS;
+      assert.deepEqual(
+        mounted.angularEvent(from, place, point, dashed(event), horizon),
+        plain.angularEvent(from, place, point, dashed(event), horizon),
+        `${reference.name}: ${point} ${event}`,
+      );
+    }
+  }
+});
+
+test("createEngine: its assumptions name the files it mounted, and files that aren't .se1 files by name with their bytes are refused", async (t) => {
+  assert.deepEqual((await fresh(t)).assumptions.ephemerisFiles, []);
+  assert.deepEqual((await withFiles(t, ["seas_24.se1", "seas_12.se1"])).assumptions.ephemerisFiles, ["seas_12.se1", "seas_24.se1"]);
+  const bytes = new Uint8Array([1]);
+  for (const ephemerisFiles of [null, [], "seas_18.se1", { "../seas_18.se1": bytes }, { "seas_18.txt": bytes },
+    { "SEAS_18.SE1": bytes }, { "seas_18.se1": [1, 2] }, { "seas_18.se1": new Uint8Array() }]) {
+    await assert.rejects(createEngine({ ephemerisFiles }), /ephemerisFiles|\.se1|bytes/, JSON.stringify(ephemerisFiles));
+  }
+});
