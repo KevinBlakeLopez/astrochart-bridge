@@ -1,8 +1,9 @@
 // What the parans page works out: the angular events of the chosen bodies
 // around a chart's moment, from core/parans.js, and the pairs of them close
-// enough to count as parans with the page's settings. The chart arrives in
-// the page's link, read as the receiving page reads one. Nothing here has
-// words in it yet; the screen's text comes with the page.
+// enough to count as parans with the page's settings, and the screen drawn
+// from them. The chart arrives in the page's link, read as the receiving page
+// reads one. Times are at the chart's own offset, to the nearest minute, as
+// on Helioscope's page.
 //
 // A paran here is two events of two different bodies whose ARMCs are within
 // the orb, at most 12 hours apart. The ARMC gap is wrapped into
@@ -10,7 +11,10 @@
 // ARMC; the 12 hours keep those out, since they aren't the same moment of the
 // day. Both are this page's rule: astro-research's parans-v1 has no orb.
 import { natalChartFor, readLink } from "./chart-model.js";
+import { atChartOffset } from "./chart-time.js";
 import { BODIES, ELEVATION_LIMITS, angularEvents, paranGaps } from "./core/parans.js";
+import { text } from "./messages/index.js";
+import { offsetText, viewFor } from "./popup-model.js";
 
 // Degrees of ARMC, 1° being about 4 minutes of time.
 export const ORBS = Object.freeze([0.25, 0.5, 1, 2]);
@@ -82,6 +86,125 @@ export function paransWithin(events, orb) {
     .filter(({ armc, seconds }) => Math.abs(armc) <= orb && Math.abs(seconds) <= MOST_SECONDS_APART)
     .sort((a, b) => Math.abs(a.armc) - Math.abs(b.armc));
 }
+
+/**
+ * The screen for a chart's parans: the chart screen's own rows, so the chart
+ * reads as it does in the popup, then the parans, closest first, every event
+ * in time order with the risings and settings that didn't happen, the
+ * assumptions and the notes.
+ *
+ * @param {object} chart  a normalized chart
+ * @param {{ events: import("./core/parans.js").AngularEvents, parans: Paran[] }} worked  from paransFor
+ * @param {Settings} settings  the ones paransFor was given
+ * @returns {{ state: "ready", rows: [string, string][], parans: { heading: string, rows: object[], none: string | null },
+ *   events: { heading: string, summary: string, rows: [string, string][], missing: string[] },
+ *   assumptions: { heading: string, rows: [string, string][] }, notes: string[] }}
+ */
+export function viewForParans(chart, { events, parans }, { orb, horizon }) {
+  const words = text().parans;
+  const when = (event) => atChartOffset(event.utc, chart);
+  const said = (event) => words.event(event.point, event.event);
+  return {
+    state: "ready",
+    rows: viewFor(chart).rows,
+    parans: {
+      heading: words.withinOrb(plain(orb)),
+      rows: parans.map(({ first, second, armc, seconds }) => ({
+        first: words.at(said(first), when(first)),
+        second: words.at(said(second), when(second)),
+        armc: words.armcGap(decimal(Math.abs(armc), 2)),
+        time: timeGap(seconds),
+      })),
+      none: parans.length === 0 ? words.none(plain(orb)) : null,
+    },
+    events: {
+      heading: words.eventsHeading,
+      summary: words.eventsSummary,
+      rows: events.events.map((event) => [when(event), words.eventArmc(said(event), decimal(aroundCircle(event.armc), 2))]),
+      missing: missingLines(events.noRiseOrSet),
+    },
+    assumptions: { heading: words.assumptionsHeading, rows: assumptionRows(events, chart, orb, horizon) },
+    notes: [words.timesAt(offsetText(chart.offsetMinutes)), words.armcNote],
+  };
+}
+
+/**
+ * The screen for a page with nothing to work out: no chart in its link, a
+ * link or chart that's refused, Swiss Ephemeris failing to start, or one of
+ * its searches failing. A refusal keeps its code on screen, as the popup's do.
+ *
+ * @param {string | null} reason  a link's or angularEvents's, or "engine-failed"; null for no chart
+ * @returns {{ state: "empty", message: string } | { state: "refused", message: string, code: string }}
+ */
+export function viewForRefusal(reason) {
+  const words = text().parans;
+  if (reason === null) return { state: "empty", message: words.empty };
+  const fromLink = text().chart.refusals.link;
+  let message = words.refusals.other;
+  if (Object.hasOwn(words.refusals, reason)) message = words.refusals[reason];
+  else if (Object.hasOwn(fromLink, reason)) message = fromLink[reason];
+  return { state: "refused", message, code: reason };
+}
+
+/**
+ * The screen for one of Swiss Ephemeris's searches failing, which fails the
+ * whole result: a list with a hole in it would look complete.
+ *
+ * @param {{ point: string, event: string, failure: { reason: string } }} failed  from paransFor
+ * @returns {{ state: "refused", message: string, code: string }}
+ */
+export function viewForFailure({ point, event, failure }) {
+  return { state: "refused", message: text().parans.failed(point, event), code: failure.reason };
+}
+
+// The bodies that didn't rise, set or either, in BODIES's order.
+function missingLines(noRiseOrSet) {
+  const words = text().parans;
+  const lines = [];
+  for (const body of BODIES) {
+    const rise = noRiseOrSet.some(({ point, event }) => point === body && event === "rise");
+    const set = noRiseOrSet.some(({ point, event }) => point === body && event === "set");
+    if (rise || set) lines.push(words.missing(body, rise && set ? "both" : rise ? "rise" : "set"));
+  }
+  return lines;
+}
+
+// The window, as angularEvents had it, then how each event was found, the
+// horizon, the elevation and the orb.
+function assumptionRows({ window, assumptions }, chart, orb, horizon) {
+  const words = text().parans.assumptions;
+  const { metres, source } = assumptions.elevation;
+  const elevation = `${metres < 0 ? MINUS : ""}${Math.abs(metres)}`;
+  const { refraction } = HORIZONS[horizon];
+  return [
+    [words.ephemeris, words.ephemerisValue(assumptions.swissEphemeris)],
+    [words.time, words.timeValue],
+    [words.window, words.windowValue(atChartOffset(window.start.utc, chart), atChartOffset(window.end.utc, chart))],
+    [words.position, words.positionValue],
+    [words.horizon, refraction === null ? words.geometric : words.almanac(plain(refraction.pressure), plain(refraction.temperature))],
+    [words.culminations, words.culminationsValue],
+    [words.search, words.searchValue(assumptions.refineLeadMinutes)],
+    [words.elevation, source === "default" ? words.elevationDefault(elevation) : words.elevationGiven(elevation)],
+    [words.orb, words.orbValue(plain(orb))],
+  ];
+}
+
+const MINUS = "−";
+
+// The time between two events, to the nearest second: "1 min 41 s", "41 s".
+function timeGap(seconds) {
+  const whole = Math.round(Math.abs(seconds));
+  return text().parans.timeGap(Math.floor(whole / 60), whole % 60);
+}
+
+// x to so many decimal places, with the language's decimal mark.
+const decimal = (x, digits) => x.toFixed(digits).replace(".", text().parans.decimal);
+
+// An ARMC in [0, 360) to 0.01°, so 359.996° is 0.00°, not 360.00°.
+const aroundCircle = (degrees) => (Math.round(degrees * 100) / 100) % 360;
+
+// A value as it's set, with the language's decimal mark: 0.25, 1, 1013.25.
+const plain = (x) => String(x).replace(".", text().parans.decimal);
 
 /**
  * The page's settings, as the user last left them on this computer.

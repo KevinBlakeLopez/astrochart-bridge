@@ -315,9 +315,9 @@ test("every message has a space after its punctuation", () => {
 // A browser may wrap a line at an ordinary space, so on a narrow screen "22"
 // could end one line and "% cloud" start the next. A no-break space keeps a
 // number and its unit together.
-test("Helioscope's page never wraps a line between a number and its unit", () => {
+test("Helioscope's page and the parans page never wrap a line between a number and its unit", () => {
   for (const [code, messages] of Object.entries({ en, es, sl })) {
-    for (const message of texts(messages.helioscope)) {
+    for (const message of [...texts(messages.helioscope), ...texts(messages.parans)]) {
       assert.doesNotMatch(message, /[\dX][^\S\u00a0\u2007\u202f](?:%|°C|hPa|km|m)(?!\p{L})/u, `${code}: ${message}`);
     }
   }
