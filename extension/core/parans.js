@@ -32,6 +32,105 @@ export const PLANETS = Object.freeze([
 // them, their searches fail.
 export const DWARF_PLANETS = Object.freeze(["ceres", "eris", "makemake", "haumea", "varuna", "ixion", "orcus", "sedna"]);
 export const BODIES = Object.freeze([...PLANETS, ...DWARF_PLANETS]);
+
+// The fixed stars, from Swiss Ephemeris's star catalogue, sefstars.txt, which
+// the engine has to be given: every star in it brighter than visual magnitude
+// 2.0, and the 64 stars Bernadette Brady uses, four of them star clusters,
+// brightest first. Each is its catalogue designation, as Swiss Ephemeris
+// takes it, with the catalogue's first name for it, its other names, the
+// catalogue's and Brady's, and its magnitude. tools/fixed-stars.mjs works the
+// list out from the catalogue, and test/parans-stars.test.js checks it's this
+// one.
+export const FIXED_STARS = Object.freeze([
+  { designation: ",alCMa", name: "Sirius", otherNames: ["Lubdhaka"], magnitude: -1.46 },
+  { designation: ",alCar", name: "Canopus", otherNames: ["Agastya"], magnitude: -0.74 },
+  { designation: ",alCen", name: "Rigil Kentaurus", otherNames: ["Rigel Kentaurus", "Toliman", "Bungula"], magnitude: -0.1 },
+  { designation: ",alBoo", name: "Arcturus", otherNames: ["Svati"], magnitude: -0.05 },
+  { designation: ",alLyr", name: "Vega", otherNames: ["Abhijit"], magnitude: 0.03 },
+  { designation: ",alAur", name: "Capella", otherNames: ["Brahmahridaya"], magnitude: 0.08 },
+  { designation: ",beOri", name: "Rigel", otherNames: [], magnitude: 0.13 },
+  { designation: ",alCMi", name: "Procyon", otherNames: [], magnitude: 0.37 },
+  { designation: ",alOri", name: "Betelgeuse", otherNames: ["Beteigeuse", "Ardra"], magnitude: 0.42 },
+  { designation: ",alEri", name: "Achernar", otherNames: [], magnitude: 0.46 },
+  { designation: ",beCen", name: "Hadar", otherNames: ["Agena"], magnitude: 0.6 },
+  { designation: ",alAql", name: "Altair", otherNames: ["Shravana"], magnitude: 0.76 },
+  { designation: ",alCru", name: "Acrux", otherNames: [], magnitude: 0.81 },
+  { designation: ",alTau", name: "Aldebaran", otherNames: ["Rohini"], magnitude: 0.86 },
+  { designation: ",alSco", name: "Antares", otherNames: ["Jyeshtha"], magnitude: 0.91 },
+  { designation: ",alVir", name: "Spica", otherNames: ["Citra"], magnitude: 0.97 },
+  { designation: ",beGem", name: "Pollux", otherNames: ["Punarvasu"], magnitude: 1.14 },
+  { designation: ",alPsA", name: "Fomalhaut", otherNames: [], magnitude: 1.16 },
+  { designation: ",alCyg", name: "Deneb", otherNames: ["Deneb Adige"], magnitude: 1.25 },
+  { designation: ",beCru", name: "Mimosa", otherNames: [], magnitude: 1.25 },
+  { designation: ",alLeo", name: "Regulus", otherNames: ["Magha"], magnitude: 1.4 },
+  { designation: ",epCMa", name: "Adara", otherNames: ["Adhara"], magnitude: 1.5 },
+  { designation: ",alGem", name: "Castor", otherNames: [], magnitude: 1.58 },
+  { designation: ",laSco", name: "Shaula", otherNames: ["Mula"], magnitude: 1.62 },
+  { designation: ",gaCru", name: "Gacrux", otherNames: [], magnitude: 1.64 },
+  { designation: ",gaOri", name: "Bellatrix", otherNames: ["Durga"], magnitude: 1.64 },
+  { designation: ",beTau", name: "Elnath", otherNames: ["El Nath", "Alnath"], magnitude: 1.65 },
+  { designation: ",beCar", name: "Miaplacidus", otherNames: [], magnitude: 1.69 },
+  { designation: ",epOri", name: "Alnilam", otherNames: ["Ganesha"], magnitude: 1.69 },
+  { designation: ",alGru", name: "Alnair", otherNames: [], magnitude: 1.71 },
+  { designation: ",epUMa", name: "Alioth", otherNames: ["Angiras"], magnitude: 1.77 },
+  { designation: ",zeOri", name: "Alnitak", otherNames: ["Iyappa"], magnitude: 1.79 },
+  { designation: ",alPer", name: "Mirfak", otherNames: ["Mirphak"], magnitude: 1.79 },
+  { designation: ",alUMa", name: "Dubhe", otherNames: ["Kratu"], magnitude: 1.79 },
+  { designation: ",ga-2Vel", name: "Suhail al Muhlif", otherNames: ["Regor"], magnitude: 1.83 },
+  { designation: ",deCMa", name: "Wezen", otherNames: [], magnitude: 1.84 },
+  { designation: ",epSgr", name: "Kaus Australis", otherNames: [], magnitude: 1.85 },
+  { designation: ",etUMa", name: "Alkaid", otherNames: ["Benetnash", "Marichi"], magnitude: 1.86 },
+  { designation: ",thSco", name: "Sargas", otherNames: [], magnitude: 1.862 },
+  { designation: ",beAur", name: "Menkalinan", otherNames: [], magnitude: 1.9 },
+  { designation: ",alPav", name: "Peacock", otherNames: [], magnitude: 1.918 },
+  { designation: ",gaGem", name: "Alhena", otherNames: ["Almeisan"], magnitude: 1.92 },
+  { designation: ",alTrA", name: "Atria", otherNames: [], magnitude: 1.92 },
+  { designation: ",deVel", name: "Alsephina", otherNames: ["Koo She"], magnitude: 1.95 },
+  { designation: ",epCar", name: "Avior", otherNames: [], magnitude: 1.953 },
+  { designation: ",beCMa", name: "Mirzam", otherNames: ["Murzim", "Murzims"], magnitude: 1.97 },
+  { designation: ",alHya", name: "Alphard", otherNames: ["Cor Hydrae"], magnitude: 1.97 },
+  { designation: ",ga-1Leo", name: "Algieba", otherNames: [], magnitude: 1.98 },
+  { designation: ",alAri", name: "Hamal", otherNames: [], magnitude: 2.01 },
+  { designation: ",alUMi", name: "Polaris", otherNames: [], magnitude: 2.02 },
+  { designation: ",beAnd", name: "Mirach", otherNames: [], magnitude: 2.05 },
+  { designation: ",alAnd", name: "Alpheratz", otherNames: ["Sirrah"], magnitude: 2.06 },
+  { designation: ",alOph", name: "Rasalhague", otherNames: [], magnitude: 2.07 },
+  { designation: ",bePer", name: "Algol", otherNames: [], magnitude: 2.12 },
+  { designation: ",beLeo", name: "Denebola", otherNames: ["Uttaraphalguni"], magnitude: 2.13 },
+  { designation: ",alCas", name: "Schedar", otherNames: ["Shedir", "Schedir"], magnitude: 2.23 },
+  { designation: ",alCrB", name: "Alphecca", otherNames: ["Alphekka", "Gemma"], magnitude: 2.24 },
+  { designation: ",alPhe", name: "Ankaa", otherNames: [], magnitude: 2.37 },
+  { designation: ",bePeg", name: "Scheat", otherNames: [], magnitude: 2.42 },
+  { designation: ",alCep", name: "Alderamin", otherNames: [], magnitude: 2.46 },
+  { designation: ",alPeg", name: "Markab", otherNames: ["Purvabhadra"], magnitude: 2.48 },
+  { designation: ",alCet", name: "Menkar", otherNames: [], magnitude: 2.53 },
+  { designation: ",deLeo", name: "Zosma", otherNames: ["Dhur", "Purvaphalguni"], magnitude: 2.53 },
+  { designation: ",beLib", name: "Zubeneshamali", otherNames: ["Zuben Eschamali"], magnitude: 2.62 },
+  { designation: ",alCol", name: "Phact", otherNames: [], magnitude: 2.65 },
+  { designation: ",al-2Lib", name: "Zubenelgenubi", otherNames: ["Zuben Elgenubi"], magnitude: 2.75 },
+  { designation: ",epVir", name: "Vindemiatrix", otherNames: [], magnitude: 2.79 },
+  { designation: ",deCap", name: "Deneb Algedi", otherNames: [], magnitude: 2.83 },
+  { designation: ",etTau", name: "Alcyone", otherNames: ["Krttika"], magnitude: 2.87 },
+  { designation: ",beAqr", name: "Sadalsuud", otherNames: [], magnitude: 2.89 },
+  { designation: ",alAqr", name: "Sadalmelek", otherNames: ["Sadalmelik"], magnitude: 2.94 },
+  { designation: ",alHer", name: "Ras Algethi", otherNames: ["Rasalgethi"], magnitude: 3.06 },
+  { designation: ",M7", name: "Acumen", otherNames: [], magnitude: 3.3 },
+  { designation: ",alDra", name: "Thuban", otherNames: ["Dhruva"], magnitude: 3.68 },
+  { designation: ",NGC869", name: "Capulus", otherNames: [], magnitude: 3.7 },
+  { designation: ",alDel", name: "Sualocin", otherNames: [], magnitude: 3.8 },
+  { designation: ",alPsc", name: "Alrischa", otherNames: ["Alrescha", "Al Rescha"], magnitude: 3.82 },
+  { designation: ",alSgr", name: "Rukbat", otherNames: [], magnitude: 3.943 },
+  { designation: ",alCrt", name: "Alkes", otherNames: [], magnitude: 4.07 },
+  { designation: ",M6", name: "Aculeus", otherNames: [], magnitude: 4.2 },
+  { designation: ",alCnc", name: "Acubens", otherNames: ["Ashlesha (Colebrook)"], magnitude: 4.249 },
+  { designation: ",alCom", name: "Diadem", otherNames: [], magnitude: 4.32 },
+  { designation: ",M22", name: "Facies", otherNames: [], magnitude: 6.17 },
+].map((star) => Object.freeze({ ...star, otherNames: Object.freeze(star.otherNames) })));
+const STAR_DESIGNATIONS = Object.freeze(FIXED_STARS.map(({ designation }) => designation));
+
+/** Whether a point is one of FIXED_STARS, by its designation, rather than a body. */
+export const isStar = (point) => STAR_DESIGNATIONS.includes(point);
+
 // The order events of one body are searched in, and so the order of events
 // at the same instant.
 const EVENTS = Object.freeze(["rise", "set", "upper-transit", "lower-transit"]);
@@ -85,15 +184,19 @@ export function natalMoment(chart) {
  *
  * @param {object} chart  a normalized chart, as analyzePage or analyzeEntry gives it
  * @param {import("../helioscope-engine.js").Engine} engine  from createEngine
- * @param {{ bodies: (typeof BODIES)[number][], horizon: import("../helioscope-engine.js").Horizon, elevation?: number }} options
- *   the bodies, each once; the horizon, which the engine checks; the observer's elevation in metres
+ * @param {{ bodies: (typeof BODIES)[number][], stars?: string[], horizon: import("../helioscope-engine.js").Horizon,
+ *   elevation?: number }} options
+ *   the bodies, each once; the fixed stars, by their designations in
+ *   FIXED_STARS, each once, none unless given; the horizon, which the engine
+ *   checks; the observer's elevation in metres
  * @returns {{ kind: "refused", reason: "not-natal" | "needs-offset" | "needs-choice" | "invalid-coordinates"
  *   | "at-pole" | "date-out-of-range" | "invalid-elevation" }
  *   | { kind: "failed", point: string, event: string, failure: object }
  *   | AngularEvents}
  */
-export function angularEvents(chart, engine, { bodies, horizon, elevation } = {}) {
+export function angularEvents(chart, engine, { bodies, stars = [], horizon, elevation } = {}) {
   checkBodies(bodies);
+  checkStars(stars);
   const moment = natalMoment(chart);
   if (moment.kind === "refused") return moment;
   const { jd, lat, lng } = moment;
@@ -108,7 +211,7 @@ export function angularEvents(chart, engine, { bodies, horizon, elevation } = {}
   const place = { lat, lng, elevation: metres };
   const events = [];
   const noRiseOrSet = [];
-  for (const point of bodies) {
+  for (const point of [...bodies, ...stars]) {
     for (const event of EVENTS) {
       const failed = collect(engine, place, start, end, horizon, point, event, events, noRiseOrSet);
       if (failed) return { kind: "failed", point, event, failure: failed };
@@ -123,13 +226,14 @@ export function angularEvents(chart, engine, { bodies, horizon, elevation } = {}
     place,
     horizon,
     bodies: [...bodies],
+    stars: [...stars],
     events,
     noRiseOrSet,
     conventions: CONVENTIONS,
     assumptions: {
       swissEphemeris,
       ephemeris,
-      // The asteroid files the engine read the dwarf planets from, if any.
+      // The files the engine read the dwarf planets and the stars from, if any.
       ephemerisFiles: [...ephemerisFiles],
       timeScale: "utc-as-ut",
       windowHours: WINDOW_HOURS,
@@ -140,7 +244,8 @@ export function angularEvents(chart, engine, { bodies, horizon, elevation } = {}
 }
 
 /**
- * Every pair of events of two different bodies, the earlier first: the time
+ * Every pair of events of two different points, the earlier first, but never
+ * of two stars: the time
  * between them, in seconds of UT, and the ARMC between them, the second's less
  * the first's in (-180, 180]. There's no orb.
  *
@@ -155,7 +260,9 @@ export function paranGaps(result) {
     for (let j = i + 1; j < events.length; j += 1) {
       const first = events[i];
       const second = events[j];
-      if (first.point === second.point) continue;
+      // Two stars keep the same pattern every day at a latitude, so their
+      // pairs say nothing about the chart: a star pairs with a body only.
+      if (first.point === second.point || (isStar(first.point) && isStar(second.point))) continue;
       gaps.push({ first, second, seconds: (second.jd - first.jd) * 86400, armc: wrap(second.armc - first.armc) });
     }
   }
@@ -202,6 +309,12 @@ function collect(engine, place, start, end, horizon, point, event, events, noRis
 function advance(from, jd) {
   const next = jd + NEXT_SEARCH_DAYS;
   return next > from ? next : null;
+}
+
+function checkStars(stars) {
+  if (!Array.isArray(stars) || new Set(stars).size !== stars.length || !stars.every(isStar)) {
+    throw new Error(`angularEvents takes stars, each once, by their designations in FIXED_STARS; got ${JSON.stringify(stars)}`);
+  }
 }
 
 function checkBodies(bodies) {

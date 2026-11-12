@@ -37,6 +37,7 @@ const elevationRefused = document.getElementById("elevation-refused");
 const orbBoxes = [...document.querySelectorAll('input[name="orb"]')];
 const horizonBoxes = [...document.querySelectorAll('input[name="horizon"]')];
 const bodyBoxes = [...document.querySelectorAll('input[name="body"]')];
+const starsBox = document.getElementById("stars");
 
 // Each orb in the language's numbers.
 for (const box of orbBoxes) box.parentElement.querySelector(".orb").textContent = orbLabel(Number(box.value));
@@ -50,6 +51,7 @@ let settings = remembered ? await paransSettings(remembered).catch(() => DEFAULT
 elevationBox.value = settings.elevation === null ? "" : String(settings.elevation);
 for (const box of orbBoxes) box.checked = Number(box.value) === settings.orb;
 for (const box of horizonBoxes) box.checked = box.value === settings.horizon;
+starsBox.checked = settings.stars;
 showBodies();
 
 // The dwarf planets' files, from this copy's own vendor/swisseph/ephe/.
@@ -132,6 +134,8 @@ for (const box of bodyBoxes) {
     choose({ ...settings, bodies: bodyBoxes.filter((each) => each.checked).map((each) => each.value) });
   });
 }
+
+starsBox.addEventListener("change", () => choose({ ...settings, stars: starsBox.checked }));
 
 show();
 // A link pasted into this tab's address bar changes only the fragment, which

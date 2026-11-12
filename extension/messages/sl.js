@@ -166,6 +166,8 @@ export default {
         sedna: "Sedna",
       },
       dwarfPlanets: "Pritlikavi planeti",
+      stars: "Zvezde stalnice",
+      starsLabel: "Svetle zvezde in Bradyjinih 64",
       working: "Računanje paranov …",
       notice:
         "AstroChart Bridge, © 2026 Kevin Blake Lopez, to izračuna na tej napravi s Swiss Ephemeris, © 1997–2021 Astrodienst AG, prek swisseph-wasm. Vsi trije so prosto programje: lahko jih delite in spreminjate pod pogoji licence GNU Affero General Public License, različice 3 ali novejše. Zanje ne velja nobeno jamstvo.",
@@ -1012,12 +1014,18 @@ export default {
     eventsSummary: "Vsak vzhod, zahod in kulminacija v 24 urah okoli trenutka horoskopa",
     eventArmc: (said, degrees) => `${said} · ARMC ${degrees}°`,
     missing: (body, which) => `${subject(body)} ta dan ${{ rise: "ne vzide", set: "ne zaide", both: "ne vzide in ne zaide" }[which] ?? which}`,
+    // The verb agrees with how many: "Polaris ne vzide", "Capella in Polaris ne vzideta", "… ne vzidejo".
+    starsMissing: (names) =>
+      `${and(names)} ta dan ${names.length === 1 ? "ne vzide in ne zaide" : names.length === 2 ? "ne vzideta in ne zaideta" : "ne vzidejo in ne zaidejo"}`,
     assumptionsHeading: "Predpostavke",
     assumptions: {
       ephemeris: "Efemeride",
       ephemerisValue: (version) => `Swiss Ephemeris ${version}, Moshier`,
       dwarfPlanets: "Pritlikavi planeti",
       dwarfPlanetsValue: "Iz Astrodienstovih datotek asteroidov, narejenih iz JPL-jevega DE441, s Soncem in Zemljo po Moshierju",
+      stars: "Zvezde stalnice",
+      starsValue: (count) =>
+        `${count} iz kataloga zvezd Swiss Ephemeris: vse svetlejše od magnitude 2 in 64, ki jih uporablja Bernadette Brady, med njimi štiri zvezdne kopice`,
       time: "Čas",
       timeValue: "UTC horoskopa, vzet kot UT",
       window: "Okno",

@@ -167,6 +167,8 @@ export const SITE_FILES = Object.freeze([
   "vendor/swisseph/ephe/seas_12.se1",
   "vendor/swisseph/ephe/seas_18.se1",
   "vendor/swisseph/ephe/seas_24.se1",
+  // And the star catalogue it fetches for the fixed stars.
+  "vendor/swisseph/ephe/sefstars.txt",
   "vendor/swisseph/LICENSE",
   "vendor/swisseph/NOTICE",
 ]);

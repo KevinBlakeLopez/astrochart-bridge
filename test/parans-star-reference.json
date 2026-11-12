@@ -1,0 +1,3361 @@
+{
+ "generatedBy": "tools/make-star-reference.py",
+ "astroResearch": {
+  "commit": "045fbfd35e19cee58e98fbe1acc5890b545eae39",
+  "conventions": "parans-v1: Swiss Ephemeris rise_trans, topocentric, the body's actual position (ecliptic latitude included); rise and set of the chosen disc point with the chosen refraction (none: geometric horizon); transits at hour angle 0 and 180; each event refined by a second search from 3 minutes before; events in [start, end); gaps in time and ARMC, no orb",
+  "binding": "pysweph 2.10.3.6",
+  "swissEphemeris": "2.10.03",
+  "de": 441,
+  "timeScale": "clock_as_ut1"
+ },
+ "catalogue": {
+  "file": "sefstars.txt",
+  "sha256": "18b0dcafbe5b7240773daba2c038a325f5b3fc4163f61e0a7f4e92abd4f517c6"
+ },
+ "stars": [
+  ",alCMa",
+  ",alCar",
+  ",alCen",
+  ",alBoo",
+  ",alLyr",
+  ",alAur",
+  ",beOri",
+  ",alCMi",
+  ",alOri",
+  ",alEri",
+  ",beCen",
+  ",alAql",
+  ",alCru",
+  ",alTau",
+  ",alSco",
+  ",alVir",
+  ",beGem",
+  ",alPsA",
+  ",alCyg",
+  ",beCru",
+  ",alLeo",
+  ",epCMa",
+  ",alGem",
+  ",laSco",
+  ",gaCru",
+  ",gaOri",
+  ",beTau",
+  ",beCar",
+  ",epOri",
+  ",alGru",
+  ",epUMa",
+  ",zeOri",
+  ",alPer",
+  ",alUMa",
+  ",ga-2Vel",
+  ",deCMa",
+  ",epSgr",
+  ",etUMa",
+  ",thSco",
+  ",beAur",
+  ",alPav",
+  ",gaGem",
+  ",alTrA",
+  ",deVel",
+  ",epCar",
+  ",beCMa",
+  ",alHya",
+  ",ga-1Leo",
+  ",alAri",
+  ",alUMi",
+  ",beAnd",
+  ",alAnd",
+  ",alOph",
+  ",bePer",
+  ",beLeo",
+  ",alCas",
+  ",alCrB",
+  ",alPhe",
+  ",bePeg",
+  ",alCep",
+  ",alPeg",
+  ",alCet",
+  ",deLeo",
+  ",beLib",
+  ",alCol",
+  ",al-2Lib",
+  ",epVir",
+  ",deCap",
+  ",etTau",
+  ",beAqr",
+  ",alAqr",
+  ",alHer",
+  ",M7",
+  ",alDra",
+  ",NGC869",
+  ",alDel",
+  ",alPsc",
+  ",alSgr",
+  ",alCrt",
+  ",M6",
+  ",alCnc",
+  ",alCom",
+  ",M22"
+ ],
+ "results": [
+  {
+   "name": "london-mercury-retrograde/geometric",
+   "utc": "2024-04-10T14:30:00Z",
+   "lat": 51.5074,
+   "lng": -0.1278,
+   "elevation": 0,
+   "horizon": "geometric",
+   "window": {
+    "startJdUt": 2460410.6041666665,
+    "endJdUt": 2460411.6041666665
+   },
+   "events": [
+    {"point": ",alPeg", "event": "rise", "jdUt": 2460410.6045198124, "armc": 236.31831904727048},
+    {"point": ",etTau", "event": "lower_transit", "jdUt": 2460410.6070346246, "armc": 237.226130124812},
+    {"point": ",M7", "event": "rise", "jdUt": 2460410.6141260206, "armc": 239.7860222527589},
+    {"point": ",beAqr", "event": "rise", "jdUt": 2460410.6150431316, "armc": 240.11708617466533},
+    {"point": ",alCnc", "event": "set", "jdUt": 2460410.6150931995, "armc": 240.13515996860116},
+    {"point": ",alAqr", "event": "rise", "jdUt": 2460410.6202877047, "armc": 242.01030175407652},
+    {"point": ",epSgr", "event": "rise", "jdUt": 2460410.6307240804, "armc": 245.7776834859262},
+    {"point": ",laSco", "event": "rise", "jdUt": 2460410.631186489, "armc": 245.94460636597765},
+    {"point": ",alSco", "event": "upper_transit", "jdUt": 2460410.636123936, "armc": 247.72695388211176},
+    {"point": ",beGem", "event": "set", "jdUt": 2460410.6385213216, "armc": 248.59237559431648},
+    {"point": ",alTau", "event": "lower_transit", "jdUt": 2460410.6405467074, "armc": 249.32351080277084},
+    {"point": ",alTrA", "event": "upper_transit", "jdUt": 2460410.65022882, "armc": 252.81861433562295},
+    {"point": ",alGem", "event": "set", "jdUt": 2460410.657290427, "armc": 255.3677531342274},
+    {"point": ",alLeo", "event": "set", "jdUt": 2460410.663790671, "armc": 257.71424792739714},
+    {"point": ",deCap", "event": "rise", "jdUt": 2460410.6652852376, "armc": 258.25376495261145},
+    {"point": ",beOri", "event": "lower_transit", "jdUt": 2460410.667137075, "armc": 258.92225174111275},
+    {"point": ",alHer", "event": "upper_transit", "jdUt": 2460410.667188345, "armc": 258.94075939268237},
+    {"point": ",alAur", "event": "lower_transit", "jdUt": 2460410.669056222, "armc": 259.61503611542685},
+    {"point": ",gaOri", "event": "lower_transit", "jdUt": 2460410.6745671616, "armc": 261.6044062315189},
+    {"point": ",beTau", "event": "lower_transit", "jdUt": 2460410.6755305314, "armc": 261.95216891432216},
+    {"point": ",laSco", "event": "upper_transit", "jdUt": 2460410.6806931193, "armc": 263.8157889991277},
+    {"point": ",alOph", "event": "upper_transit", "jdUt": 2460410.681250046, "armc": 264.016831544186},
+    {"point": ",epOri", "event": "lower_transit", "jdUt": 2460410.682194501, "armc": 264.3577662928525},
+    {"point": ",thSco", "event": "upper_transit", "jdUt": 2460410.683329182, "armc": 264.76736985854296},
+    {"point": ",alCol", "event": "lower_transit", "jdUt": 2460410.6843296024, "armc": 265.1285071817655},
+    {"point": ",M6", "event": "upper_transit", "jdUt": 2460410.685303913, "armc": 265.4802193046697},
+    {"point": ",zeOri", "event": "lower_transit", "jdUt": 2460410.6853377507, "armc": 265.49243424381484},
+    {"point": ",alAri", "event": "rise", "jdUt": 2460410.6946324985, "armc": 268.8477047505223},
+    {"point": ",M7", "event": "upper_transit", "jdUt": 2460410.69468897, "armc": 268.86809021493553},
+    {"point": ",alOri", "event": "lower_transit", "jdUt": 2460410.6953816633, "armc": 269.1181424601514},
+    {"point": ",beAur", "event": "lower_transit", "jdUt": 2460410.698718683, "armc": 270.32275861478485},
+    {"point": ",ga-1Leo", "event": "set", "jdUt": 2460410.7036959017, "armc": 272.11946313727725},
+    {"point": ",beCMa", "event": "lower_transit", "jdUt": 2460410.7142781676, "armc": 275.9395091829844},
+    {"point": ",alCar", "event": "lower_transit", "jdUt": 2460410.7147765406, "armc": 276.11941470193506},
+    {"point": ",epSgr", "event": "upper_transit", "jdUt": 2460410.715680432, "armc": 276.44570651847107},
+    {"point": ",alVir", "event": "set", "jdUt": 2460410.7174462955, "armc": 277.08315788845965},
+    {"point": ",alLyr", "event": "upper_transit", "jdUt": 2460410.723976794, "armc": 279.44057412174016},
+    {"point": ",M22", "event": "upper_transit", "jdUt": 2460410.724057385, "armc": 279.4696663400311},
+    {"point": ",gaGem", "event": "lower_transit", "jdUt": 2460410.7249049395, "armc": 279.77562127285773},
+    {"point": ",alCMa", "event": "lower_transit", "jdUt": 2460410.7298258445, "armc": 281.5519973180907},
+    {"point": ",laSco", "event": "set", "jdUt": 2460410.730199306, "armc": 281.686811479224},
+    {"point": ",epCMa", "event": "lower_transit", "jdUt": 2460410.739080781, "armc": 284.89289654400227},
+    {"point": ",beLeo", "event": "set", "jdUt": 2460410.7434366234, "armc": 286.4652930531658},
+    {"point": ",deLeo", "event": "set", "jdUt": 2460410.744143296, "armc": 286.7203917401588},
+    {"point": ",deCMa", "event": "lower_transit", "jdUt": 2460410.745867346, "armc": 287.34274900559063},
+    {"point": ",alSgr", "event": "upper_transit", "jdUt": 2460410.7570785442, "armc": 291.389830618272},
+    {"point": ",al-2Lib", "event": "set", "jdUt": 2460410.7579736393, "armc": 291.7129470820687},
+    {"point": ",etTau", "event": "rise", "jdUt": 2460410.7611272815, "armc": 292.85136662801904},
+    {"point": ",alGem", "event": "lower_transit", "jdUt": 2460410.764405801, "armc": 294.0348650920398},
+    {"point": ",alCMi", "event": "lower_transit", "jdUt": 2460410.767471794, "armc": 295.14164457268214},
+    {"point": ",beGem", "event": "lower_transit", "jdUt": 2460410.7717855102, "armc": 296.6988341856388},
+    {"point": ",alPsc", "event": "rise", "jdUt": 2460410.773157724, "armc": 297.1941837170704},
+    {"point": ",M7", "event": "set", "jdUt": 2460410.775251516, "armc": 297.95001255336354},
+    {"point": ",alAql", "event": "upper_transit", "jdUt": 2460410.77536173, "armc": 297.9897980964215},
+    {"point": ",alSco", "event": "set", "jdUt": 2460410.777960587, "armc": 298.92794817568546},
+    {"point": ",epVir", "event": "set", "jdUt": 2460410.7802840555, "armc": 299.76668701061107},
+    {"point": ",alPsA", "event": "rise", "jdUt": 2460410.781160482, "armc": 300.08306446457885},
+    {"point": ",ga-2Vel", "event": "lower_transit", "jdUt": 2460410.788047802, "armc": 302.5692880876878},
+    {"point": ",M6", "event": "set", "jdUt": 2460410.789036561, "armc": 302.9262157594347},
+    {"point": ",epCar", "event": "lower_transit", "jdUt": 2460410.796863983, "armc": 305.7518027632501},
+    {"point": ",alPav", "event": "upper_transit", "jdUt": 2460410.800005377, "armc": 306.8858008543155},
+    {"point": ",epSgr", "event": "set", "jdUt": 2460410.800636419, "armc": 307.11359806104554},
+    {"point": ",beLib", "event": "set", "jdUt": 2460410.8016191805, "armc": 307.46836081064345},
+    {"point": ",beTau", "event": "rise", "jdUt": 2460410.8047666233, "armc": 308.60454248246873},
+    {"point": ",alDel", "event": "upper_transit", "jdUt": 2460410.8091528965, "armc": 310.18792413887377},
+    {"point": ",alCyg", "event": "upper_transit", "jdUt": 2460410.810183779, "armc": 310.56005786894065},
+    {"point": ",alCet", "event": "rise", "jdUt": 2460410.8103068355, "armc": 310.6044795287895},
+    {"point": ",alCom", "event": "set", "jdUt": 2460410.8114158, "armc": 311.00479976973963},
+    {"point": ",deVel", "event": "lower_transit", "jdUt": 2460410.812353699, "armc": 311.34336788353875},
+    {"point": ",alCnc", "event": "lower_transit", "jdUt": 2460410.822356095, "armc": 314.95408926192965},
+    {"point": ",alTau", "event": "rise", "jdUt": 2460410.8290478075, "armc": 317.36970137548207},
+    {"point": ",beCar", "event": "lower_transit", "jdUt": 2460410.8318058797, "armc": 318.3653258518933},
+    {"point": ",alCep", "event": "upper_transit", "jdUt": 2460410.8357236823, "armc": 319.77959634127006},
+    {"point": ",alHya", "event": "lower_transit", "jdUt": 2460410.8424176485, "armc": 322.1960220454644},
+    {"point": ",beAqr", "event": "upper_transit", "jdUt": 2460410.845212029, "armc": 323.204753216727},
+    {"point": ",deCap", "event": "upper_transit", "jdUt": 2460410.855975755, "armc": 327.09030384838036},
+    {"point": ",alBoo", "event": "set", "jdUt": 2460410.8638662985, "armc": 329.93867675166206},
+    {"point": ",alAqr", "event": "upper_transit", "jdUt": 2460410.8688914524, "armc": 331.75268519731367},
+    {"point": ",alLeo", "event": "lower_transit", "jdUt": 2460410.87073451, "armc": 332.4180025227847},
+    {"point": ",alGru", "event": "upper_transit", "jdUt": 2460410.8707776144, "armc": 332.43356259374673},
+    {"point": ",alGem", "event": "rise", "jdUt": 2460410.8715216005, "armc": 332.7021308976361},
+    {"point": ",ga-1Leo", "event": "lower_transit", "jdUt": 2460410.8788016867, "armc": 335.3301374932465},
+    {"point": ",M22", "event": "set", "jdUt": 2460410.87963276, "armc": 335.63014296979475},
+    {"point": ",gaOri", "event": "rise", "jdUt": 2460410.9015268967, "armc": 343.5336120933905},
+    {"point": ",alPsA", "event": "upper_transit", "jdUt": 2460410.9048737884, "armc": 344.74179191857525},
+    {"point": ",beGem", "event": "rise", "jdUt": 2460410.9050500877, "armc": 344.8054334575621},
+    {"point": ",alCrt", "event": "lower_transit", "jdUt": 2460410.9062595605, "armc": 345.24203576666065},
+    {"point": ",bePeg", "event": "upper_transit", "jdUt": 2460410.9089996875, "armc": 346.2311822910372},
+    {"point": ",alUMa", "event": "lower_transit", "jdUt": 2460410.9092266597, "armc": 346.31311598214836},
+    {"point": ",alPeg", "event": "upper_transit", "jdUt": 2460410.909706972, "armc": 346.4865018591312},
+    {"point": ",gaGem", "event": "rise", "jdUt": 2460410.91413622, "armc": 348.0853966952316},
+    {"point": ",deLeo", "event": "lower_transit", "jdUt": 2460410.916263122, "armc": 348.85317790877144},
+    {"point": ",alOri", "event": "rise", "jdUt": 2460410.918621827, "armc": 349.70463648471804},
+    {"point": ",epOri", "event": "rise", "jdUt": 2460410.935651589, "armc": 355.8521362040513},
+    {"point": ",beLeo", "event": "lower_transit", "jdUt": 2460410.9404331, "armc": 357.5781929231872},
+    {"point": ",zeOri", "event": "rise", "jdUt": 2460410.9413877814, "armc": 357.92281925580295},
+    {"point": ",beOri", "event": "rise", "jdUt": 2460410.9452879913, "armc": 359.3307390468702},
+    {"point": ",alAnd", "event": "upper_transit", "jdUt": 2460410.953800086, "armc": 2.4034830171994326},
+    {"point": ",alCrB", "event": "set", "jdUt": 2460410.955514082, "armc": 3.022211074176557},
+    {"point": ",alPhe", "event": "upper_transit", "jdUt": 2460410.966156581, "armc": 6.8640003513181345},
+    {"point": ",alCru", "event": "lower_transit", "jdUt": 2460410.9665233376, "armc": 6.996394253236684},
+    {"point": ",alHer", "event": "set", "jdUt": 2460410.9685253785, "armc": 7.719102264542015},
+    {"point": ",gaCru", "event": "lower_transit", "jdUt": 2460410.9696796937, "armc": 8.135793479979132},
+    {"point": ",alOph", "event": "set", "jdUt": 2460410.9755568192, "armc": 10.257351440497454},
+    {"point": ",alCas", "event": "upper_transit", "jdUt": 2460410.9761193916, "armc": 10.460431996759102},
+    {"point": ",beCru", "event": "lower_transit", "jdUt": 2460410.9811978205, "armc": 12.293671930626664},
+    {"point": ",epUMa", "event": "lower_transit", "jdUt": 2460410.985327078, "armc": 13.784274624439423},
+    {"point": ",epVir", "event": "lower_transit", "jdUt": 2460410.991051345, "armc": 15.850652883923338},
+    {"point": ",beAnd", "event": "upper_transit", "jdUt": 2460410.9963548686, "armc": 17.765148744254947},
+    {"point": ",alCom", "event": "lower_transit", "jdUt": 2460410.996443029, "armc": 17.79697338027774},
+    {"point": ",alCMi", "event": "rise", "jdUt": 2460410.998719979, "armc": 18.618919665948287},
+    {"point": ",alVir", "event": "lower_transit", "jdUt": 2460411.0070396303, "armc": 21.62219434835098},
+    {"point": ",alEri", "event": "upper_transit", "jdUt": 2460411.0154178333, "armc": 24.64660538632239},
+    {"point": ",etUMa", "event": "lower_transit", "jdUt": 2460411.02230625, "armc": 27.133224906706467},
+    {"point": ",alPsA", "event": "set", "jdUt": 2460411.0285869925, "armc": 29.400482832447203},
+    {"point": ",alCnc", "event": "rise", "jdUt": 2460411.029619186, "armc": 29.7730899271228},
+    {"point": ",beCMa", "event": "rise", "jdUt": 2460411.030278016, "armc": 30.010917991429157},
+    {"point": ",alPsc", "event": "upper_transit", "jdUt": 2460411.0325185293, "armc": 30.819711189845748},
+    {"point": ",alDra", "event": "lower_transit", "jdUt": 2460411.0337869637, "armc": 31.27759777988585},
+    {"point": ",beCen", "event": "lower_transit", "jdUt": 2460411.034110375, "armc": 31.394344705247285},
+    {"point": ",alAri", "event": "upper_transit", "jdUt": 2460411.036145002, "armc": 32.12881581407446},
+    {"point": ",alCMa", "event": "rise", "jdUt": 2460411.0407569893, "armc": 33.79367698159059},
+    {"point": ",alBoo", "event": "lower_transit", "jdUt": 2460411.0418746867, "armc": 34.19714971892293},
+    {"point": ",NGC869", "event": "upper_transit", "jdUt": 2460411.044560078, "armc": 35.1665374516559},
+    {"point": ",deCap", "event": "set", "jdUt": 2460411.0466661146, "armc": 35.926786410398755},
+    {"point": ",ga-1Leo", "event": "rise", "jdUt": 2460411.0539076813, "armc": 38.540888040858334},
+    {"point": ",alAql", "event": "set", "jdUt": 2460411.0562440245, "armc": 39.384274433645544},
+    {"point": ",alCen", "event": "lower_transit", "jdUt": 2460411.05884416, "armc": 40.322885952526725},
+    {"point": ",al-2Lib", "event": "lower_transit", "jdUt": 2460411.066425002, "armc": 43.059461239696255},
+    {"point": ",alUMi", "event": "upper_transit", "jdUt": 2460411.072361445, "armc": 45.20243191649311},
+    {"point": ",alCet", "event": "upper_transit", "jdUt": 2460411.074242611, "armc": 45.881505805474255},
+    {"point": ",beAqr", "event": "set", "jdUt": 2460411.075380612, "armc": 46.29230791128662},
+    {"point": ",alLeo", "event": "rise", "jdUt": 2460411.0776786497, "armc": 47.121866474435855},
+    {"point": ",bePer", "event": "upper_transit", "jdUt": 2460411.078532203, "armc": 47.429987006493484},
+    {"point": ",beLib", "event": "lower_transit", "jdUt": 2460411.084493832, "armc": 49.58204954885764},
+    {"point": ",deLeo", "event": "rise", "jdUt": 2460411.088383167, "armc": 50.986043611467096},
+    {"point": ",alPer", "event": "upper_transit", "jdUt": 2460411.089824483, "armc": 51.506337910678795},
+    {"point": ",alCol", "event": "rise", "jdUt": 2460411.094982434, "armc": 53.36828429128832},
+    {"point": ",alCrB", "event": "lower_transit", "jdUt": 2460411.0965486127, "armc": 53.93365229947677},
+    {"point": ",deCMa", "event": "rise", "jdUt": 2460411.1023792913, "armc": 56.03844360176248},
+    {"point": ",etTau", "event": "upper_transit", "jdUt": 2460411.105669717, "armc": 57.22623999171381},
+    {"point": ",epCMa", "event": "rise", "jdUt": 2460411.1108673103, "armc": 59.102496642937716},
+    {"point": ",alDel", "event": "set", "jdUt": 2460411.116994191, "armc": 61.31421262583811},
+    {"point": ",alAqr", "event": "set", "jdUt": 2460411.1174950292, "armc": 61.49500805464543},
+    {"point": ",alHya", "event": "rise", "jdUt": 2460411.122707336, "armc": 63.37657606898967},
+    {"point": ",alSco", "event": "lower_transit", "jdUt": 2460411.13475855, "armc": 67.72689137277453},
+    {"point": ",beLeo", "event": "rise", "jdUt": 2460411.1374298427, "armc": 68.69118963497802},
+    {"point": ",alTau", "event": "upper_transit", "jdUt": 2460411.1391817615, "armc": 69.3236071842587},
+    {"point": ",alTrA", "event": "lower_transit", "jdUt": 2460411.148863163, "armc": 72.81845411848118},
+    {"point": ",beOri", "event": "upper_transit", "jdUt": 2460411.1657720967, "armc": 78.92233659137776},
+    {"point": ",alHer", "event": "lower_transit", "jdUt": 2460411.165822972, "armc": 78.94070186558608},
+    {"point": ",alAur", "event": "upper_transit", "jdUt": 2460411.1676913546, "armc": 79.61516115810525},
+    {"point": ",gaOri", "event": "upper_transit", "jdUt": 2460411.1732021854, "armc": 81.60449198863104},
+    {"point": ",beTau", "event": "upper_transit", "jdUt": 2460411.1741655907, "armc": 81.95226745492393},
+    {"point": ",laSco", "event": "lower_transit", "jdUt": 2460411.1793277343, "armc": 83.81572722054689},
+    {"point": ",alOph", "event": "lower_transit", "jdUt": 2460411.1798846815, "armc": 84.01677716663666},
+    {"point": ",epOri", "event": "upper_transit", "jdUt": 2460411.180829518, "armc": 84.3578495955096},
+    {"point": ",alCom", "event": "rise", "jdUt": 2460411.1814705227, "armc": 84.589243074989},
+    {"point": ",thSco", "event": "lower_transit", "jdUt": 2460411.181963781, "armc": 84.76730222060662},
+    {"point": ",alCol", "event": "upper_transit", "jdUt": 2460411.182964642, "armc": 85.12859874041153},
+    {"point": ",M6", "event": "lower_transit", "jdUt": 2460411.18393854, "armc": 85.4801619376141},
+    {"point": ",zeOri", "event": "upper_transit", "jdUt": 2460411.183972766, "armc": 85.49251707045741},
+    {"point": ",M7", "event": "lower_transit", "jdUt": 2460411.1933235945, "armc": 88.86803192277321},
+    {"point": ",alOri", "event": "upper_transit", "jdUt": 2460411.1940166806, "armc": 89.11822604762091},
+    {"point": ",beAur", "event": "upper_transit", "jdUt": 2460411.197353789, "armc": 90.32287433864825},
+    {"point": ",epVir", "event": "rise", "jdUt": 2460411.2018189123, "armc": 91.9347197292107},
+    {"point": ",beCMa", "event": "upper_transit", "jdUt": 2460411.2129131793, "armc": 95.93959092019261},
+    {"point": ",alCar", "event": "upper_transit", "jdUt": 2460411.213411642, "armc": 96.11952871853029},
+    {"point": ",epSgr", "event": "lower_transit", "jdUt": 2460411.214315061, "armc": 96.44565009283572},
+    {"point": ",alPeg", "event": "set", "jdUt": 2460411.214893787, "armc": 96.65456193790206},
+    {"point": ",alBoo", "event": "rise", "jdUt": 2460411.219883253, "armc": 98.45568745736553},
+    {"point": ",alLyr", "event": "lower_transit", "jdUt": 2460411.2226113887, "armc": 99.44050533009754},
+    {"point": ",M22", "event": "lower_transit", "jdUt": 2460411.2226920323, "armc": 99.46961654389085},
+    {"point": ",gaGem", "event": "upper_transit", "jdUt": 2460411.223539958, "armc": 99.77570545728724},
+    {"point": ",alCrt", "event": "rise", "jdUt": 2460411.224208324, "armc": 100.01697615109099},
+    {"point": ",alCMa", "event": "upper_transit", "jdUt": 2460411.228460854, "armc": 101.55207835240128},
+    {"point": ",alCrB", "event": "rise", "jdUt": 2460411.2375834477, "armc": 104.84520380788666},
+    {"point": ",epCMa", "event": "upper_transit", "jdUt": 2460411.2377158045, "armc": 104.89298270249748},
+    {"point": ",deCMa", "event": "upper_transit", "jdUt": 2460411.2445023656, "armc": 107.34283387946115},
+    {"point": ",alSgr", "event": "lower_transit", "jdUt": 2460411.2557131555, "armc": 111.3897681693381},
+    {"point": ",alGem", "event": "upper_transit", "jdUt": 2460411.263040841, "armc": 114.03495752543235},
+    {"point": ",alCMi", "event": "upper_transit", "jdUt": 2460411.2661067997, "armc": 115.14172459331533},
+    {"point": ",beGem", "event": "upper_transit", "jdUt": 2460411.2704205415, "armc": 116.6989234893677},
+    {"point": ",alCol", "event": "set", "jdUt": 2460411.270946472, "armc": 116.88877682879215},
+    {"point": ",alAql", "event": "lower_transit", "jdUt": 2460411.273996385, "armc": 117.98975160928312},
+    {"point": ",bePeg", "event": "set", "jdUt": 2460411.2758288076, "armc": 118.65122994727726},
+    {"point": ",ga-2Vel", "event": "upper_transit", "jdUt": 2460411.286682892, "armc": 122.56939871455918},
+    {"point": ",alPsc", "event": "set", "jdUt": 2460411.2918789876, "armc": 124.44511461363352},
+    {"point": ",epCar", "event": "upper_transit", "jdUt": 2460411.295499166, "armc": 125.7519470861614},
+    {"point": ",alVir", "event": "rise", "jdUt": 2460411.296633372, "armc": 126.16137920528736},
+    {"point": ",alPav", "event": "lower_transit", "jdUt": 2460411.2986398824, "armc": 126.88570062353055},
+    {"point": ",alDel", "event": "lower_transit", "jdUt": 2460411.30778754, "armc": 130.18787374533045},
+    {"point": ",alCyg", "event": "lower_transit", "jdUt": 2460411.3088183543, "armc": 130.5599829417185},
+    {"point": ",deVel", "event": "upper_transit", "jdUt": 2460411.3109888514, "armc": 131.34350124695112},
+    {"point": ",alCnc", "event": "upper_transit", "jdUt": 2460411.3209911156, "armc": 134.95417514156608},
+    {"point": ",alAnd", "event": "set", "jdUt": 2460411.3269473407, "armc": 137.10428694304025},
+    {"point": ",beCar", "event": "upper_transit", "jdUt": 2460411.3304412793, "armc": 138.36554864471609},
+    {"point": ",alCep", "event": "lower_transit", "jdUt": 2460411.3343581134, "armc": 139.77946952637748},
+    {"point": ",alCet", "event": "set", "jdUt": 2460411.338178127, "armc": 141.15843967123465},
+    {"point": ",alHya", "event": "upper_transit", "jdUt": 2460411.3410526775, "armc": 142.19611112608428},
+    {"point": ",beAqr", "event": "lower_transit", "jdUt": 2460411.3438466634, "armc": 143.2046999428871},
+    {"point": ",deCap", "event": "lower_transit", "jdUt": 2460411.354610375, "armc": 147.09024545725742},
+    {"point": ",alHer", "event": "rise", "jdUt": 2460411.3631206844, "armc": 150.16234500368338},
+    {"point": ",epCMa", "event": "set", "jdUt": 2460411.3645639117, "armc": 150.6833293480574},
+    {"point": ",beLib", "event": "rise", "jdUt": 2460411.3673686683, "armc": 151.69580625141037},
+    {"point": ",alAqr", "event": "lower_transit", "jdUt": 2460411.3675260763, "armc": 151.75262826298268},
+    {"point": ",alLeo", "event": "upper_transit", "jdUt": 2460411.369369551, "armc": 152.41809621931392},
+    {"point": ",alGru", "event": "lower_transit", "jdUt": 2460411.3694121256, "armc": 152.43346499603945},
+    {"point": ",al-2Lib", "event": "rise", "jdUt": 2460411.374876787, "armc": 154.40612935947178},
+    {"point": ",ga-1Leo", "event": "upper_transit", "jdUt": 2460411.3774367394, "armc": 155.3302354617073},
+    {"point": ",alAri", "event": "set", "jdUt": 2460411.3776570656, "armc": 155.40977007348965},
+    {"point": ",alOph", "event": "rise", "jdUt": 2460411.3842127817, "armc": 157.7762895100298},
+    {"point": ",beOri", "event": "set", "jdUt": 2460411.38625587, "armc": 158.5138151221869},
+    {"point": ",deCMa", "event": "set", "jdUt": 2460411.386625101, "armc": 158.64710212562818},
+    {"point": ",beCMa", "event": "set", "jdUt": 2460411.395547996, "armc": 161.86813918797782},
+    {"point": ",alPsA", "event": "lower_transit", "jdUt": 2460411.403508344, "armc": 164.74171075279725},
+    {"point": ",alCrt", "event": "upper_transit", "jdUt": 2460411.4048946425, "armc": 165.2421445616648},
+    {"point": ",bePeg", "event": "lower_transit", "jdUt": 2460411.407634267, "armc": 166.23110973360662},
+    {"point": ",alUMa", "event": "upper_transit", "jdUt": 2460411.40786194, "armc": 166.31329641256121},
+    {"point": ",alPeg", "event": "lower_transit", "jdUt": 2460411.408341568, "armc": 166.4864351909529},
+    {"point": ",deLeo", "event": "upper_transit", "jdUt": 2460411.414898199, "armc": 168.85328494163178},
+    {"point": ",alCMa", "event": "set", "jdUt": 2460411.416164368, "armc": 169.3103537483068},
+    {"point": ",beAnd", "event": "set", "jdUt": 2460411.4253084897, "armc": 172.6112505265548},
+    {"point": ",epOri", "event": "set", "jdUt": 2460411.4260070818, "armc": 172.86343223407965},
+    {"point": ",zeOri", "event": "set", "jdUt": 2460411.426557352, "armc": 173.06207183882378},
+    {"point": ",beLeo", "event": "upper_transit", "jdUt": 2460411.4390681884, "armc": 177.57830436553627},
+    {"point": ",gaOri", "event": "set", "jdUt": 2460411.444877118, "armc": 179.67524456157153},
+    {"point": ",alTau", "event": "set", "jdUt": 2460411.449315359, "armc": 181.2773858965832},
+    {"point": ",etTau", "event": "set", "jdUt": 2460411.4502116535, "armc": 181.60093538961524},
+    {"point": ",alAnd", "event": "lower_transit", "jdUt": 2460411.452434628, "armc": 182.40339722844743},
+    {"point": ",alPhe", "event": "lower_transit", "jdUt": 2460411.464791011, "armc": 186.8638743240314},
+    {"point": ",alCru", "event": "upper_transit", "jdUt": 2460411.4651588458, "armc": 186.9966573738771},
+    {"point": ",gaCru", "event": "upper_transit", "jdUt": 2460411.468315091, "armc": 188.13601662021813},
+    {"point": ",alOri", "event": "set", "jdUt": 2460411.469411343, "armc": 188.5317478250212},
+    {"point": ",alCas", "event": "lower_transit", "jdUt": 2460411.4747537524, "armc": 190.46028100824967},
+    {"point": ",beCru", "event": "upper_transit", "jdUt": 2460411.4798332835, "armc": 192.29391887103387},
+    {"point": ",epUMa", "event": "upper_transit", "jdUt": 2460411.483962382, "armc": 193.78446427888275},
+    {"point": ",epVir", "event": "upper_transit", "jdUt": 2460411.489686473, "armc": 195.8507788779681},
+    {"point": ",alSco", "event": "rise", "jdUt": 2460411.491556773, "armc": 196.5259304048296},
+    {"point": ",alAql", "event": "rise", "jdUt": 2460411.491748939, "armc": 196.5952995163013},
+    {"point": ",beAnd", "event": "lower_transit", "jdUt": 2460411.4949893523, "armc": 197.76504230510832},
+    {"point": ",alCom", "event": "upper_transit", "jdUt": 2460411.495078166, "armc": 197.79710278211877},
+    {"point": ",alDel", "event": "rise", "jdUt": 2460411.4985810616, "armc": 199.06159784045383},
+    {"point": ",alVir", "event": "upper_transit", "jdUt": 2460411.505674786, "armc": 201.62233056359864},
+    {"point": ",alEri", "event": "lower_transit", "jdUt": 2460411.5140520246, "armc": 204.64639354349424},
+    {"point": ",etUMa", "event": "upper_transit", "jdUt": 2460411.520941536, "armc": 207.13340831854708},
+    {"point": ",alPsc", "event": "lower_transit", "jdUt": 2460411.53115303, "armc": 210.81961127551898},
+    {"point": ",alDra", "event": "upper_transit", "jdUt": 2460411.532422488, "armc": 211.27786735336304},
+    {"point": ",beCen", "event": "upper_transit", "jdUt": 2460411.5327459485, "armc": 211.3946319318732},
+    {"point": ",gaGem", "event": "set", "jdUt": 2460411.532943378, "armc": 211.46590121276625},
+    {"point": ",alCMi", "event": "set", "jdUt": 2460411.53349333, "armc": 211.66442584015633},
+    {"point": ",alAri", "event": "lower_transit", "jdUt": 2460411.5347794844, "armc": 212.12870920564208},
+    {"point": ",bePeg", "event": "rise", "jdUt": 2460411.539439966, "armc": 213.8110762069287},
+    {"point": ",alBoo", "event": "upper_transit", "jdUt": 2460411.540509864, "armc": 214.19729412915856},
+    {"point": ",NGC869", "event": "lower_transit", "jdUt": 2460411.5431943336, "armc": 215.16634905206683},
+    {"point": ",beTau", "event": "set", "jdUt": 2460411.5435641306, "armc": 215.29984046268564},
+    {"point": ",alCen", "event": "upper_transit", "jdUt": 2460411.557479769, "armc": 220.32318633024815},
+    {"point": ",alHya", "event": "set", "jdUt": 2460411.5593976676, "armc": 221.01552023418682},
+    {"point": ",beAnd", "event": "rise", "jdUt": 2460411.5646706917, "armc": 222.9190062925858},
+    {"point": ",al-2Lib", "event": "upper_transit", "jdUt": 2460411.5650602183, "armc": 223.05961980685217},
+    {"point": ",M22", "event": "rise", "jdUt": 2460411.565751523, "armc": 223.30917079711105},
+    {"point": ",alUMi", "event": "lower_transit", "jdUt": 2460411.5709665655, "armc": 225.19172642078334},
+    {"point": ",alCet", "event": "lower_transit", "jdUt": 2460411.572877079, "armc": 225.88139430590297},
+    {"point": ",bePer", "event": "lower_transit", "jdUt": 2460411.5771665773, "armc": 227.4298417561716},
+    {"point": ",alAnd", "event": "rise", "jdUt": 2460411.5779223144, "armc": 227.7026519979772},
+    {"point": ",M6", "event": "rise", "jdUt": 2460411.5788408616, "armc": 228.03423434615044},
+    {"point": ",beLib", "event": "upper_transit", "jdUt": 2460411.5831290483, "armc": 229.58220826719727},
+    {"point": ",alCrt", "event": "set", "jdUt": 2460411.585580478, "armc": 230.46713919301024},
+    {"point": ",alPer", "event": "lower_transit", "jdUt": 2460411.5884587714, "armc": 231.50616182374867},
+    {"point": ",alCrB", "event": "upper_transit", "jdUt": 2460411.5951838535, "armc": 233.93382002707372},
+    {"point": ",alPeg", "event": "rise", "jdUt": 2460411.6017895825, "armc": 236.31839344466695}
+   ],
+   "noRiseOrSet": [
+    [
+     ",NGC869",
+     "rise"
+    ],
+    [
+     ",NGC869",
+     "set"
+    ],
+    [
+     ",alAur",
+     "rise"
+    ],
+    [
+     ",alAur",
+     "set"
+    ],
+    [
+     ",alCar",
+     "rise"
+    ],
+    [
+     ",alCar",
+     "set"
+    ],
+    [
+     ",alCas",
+     "rise"
+    ],
+    [
+     ",alCas",
+     "set"
+    ],
+    [
+     ",alCen",
+     "rise"
+    ],
+    [
+     ",alCen",
+     "set"
+    ],
+    [
+     ",alCep",
+     "rise"
+    ],
+    [
+     ",alCep",
+     "set"
+    ],
+    [
+     ",alCru",
+     "rise"
+    ],
+    [
+     ",alCru",
+     "set"
+    ],
+    [
+     ",alCyg",
+     "rise"
+    ],
+    [
+     ",alCyg",
+     "set"
+    ],
+    [
+     ",alDra",
+     "rise"
+    ],
+    [
+     ",alDra",
+     "set"
+    ],
+    [
+     ",alEri",
+     "rise"
+    ],
+    [
+     ",alEri",
+     "set"
+    ],
+    [
+     ",alGru",
+     "rise"
+    ],
+    [
+     ",alGru",
+     "set"
+    ],
+    [
+     ",alLyr",
+     "rise"
+    ],
+    [
+     ",alLyr",
+     "set"
+    ],
+    [
+     ",alPav",
+     "rise"
+    ],
+    [
+     ",alPav",
+     "set"
+    ],
+    [
+     ",alPer",
+     "rise"
+    ],
+    [
+     ",alPer",
+     "set"
+    ],
+    [
+     ",alPhe",
+     "rise"
+    ],
+    [
+     ",alPhe",
+     "set"
+    ],
+    [
+     ",alSgr",
+     "rise"
+    ],
+    [
+     ",alSgr",
+     "set"
+    ],
+    [
+     ",alTrA",
+     "rise"
+    ],
+    [
+     ",alTrA",
+     "set"
+    ],
+    [
+     ",alUMa",
+     "rise"
+    ],
+    [
+     ",alUMa",
+     "set"
+    ],
+    [
+     ",alUMi",
+     "rise"
+    ],
+    [
+     ",alUMi",
+     "set"
+    ],
+    [
+     ",beAur",
+     "rise"
+    ],
+    [
+     ",beAur",
+     "set"
+    ],
+    [
+     ",beCar",
+     "rise"
+    ],
+    [
+     ",beCar",
+     "set"
+    ],
+    [
+     ",beCen",
+     "rise"
+    ],
+    [
+     ",beCen",
+     "set"
+    ],
+    [
+     ",beCru",
+     "rise"
+    ],
+    [
+     ",beCru",
+     "set"
+    ],
+    [
+     ",bePer",
+     "rise"
+    ],
+    [
+     ",bePer",
+     "set"
+    ],
+    [
+     ",deVel",
+     "rise"
+    ],
+    [
+     ",deVel",
+     "set"
+    ],
+    [
+     ",epCar",
+     "rise"
+    ],
+    [
+     ",epCar",
+     "set"
+    ],
+    [
+     ",epUMa",
+     "rise"
+    ],
+    [
+     ",epUMa",
+     "set"
+    ],
+    [
+     ",etUMa",
+     "rise"
+    ],
+    [
+     ",etUMa",
+     "set"
+    ],
+    [
+     ",ga-2Vel",
+     "rise"
+    ],
+    [
+     ",ga-2Vel",
+     "set"
+    ],
+    [
+     ",gaCru",
+     "rise"
+    ],
+    [
+     ",gaCru",
+     "set"
+    ],
+    [
+     ",thSco",
+     "rise"
+    ],
+    [
+     ",thSco",
+     "set"
+    ]
+   ]
+  },
+  {
+   "name": "london-mercury-retrograde/almanac",
+   "utc": "2024-04-10T14:30:00Z",
+   "lat": 51.5074,
+   "lng": -0.1278,
+   "elevation": 0,
+   "horizon": "almanac",
+   "window": {
+    "startJdUt": 2460410.6041666665,
+    "endJdUt": 2460411.6041666665
+   },
+   "events": [
+    {"point": ",etTau", "event": "lower_transit", "jdUt": 2460410.6070346246, "armc": 237.226130124812},
+    {"point": ",M7", "event": "rise", "jdUt": 2460410.6079163235, "armc": 237.54441077065323},
+    {"point": ",beAqr", "event": "rise", "jdUt": 2460410.6124499324, "armc": 239.18097848242152},
+    {"point": ",alAqr", "event": "rise", "jdUt": 2460410.6177224796, "armc": 241.0842923231795},
+    {"point": ",alCnc", "event": "set", "jdUt": 2460410.617814668, "armc": 241.11757099819033},
+    {"point": ",laSco", "event": "rise", "jdUt": 2460410.6215961557, "armc": 242.4826337543382},
+    {"point": ",epSgr", "event": "rise", "jdUt": 2460410.6248152736, "armc": 243.6446890803562},
+    {"point": ",alSco", "event": "upper_transit", "jdUt": 2460410.636123936, "armc": 247.72695388211176},
+    {"point": ",alTau", "event": "lower_transit", "jdUt": 2460410.6405467074, "armc": 249.32351080277084},
+    {"point": ",beGem", "event": "set", "jdUt": 2460410.6424673083, "armc": 250.01682014364764},
+    {"point": ",alTrA", "event": "upper_transit", "jdUt": 2460410.65022882, "armc": 252.81861433562295},
+    {"point": ",alGem", "event": "set", "jdUt": 2460410.6622193335, "armc": 257.14701758450104},
+    {"point": ",deCap", "event": "rise", "jdUt": 2460410.6624332746, "armc": 257.2242472472674},
+    {"point": ",alLeo", "event": "set", "jdUt": 2460410.666514365, "armc": 258.6974622954762},
+    {"point": ",beOri", "event": "lower_transit", "jdUt": 2460410.667137075, "armc": 258.92225174111275},
+    {"point": ",alHer", "event": "upper_transit", "jdUt": 2460410.667188345, "armc": 258.94075939268237},
+    {"point": ",alAur", "event": "lower_transit", "jdUt": 2460410.669056222, "armc": 259.61503611542685},
+    {"point": ",gaOri", "event": "lower_transit", "jdUt": 2460410.6745671616, "armc": 261.6044062315189},
+    {"point": ",beTau", "event": "lower_transit", "jdUt": 2460410.6755305314, "armc": 261.95216891432216},
+    {"point": ",laSco", "event": "upper_transit", "jdUt": 2460410.6806931193, "armc": 263.8157889991277},
+    {"point": ",alOph", "event": "upper_transit", "jdUt": 2460410.681250046, "armc": 264.016831544186},
+    {"point": ",epOri", "event": "lower_transit", "jdUt": 2460410.682194501, "armc": 264.3577662928525},
+    {"point": ",thSco", "event": "upper_transit", "jdUt": 2460410.683329182, "armc": 264.76736985854296},
+    {"point": ",alCol", "event": "lower_transit", "jdUt": 2460410.6843296024, "armc": 265.1285071817655},
+    {"point": ",M6", "event": "upper_transit", "jdUt": 2460410.685303913, "armc": 265.4802193046697},
+    {"point": ",zeOri", "event": "lower_transit", "jdUt": 2460410.6853377507, "armc": 265.49243424381484},
+    {"point": ",alAri", "event": "rise", "jdUt": 2460410.6912609423, "armc": 267.63062134212294},
+    {"point": ",M7", "event": "upper_transit", "jdUt": 2460410.69468897, "armc": 268.86809021493553},
+    {"point": ",alOri", "event": "lower_transit", "jdUt": 2460410.6953816633, "armc": 269.1181424601514},
+    {"point": ",beAur", "event": "lower_transit", "jdUt": 2460410.698718683, "armc": 270.32275861478485},
+    {"point": ",ga-1Leo", "event": "set", "jdUt": 2460410.7067635544, "armc": 273.2268417125388},
+    {"point": ",beCMa", "event": "lower_transit", "jdUt": 2460410.7142781676, "armc": 275.9395091829844},
+    {"point": ",alCar", "event": "lower_transit", "jdUt": 2460410.7147765406, "armc": 276.11941470193506},
+    {"point": ",epSgr", "event": "upper_transit", "jdUt": 2460410.715680432, "armc": 276.44570651847107},
+    {"point": ",alVir", "event": "set", "jdUt": 2460410.7201426513, "armc": 278.0565036183904},
+    {"point": ",alLyr", "event": "upper_transit", "jdUt": 2460410.723976794, "armc": 279.44057412174016},
+    {"point": ",M22", "event": "upper_transit", "jdUt": 2460410.724057385, "armc": 279.4696663400311},
+    {"point": ",gaGem", "event": "lower_transit", "jdUt": 2460410.7249049395, "armc": 279.77562127285773},
+    {"point": ",alCMa", "event": "lower_transit", "jdUt": 2460410.7298258445, "armc": 281.5519973180907},
+    {"point": ",epCMa", "event": "lower_transit", "jdUt": 2460410.739080781, "armc": 284.89289654400227},
+    {"point": ",laSco", "event": "set", "jdUt": 2460410.7397897723, "armc": 285.14883218592604},
+    {"point": ",deCMa", "event": "lower_transit", "jdUt": 2460410.745867346, "armc": 287.34274900559063},
+    {"point": ",beLeo", "event": "set", "jdUt": 2460410.7462447174, "armc": 287.47897467757946},
+    {"point": ",deLeo", "event": "set", "jdUt": 2460410.747255135, "armc": 287.84372087767593},
+    {"point": ",alSgr", "event": "upper_transit", "jdUt": 2460410.7570785442, "armc": 291.389830618272},
+    {"point": ",etTau", "event": "rise", "jdUt": 2460410.7576950076, "armc": 291.61236504221324},
+    {"point": ",al-2Lib", "event": "set", "jdUt": 2460410.7608308475, "armc": 292.7443582383327},
+    {"point": ",alGem", "event": "lower_transit", "jdUt": 2460410.764405801, "armc": 294.0348650920398},
+    {"point": ",alCMi", "event": "lower_transit", "jdUt": 2460410.767471794, "armc": 295.14164457268214},
+    {"point": ",alPsc", "event": "rise", "jdUt": 2460410.7705828035, "armc": 296.26467433085537},
+    {"point": ",beGem", "event": "lower_transit", "jdUt": 2460410.7717855102, "armc": 296.6988341856388},
+    {"point": ",alAql", "event": "upper_transit", "jdUt": 2460410.77536173, "armc": 297.9897980964215},
+    {"point": ",alPsA", "event": "rise", "jdUt": 2460410.7770216945, "armc": 298.5890215125585},
+    {"point": ",M7", "event": "set", "jdUt": 2460410.7814613665, "armc": 300.19167935754444},
+    {"point": ",alSco", "event": "set", "jdUt": 2460410.7816045764, "armc": 300.24337608986656},
+    {"point": ",epVir", "event": "set", "jdUt": 2460410.7829804104, "armc": 300.7400324073867},
+    {"point": ",ga-2Vel", "event": "lower_transit", "jdUt": 2460410.788047802, "armc": 302.5692880876878},
+    {"point": ",M6", "event": "set", "jdUt": 2460410.7939281147, "armc": 304.69199648593764},
+    {"point": ",epCar", "event": "lower_transit", "jdUt": 2460410.796863983, "armc": 305.7518027632501},
+    {"point": ",alPav", "event": "upper_transit", "jdUt": 2460410.800005377, "armc": 306.8858008543155},
+    {"point": ",beTau", "event": "rise", "jdUt": 2460410.800698408, "armc": 307.13597513950367},
+    {"point": ",beLib", "event": "set", "jdUt": 2460410.804274369, "armc": 308.426845757831},
+    {"point": ",epSgr", "event": "set", "jdUt": 2460410.806545226, "armc": 309.2465924862742},
+    {"point": ",alCet", "event": "rise", "jdUt": 2460410.807721901, "armc": 309.67135538147306},
+    {"point": ",alDel", "event": "upper_transit", "jdUt": 2460410.8091528965, "armc": 310.18792413887377},
+    {"point": ",alCyg", "event": "upper_transit", "jdUt": 2460410.810183779, "armc": 310.56005786894065},
+    {"point": ",deVel", "event": "lower_transit", "jdUt": 2460410.812353699, "armc": 311.34336788353875},
+    {"point": ",alCom", "event": "set", "jdUt": 2460410.814352322, "armc": 312.0648420567772},
+    {"point": ",alCnc", "event": "lower_transit", "jdUt": 2460410.822356095, "armc": 314.95408926192965},
+    {"point": ",alTau", "event": "rise", "jdUt": 2460410.8261516574, "armc": 316.3242327649708},
+    {"point": ",beCar", "event": "lower_transit", "jdUt": 2460410.8318058797, "armc": 318.3653258518933},
+    {"point": ",alCep", "event": "upper_transit", "jdUt": 2460410.8357236823, "armc": 319.77959634127006},
+    {"point": ",alHya", "event": "lower_transit", "jdUt": 2460410.8424176485, "armc": 322.1960220454644},
+    {"point": ",beAqr", "event": "upper_transit", "jdUt": 2460410.845212029, "armc": 323.204753216727},
+    {"point": ",deCap", "event": "upper_transit", "jdUt": 2460410.855975755, "armc": 327.09030384838036},
+    {"point": ",alGem", "event": "rise", "jdUt": 2460410.866592694, "armc": 330.9228664287959},
+    {"point": ",alBoo", "event": "set", "jdUt": 2460410.8668932603, "armc": 331.03136651155967},
+    {"point": ",alAqr", "event": "upper_transit", "jdUt": 2460410.8688914524, "armc": 331.75268519731367},
+    {"point": ",alLeo", "event": "lower_transit", "jdUt": 2460410.87073451, "armc": 332.4180025227847},
+    {"point": ",alGru", "event": "upper_transit", "jdUt": 2460410.8707776144, "armc": 332.43356259374673},
+    {"point": ",ga-1Leo", "event": "lower_transit", "jdUt": 2460410.8788016867, "armc": 335.3301374932465},
+    {"point": ",M22", "event": "set", "jdUt": 2460410.8829868324, "armc": 336.84091501806233},
+    {"point": ",gaOri", "event": "rise", "jdUt": 2460410.8989168494, "armc": 342.5914224685135},
+    {"point": ",beGem", "event": "rise", "jdUt": 2460410.901104101, "armc": 343.3809888900602},
+    {"point": ",alPsA", "event": "upper_transit", "jdUt": 2460410.9048737884, "armc": 344.74179191857525},
+    {"point": ",alCrt", "event": "lower_transit", "jdUt": 2460410.9062595605, "armc": 345.24203576666065},
+    {"point": ",bePeg", "event": "upper_transit", "jdUt": 2460410.9089996875, "armc": 346.2311822910372},
+    {"point": ",alUMa", "event": "lower_transit", "jdUt": 2460410.9092266597, "armc": 346.31311598214836},
+    {"point": ",alPeg", "event": "upper_transit", "jdUt": 2460410.909706972, "armc": 346.4865018591312},
+    {"point": ",gaGem", "event": "rise", "jdUt": 2460410.911248176, "armc": 347.04285431379753},
+    {"point": ",alOri", "event": "rise", "jdUt": 2460410.9159960435, "armc": 348.7567663561375},
+    {"point": ",deLeo", "event": "lower_transit", "jdUt": 2460410.916263122, "armc": 348.85317790877144},
+    {"point": ",epOri", "event": "rise", "jdUt": 2460410.9330854104, "armc": 354.9257824961227},
+    {"point": ",zeOri", "event": "rise", "jdUt": 2460410.9388196953, "armc": 356.99577702216664},
+    {"point": ",beLeo", "event": "lower_transit", "jdUt": 2460410.9404331, "armc": 357.5781929231872},
+    {"point": ",beOri", "event": "rise", "jdUt": 2460410.942657122, "armc": 358.3810329611008},
+    {"point": ",alAnd", "event": "upper_transit", "jdUt": 2460410.953800086, "armc": 2.4034830171994326},
+    {"point": ",alCrB", "event": "set", "jdUt": 2460410.9592469223, "armc": 4.36971275493636},
+    {"point": ",alPhe", "event": "upper_transit", "jdUt": 2460410.966156581, "armc": 6.8640003513181345},
+    {"point": ",alCru", "event": "lower_transit", "jdUt": 2460410.9665233376, "armc": 6.996394253236684},
+    {"point": ",gaCru", "event": "lower_transit", "jdUt": 2460410.9696796937, "armc": 8.135793479979132},
+    {"point": ",alHer", "event": "set", "jdUt": 2460410.9713306115, "armc": 8.73175111187243},
+    {"point": ",alCas", "event": "upper_transit", "jdUt": 2460410.9761193916, "armc": 10.460431996759102},
+    {"point": ",alOph", "event": "set", "jdUt": 2460410.9783008583, "armc": 11.247910151432059},
+    {"point": ",beCru", "event": "lower_transit", "jdUt": 2460410.9811978205, "armc": 12.293671930626664},
+    {"point": ",epUMa", "event": "lower_transit", "jdUt": 2460410.985327078, "armc": 13.784274624439423},
+    {"point": ",epVir", "event": "lower_transit", "jdUt": 2460410.991051345, "armc": 15.850652883923338},
+    {"point": ",alCMi", "event": "rise", "jdUt": 2460410.9961250313, "armc": 17.68218075145437},
+    {"point": ",beAnd", "event": "upper_transit", "jdUt": 2460410.9963548686, "armc": 17.765148744254947},
+    {"point": ",alCom", "event": "lower_transit", "jdUt": 2460410.996443029, "armc": 17.79697338027774},
+    {"point": ",alVir", "event": "lower_transit", "jdUt": 2460411.0070396303, "armc": 21.62219434835098},
+    {"point": ",alEri", "event": "upper_transit", "jdUt": 2460411.0154178333, "armc": 24.64660538632239},
+    {"point": ",etUMa", "event": "lower_transit", "jdUt": 2460411.02230625, "armc": 27.133224906706467},
+    {"point": ",alCnc", "event": "rise", "jdUt": 2460411.0268978765, "armc": 28.79073619849857},
+    {"point": ",beCMa", "event": "rise", "jdUt": 2460411.0273365667, "armc": 28.94909705912063},
+    {"point": ",alPsc", "event": "upper_transit", "jdUt": 2460411.0325185293, "armc": 30.819711189845748},
+    {"point": ",alPsA", "event": "set", "jdUt": 2460411.032725621, "armc": 30.89446831389403},
+    {"point": ",alDra", "event": "lower_transit", "jdUt": 2460411.0337869637, "armc": 31.27759777988585},
+    {"point": ",beCen", "event": "lower_transit", "jdUt": 2460411.034110375, "armc": 31.394344705247285},
+    {"point": ",alAri", "event": "upper_transit", "jdUt": 2460411.036145002, "armc": 32.12881581407446},
+    {"point": ",alCMa", "event": "rise", "jdUt": 2460411.0378735554, "armc": 32.75279875458243},
+    {"point": ",alBoo", "event": "lower_transit", "jdUt": 2460411.0418746867, "armc": 34.19714971892293},
+    {"point": ",NGC869", "event": "upper_transit", "jdUt": 2460411.044560078, "armc": 35.1665374516559},
+    {"point": ",deCap", "event": "set", "jdUt": 2460411.0495180776, "armc": 36.956304135344524},
+    {"point": ",ga-1Leo", "event": "rise", "jdUt": 2460411.0508400295, "armc": 37.43350978277874},
+    {"point": ",alCen", "event": "lower_transit", "jdUt": 2460411.05884416, "armc": 40.322885952526725},
+    {"point": ",alAql", "event": "set", "jdUt": 2460411.0588973057, "armc": 40.34207086741998},
+    {"point": ",al-2Lib", "event": "lower_transit", "jdUt": 2460411.066425002, "armc": 43.059461239696255},
+    {"point": ",alUMi", "event": "upper_transit", "jdUt": 2460411.072361445, "armc": 45.20243191649311},
+    {"point": ",alCet", "event": "upper_transit", "jdUt": 2460411.074242611, "armc": 45.881505805474255},
+    {"point": ",alLeo", "event": "rise", "jdUt": 2460411.074954956, "armc": 46.138652086350284},
+    {"point": ",beAqr", "event": "set", "jdUt": 2460411.077973812, "armc": 47.22841579263848},
+    {"point": ",bePer", "event": "upper_transit", "jdUt": 2460411.078532203, "armc": 47.429987006493484},
+    {"point": ",beLib", "event": "lower_transit", "jdUt": 2460411.084493832, "armc": 49.58204954885764},
+    {"point": ",deLeo", "event": "rise", "jdUt": 2460411.0852713278, "armc": 49.86271428740219},
+    {"point": ",alCol", "event": "rise", "jdUt": 2460411.089264839, "armc": 51.30431451534421},
+    {"point": ",alPer", "event": "upper_transit", "jdUt": 2460411.089824483, "armc": 51.506337910678795},
+    {"point": ",alCrB", "event": "lower_transit", "jdUt": 2460411.0965486127, "armc": 53.93365229947677},
+    {"point": ",deCMa", "event": "rise", "jdUt": 2460411.0987419775, "armc": 54.7254255065767},
+    {"point": ",etTau", "event": "upper_transit", "jdUt": 2460411.105669717, "armc": 57.22623999171381},
+    {"point": ",epCMa", "event": "rise", "jdUt": 2460411.1068251617, "armc": 57.64333901331755},
+    {"point": ",alDel", "event": "set", "jdUt": 2460411.1198650687, "armc": 62.350558288230374},
+    {"point": ",alAqr", "event": "set", "jdUt": 2460411.120060095, "armc": 62.42096001927313},
+    {"point": ",alHya", "event": "rise", "jdUt": 2460411.1200659764, "armc": 62.4230830847795},
+    {"point": ",beLeo", "event": "rise", "jdUt": 2460411.1346219075, "armc": 67.67756531256111},
+    {"point": ",alSco", "event": "lower_transit", "jdUt": 2460411.13475855, "armc": 67.72689137277453},
+    {"point": ",alTau", "event": "upper_transit", "jdUt": 2460411.1391817615, "armc": 69.3236071842587},
+    {"point": ",alTrA", "event": "lower_transit", "jdUt": 2460411.148863163, "armc": 72.81845411848118},
+    {"point": ",beOri", "event": "upper_transit", "jdUt": 2460411.1657720967, "armc": 78.92233659137776},
+    {"point": ",alHer", "event": "lower_transit", "jdUt": 2460411.165822972, "armc": 78.94070186558608},
+    {"point": ",alAur", "event": "upper_transit", "jdUt": 2460411.1676913546, "armc": 79.61516115810525},
+    {"point": ",gaOri", "event": "upper_transit", "jdUt": 2460411.1732021854, "armc": 81.60449198863104},
+    {"point": ",beTau", "event": "upper_transit", "jdUt": 2460411.1741655907, "armc": 81.95226745492393},
+    {"point": ",alCom", "event": "rise", "jdUt": 2460411.178534, "armc": 83.52920060126436},
+    {"point": ",laSco", "event": "lower_transit", "jdUt": 2460411.1793277343, "armc": 83.81572722054689},
+    {"point": ",alOph", "event": "lower_transit", "jdUt": 2460411.1798846815, "armc": 84.01677716663666},
+    {"point": ",epOri", "event": "upper_transit", "jdUt": 2460411.180829518, "armc": 84.3578495955096},
+    {"point": ",thSco", "event": "lower_transit", "jdUt": 2460411.181963781, "armc": 84.76730222060662},
+    {"point": ",alCol", "event": "upper_transit", "jdUt": 2460411.182964642, "armc": 85.12859874041153},
+    {"point": ",M6", "event": "lower_transit", "jdUt": 2460411.18393854, "armc": 85.4801619376141},
+    {"point": ",zeOri", "event": "upper_transit", "jdUt": 2460411.183972766, "armc": 85.49251707045741},
+    {"point": ",M7", "event": "lower_transit", "jdUt": 2460411.1933235945, "armc": 88.86803192277321},
+    {"point": ",alOri", "event": "upper_transit", "jdUt": 2460411.1940166806, "armc": 89.11822604762091},
+    {"point": ",beAur", "event": "upper_transit", "jdUt": 2460411.197353789, "armc": 90.32287433864825},
+    {"point": ",epVir", "event": "rise", "jdUt": 2460411.1991225574, "armc": 90.96137431294389},
+    {"point": ",beCMa", "event": "upper_transit", "jdUt": 2460411.2129131793, "armc": 95.93959092019261},
+    {"point": ",alCar", "event": "upper_transit", "jdUt": 2460411.213411642, "armc": 96.11952871853029},
+    {"point": ",epSgr", "event": "lower_transit", "jdUt": 2460411.214315061, "armc": 96.44565009283572},
+    {"point": ",alBoo", "event": "rise", "jdUt": 2460411.216856449, "armc": 97.36305466352661},
+    {"point": ",alPeg", "event": "set", "jdUt": 2460411.2177368496, "armc": 97.68086666477569},
+    {"point": ",alCrt", "event": "rise", "jdUt": 2460411.221243192, "armc": 98.9466059614879},
+    {"point": ",alLyr", "event": "lower_transit", "jdUt": 2460411.2226113887, "armc": 99.44050533009754},
+    {"point": ",M22", "event": "lower_transit", "jdUt": 2460411.2226920323, "armc": 99.46961654389085},
+    {"point": ",gaGem", "event": "upper_transit", "jdUt": 2460411.223539958, "armc": 99.77570545728724},
+    {"point": ",alCMa", "event": "upper_transit", "jdUt": 2460411.228460854, "armc": 101.55207835240128},
+    {"point": ",alCrB", "event": "rise", "jdUt": 2460411.2338504484, "armc": 103.49764461936891},
+    {"point": ",epCMa", "event": "upper_transit", "jdUt": 2460411.2377158045, "armc": 104.89298270249748},
+    {"point": ",deCMa", "event": "upper_transit", "jdUt": 2460411.2445023656, "armc": 107.34283387946115},
+    {"point": ",alSgr", "event": "lower_transit", "jdUt": 2460411.2557131555, "armc": 111.3897681693381},
+    {"point": ",alGem", "event": "upper_transit", "jdUt": 2460411.263040841, "armc": 114.03495752543235},
+    {"point": ",alCMi", "event": "upper_transit", "jdUt": 2460411.2661067997, "armc": 115.14172459331533},
+    {"point": ",beGem", "event": "upper_transit", "jdUt": 2460411.2704205415, "armc": 116.6989234893677},
+    {"point": ",alAql", "event": "lower_transit", "jdUt": 2460411.273996385, "armc": 117.98975160928312},
+    {"point": ",alCol", "event": "set", "jdUt": 2460411.2766640675, "armc": 118.95274679027786},
+    {"point": ",bePeg", "event": "set", "jdUt": 2460411.2798181865, "armc": 120.09133849579126},
+    {"point": ",ga-2Vel", "event": "upper_transit", "jdUt": 2460411.286682892, "armc": 122.56939871455918},
+    {"point": ",alVir", "event": "rise", "jdUt": 2460411.293936858, "armc": 125.18797629504697},
+    {"point": ",alPsc", "event": "set", "jdUt": 2460411.294453908, "armc": 125.37462402389252},
+    {"point": ",epCar", "event": "upper_transit", "jdUt": 2460411.295499166, "armc": 125.7519470861614},
+    {"point": ",alPav", "event": "lower_transit", "jdUt": 2460411.2986398824, "armc": 126.88570062353055},
+    {"point": ",alDel", "event": "lower_transit", "jdUt": 2460411.30778754, "armc": 130.18787374533045},
+    {"point": ",alCyg", "event": "lower_transit", "jdUt": 2460411.3088183543, "armc": 130.5599829417185},
+    {"point": ",deVel", "event": "upper_transit", "jdUt": 2460411.3109888514, "armc": 131.34350124695112},
+    {"point": ",alCnc", "event": "upper_transit", "jdUt": 2460411.3209911156, "armc": 134.95417514156608},
+    {"point": ",beCar", "event": "upper_transit", "jdUt": 2460411.3304412793, "armc": 138.36554864471609},
+    {"point": ",alAnd", "event": "set", "jdUt": 2460411.3311376264, "armc": 138.61691995512666},
+    {"point": ",alCep", "event": "lower_transit", "jdUt": 2460411.3343581134, "armc": 139.77946952637748},
+    {"point": ",alCet", "event": "set", "jdUt": 2460411.3407630613, "armc": 142.09156384250568},
+    {"point": ",alHya", "event": "upper_transit", "jdUt": 2460411.3410526775, "armc": 142.19611112608428},
+    {"point": ",beAqr", "event": "lower_transit", "jdUt": 2460411.3438466634, "armc": 143.2046999428871},
+    {"point": ",deCap", "event": "lower_transit", "jdUt": 2460411.354610375, "armc": 147.09024545725742},
+    {"point": ",alHer", "event": "rise", "jdUt": 2460411.3603154514, "armc": 149.1496961378495},
+    {"point": ",beLib", "event": "rise", "jdUt": 2460411.3647136386, "armc": 150.73737859919962},
+    {"point": ",alAqr", "event": "lower_transit", "jdUt": 2460411.3675260763, "armc": 151.75262826298268},
+    {"point": ",epCMa", "event": "set", "jdUt": 2460411.3686060603, "armc": 152.1424869954514},
+    {"point": ",alLeo", "event": "upper_transit", "jdUt": 2460411.369369551, "armc": 152.41809621931392},
+    {"point": ",alGru", "event": "lower_transit", "jdUt": 2460411.3694121256, "armc": 152.43346499603945},
+    {"point": ",al-2Lib", "event": "rise", "jdUt": 2460411.3720195787, "armc": 153.37471817349356},
+    {"point": ",ga-1Leo", "event": "upper_transit", "jdUt": 2460411.3774367394, "armc": 155.3302354617073},
+    {"point": ",alAri", "event": "set", "jdUt": 2460411.381028622, "armc": 156.62685352242033},
+    {"point": ",alOph", "event": "rise", "jdUt": 2460411.381468743, "armc": 156.78573094802238},
+    {"point": ",beOri", "event": "set", "jdUt": 2460411.3888867395, "armc": 159.46352122808847},
+    {"point": ",deCMa", "event": "set", "jdUt": 2460411.3902622554, "armc": 159.96006274949988},
+    {"point": ",beCMa", "event": "set", "jdUt": 2460411.398489445, "armc": 162.92996013976426},
+    {"point": ",alPsA", "event": "lower_transit", "jdUt": 2460411.403508344, "armc": 164.74171075279725},
+    {"point": ",alCrt", "event": "upper_transit", "jdUt": 2460411.4048946425, "armc": 165.2421445616648},
+    {"point": ",bePeg", "event": "lower_transit", "jdUt": 2460411.407634267, "armc": 166.23110973360662},
+    {"point": ",alUMa", "event": "upper_transit", "jdUt": 2460411.40786194, "armc": 166.31329641256121},
+    {"point": ",alPeg", "event": "lower_transit", "jdUt": 2460411.408341568, "armc": 166.4864351909529},
+    {"point": ",deLeo", "event": "upper_transit", "jdUt": 2460411.414898199, "armc": 168.85328494163178},
+    {"point": ",alCMa", "event": "set", "jdUt": 2460411.4190478027, "armc": 170.3512323301465},
+    {"point": ",epOri", "event": "set", "jdUt": 2460411.4285732605, "armc": 173.78978596422772},
+    {"point": ",zeOri", "event": "set", "jdUt": 2460411.4291254375, "armc": 173.98911392635284},
+    {"point": ",beAnd", "event": "set", "jdUt": 2460411.4331608657, "armc": 175.44584560167434},
+    {"point": ",beLeo", "event": "upper_transit", "jdUt": 2460411.4390681884, "armc": 177.57830436553627},
+    {"point": ",gaOri", "event": "set", "jdUt": 2460411.447487165, "armc": 180.61743421050423},
+    {"point": ",alTau", "event": "set", "jdUt": 2460411.452211509, "armc": 182.32285453828706},
+    {"point": ",alAnd", "event": "lower_transit", "jdUt": 2460411.452434628, "armc": 182.40339722844743},
+    {"point": ",etTau", "event": "set", "jdUt": 2460411.4536440866, "armc": 182.83999450534864},
+    {"point": ",alPhe", "event": "lower_transit", "jdUt": 2460411.464791011, "armc": 186.8638743240314},
+    {"point": ",alCru", "event": "upper_transit", "jdUt": 2460411.4651588458, "armc": 186.9966573738771},
+    {"point": ",gaCru", "event": "upper_transit", "jdUt": 2460411.468315091, "armc": 188.13601662021813},
+    {"point": ",alOri", "event": "set", "jdUt": 2460411.472036967, "armc": 189.479560489365},
+    {"point": ",alCas", "event": "lower_transit", "jdUt": 2460411.4747537524, "armc": 190.46028100824967},
+    {"point": ",beCru", "event": "upper_transit", "jdUt": 2460411.4798332835, "armc": 192.29391887103387},
+    {"point": ",epUMa", "event": "upper_transit", "jdUt": 2460411.483962382, "armc": 193.78446427888275},
+    {"point": ",alSco", "event": "rise", "jdUt": 2460411.4879127834, "armc": 195.21050244596813},
+    {"point": ",alAql", "event": "rise", "jdUt": 2460411.4890956576, "armc": 195.637503063098},
+    {"point": ",epVir", "event": "upper_transit", "jdUt": 2460411.489686473, "armc": 195.8507788779681},
+    {"point": ",beAnd", "event": "lower_transit", "jdUt": 2460411.4949893523, "armc": 197.76504230510832},
+    {"point": ",alCom", "event": "upper_transit", "jdUt": 2460411.495078166, "armc": 197.79710278211877},
+    {"point": ",alDel", "event": "rise", "jdUt": 2460411.4957103427, "armc": 198.02530948083418},
+    {"point": ",alVir", "event": "upper_transit", "jdUt": 2460411.505674786, "armc": 201.62233056359864},
+    {"point": ",alEri", "event": "lower_transit", "jdUt": 2460411.5140520246, "armc": 204.64639354349424},
+    {"point": ",etUMa", "event": "upper_transit", "jdUt": 2460411.520941536, "armc": 207.13340831854708},
+    {"point": ",alPsc", "event": "lower_transit", "jdUt": 2460411.53115303, "armc": 210.81961127551898},
+    {"point": ",alDra", "event": "upper_transit", "jdUt": 2460411.532422488, "armc": 211.27786735336304},
+    {"point": ",beCen", "event": "upper_transit", "jdUt": 2460411.5327459485, "armc": 211.3946319318732},
+    {"point": ",alAri", "event": "lower_transit", "jdUt": 2460411.5347794844, "armc": 212.12870920564208},
+    {"point": ",bePeg", "event": "rise", "jdUt": 2460411.5354507463, "armc": 212.37102513099668},
+    {"point": ",gaGem", "event": "set", "jdUt": 2460411.5358312624, "armc": 212.50838596753908},
+    {"point": ",alCMi", "event": "set", "jdUt": 2460411.536088119, "armc": 212.60110745719996},
+    {"point": ",alBoo", "event": "upper_transit", "jdUt": 2460411.540509864, "armc": 214.19729412915856},
+    {"point": ",NGC869", "event": "lower_transit", "jdUt": 2460411.5431943336, "armc": 215.16634905206683},
+    {"point": ",beTau", "event": "set", "jdUt": 2460411.5476323464, "armc": 216.76840802605741},
+    {"point": ",beAnd", "event": "rise", "jdUt": 2460411.5568182967, "armc": 220.08440430906083},
+    {"point": ",alCen", "event": "upper_transit", "jdUt": 2460411.557479769, "armc": 220.32318633024815},
+    {"point": ",alHya", "event": "set", "jdUt": 2460411.5620390275, "armc": 221.96901323728727},
+    {"point": ",M22", "event": "rise", "jdUt": 2460411.56239745, "armc": 222.098398710318},
+    {"point": ",al-2Lib", "event": "upper_transit", "jdUt": 2460411.5650602183, "armc": 223.05961980685217},
+    {"point": ",alUMi", "event": "lower_transit", "jdUt": 2460411.5709665655, "armc": 225.19172642078334},
+    {"point": ",alCet", "event": "lower_transit", "jdUt": 2460411.572877079, "armc": 225.88139430590297},
+    {"point": ",alAnd", "event": "rise", "jdUt": 2460411.5737320282, "armc": 226.19001880050038},
+    {"point": ",M6", "event": "rise", "jdUt": 2460411.573949307, "armc": 226.26845338584607},
+    {"point": ",bePer", "event": "lower_transit", "jdUt": 2460411.5771665773, "armc": 227.4298417561716},
+    {"point": ",beLib", "event": "upper_transit", "jdUt": 2460411.5831290483, "armc": 229.58220826719727},
+    {"point": ",alPer", "event": "lower_transit", "jdUt": 2460411.5884587714, "armc": 231.50616182374867},
+    {"point": ",alCrt", "event": "set", "jdUt": 2460411.5885457695, "armc": 231.53756688999954},
+    {"point": ",alCrB", "event": "upper_transit", "jdUt": 2460411.5951838535, "armc": 233.93382002707372},
+    {"point": ",alPeg", "event": "rise", "jdUt": 2460411.5989465415, "armc": 235.29209643262507}
+   ],
+   "noRiseOrSet": [
+    [
+     ",NGC869",
+     "rise"
+    ],
+    [
+     ",NGC869",
+     "set"
+    ],
+    [
+     ",alAur",
+     "rise"
+    ],
+    [
+     ",alAur",
+     "set"
+    ],
+    [
+     ",alCar",
+     "rise"
+    ],
+    [
+     ",alCar",
+     "set"
+    ],
+    [
+     ",alCas",
+     "rise"
+    ],
+    [
+     ",alCas",
+     "set"
+    ],
+    [
+     ",alCen",
+     "rise"
+    ],
+    [
+     ",alCen",
+     "set"
+    ],
+    [
+     ",alCep",
+     "rise"
+    ],
+    [
+     ",alCep",
+     "set"
+    ],
+    [
+     ",alCru",
+     "rise"
+    ],
+    [
+     ",alCru",
+     "set"
+    ],
+    [
+     ",alCyg",
+     "rise"
+    ],
+    [
+     ",alCyg",
+     "set"
+    ],
+    [
+     ",alDra",
+     "rise"
+    ],
+    [
+     ",alDra",
+     "set"
+    ],
+    [
+     ",alEri",
+     "rise"
+    ],
+    [
+     ",alEri",
+     "set"
+    ],
+    [
+     ",alGru",
+     "rise"
+    ],
+    [
+     ",alGru",
+     "set"
+    ],
+    [
+     ",alLyr",
+     "rise"
+    ],
+    [
+     ",alLyr",
+     "set"
+    ],
+    [
+     ",alPav",
+     "rise"
+    ],
+    [
+     ",alPav",
+     "set"
+    ],
+    [
+     ",alPer",
+     "rise"
+    ],
+    [
+     ",alPer",
+     "set"
+    ],
+    [
+     ",alPhe",
+     "rise"
+    ],
+    [
+     ",alPhe",
+     "set"
+    ],
+    [
+     ",alSgr",
+     "rise"
+    ],
+    [
+     ",alSgr",
+     "set"
+    ],
+    [
+     ",alTrA",
+     "rise"
+    ],
+    [
+     ",alTrA",
+     "set"
+    ],
+    [
+     ",alUMa",
+     "rise"
+    ],
+    [
+     ",alUMa",
+     "set"
+    ],
+    [
+     ",alUMi",
+     "rise"
+    ],
+    [
+     ",alUMi",
+     "set"
+    ],
+    [
+     ",beAur",
+     "rise"
+    ],
+    [
+     ",beAur",
+     "set"
+    ],
+    [
+     ",beCar",
+     "rise"
+    ],
+    [
+     ",beCar",
+     "set"
+    ],
+    [
+     ",beCen",
+     "rise"
+    ],
+    [
+     ",beCen",
+     "set"
+    ],
+    [
+     ",beCru",
+     "rise"
+    ],
+    [
+     ",beCru",
+     "set"
+    ],
+    [
+     ",bePer",
+     "rise"
+    ],
+    [
+     ",bePer",
+     "set"
+    ],
+    [
+     ",deVel",
+     "rise"
+    ],
+    [
+     ",deVel",
+     "set"
+    ],
+    [
+     ",epCar",
+     "rise"
+    ],
+    [
+     ",epCar",
+     "set"
+    ],
+    [
+     ",epUMa",
+     "rise"
+    ],
+    [
+     ",epUMa",
+     "set"
+    ],
+    [
+     ",etUMa",
+     "rise"
+    ],
+    [
+     ",etUMa",
+     "set"
+    ],
+    [
+     ",ga-2Vel",
+     "rise"
+    ],
+    [
+     ",ga-2Vel",
+     "set"
+    ],
+    [
+     ",gaCru",
+     "rise"
+    ],
+    [
+     ",gaCru",
+     "set"
+    ],
+    [
+     ",thSco",
+     "rise"
+    ],
+    [
+     ",thSco",
+     "set"
+    ]
+   ]
+  },
+  {
+   "name": "tromso-midnight-sun/geometric",
+   "utc": "2024-06-21T12:00:00Z",
+   "lat": 69.6492,
+   "lng": 18.9553,
+   "elevation": 0,
+   "horizon": "geometric",
+   "window": {
+    "startJdUt": 2460482.5,
+    "endJdUt": 2460483.5
+   },
+   "events": [
+    {"point": ",alSgr", "event": "upper_transit", "jdUt": 2460482.507651904, "armc": 291.4005818131015},
+    {"point": ",beLib", "event": "set", "jdUt": 2460482.51166277, "armc": 292.8484470147912},
+    {"point": ",alPsc", "event": "rise", "jdUt": 2460482.51215423, "armc": 293.02585698867534},
+    {"point": ",alGem", "event": "lower_transit", "jdUt": 2460482.514942219, "armc": 294.03228115403755},
+    {"point": ",alCMi", "event": "lower_transit", "jdUt": 2460482.5180090265, "armc": 295.13935477918784},
+    {"point": ",beGem", "event": "lower_transit", "jdUt": 2460482.5223217886, "armc": 296.696200162748},
+    {"point": ",alAql", "event": "upper_transit", "jdUt": 2460482.5259285965, "armc": 297.9982062004647},
+    {"point": ",ga-2Vel", "event": "lower_transit", "jdUt": 2460482.5385735007, "armc": 302.5628356566933},
+    {"point": ",alCet", "event": "rise", "jdUt": 2460482.5439584735, "armc": 304.50673376893246},
+    {"point": ",epCar", "event": "lower_transit", "jdUt": 2460482.547379845, "armc": 305.7417998588816},
+    {"point": ",alPav", "event": "upper_transit", "jdUt": 2460482.5505903726, "armc": 306.90075445815614},
+    {"point": ",alDel", "event": "upper_transit", "jdUt": 2460482.559721214, "armc": 310.1968576019357},
+    {"point": ",alCyg", "event": "upper_transit", "jdUt": 2460482.560756789, "armc": 310.5706852937752},
+    {"point": ",deVel", "event": "lower_transit", "jdUt": 2460482.562873839, "armc": 311.3349100039261},
+    {"point": ",beLeo", "event": "set", "jdUt": 2460482.5634132707, "armc": 311.5296371692284},
+    {"point": ",alCnc", "event": "lower_transit", "jdUt": 2460482.57289136, "armc": 314.9510918060886},
+    {"point": ",epVir", "event": "set", "jdUt": 2460482.5782737415, "armc": 316.8940544592289},
+    {"point": ",gaGem", "event": "rise", "jdUt": 2460482.5795780504, "armc": 317.3648913013385},
+    {"point": ",beCar", "event": "lower_transit", "jdUt": 2460482.582303998, "armc": 318.34891939260496},
+    {"point": ",alCep", "event": "upper_transit", "jdUt": 2460482.5863088705, "armc": 319.7946210189891},
+    {"point": ",ga-1Leo", "event": "set", "jdUt": 2460482.588044916, "armc": 320.4213085462312},
+    {"point": ",alHya", "event": "lower_transit", "jdUt": 2460482.592952214, "armc": 322.1927730313592},
+    {"point": ",beAqr", "event": "upper_transit", "jdUt": 2460482.5957809966, "armc": 323.2139230060912},
+    {"point": ",deCap", "event": "upper_transit", "jdUt": 2460482.6065455596, "armc": 327.0997762009057},
+    {"point": ",alAqr", "event": "upper_transit", "jdUt": 2460482.6194600156, "armc": 331.7617099947882},
+    {"point": ",alLeo", "event": "lower_transit", "jdUt": 2460482.621269544, "armc": 332.41492391178616},
+    {"point": ",alGru", "event": "upper_transit", "jdUt": 2460482.6213549315, "armc": 332.4457475333236},
+    {"point": ",gaOri", "event": "rise", "jdUt": 2460482.625889747, "armc": 334.08275101312046},
+    {"point": ",ga-1Leo", "event": "lower_transit", "jdUt": 2460482.629336384, "armc": 335.3269377155414},
+    {"point": ",alOri", "event": "rise", "jdUt": 2460482.638366032, "armc": 338.5865113572785},
+    {"point": ",alPsA", "event": "upper_transit", "jdUt": 2460482.6554439194, "armc": 344.75138433667416},
+    {"point": ",alCrt", "event": "lower_transit", "jdUt": 2460482.656794804, "armc": 345.23903441484896},
+    {"point": ",alCom", "event": "set", "jdUt": 2460482.6574212397, "armc": 345.46516866745833},
+    {"point": ",bePeg", "event": "upper_transit", "jdUt": 2460482.6595691554, "armc": 346.24053552517654},
+    {"point": ",alUMa", "event": "lower_transit", "jdUt": 2460482.659746061, "armc": 346.30439593534146},
+    {"point": ",alPeg", "event": "upper_transit", "jdUt": 2460482.6602749093, "armc": 346.4953025905904},
+    {"point": ",deLeo", "event": "lower_transit", "jdUt": 2460482.666798759, "armc": 348.8503188842446},
+    {"point": ",ga-1Leo", "event": "rise", "jdUt": 2460482.67062804, "armc": 350.23263464143673},
+    {"point": ",epOri", "event": "rise", "jdUt": 2460482.6909179376, "armc": 357.55699728037956},
+    {"point": ",beLeo", "event": "lower_transit", "jdUt": 2460482.690970315, "armc": 357.5759048375217},
+    {"point": ",zeOri", "event": "rise", "jdUt": 2460482.6996318186, "armc": 0.7025836365882583},
+    {"point": ",alAnd", "event": "upper_transit", "jdUt": 2460482.7043675035, "armc": 2.412098139602449},
+    {"point": ",deCap", "event": "set", "jdUt": 2460482.715411314, "armc": 6.398755621682028},
+    {"point": ",alPhe", "event": "upper_transit", "jdUt": 2460482.7167239543, "armc": 6.872600057550358},
+    {"point": ",alCru", "event": "lower_transit", "jdUt": 2460482.7170504485, "armc": 6.990459799644668},
+    {"point": ",gaCru", "event": "lower_transit", "jdUt": 2460482.7202113713, "armc": 8.13150769489988},
+    {"point": ",alCas", "event": "upper_transit", "jdUt": 2460482.7266942686, "armc": 10.471740863407433},
+    {"point": ",alCnc", "event": "rise", "jdUt": 2460482.727586238, "armc": 10.79372910382449},
+    {"point": ",alCMi", "event": "rise", "jdUt": 2460482.7282700227, "armc": 11.040565518435983},
+    {"point": ",beOri", "event": "rise", "jdUt": 2460482.730103621, "armc": 11.702468205346065},
+    {"point": ",beCru", "event": "lower_transit", "jdUt": 2460482.7317302264, "armc": 12.289649563898593},
+    {"point": ",alBoo", "event": "set", "jdUt": 2460482.7332368186, "armc": 12.833507770603887},
+    {"point": ",epUMa", "event": "lower_transit", "jdUt": 2460482.7358574974, "armc": 13.77953533935164},
+    {"point": ",epVir", "event": "lower_transit", "jdUt": 2460482.741592389, "armc": 15.849749156130883},
+    {"point": ",beAnd", "event": "upper_transit", "jdUt": 2460482.746920166, "armc": 17.773000418650554},
+    {"point": ",alCom", "event": "lower_transit", "jdUt": 2460482.746983961, "armc": 17.79602954802465},
+    {"point": ",alVir", "event": "lower_transit", "jdUt": 2460482.7575828587, "armc": 21.622079872990344},
+    {"point": ",alEri", "event": "upper_transit", "jdUt": 2460482.765981275, "armc": 24.653788038179655},
+    {"point": ",etUMa", "event": "lower_transit", "jdUt": 2460482.7728439993, "armc": 27.131133276025274},
+    {"point": ",alLeo", "event": "rise", "jdUt": 2460482.7751634605, "armc": 27.96842557988098},
+    {"point": ",alPsc", "event": "upper_transit", "jdUt": 2460482.7830769788, "armc": 30.82509242723248},
+    {"point": ",alOph", "event": "set", "jdUt": 2460482.7832161277, "armc": 30.875323191338296},
+    {"point": ",alDra", "event": "lower_transit", "jdUt": 2460482.7843190185, "armc": 31.273450996136322},
+    {"point": ",beCen", "event": "lower_transit", "jdUt": 2460482.7846538955, "armc": 31.394336821231793},
+    {"point": ",alAri", "event": "upper_transit", "jdUt": 2460482.7867046925, "armc": 32.134645189843205},
+    {"point": ",alHer", "event": "set", "jdUt": 2460482.787998645, "armc": 32.60174355492342},
+    {"point": ",alBoo", "event": "lower_transit", "jdUt": 2460482.792419554, "armc": 34.19762848130012},
+    {"point": ",NGC869", "event": "upper_transit", "jdUt": 2460482.7951258244, "armc": 35.174553299463554},
+    {"point": ",beAqr", "event": "set", "jdUt": 2460482.8037016876, "armc": 38.27031720635849},
+    {"point": ",alCen", "event": "lower_transit", "jdUt": 2460482.8093910823, "armc": 40.32410727025252},
+    {"point": ",al-2Lib", "event": "lower_transit", "jdUt": 2460482.816974568, "armc": 43.061637176010755},
+    {"point": ",beLeo", "event": "rise", "jdUt": 2460482.8185276673, "armc": 43.62228374144885},
+    {"point": ",alUMi", "event": "upper_transit", "jdUt": 2460482.82340617, "armc": 45.38335345004124},
+    {"point": ",alCet", "event": "upper_transit", "jdUt": 2460482.8247968894, "armc": 45.88538322482485},
+    {"point": ",bePer", "event": "upper_transit", "jdUt": 2460482.829089149, "armc": 47.434827473279256},
+    {"point": ",beLib", "event": "lower_transit", "jdUt": 2460482.8350451034, "armc": 49.58484184352515},
+    {"point": ",alCom", "event": "rise", "jdUt": 2460482.836546867, "armc": 50.126957053274644},
+    {"point": ",alPer", "event": "upper_transit", "jdUt": 2460482.8403810966, "armc": 51.511059014496524},
+    {"point": ",alAql", "event": "set", "jdUt": 2460482.8446947425, "armc": 53.06822345705988},
+    {"point": ",alCrB", "event": "lower_transit", "jdUt": 2460482.8470989843, "armc": 53.936120353857255},
+    {"point": ",alBoo", "event": "rise", "jdUt": 2460482.851602365, "armc": 55.5617762803241},
+    {"point": ",etTau", "event": "upper_transit", "jdUt": 2460482.856221863, "armc": 57.22934905917079},
+    {"point": ",alAqr", "event": "set", "jdUt": 2460482.867272664, "armc": 61.21853002569189},
+    {"point": ",alCMa", "event": "rise", "jdUt": 2460482.879908849, "armc": 65.78001206576134},
+    {"point": ",beCMa", "event": "rise", "jdUt": 2460482.8830105993, "armc": 66.89969953508555},
+    {"point": ",alSco", "event": "lower_transit", "jdUt": 2460482.8853169237, "armc": 67.73224965451216},
+    {"point": ",alTau", "event": "upper_transit", "jdUt": 2460482.8897298905, "armc": 69.32526752057629},
+    {"point": ",alTrA", "event": "lower_transit", "jdUt": 2460482.8994404417, "armc": 72.83063757759982},
+    {"point": ",epVir", "event": "rise", "jdUt": 2460482.9049111693, "armc": 74.80549195470543},
+    {"point": ",alHya", "event": "rise", "jdUt": 2460482.910308807, "armc": 76.75396198511463},
+    {"point": ",beOri", "event": "upper_transit", "jdUt": 2460482.9163160566, "armc": 78.9224930912567},
+    {"point": ",alHer", "event": "lower_transit", "jdUt": 2460482.916381433, "armc": 78.94609307826167},
+    {"point": ",alAur", "event": "upper_transit", "jdUt": 2460482.9182363683, "armc": 79.61569814312446},
+    {"point": ",gaOri", "event": "upper_transit", "jdUt": 2460482.9237464094, "armc": 81.60474411519085},
+    {"point": ",beTau", "event": "upper_transit", "jdUt": 2460482.924710237, "armc": 81.9526720869415},
+    {"point": ",laSco", "event": "lower_transit", "jdUt": 2460482.9298931467, "armc": 83.82362836049286},
+    {"point": ",alOph", "event": "lower_transit", "jdUt": 2460482.9304445395, "armc": 84.02267326770097},
+    {"point": ",epOri", "event": "upper_transit", "jdUt": 2460482.9313725927, "armc": 84.35768718254207},
+    {"point": ",thSco", "event": "lower_transit", "jdUt": 2460482.9325311366, "armc": 84.77590494047875},
+    {"point": ",alCol", "event": "upper_transit", "jdUt": 2460482.933503284, "armc": 85.12683630205437},
+    {"point": ",M6", "event": "lower_transit", "jdUt": 2460482.9345033714, "armc": 85.48785348748247},
+    {"point": ",zeOri", "event": "upper_transit", "jdUt": 2460482.934515508, "armc": 85.4922346012052},
+    {"point": ",M7", "event": "lower_transit", "jdUt": 2460482.943889968, "armc": 88.8762806062205},
+    {"point": ",alOri", "event": "upper_transit", "jdUt": 2460482.944559058, "armc": 89.11781255139451},
+    {"point": ",beAur", "event": "upper_transit", "jdUt": 2460482.9478949253, "armc": 90.32201283739266},
+    {"point": ",alDel", "event": "set", "jdUt": 2460482.9492530515, "armc": 90.8122769960694},
+    {"point": ",beCMa", "event": "upper_transit", "jdUt": 2460482.9634518716, "armc": 95.93784790097226},
+    {"point": ",alCar", "event": "upper_transit", "jdUt": 2460482.963939931, "armc": 96.11403026360118},
+    {"point": ",epSgr", "event": "lower_transit", "jdUt": 2460482.9648833256, "armc": 96.45458230398278},
+    {"point": ",alLyr", "event": "lower_transit", "jdUt": 2460482.9731760593, "armc": 99.44814051692393},
+    {"point": ",M22", "event": "lower_transit", "jdUt": 2460482.9732587785, "armc": 99.47800094276448},
+    {"point": ",gaGem", "event": "upper_transit", "jdUt": 2460482.97408011, "armc": 99.77448986864744},
+    {"point": ",alCMa", "event": "upper_transit", "jdUt": 2460482.9789986834, "armc": 101.55002450100247},
+    {"point": ",epCMa", "event": "upper_transit", "jdUt": 2460482.988250687, "armc": 104.88986535231875},
+    {"point": ",deCMa", "event": "upper_transit", "jdUt": 2460482.995037332, "armc": 107.33974723743515},
+    {"point": ",alSgr", "event": "lower_transit", "jdUt": 2460483.006286601, "armc": 111.40057235901467},
+    {"point": ",alGem", "event": "upper_transit", "jdUt": 2460483.0135772224, "armc": 114.03238233318602},
+    {"point": ",alCMi", "event": "upper_transit", "jdUt": 2460483.016643985, "armc": 115.13943983269739},
+    {"point": ",beGem", "event": "upper_transit", "jdUt": 2460483.0209567756, "armc": 116.69629548543813},
+    {"point": ",alAql", "event": "lower_transit", "jdUt": 2460483.0245633037, "armc": 117.9982005092865},
+    {"point": ",ga-2Vel", "event": "upper_transit", "jdUt": 2460483.0372084533, "armc": 122.56291859739352},
+    {"point": ",alPeg", "event": "set", "jdUt": 2460483.0416559866, "armc": 124.16841448048807},
+    {"point": ",beCMa", "event": "set", "jdUt": 2460483.0438931477, "armc": 124.97599764972605},
+    {"point": ",alHer", "event": "rise", "jdUt": 2460483.044764329, "armc": 125.29048170230097},
+    {"point": ",epCar", "event": "upper_transit", "jdUt": 2460483.046014821, "armc": 125.74189140308732},
+    {"point": ",alPav", "event": "lower_transit", "jdUt": 2460483.0492250724, "armc": 126.90074616357957},
+    {"point": ",alPsc", "event": "set", "jdUt": 2460483.0539998705, "armc": 128.62437998938495},
+    {"point": ",alDel", "event": "lower_transit", "jdUt": 2460483.0583559377, "armc": 130.196857912128},
+    {"point": ",alCyg", "event": "lower_transit", "jdUt": 2460483.0593914534, "armc": 130.57066425880967},
+    {"point": ",deVel", "event": "upper_transit", "jdUt": 2460483.061508789, "armc": 131.33499218820123},
+    {"point": ",alCnc", "event": "upper_transit", "jdUt": 2460483.071526288, "armc": 134.95116595506806},
+    {"point": ",alOph", "event": "rise", "jdUt": 2460483.0776729276, "armc": 137.1700149051636},
+    {"point": ",alCMa", "event": "set", "jdUt": 2460483.078088571, "armc": 137.32005615751257},
+    {"point": ",beCar", "event": "upper_transit", "jdUt": 2460483.0809389977, "armc": 138.3490194604452},
+    {"point": ",alCrt", "event": "rise", "jdUt": 2460483.083270536, "armc": 139.19067136655647},
+    {"point": ",alCep", "event": "lower_transit", "jdUt": 2460483.084943475, "armc": 139.79457855434686},
+    {"point": ",alHya", "event": "upper_transit", "jdUt": 2460483.091587121, "armc": 142.19283968407836},
+    {"point": ",beAqr", "event": "lower_transit", "jdUt": 2460483.0944157536, "armc": 143.21393554067836},
+    {"point": ",alVir", "event": "rise", "jdUt": 2460483.0971040423, "armc": 144.18436929592264},
+    {"point": ",beOri", "event": "set", "jdUt": 2460483.102528542, "armc": 146.14253601126362},
+    {"point": ",deCap", "event": "lower_transit", "jdUt": 2460483.105180322, "armc": 147.09979078881477},
+    {"point": ",alCet", "event": "set", "jdUt": 2460483.1056352947, "armc": 147.26402935157097},
+    {"point": ",alAqr", "event": "lower_transit", "jdUt": 2460483.11809478, "armc": 151.76172529690248},
+    {"point": ",alLeo", "event": "upper_transit", "jdUt": 2460483.1199044473, "armc": 152.4149893123732},
+    {"point": ",alGru", "event": "lower_transit", "jdUt": 2460483.119989684, "armc": 152.44575847089712},
+    {"point": ",ga-1Leo", "event": "upper_transit", "jdUt": 2460483.127971289, "armc": 155.32700381509883},
+    {"point": ",alPsA", "event": "lower_transit", "jdUt": 2460483.15407869, "armc": 164.75140193869893},
+    {"point": ",alCrt", "event": "upper_transit", "jdUt": 2460483.1554296925, "armc": 165.2390945499688},
+    {"point": ",bePeg", "event": "lower_transit", "jdUt": 2460483.1582039203, "armc": 166.24055112335208},
+    {"point": ",alUMa", "event": "upper_transit", "jdUt": 2460483.158381021, "armc": 166.30448196628709},
+    {"point": ",beLib", "event": "rise", "jdUt": 2460483.1584275262, "armc": 166.32126965224825},
+    {"point": ",alPeg", "event": "lower_transit", "jdUt": 2460483.1589096817, "armc": 166.49532088016727},
+    {"point": ",deLeo", "event": "upper_transit", "jdUt": 2460483.1654336504, "armc": 168.85038022731345},
+    {"point": ",alDel", "event": "rise", "jdUt": 2460483.167458822, "armc": 169.5814382192547},
+    {"point": ",zeOri", "event": "set", "jdUt": 2460483.1693992317, "armc": 170.2818983434198},
+    {"point": ",epOri", "event": "set", "jdUt": 2460483.171827127, "armc": 171.1583339024848},
+    {"point": ",beLeo", "event": "upper_transit", "jdUt": 2460483.1896051993, "armc": 177.57596356554276},
+    {"point": ",alAnd", "event": "lower_transit", "jdUt": 2460483.203002279, "armc": 182.41211774068165},
+    {"point": ",alAql", "event": "rise", "jdUt": 2460483.2044318216, "armc": 182.92816210745636},
+    {"point": ",al-2Lib", "event": "rise", "jdUt": 2460483.2084022854, "armc": 184.36144272188946},
+    {"point": ",alPhe", "event": "lower_transit", "jdUt": 2460483.215358705, "armc": 186.8726106181605},
+    {"point": ",alCru", "event": "upper_transit", "jdUt": 2460483.2156854193, "armc": 186.99054987103716},
+    {"point": ",gaCru", "event": "upper_transit", "jdUt": 2460483.2188463197, "armc": 188.13158970707636},
+    {"point": ",gaOri", "event": "set", "jdUt": 2460483.2216030457, "armc": 189.12672835325083},
+    {"point": ",alCas", "event": "lower_transit", "jdUt": 2460483.225329023, "armc": 190.47175279808096},
+    {"point": ",alCrt", "event": "set", "jdUt": 2460483.227588782, "armc": 191.28749355176362},
+    {"point": ",beCru", "event": "upper_transit", "jdUt": 2460483.2303651925, "armc": 192.28973799763517},
+    {"point": ",epUMa", "event": "upper_transit", "jdUt": 2460483.234492404, "armc": 193.77960226821423},
+    {"point": ",epVir", "event": "upper_transit", "jdUt": 2460483.240227274, "armc": 195.84980836918908},
+    {"point": ",beAnd", "event": "lower_transit", "jdUt": 2460483.245554941, "armc": 197.77301980821653},
+    {"point": ",alCom", "event": "upper_transit", "jdUt": 2460483.2456188463, "armc": 197.7960887765016},
+    {"point": ",alOri", "event": "set", "jdUt": 2460483.250752101, "armc": 199.64912036439276},
+    {"point": ",alVir", "event": "upper_transit", "jdUt": 2460483.256217756, "armc": 201.62214350220304},
+    {"point": ",alEri", "event": "lower_transit", "jdUt": 2460483.2646159544, "armc": 204.65377302210106},
+    {"point": ",etUMa", "event": "upper_transit", "jdUt": 2460483.2714788998, "armc": 207.13119812411273},
+    {"point": ",alHya", "event": "set", "jdUt": 2460483.272865424, "armc": 207.63171351692137},
+    {"point": ",alPeg", "event": "rise", "jdUt": 2460483.276163389, "armc": 208.82223171553883},
+    {"point": ",alPsc", "event": "lower_transit", "jdUt": 2460483.2817117437, "armc": 210.82510838760433},
+    {"point": ",alDra", "event": "upper_transit", "jdUt": 2460483.2829539487, "armc": 211.2735266344094},
+    {"point": ",beCen", "event": "upper_transit", "jdUt": 2460483.283288918, "armc": 211.39444574310127},
+    {"point": ",alAri", "event": "lower_transit", "jdUt": 2460483.285339461, "armc": 212.1346625044776},
+    {"point": ",alTau", "event": "set", "jdUt": 2460483.2866410906, "armc": 212.60453212134797},
+    {"point": ",alBoo", "event": "upper_transit", "jdUt": 2460483.29105445, "armc": 214.19769170237066},
+    {"point": ",NGC869", "event": "lower_transit", "jdUt": 2460483.2937605693, "armc": 215.17456206454892},
+    {"point": ",alCMi", "event": "set", "jdUt": 2460483.305017759, "armc": 219.2382465328894},
+    {"point": ",alCen", "event": "upper_transit", "jdUt": 2460483.3080261257, "armc": 220.32422382377231},
+    {"point": ",al-2Lib", "event": "upper_transit", "jdUt": 2460483.315609497, "armc": 223.06171239739166},
+    {"point": ",alUMi", "event": "lower_transit", "jdUt": 2460483.3220365485, "armc": 225.38178604345035},
+    {"point": ",alCet", "event": "lower_transit", "jdUt": 2460483.323431636, "armc": 225.8853927408496},
+    {"point": ",bePer", "event": "lower_transit", "jdUt": 2460483.327723895, "armc": 227.43483683231995},
+    {"point": ",beLib", "event": "upper_transit", "jdUt": 2460483.3336800355, "armc": 229.58491828850222},
+    {"point": ",alPer", "event": "lower_transit", "jdUt": 2460483.3390158266, "armc": 231.51106251933396},
+    {"point": ",alCrB", "event": "upper_transit", "jdUt": 2460483.345733907, "armc": 233.93619346788898},
+    {"point": ",etTau", "event": "lower_transit", "jdUt": 2460483.354856598, "armc": 237.22935445260177},
+    {"point": ",gaGem", "event": "set", "jdUt": 2460483.3685820596, "armc": 242.18404967607532},
+    {"point": ",alAqr", "event": "rise", "jdUt": 2460483.3689167993, "armc": 242.30488591436927},
+    {"point": ",alSco", "event": "upper_transit", "jdUt": 2460483.383951918, "armc": 247.73234874915264},
+    {"point": ",beAqr", "event": "rise", "jdUt": 2460483.385129581, "armc": 248.15746823908214},
+    {"point": ",alTau", "event": "lower_transit", "jdUt": 2460483.3883646033, "armc": 249.3252649271734},
+    {"point": ",alTrA", "event": "upper_transit", "jdUt": 2460483.3980757743, "armc": 252.8308587448905},
+    {"point": ",beOri", "event": "lower_transit", "jdUt": 2460483.4149507326, "armc": 258.9224772797804},
+    {"point": ",alHer", "event": "upper_transit", "jdUt": 2460483.4150164044, "armc": 258.9461838409956},
+    {"point": ",alVir", "event": "set", "jdUt": 2460483.415331334, "armc": 259.0598688931092},
+    {"point": ",alCnc", "event": "set", "jdUt": 2460483.41546612, "armc": 259.1085247559016},
+    {"point": ",alAur", "event": "lower_transit", "jdUt": 2460483.416871037, "armc": 259.6156796468484},
+    {"point": ",gaOri", "event": "lower_transit", "jdUt": 2460483.422381093, "armc": 261.60473101030993},
+    {"point": ",al-2Lib", "event": "set", "jdUt": 2460483.4228165643, "armc": 261.76193000504435},
+    {"point": ",beTau", "event": "lower_transit", "jdUt": 2460483.4233449213, "armc": 261.9526593204511},
+    {"point": ",laSco", "event": "upper_transit", "jdUt": 2460483.428528212, "armc": 263.8237531089774},
+    {"point": ",alOph", "event": "upper_transit", "jdUt": 2460483.429079521, "armc": 264.022767760143},
+    {"point": ",epOri", "event": "lower_transit", "jdUt": 2460483.430007265, "armc": 264.357670060823},
+    {"point": ",thSco", "event": "upper_transit", "jdUt": 2460483.431166231, "armc": 264.77604028494704},
+    {"point": ",alCol", "event": "lower_transit", "jdUt": 2460483.4321378903, "armc": 265.1267953157644},
+    {"point": ",M6", "event": "upper_transit", "jdUt": 2460483.4331384236, "armc": 265.48797353984435},
+    {"point": ",zeOri", "event": "lower_transit", "jdUt": 2460483.433150177, "armc": 265.49221631025085},
+    {"point": ",M7", "event": "upper_transit", "jdUt": 2460483.4425250376, "armc": 268.8764068992036},
+    {"point": ",alOri", "event": "lower_transit", "jdUt": 2460483.4431937262, "armc": 269.1177939459918},
+    {"point": ",beAur", "event": "lower_transit", "jdUt": 2460483.446529564, "armc": 270.3219836487584},
+    {"point": ",beCMa", "event": "lower_transit", "jdUt": 2460483.462086496, "armc": 275.93781353515413},
+    {"point": ",alCar", "event": "lower_transit", "jdUt": 2460483.462574398, "armc": 276.11393924971725},
+    {"point": ",epSgr", "event": "upper_transit", "jdUt": 2460483.463518412, "armc": 276.4547146940908},
+    {"point": ",alLeo", "event": "set", "jdUt": 2460483.4646451967, "armc": 276.86146789823044},
+    {"point": ",alLyr", "event": "upper_transit", "jdUt": 2460483.471811095, "armc": 279.44825460123485},
+    {"point": ",M22", "event": "upper_transit", "jdUt": 2460483.4718938386, "armc": 279.4781239362827},
+    {"point": ",gaGem", "event": "lower_transit", "jdUt": 2460483.472714758, "armc": 279.7744640981105},
+    {"point": ",alCMa", "event": "lower_transit", "jdUt": 2460483.4776333002, "armc": 281.5499874791706},
+    {"point": ",epCMa", "event": "lower_transit", "jdUt": 2460483.486885263, "armc": 284.8898137245333},
+    {"point": ",alTau", "event": "rise", "jdUt": 2460483.4900882742, "armc": 286.046054917073},
+    {"point": ",deCMa", "event": "lower_transit", "jdUt": 2460483.493671912, "armc": 287.33969680017935},
+    {"point": ",deCap", "event": "rise", "jdUt": 2460483.494948993, "armc": 287.80070484523736}
+   ],
+   "noRiseOrSet": [
+    [
+     ",M22",
+     "rise"
+    ],
+    [
+     ",M22",
+     "set"
+    ],
+    [
+     ",M6",
+     "rise"
+    ],
+    [
+     ",M6",
+     "set"
+    ],
+    [
+     ",M7",
+     "rise"
+    ],
+    [
+     ",M7",
+     "set"
+    ],
+    [
+     ",NGC869",
+     "rise"
+    ],
+    [
+     ",NGC869",
+     "set"
+    ],
+    [
+     ",alAnd",
+     "rise"
+    ],
+    [
+     ",alAnd",
+     "set"
+    ],
+    [
+     ",alAri",
+     "rise"
+    ],
+    [
+     ",alAri",
+     "set"
+    ],
+    [
+     ",alAur",
+     "rise"
+    ],
+    [
+     ",alAur",
+     "set"
+    ],
+    [
+     ",alCar",
+     "rise"
+    ],
+    [
+     ",alCar",
+     "set"
+    ],
+    [
+     ",alCas",
+     "rise"
+    ],
+    [
+     ",alCas",
+     "set"
+    ],
+    [
+     ",alCen",
+     "rise"
+    ],
+    [
+     ",alCen",
+     "set"
+    ],
+    [
+     ",alCep",
+     "rise"
+    ],
+    [
+     ",alCep",
+     "set"
+    ],
+    [
+     ",alCol",
+     "rise"
+    ],
+    [
+     ",alCol",
+     "set"
+    ],
+    [
+     ",alCrB",
+     "rise"
+    ],
+    [
+     ",alCrB",
+     "set"
+    ],
+    [
+     ",alCru",
+     "rise"
+    ],
+    [
+     ",alCru",
+     "set"
+    ],
+    [
+     ",alCyg",
+     "rise"
+    ],
+    [
+     ",alCyg",
+     "set"
+    ],
+    [
+     ",alDra",
+     "rise"
+    ],
+    [
+     ",alDra",
+     "set"
+    ],
+    [
+     ",alEri",
+     "rise"
+    ],
+    [
+     ",alEri",
+     "set"
+    ],
+    [
+     ",alGem",
+     "rise"
+    ],
+    [
+     ",alGem",
+     "set"
+    ],
+    [
+     ",alGru",
+     "rise"
+    ],
+    [
+     ",alGru",
+     "set"
+    ],
+    [
+     ",alLyr",
+     "rise"
+    ],
+    [
+     ",alLyr",
+     "set"
+    ],
+    [
+     ",alPav",
+     "rise"
+    ],
+    [
+     ",alPav",
+     "set"
+    ],
+    [
+     ",alPer",
+     "rise"
+    ],
+    [
+     ",alPer",
+     "set"
+    ],
+    [
+     ",alPhe",
+     "rise"
+    ],
+    [
+     ",alPhe",
+     "set"
+    ],
+    [
+     ",alPsA",
+     "rise"
+    ],
+    [
+     ",alPsA",
+     "set"
+    ],
+    [
+     ",alSco",
+     "rise"
+    ],
+    [
+     ",alSco",
+     "set"
+    ],
+    [
+     ",alSgr",
+     "rise"
+    ],
+    [
+     ",alSgr",
+     "set"
+    ],
+    [
+     ",alTrA",
+     "rise"
+    ],
+    [
+     ",alTrA",
+     "set"
+    ],
+    [
+     ",alUMa",
+     "rise"
+    ],
+    [
+     ",alUMa",
+     "set"
+    ],
+    [
+     ",alUMi",
+     "rise"
+    ],
+    [
+     ",alUMi",
+     "set"
+    ],
+    [
+     ",beAnd",
+     "rise"
+    ],
+    [
+     ",beAnd",
+     "set"
+    ],
+    [
+     ",beAur",
+     "rise"
+    ],
+    [
+     ",beAur",
+     "set"
+    ],
+    [
+     ",beCar",
+     "rise"
+    ],
+    [
+     ",beCar",
+     "set"
+    ],
+    [
+     ",beCen",
+     "rise"
+    ],
+    [
+     ",beCen",
+     "set"
+    ],
+    [
+     ",beCru",
+     "rise"
+    ],
+    [
+     ",beCru",
+     "set"
+    ],
+    [
+     ",beGem",
+     "rise"
+    ],
+    [
+     ",beGem",
+     "set"
+    ],
+    [
+     ",bePeg",
+     "rise"
+    ],
+    [
+     ",bePeg",
+     "set"
+    ],
+    [
+     ",bePer",
+     "rise"
+    ],
+    [
+     ",bePer",
+     "set"
+    ],
+    [
+     ",beTau",
+     "rise"
+    ],
+    [
+     ",beTau",
+     "set"
+    ],
+    [
+     ",deCMa",
+     "rise"
+    ],
+    [
+     ",deCMa",
+     "set"
+    ],
+    [
+     ",deLeo",
+     "rise"
+    ],
+    [
+     ",deLeo",
+     "set"
+    ],
+    [
+     ",deVel",
+     "rise"
+    ],
+    [
+     ",deVel",
+     "set"
+    ],
+    [
+     ",epCMa",
+     "rise"
+    ],
+    [
+     ",epCMa",
+     "set"
+    ],
+    [
+     ",epCar",
+     "rise"
+    ],
+    [
+     ",epCar",
+     "set"
+    ],
+    [
+     ",epSgr",
+     "rise"
+    ],
+    [
+     ",epSgr",
+     "set"
+    ],
+    [
+     ",epUMa",
+     "rise"
+    ],
+    [
+     ",epUMa",
+     "set"
+    ],
+    [
+     ",etTau",
+     "rise"
+    ],
+    [
+     ",etTau",
+     "set"
+    ],
+    [
+     ",etUMa",
+     "rise"
+    ],
+    [
+     ",etUMa",
+     "set"
+    ],
+    [
+     ",ga-2Vel",
+     "rise"
+    ],
+    [
+     ",ga-2Vel",
+     "set"
+    ],
+    [
+     ",gaCru",
+     "rise"
+    ],
+    [
+     ",gaCru",
+     "set"
+    ],
+    [
+     ",laSco",
+     "rise"
+    ],
+    [
+     ",laSco",
+     "set"
+    ],
+    [
+     ",thSco",
+     "rise"
+    ],
+    [
+     ",thSco",
+     "set"
+    ]
+   ]
+  },
+  {
+   "name": "tromso-midnight-sun/almanac",
+   "utc": "2024-06-21T12:00:00Z",
+   "lat": 69.6492,
+   "lng": 18.9553,
+   "elevation": 0,
+   "horizon": "almanac",
+   "window": {
+    "startJdUt": 2460482.5,
+    "endJdUt": 2460483.5
+   },
+   "events": [
+    {"point": ",alPsc", "event": "rise", "jdUt": 2460482.507504591, "armc": 291.34740380434397},
+    {"point": ",alSgr", "event": "upper_transit", "jdUt": 2460482.507651904, "armc": 291.4005818131015},
+    {"point": ",alGem", "event": "lower_transit", "jdUt": 2460482.514942219, "armc": 294.03228115403755},
+    {"point": ",beLib", "event": "set", "jdUt": 2460482.516832797, "armc": 294.71475269869717},
+    {"point": ",alCMi", "event": "lower_transit", "jdUt": 2460482.5180090265, "armc": 295.13935477918784},
+    {"point": ",beGem", "event": "lower_transit", "jdUt": 2460482.5223217886, "armc": 296.696200162748},
+    {"point": ",alAql", "event": "upper_transit", "jdUt": 2460482.5259285965, "armc": 297.9982062004647},
+    {"point": ",ga-2Vel", "event": "lower_transit", "jdUt": 2460482.5385735007, "armc": 302.5628356566933},
+    {"point": ",alCet", "event": "rise", "jdUt": 2460482.5392482765, "armc": 302.80642006438273},
+    {"point": ",epCar", "event": "lower_transit", "jdUt": 2460482.547379845, "armc": 305.7417998588816},
+    {"point": ",alPav", "event": "upper_transit", "jdUt": 2460482.5505903726, "armc": 306.90075445815614},
+    {"point": ",alDel", "event": "upper_transit", "jdUt": 2460482.559721214, "armc": 310.1968576019357},
+    {"point": ",alCyg", "event": "upper_transit", "jdUt": 2460482.560756789, "armc": 310.5706852937752},
+    {"point": ",deVel", "event": "lower_transit", "jdUt": 2460482.562873839, "armc": 311.3349100039261},
+    {"point": ",beLeo", "event": "set", "jdUt": 2460482.570137469, "armc": 313.9569765459649},
+    {"point": ",gaGem", "event": "rise", "jdUt": 2460482.5714608515, "armc": 314.43469864328296},
+    {"point": ",alCnc", "event": "lower_transit", "jdUt": 2460482.57289136, "armc": 314.9510918060886},
+    {"point": ",beCar", "event": "lower_transit", "jdUt": 2460482.582303998, "armc": 318.34891939260496},
+    {"point": ",epVir", "event": "set", "jdUt": 2460482.5837880457, "armc": 318.88463934665134},
+    {"point": ",alCep", "event": "upper_transit", "jdUt": 2460482.5863088705, "armc": 319.7946210189891},
+    {"point": ",alHya", "event": "lower_transit", "jdUt": 2460482.592952214, "armc": 322.1927730313592},
+    {"point": ",beAqr", "event": "upper_transit", "jdUt": 2460482.5957809966, "armc": 323.2139230060912},
+    {"point": ",deCap", "event": "upper_transit", "jdUt": 2460482.6065455596, "armc": 327.0997762009057},
+    {"point": ",ga-1Leo", "event": "set", "jdUt": 2460482.617197367, "armc": 330.9449262072021},
+    {"point": ",alAqr", "event": "upper_transit", "jdUt": 2460482.6194600156, "armc": 331.7617099947882},
+    {"point": ",gaOri", "event": "rise", "jdUt": 2460482.6210212396, "armc": 332.32528951594776},
+    {"point": ",alLeo", "event": "lower_transit", "jdUt": 2460482.621269544, "armc": 332.41492391178616},
+    {"point": ",alGru", "event": "upper_transit", "jdUt": 2460482.6213549315, "armc": 332.4457475333236},
+    {"point": ",ga-1Leo", "event": "lower_transit", "jdUt": 2460482.629336384, "armc": 335.3269377155414},
+    {"point": ",alOri", "event": "rise", "jdUt": 2460482.6333924616, "armc": 336.7911236329904},
+    {"point": ",ga-1Leo", "event": "rise", "jdUt": 2460482.6414755792, "armc": 339.709013438827},
+    {"point": ",alPsA", "event": "upper_transit", "jdUt": 2460482.6554439194, "armc": 344.75138433667416},
+    {"point": ",alCrt", "event": "lower_transit", "jdUt": 2460482.656794804, "armc": 345.23903441484896},
+    {"point": ",bePeg", "event": "upper_transit", "jdUt": 2460482.6595691554, "armc": 346.24053552517654},
+    {"point": ",alUMa", "event": "lower_transit", "jdUt": 2460482.659746061, "armc": 346.30439593534146},
+    {"point": ",alPeg", "event": "upper_transit", "jdUt": 2460482.6602749093, "armc": 346.4953025905904},
+    {"point": ",deLeo", "event": "lower_transit", "jdUt": 2460482.666798759, "armc": 348.8503188842446},
+    {"point": ",alCom", "event": "set", "jdUt": 2460482.666866455, "armc": 348.8747563305449},
+    {"point": ",epOri", "event": "rise", "jdUt": 2460482.686322022, "armc": 355.8979376148554},
+    {"point": ",beLeo", "event": "lower_transit", "jdUt": 2460482.690970315, "armc": 357.5759048375217},
+    {"point": ",zeOri", "event": "rise", "jdUt": 2460482.6950246184, "armc": 359.03945030719467},
+    {"point": ",alAnd", "event": "upper_transit", "jdUt": 2460482.7043675035, "armc": 2.412098139602449},
+    {"point": ",alPhe", "event": "upper_transit", "jdUt": 2460482.7167239543, "armc": 6.872600057550358},
+    {"point": ",alCru", "event": "lower_transit", "jdUt": 2460482.7170504485, "armc": 6.990459799644668},
+    {"point": ",gaCru", "event": "lower_transit", "jdUt": 2460482.7202113713, "armc": 8.13150769489988},
+    {"point": ",alCnc", "event": "rise", "jdUt": 2460482.7218476622, "armc": 8.722185303298318},
+    {"point": ",deCap", "event": "set", "jdUt": 2460482.7227477715, "armc": 9.047111880082582},
+    {"point": ",alCMi", "event": "rise", "jdUt": 2460482.7234986313, "armc": 9.318161499894813},
+    {"point": ",beOri", "event": "rise", "jdUt": 2460482.7251054137, "armc": 9.898186965772084},
+    {"point": ",alCas", "event": "upper_transit", "jdUt": 2460482.7266942686, "armc": 10.471740863407433},
+    {"point": ",beCru", "event": "lower_transit", "jdUt": 2460482.7317302264, "armc": 12.289649563898593},
+    {"point": ",epUMa", "event": "lower_transit", "jdUt": 2460482.7358574974, "armc": 13.77953533935164},
+    {"point": ",epVir", "event": "lower_transit", "jdUt": 2460482.741592389, "armc": 15.849749156130883},
+    {"point": ",beAnd", "event": "upper_transit", "jdUt": 2460482.746920166, "armc": 17.773000418650554},
+    {"point": ",alCom", "event": "lower_transit", "jdUt": 2460482.746983961, "armc": 17.79602954802465},
+    {"point": ",alBoo", "event": "set", "jdUt": 2460482.7484570304, "armc": 18.327786447547965},
+    {"point": ",alVir", "event": "lower_transit", "jdUt": 2460482.7575828587, "armc": 21.622079872990344},
+    {"point": ",alEri", "event": "upper_transit", "jdUt": 2460482.765981275, "armc": 24.653788038179655},
+    {"point": ",alLeo", "event": "rise", "jdUt": 2460482.769402314, "armc": 25.888734113553536},
+    {"point": ",etUMa", "event": "lower_transit", "jdUt": 2460482.7728439993, "armc": 27.131133276025274},
+    {"point": ",alPsc", "event": "upper_transit", "jdUt": 2460482.7830769788, "armc": 30.82509242723248},
+    {"point": ",alDra", "event": "lower_transit", "jdUt": 2460482.7843190185, "armc": 31.273450996136322},
+    {"point": ",beCen", "event": "lower_transit", "jdUt": 2460482.7846538955, "armc": 31.394336821231793},
+    {"point": ",alAri", "event": "upper_transit", "jdUt": 2460482.7867046925, "armc": 32.134645189843205},
+    {"point": ",alOph", "event": "set", "jdUt": 2460482.7891789763, "armc": 33.0278262366983},
+    {"point": ",alBoo", "event": "lower_transit", "jdUt": 2460482.792419554, "armc": 34.19762848130012},
+    {"point": ",alHer", "event": "set", "jdUt": 2460482.7946850145, "armc": 35.01542724233111},
+    {"point": ",NGC869", "event": "upper_transit", "jdUt": 2460482.7951258244, "armc": 35.174553299463554},
+    {"point": ",beAqr", "event": "set", "jdUt": 2460482.8084567077, "armc": 39.98681143885893},
+    {"point": ",alCen", "event": "lower_transit", "jdUt": 2460482.8093910823, "armc": 40.32410727025252},
+    {"point": ",beLeo", "event": "rise", "jdUt": 2460482.8118033097, "armc": 41.194886862860834},
+    {"point": ",al-2Lib", "event": "lower_transit", "jdUt": 2460482.816974568, "armc": 43.061637176010755},
+    {"point": ",alUMi", "event": "upper_transit", "jdUt": 2460482.82340617, "armc": 45.38335345004124},
+    {"point": ",alCet", "event": "upper_transit", "jdUt": 2460482.8247968894, "armc": 45.88538322482485},
+    {"point": ",alCom", "event": "rise", "jdUt": 2460482.8271015175, "armc": 46.71732096650368},
+    {"point": ",bePer", "event": "upper_transit", "jdUt": 2460482.829089149, "armc": 47.434827473279256},
+    {"point": ",beLib", "event": "lower_transit", "jdUt": 2460482.8350451034, "armc": 49.58484184352515},
+    {"point": ",alBoo", "event": "rise", "jdUt": 2460482.8363821995, "armc": 50.06751440228608},
+    {"point": ",alPer", "event": "upper_transit", "jdUt": 2460482.8403810966, "armc": 51.511059014496524},
+    {"point": ",alCrB", "event": "lower_transit", "jdUt": 2460482.8470989843, "armc": 53.936120353857255},
+    {"point": ",alAql", "event": "set", "jdUt": 2460482.8498655646, "armc": 54.934816264657435},
+    {"point": ",etTau", "event": "upper_transit", "jdUt": 2460482.856221863, "armc": 57.22934905917079},
+    {"point": ",alAqr", "event": "set", "jdUt": 2460482.871863652, "armc": 62.87581106198816},
+    {"point": ",alCMa", "event": "rise", "jdUt": 2460482.87197857, "armc": 62.91729472714939},
+    {"point": ",beCMa", "event": "rise", "jdUt": 2460482.873567868, "armc": 63.49100865513811},
+    {"point": ",alSco", "event": "lower_transit", "jdUt": 2460482.8853169237, "armc": 67.73224965451216},
+    {"point": ",alTau", "event": "upper_transit", "jdUt": 2460482.8897298905, "armc": 69.32526752057629},
+    {"point": ",epVir", "event": "rise", "jdUt": 2460482.8993968656, "armc": 72.81490722245717},
+    {"point": ",alTrA", "event": "lower_transit", "jdUt": 2460482.8994404417, "armc": 72.83063757759982},
+    {"point": ",alHya", "event": "rise", "jdUt": 2460482.905237644, "armc": 74.92334463733104},
+    {"point": ",beOri", "event": "upper_transit", "jdUt": 2460482.9163160566, "armc": 78.9224930912567},
+    {"point": ",alHer", "event": "lower_transit", "jdUt": 2460482.916381433, "armc": 78.94609307826167},
+    {"point": ",alAur", "event": "upper_transit", "jdUt": 2460482.9182363683, "armc": 79.61569814312446},
+    {"point": ",gaOri", "event": "upper_transit", "jdUt": 2460482.9237464094, "armc": 81.60474411519085},
+    {"point": ",beTau", "event": "upper_transit", "jdUt": 2460482.924710237, "armc": 81.9526720869415},
+    {"point": ",laSco", "event": "lower_transit", "jdUt": 2460482.9298931467, "armc": 83.82362836049286},
+    {"point": ",alOph", "event": "lower_transit", "jdUt": 2460482.9304445395, "armc": 84.02267326770097},
+    {"point": ",epOri", "event": "upper_transit", "jdUt": 2460482.9313725927, "armc": 84.35768718254207},
+    {"point": ",thSco", "event": "lower_transit", "jdUt": 2460482.9325311366, "armc": 84.77590494047875},
+    {"point": ",alCol", "event": "upper_transit", "jdUt": 2460482.933503284, "armc": 85.12683630205437},
+    {"point": ",M6", "event": "lower_transit", "jdUt": 2460482.9345033714, "armc": 85.48785348748247},
+    {"point": ",zeOri", "event": "upper_transit", "jdUt": 2460482.934515508, "armc": 85.4922346012052},
+    {"point": ",M7", "event": "lower_transit", "jdUt": 2460482.943889968, "armc": 88.8762806062205},
+    {"point": ",alOri", "event": "upper_transit", "jdUt": 2460482.944559058, "armc": 89.11781255139451},
+    {"point": ",beAur", "event": "upper_transit", "jdUt": 2460482.9478949253, "armc": 90.32201283739266},
+    {"point": ",alDel", "event": "set", "jdUt": 2460482.957013735, "armc": 93.61377271560492},
+    {"point": ",beCMa", "event": "upper_transit", "jdUt": 2460482.9634518716, "armc": 95.93784790097226},
+    {"point": ",alCar", "event": "upper_transit", "jdUt": 2460482.963939931, "armc": 96.11403026360118},
+    {"point": ",epSgr", "event": "lower_transit", "jdUt": 2460482.9648833256, "armc": 96.45458230398278},
+    {"point": ",alLyr", "event": "lower_transit", "jdUt": 2460482.9731760593, "armc": 99.44814051692393},
+    {"point": ",M22", "event": "lower_transit", "jdUt": 2460482.9732587785, "armc": 99.47800094276448},
+    {"point": ",gaGem", "event": "upper_transit", "jdUt": 2460482.97408011, "armc": 99.77448986864744},
+    {"point": ",alCMa", "event": "upper_transit", "jdUt": 2460482.9789986834, "armc": 101.55002450100247},
+    {"point": ",epCMa", "event": "upper_transit", "jdUt": 2460482.988250687, "armc": 104.88986535231875},
+    {"point": ",deCMa", "event": "upper_transit", "jdUt": 2460482.995037332, "armc": 107.33974723743515},
+    {"point": ",alSgr", "event": "lower_transit", "jdUt": 2460483.006286601, "armc": 111.40057235901467},
+    {"point": ",alGem", "event": "upper_transit", "jdUt": 2460483.0135772224, "armc": 114.03238233318602},
+    {"point": ",alCMi", "event": "upper_transit", "jdUt": 2460483.016643985, "armc": 115.13943983269739},
+    {"point": ",beGem", "event": "upper_transit", "jdUt": 2460483.0209567756, "armc": 116.69629548543813},
+    {"point": ",alAql", "event": "lower_transit", "jdUt": 2460483.0245633037, "armc": 117.9982005092865},
+    {"point": ",ga-2Vel", "event": "upper_transit", "jdUt": 2460483.0372084533, "armc": 122.56291859739352},
+    {"point": ",alHer", "event": "rise", "jdUt": 2460483.03807796, "armc": 122.87679800538427},
+    {"point": ",epCar", "event": "upper_transit", "jdUt": 2460483.046014821, "armc": 125.74189140308732},
+    {"point": ",alPeg", "event": "set", "jdUt": 2460483.0489101103, "armc": 126.78704934514664},
+    {"point": ",alPav", "event": "lower_transit", "jdUt": 2460483.0492250724, "armc": 126.90074616357957},
+    {"point": ",beCMa", "event": "set", "jdUt": 2460483.053335795, "armc": 128.38465828196078},
+    {"point": ",alDel", "event": "lower_transit", "jdUt": 2460483.0583559377, "armc": 130.196857912128},
+    {"point": ",alPsc", "event": "set", "jdUt": 2460483.0586495097, "armc": 130.3028331925278},
+    {"point": ",alCyg", "event": "lower_transit", "jdUt": 2460483.0593914534, "armc": 130.57066425880967},
+    {"point": ",deVel", "event": "upper_transit", "jdUt": 2460483.061508789, "armc": 131.33499218820123},
+    {"point": ",alCnc", "event": "upper_transit", "jdUt": 2460483.071526288, "armc": 134.95116595506806},
+    {"point": ",alOph", "event": "rise", "jdUt": 2460483.071710079, "armc": 135.01751184828717},
+    {"point": ",alCrt", "event": "rise", "jdUt": 2460483.0729322126, "armc": 135.4586846061559},
+    {"point": ",beCar", "event": "upper_transit", "jdUt": 2460483.0809389977, "armc": 138.3490194604452},
+    {"point": ",alCep", "event": "lower_transit", "jdUt": 2460483.084943475, "armc": 139.79457855434686},
+    {"point": ",alCMa", "event": "set", "jdUt": 2460483.086018691, "armc": 140.1827160160589},
+    {"point": ",alHya", "event": "upper_transit", "jdUt": 2460483.091587121, "armc": 142.19283968407836},
+    {"point": ",alVir", "event": "rise", "jdUt": 2460483.0916089704, "armc": 142.20072696638715},
+    {"point": ",beAqr", "event": "lower_transit", "jdUt": 2460483.0944157536, "armc": 143.21393554067836},
+    {"point": ",deCap", "event": "lower_transit", "jdUt": 2460483.105180322, "armc": 147.09979078881477},
+    {"point": ",beOri", "event": "set", "jdUt": 2460483.10752659, "armc": 147.94675994154798},
+    {"point": ",alCet", "event": "set", "jdUt": 2460483.110345492, "armc": 148.96434324185654},
+    {"point": ",alAqr", "event": "lower_transit", "jdUt": 2460483.11809478, "armc": 151.76172529690248},
+    {"point": ",alLeo", "event": "upper_transit", "jdUt": 2460483.1199044473, "armc": 152.4149893123732},
+    {"point": ",alGru", "event": "lower_transit", "jdUt": 2460483.119989684, "armc": 152.44575847089712},
+    {"point": ",ga-1Leo", "event": "upper_transit", "jdUt": 2460483.127971289, "armc": 155.32700381509883},
+    {"point": ",beLib", "event": "rise", "jdUt": 2460483.1532574985, "armc": 164.45496360893702},
+    {"point": ",alPsA", "event": "lower_transit", "jdUt": 2460483.15407869, "armc": 164.75140193869893},
+    {"point": ",alCrt", "event": "upper_transit", "jdUt": 2460483.1554296925, "armc": 165.2390945499688},
+    {"point": ",bePeg", "event": "lower_transit", "jdUt": 2460483.1582039203, "armc": 166.24055112335208},
+    {"point": ",alUMa", "event": "upper_transit", "jdUt": 2460483.158381021, "armc": 166.30448196628709},
+    {"point": ",alPeg", "event": "lower_transit", "jdUt": 2460483.1589096817, "armc": 166.49532088016727},
+    {"point": ",alDel", "event": "rise", "jdUt": 2460483.1596979788, "armc": 166.77988483328403},
+    {"point": ",deLeo", "event": "upper_transit", "jdUt": 2460483.1654336504, "armc": 168.85038022731345},
+    {"point": ",zeOri", "event": "set", "jdUt": 2460483.174006273, "armc": 171.9449743651217},
+    {"point": ",epOri", "event": "set", "jdUt": 2460483.176423043, "armc": 172.81739374979796},
+    {"point": ",beLeo", "event": "upper_transit", "jdUt": 2460483.1896051993, "armc": 177.57596356554276},
+    {"point": ",alAql", "event": "rise", "jdUt": 2460483.1992609994, "armc": 181.061569290157},
+    {"point": ",al-2Lib", "event": "rise", "jdUt": 2460483.2009726856, "armc": 181.6794634993496},
+    {"point": ",alAnd", "event": "lower_transit", "jdUt": 2460483.203002279, "armc": 182.41211774068165},
+    {"point": ",alPhe", "event": "lower_transit", "jdUt": 2460483.215358705, "armc": 186.8726106181605},
+    {"point": ",alCru", "event": "upper_transit", "jdUt": 2460483.2156854193, "armc": 186.99054987103716},
+    {"point": ",gaCru", "event": "upper_transit", "jdUt": 2460483.2188463197, "armc": 188.13158970707636},
+    {"point": ",alCas", "event": "lower_transit", "jdUt": 2460483.225329023, "armc": 190.47175279808096},
+    {"point": ",gaOri", "event": "set", "jdUt": 2460483.2264713943, "armc": 190.88413254740772},
+    {"point": ",beCru", "event": "upper_transit", "jdUt": 2460483.2303651925, "armc": 192.28973799763517},
+    {"point": ",epUMa", "event": "upper_transit", "jdUt": 2460483.234492404, "armc": 193.77960226821423},
+    {"point": ",alCrt", "event": "set", "jdUt": 2460483.2379270885, "armc": 195.01947426838302},
+    {"point": ",epVir", "event": "upper_transit", "jdUt": 2460483.240227274, "armc": 195.84980836918908},
+    {"point": ",beAnd", "event": "lower_transit", "jdUt": 2460483.245554941, "armc": 197.77301980821653},
+    {"point": ",alCom", "event": "upper_transit", "jdUt": 2460483.2456188463, "armc": 197.7960887765016},
+    {"point": ",alOri", "event": "set", "jdUt": 2460483.2557255123, "armc": 201.44445061805652},
+    {"point": ",alVir", "event": "upper_transit", "jdUt": 2460483.256217756, "armc": 201.62214350220304},
+    {"point": ",alEri", "event": "lower_transit", "jdUt": 2460483.2646159544, "armc": 204.65377302210106},
+    {"point": ",alPeg", "event": "rise", "jdUt": 2460483.2689092653, "armc": 206.20359684320198},
+    {"point": ",etUMa", "event": "upper_transit", "jdUt": 2460483.2714788998, "armc": 207.13119812411273},
+    {"point": ",alHya", "event": "set", "jdUt": 2460483.2779364283, "armc": 209.4622735531646},
+    {"point": ",alPsc", "event": "lower_transit", "jdUt": 2460483.2817117437, "armc": 210.82510838760433},
+    {"point": ",alDra", "event": "upper_transit", "jdUt": 2460483.2829539487, "armc": 211.2735266344094},
+    {"point": ",beCen", "event": "upper_transit", "jdUt": 2460483.283288918, "armc": 211.39444574310127},
+    {"point": ",alAri", "event": "lower_transit", "jdUt": 2460483.285339461, "armc": 212.1346625044776},
+    {"point": ",alBoo", "event": "upper_transit", "jdUt": 2460483.29105445, "armc": 214.19769170237066},
+    {"point": ",NGC869", "event": "lower_transit", "jdUt": 2460483.2937605693, "armc": 215.17456206454892},
+    {"point": ",alTau", "event": "set", "jdUt": 2460483.294946322, "armc": 215.602601904371},
+    {"point": ",alCen", "event": "upper_transit", "jdUt": 2460483.3080261257, "armc": 220.32422382377231},
+    {"point": ",alCMi", "event": "set", "jdUt": 2460483.3097891505, "armc": 220.9606505669084},
+    {"point": ",al-2Lib", "event": "upper_transit", "jdUt": 2460483.315609497, "armc": 223.06171239739166},
+    {"point": ",alUMi", "event": "lower_transit", "jdUt": 2460483.3220365485, "armc": 225.38178604345035},
+    {"point": ",alCet", "event": "lower_transit", "jdUt": 2460483.323431636, "armc": 225.8853927408496},
+    {"point": ",bePer", "event": "lower_transit", "jdUt": 2460483.327723895, "armc": 227.43483683231995},
+    {"point": ",beLib", "event": "upper_transit", "jdUt": 2460483.3336800355, "armc": 229.58491828850222},
+    {"point": ",alPer", "event": "lower_transit", "jdUt": 2460483.3390158266, "armc": 231.51106251933396},
+    {"point": ",alCrB", "event": "upper_transit", "jdUt": 2460483.345733907, "armc": 233.93619346788898},
+    {"point": ",etTau", "event": "lower_transit", "jdUt": 2460483.354856598, "armc": 237.22935445260177},
+    {"point": ",alAqr", "event": "rise", "jdUt": 2460483.364325811, "armc": 240.64760486685248},
+    {"point": ",gaGem", "event": "set", "jdUt": 2460483.3766992586, "armc": 245.11424237135748},
+    {"point": ",beAqr", "event": "rise", "jdUt": 2460483.3803747194, "armc": 246.44103114517043},
+    {"point": ",alSco", "event": "upper_transit", "jdUt": 2460483.383951918, "armc": 247.73234874915264},
+    {"point": ",alTau", "event": "lower_transit", "jdUt": 2460483.3883646033, "armc": 249.3252649271734},
+    {"point": ",alTrA", "event": "upper_transit", "jdUt": 2460483.3980757743, "armc": 252.8308587448905},
+    {"point": ",beOri", "event": "lower_transit", "jdUt": 2460483.4149507326, "armc": 258.9224772797804},
+    {"point": ",alHer", "event": "upper_transit", "jdUt": 2460483.4150164044, "armc": 258.9461838409956},
+    {"point": ",alAur", "event": "lower_transit", "jdUt": 2460483.416871037, "armc": 259.6156796468484},
+    {"point": ",alVir", "event": "set", "jdUt": 2460483.4208262465, "armc": 261.04345374057255},
+    {"point": ",alCnc", "event": "set", "jdUt": 2460483.421204696, "armc": 261.18006857715295},
+    {"point": ",gaOri", "event": "lower_transit", "jdUt": 2460483.422381093, "armc": 261.60473101030993},
+    {"point": ",beTau", "event": "lower_transit", "jdUt": 2460483.4233449213, "armc": 261.9526593204511},
+    {"point": ",laSco", "event": "upper_transit", "jdUt": 2460483.428528212, "armc": 263.8237531089774},
+    {"point": ",alOph", "event": "upper_transit", "jdUt": 2460483.429079521, "armc": 264.022767760143},
+    {"point": ",epOri", "event": "lower_transit", "jdUt": 2460483.430007265, "armc": 264.357670060823},
+    {"point": ",al-2Lib", "event": "set", "jdUt": 2460483.4302461646, "armc": 264.44390940110696},
+    {"point": ",thSco", "event": "upper_transit", "jdUt": 2460483.431166231, "armc": 264.77604028494704},
+    {"point": ",alCol", "event": "lower_transit", "jdUt": 2460483.4321378903, "armc": 265.1267953157644},
+    {"point": ",M6", "event": "upper_transit", "jdUt": 2460483.4331384236, "armc": 265.48797353984435},
+    {"point": ",zeOri", "event": "lower_transit", "jdUt": 2460483.433150177, "armc": 265.49221631025085},
+    {"point": ",M7", "event": "upper_transit", "jdUt": 2460483.4425250376, "armc": 268.8764068992036},
+    {"point": ",alOri", "event": "lower_transit", "jdUt": 2460483.4431937262, "armc": 269.1177939459918},
+    {"point": ",beAur", "event": "lower_transit", "jdUt": 2460483.446529564, "armc": 270.3219836487584},
+    {"point": ",beCMa", "event": "lower_transit", "jdUt": 2460483.462086496, "armc": 275.93781353515413},
+    {"point": ",alCar", "event": "lower_transit", "jdUt": 2460483.462574398, "armc": 276.11393924971725},
+    {"point": ",epSgr", "event": "upper_transit", "jdUt": 2460483.463518412, "armc": 276.4547146940908},
+    {"point": ",alLeo", "event": "set", "jdUt": 2460483.470406343, "armc": 278.941159384591},
+    {"point": ",alLyr", "event": "upper_transit", "jdUt": 2460483.471811095, "armc": 279.44825460123485},
+    {"point": ",M22", "event": "upper_transit", "jdUt": 2460483.4718938386, "armc": 279.4781239362827},
+    {"point": ",gaGem", "event": "lower_transit", "jdUt": 2460483.472714758, "armc": 279.7744640981105},
+    {"point": ",alCMa", "event": "lower_transit", "jdUt": 2460483.4776333002, "armc": 281.5499874791706},
+    {"point": ",alTau", "event": "rise", "jdUt": 2460483.481783042, "armc": 283.0479849619318},
+    {"point": ",epCMa", "event": "lower_transit", "jdUt": 2460483.486885263, "armc": 284.8898137245333},
+    {"point": ",deCap", "event": "rise", "jdUt": 2460483.4876125352, "armc": 285.15234855819176},
+    {"point": ",deCMa", "event": "lower_transit", "jdUt": 2460483.493671912, "armc": 287.33969680017935}
+   ],
+   "noRiseOrSet": [
+    [
+     ",M22",
+     "rise"
+    ],
+    [
+     ",M22",
+     "set"
+    ],
+    [
+     ",M6",
+     "rise"
+    ],
+    [
+     ",M6",
+     "set"
+    ],
+    [
+     ",M7",
+     "rise"
+    ],
+    [
+     ",M7",
+     "set"
+    ],
+    [
+     ",NGC869",
+     "rise"
+    ],
+    [
+     ",NGC869",
+     "set"
+    ],
+    [
+     ",alAnd",
+     "rise"
+    ],
+    [
+     ",alAnd",
+     "set"
+    ],
+    [
+     ",alAri",
+     "rise"
+    ],
+    [
+     ",alAri",
+     "set"
+    ],
+    [
+     ",alAur",
+     "rise"
+    ],
+    [
+     ",alAur",
+     "set"
+    ],
+    [
+     ",alCar",
+     "rise"
+    ],
+    [
+     ",alCar",
+     "set"
+    ],
+    [
+     ",alCas",
+     "rise"
+    ],
+    [
+     ",alCas",
+     "set"
+    ],
+    [
+     ",alCen",
+     "rise"
+    ],
+    [
+     ",alCen",
+     "set"
+    ],
+    [
+     ",alCep",
+     "rise"
+    ],
+    [
+     ",alCep",
+     "set"
+    ],
+    [
+     ",alCol",
+     "rise"
+    ],
+    [
+     ",alCol",
+     "set"
+    ],
+    [
+     ",alCrB",
+     "rise"
+    ],
+    [
+     ",alCrB",
+     "set"
+    ],
+    [
+     ",alCru",
+     "rise"
+    ],
+    [
+     ",alCru",
+     "set"
+    ],
+    [
+     ",alCyg",
+     "rise"
+    ],
+    [
+     ",alCyg",
+     "set"
+    ],
+    [
+     ",alDra",
+     "rise"
+    ],
+    [
+     ",alDra",
+     "set"
+    ],
+    [
+     ",alEri",
+     "rise"
+    ],
+    [
+     ",alEri",
+     "set"
+    ],
+    [
+     ",alGem",
+     "rise"
+    ],
+    [
+     ",alGem",
+     "set"
+    ],
+    [
+     ",alGru",
+     "rise"
+    ],
+    [
+     ",alGru",
+     "set"
+    ],
+    [
+     ",alLyr",
+     "rise"
+    ],
+    [
+     ",alLyr",
+     "set"
+    ],
+    [
+     ",alPav",
+     "rise"
+    ],
+    [
+     ",alPav",
+     "set"
+    ],
+    [
+     ",alPer",
+     "rise"
+    ],
+    [
+     ",alPer",
+     "set"
+    ],
+    [
+     ",alPhe",
+     "rise"
+    ],
+    [
+     ",alPhe",
+     "set"
+    ],
+    [
+     ",alPsA",
+     "rise"
+    ],
+    [
+     ",alPsA",
+     "set"
+    ],
+    [
+     ",alSco",
+     "rise"
+    ],
+    [
+     ",alSco",
+     "set"
+    ],
+    [
+     ",alSgr",
+     "rise"
+    ],
+    [
+     ",alSgr",
+     "set"
+    ],
+    [
+     ",alTrA",
+     "rise"
+    ],
+    [
+     ",alTrA",
+     "set"
+    ],
+    [
+     ",alUMa",
+     "rise"
+    ],
+    [
+     ",alUMa",
+     "set"
+    ],
+    [
+     ",alUMi",
+     "rise"
+    ],
+    [
+     ",alUMi",
+     "set"
+    ],
+    [
+     ",beAnd",
+     "rise"
+    ],
+    [
+     ",beAnd",
+     "set"
+    ],
+    [
+     ",beAur",
+     "rise"
+    ],
+    [
+     ",beAur",
+     "set"
+    ],
+    [
+     ",beCar",
+     "rise"
+    ],
+    [
+     ",beCar",
+     "set"
+    ],
+    [
+     ",beCen",
+     "rise"
+    ],
+    [
+     ",beCen",
+     "set"
+    ],
+    [
+     ",beCru",
+     "rise"
+    ],
+    [
+     ",beCru",
+     "set"
+    ],
+    [
+     ",beGem",
+     "rise"
+    ],
+    [
+     ",beGem",
+     "set"
+    ],
+    [
+     ",bePeg",
+     "rise"
+    ],
+    [
+     ",bePeg",
+     "set"
+    ],
+    [
+     ",bePer",
+     "rise"
+    ],
+    [
+     ",bePer",
+     "set"
+    ],
+    [
+     ",beTau",
+     "rise"
+    ],
+    [
+     ",beTau",
+     "set"
+    ],
+    [
+     ",deCMa",
+     "rise"
+    ],
+    [
+     ",deCMa",
+     "set"
+    ],
+    [
+     ",deLeo",
+     "rise"
+    ],
+    [
+     ",deLeo",
+     "set"
+    ],
+    [
+     ",deVel",
+     "rise"
+    ],
+    [
+     ",deVel",
+     "set"
+    ],
+    [
+     ",epCMa",
+     "rise"
+    ],
+    [
+     ",epCMa",
+     "set"
+    ],
+    [
+     ",epCar",
+     "rise"
+    ],
+    [
+     ",epCar",
+     "set"
+    ],
+    [
+     ",epSgr",
+     "rise"
+    ],
+    [
+     ",epSgr",
+     "set"
+    ],
+    [
+     ",epUMa",
+     "rise"
+    ],
+    [
+     ",epUMa",
+     "set"
+    ],
+    [
+     ",etTau",
+     "rise"
+    ],
+    [
+     ",etTau",
+     "set"
+    ],
+    [
+     ",etUMa",
+     "rise"
+    ],
+    [
+     ",etUMa",
+     "set"
+    ],
+    [
+     ",ga-2Vel",
+     "rise"
+    ],
+    [
+     ",ga-2Vel",
+     "set"
+    ],
+    [
+     ",gaCru",
+     "rise"
+    ],
+    [
+     ",gaCru",
+     "set"
+    ],
+    [
+     ",laSco",
+     "rise"
+    ],
+    [
+     ",laSco",
+     "set"
+    ],
+    [
+     ",thSco",
+     "rise"
+    ],
+    [
+     ",thSco",
+     "set"
+    ]
+   ]
+  },
+  {
+   "name": "sydney-1987/geometric",
+   "utc": "1987-12-05T03:20:00Z",
+   "lat": -33.8688,
+   "lng": 151.2093,
+   "elevation": 0,
+   "horizon": "geometric",
+   "window": {
+    "startJdUt": 2447134.138888889,
+    "endJdUt": 2447135.138888889
+   },
+   "events": [
+    {"point": ",beCMa", "event": "upper_transit", "jdUt": 2447134.142853714, "armc": 95.54739207492628},
+    {"point": ",epSgr", "event": "lower_transit", "jdUt": 2447134.14365355, "armc": 95.83612146102365},
+    {"point": ",alCar", "event": "upper_transit", "jdUt": 2447134.1439119326, "armc": 95.92939381033443},
+    {"point": ",alPsA", "event": "set", "jdUt": 2447134.146176201, "armc": 96.74676221272517},
+    {"point": ",beLeo", "event": "rise", "jdUt": 2447134.147452217, "armc": 97.20738579886216},
+    {"point": ",M22", "event": "lower_transit", "jdUt": 2447134.1521682735, "armc": 98.90981461566389},
+    {"point": ",alLyr", "event": "lower_transit", "jdUt": 2447134.152765282, "armc": 99.12532613504976},
+    {"point": ",gaGem", "event": "upper_transit", "jdUt": 2447134.1531358324, "armc": 99.25908953535196},
+    {"point": ",alCMa", "event": "upper_transit", "jdUt": 2447134.158399855, "armc": 101.15932622645522},
+    {"point": ",bePer", "event": "set", "jdUt": 2447134.158738317, "armc": 101.28150622656796},
+    {"point": ",alVir", "event": "rise", "jdUt": 2447134.1650767545, "armc": 103.56959140531995},
+    {"point": ",epCMa", "event": "upper_transit", "jdUt": 2447134.16777333, "armc": 104.54301657604611},
+    {"point": ",alAri", "event": "set", "jdUt": 2447134.1683023986, "armc": 104.73400273502608},
+    {"point": ",deCMa", "event": "upper_transit", "jdUt": 2447134.174524294, "armc": 106.98001792810373},
+    {"point": ",alGru", "event": "set", "jdUt": 2447134.1772248168, "armc": 107.95486788945345},
+    {"point": ",alSgr", "event": "lower_transit", "jdUt": 2447134.1849878337, "armc": 110.75720583609211},
+    {"point": ",epVir", "event": "rise", "jdUt": 2447134.190934203, "armc": 112.90376001917457},
+    {"point": ",alGem", "event": "upper_transit", "jdUt": 2447134.1924830154, "armc": 113.46285906359338},
+    {"point": ",alCMi", "event": "upper_transit", "jdUt": 2447134.1958326036, "armc": 114.6720124512679},
+    {"point": ",beGem", "event": "upper_transit", "jdUt": 2447134.1999263503, "armc": 116.14979636522236},
+    {"point": ",alAql", "event": "lower_transit", "jdUt": 2447134.20378846, "armc": 117.54396275184558},
+    {"point": ",alPsc", "event": "set", "jdUt": 2447134.2065480766, "armc": 118.54014473475024},
+    {"point": ",alCom", "event": "rise", "jdUt": 2447134.2095788536, "armc": 119.63421181864544},
+    {"point": ",al-2Lib", "event": "rise", "jdUt": 2447134.2146255393, "armc": 121.45599307808271},
+    {"point": ",ga-2Vel", "event": "upper_transit", "jdUt": 2447134.216947821, "armc": 122.29430351720555},
+    {"point": ",alAur", "event": "set", "jdUt": 2447134.2242989754, "armc": 124.94796499963877},
+    {"point": ",epCar", "event": "upper_transit", "jdUt": 2447134.2260261565, "armc": 125.57145261325275},
+    {"point": ",alPav", "event": "lower_transit", "jdUt": 2447134.227683878, "armc": 126.16986636522978},
+    {"point": ",etTau", "event": "set", "jdUt": 2447134.236212752, "armc": 129.24866765963571},
+    {"point": ",alDel", "event": "lower_transit", "jdUt": 2447134.2376440503, "armc": 129.7653458993526},
+    {"point": ",alCyg", "event": "lower_transit", "jdUt": 2447134.238983145, "armc": 130.2487399135021},
+    {"point": ",deVel", "event": "upper_transit", "jdUt": 2447134.241329609, "armc": 131.0957798018897},
+    {"point": ",alCet", "event": "set", "jdUt": 2447134.245762052, "armc": 132.69582827013994},
+    {"point": ",beLib", "event": "rise", "jdUt": 2447134.2459001755, "armc": 132.74568888275263},
+    {"point": ",alPhe", "event": "set", "jdUt": 2447134.249887329, "armc": 134.1849942055594},
+    {"point": ",alCnc", "event": "upper_transit", "jdUt": 2447134.250649091, "armc": 134.4599793045707},
+    {"point": ",thSco", "event": "rise", "jdUt": 2447134.2531628823, "armc": 135.36742201237587},
+    {"point": ",alBoo", "event": "rise", "jdUt": 2447134.258581978, "armc": 137.32363788550208},
+    {"point": ",beAur", "event": "set", "jdUt": 2447134.2593535003, "armc": 137.6021464670008},
+    {"point": ",alSco", "event": "rise", "jdUt": 2447134.259600502, "armc": 137.69131052470522},
+    {"point": ",beCar", "event": "upper_transit", "jdUt": 2447134.261204022, "armc": 138.2701582840644},
+    {"point": ",alCep", "event": "lower_transit", "jdUt": 2447134.264788548, "armc": 139.56412084121678},
+    {"point": ",alHya", "event": "upper_transit", "jdUt": 2447134.2708448092, "armc": 141.75034442109984},
+    {"point": ",laSco", "event": "rise", "jdUt": 2447134.273439111, "armc": 142.6868502698917},
+    {"point": ",beAqr", "event": "lower_transit", "jdUt": 2447134.2735554413, "armc": 142.72884377228303},
+    {"point": ",deCap", "event": "lower_transit", "jdUt": 2447134.2842582692, "armc": 146.59241138757034},
+    {"point": ",alTau", "event": "set", "jdUt": 2447134.286365372, "armc": 147.3530453554332},
+    {"point": ",M6", "event": "rise", "jdUt": 2447134.2932127533, "armc": 149.82485188280282},
+    {"point": ",beTau", "event": "set", "jdUt": 2447134.29348169, "armc": 149.92193415228604},
+    {"point": ",M7", "event": "rise", "jdUt": 2447134.2949570236, "armc": 150.45450849087666},
+    {"point": ",alAqr", "event": "lower_transit", "jdUt": 2447134.297270275, "armc": 151.2895591940059},
+    {"point": ",alGru", "event": "lower_transit", "jdUt": 2447134.298876165, "armc": 151.86926239991598},
+    {"point": ",alLeo", "event": "upper_transit", "jdUt": 2447134.2990555265, "armc": 151.9340093515288},
+    {"point": ",ga-1Leo", "event": "upper_transit", "jdUt": 2447134.307075387, "armc": 154.829064095522},
+    {"point": ",epSgr", "event": "rise", "jdUt": 2447134.3171987757, "armc": 158.4834624955228},
+    {"point": ",alCrB", "event": "rise", "jdUt": 2447134.330582005, "armc": 163.3146166062392},
+    {"point": ",alPsA", "event": "lower_transit", "jdUt": 2447134.33316611, "armc": 164.24744146700738},
+    {"point": ",alCrt", "event": "upper_transit", "jdUt": 2447134.33468414, "armc": 164.7954286252929},
+    {"point": ",alSgr", "event": "rise", "jdUt": 2447134.336848281, "armc": 165.5766524664574},
+    {"point": ",alUMa", "event": "upper_transit", "jdUt": 2447134.3373326156, "armc": 165.75149038291107},
+    {"point": ",bePeg", "event": "lower_transit", "jdUt": 2447134.33745496, "armc": 165.79565502663502},
+    {"point": ",alPeg", "event": "lower_transit", "jdUt": 2447134.3381292126, "armc": 166.03905048677336},
+    {"point": ",gaOri", "event": "set", "jdUt": 2447134.340369882, "armc": 166.84790007064277},
+    {"point": ",etUMa", "event": "rise", "jdUt": 2447134.344195547, "armc": 168.2289103461364},
+    {"point": ",deLeo", "event": "upper_transit", "jdUt": 2447134.3445785753, "armc": 168.367178075808},
+    {"point": ",M22", "event": "rise", "jdUt": 2447134.3535110373, "armc": 171.5916689294963},
+    {"point": ",alOri", "event": "set", "jdUt": 2447134.359152657, "armc": 173.6282128435739},
+    {"point": ",beOri", "event": "set", "jdUt": 2447134.360330604, "armc": 174.05343485535},
+    {"point": ",epOri", "event": "set", "jdUt": 2447134.362163566, "armc": 174.7151079023377},
+    {"point": ",zeOri", "event": "set", "jdUt": 2447134.3666897044, "armc": 176.34897901605999},
+    {"point": ",beLeo", "event": "upper_transit", "jdUt": 2447134.3687987337, "armc": 177.11030840294276},
+    {"point": ",gaGem", "event": "set", "jdUt": 2447134.370865685, "armc": 177.85644820383297},
+    {"point": ",alHer", "event": "rise", "jdUt": 2447134.3724905867, "armc": 178.4430144773349},
+    {"point": ",alGem", "event": "set", "jdUt": 2447134.3733458742, "armc": 178.75176103055},
+    {"point": ",alAnd", "event": "lower_transit", "jdUt": 2447134.3821802116, "armc": 181.94083030664973},
+    {"point": ",alOph", "event": "rise", "jdUt": 2447134.382876895, "armc": 182.192323002512},
+    {"point": ",beGem", "event": "set", "jdUt": 2447134.391177676, "armc": 185.18878616765565},
+    {"point": ",alPhe", "event": "lower_transit", "jdUt": 2447134.394608003, "armc": 186.4270850695616},
+    {"point": ",alCru", "event": "upper_transit", "jdUt": 2447134.39472838, "armc": 186.4705393352753},
+    {"point": ",gaCru", "event": "upper_transit", "jdUt": 2447134.3978983117, "armc": 187.61483937206094},
+    {"point": ",epUMa", "event": "rise", "jdUt": 2447134.399393731, "armc": 188.15466424210388},
+    {"point": ",alCas", "event": "lower_transit", "jdUt": 2447134.404380491, "armc": 189.95481326769385},
+    {"point": ",beCru", "event": "upper_transit", "jdUt": 2447134.4093342456, "armc": 191.74304774184688},
+    {"point": ",epUMa", "event": "upper_transit", "jdUt": 2447134.413850979, "armc": 193.37352380127572},
+    {"point": ",epVir", "event": "upper_transit", "jdUt": 2447134.4194404157, "armc": 195.39123042566595},
+    {"point": ",alGru", "event": "rise", "jdUt": 2447134.4205281157, "armc": 195.78387455611247},
+    {"point": ",beAnd", "event": "lower_transit", "jdUt": 2447134.4246317507, "armc": 197.26522801878474},
+    {"point": ",alCom", "event": "upper_transit", "jdUt": 2447134.4248599145, "armc": 197.34759187871967},
+    {"point": ",beCMa", "event": "set", "jdUt": 2447134.4269507946, "armc": 198.10236968347513},
+    {"point": ",epUMa", "event": "set", "jdUt": 2447134.4283076953, "armc": 198.59219139534622},
+    {"point": ",alCMi", "event": "set", "jdUt": 2447134.435337724, "armc": 201.12993114364633},
+    {"point": ",alVir", "event": "upper_transit", "jdUt": 2447134.435351439, "armc": 201.1348819380423},
+    {"point": ",alCol", "event": "set", "jdUt": 2447134.4372266354, "armc": 201.8118010529809},
+    {"point": ",alCMa", "event": "set", "jdUt": 2447134.4398878636, "armc": 202.7724663186207},
+    {"point": ",alEri", "event": "lower_transit", "jdUt": 2447134.4441926475, "armc": 204.32643165893498},
+    {"point": ",etUMa", "event": "upper_transit", "jdUt": 2447134.4509422323, "armc": 206.76293512380556},
+    {"point": ",alPsc", "event": "lower_transit", "jdUt": 2447134.4609044255, "armc": 210.35914421798108},
+    {"point": ",beCen", "event": "upper_transit", "jdUt": 2447134.4619284086, "armc": 210.7287874607909},
+    {"point": ",alDra", "event": "upper_transit", "jdUt": 2447134.4627077063, "armc": 211.0101027600404},
+    {"point": ",alAri", "event": "lower_transit", "jdUt": 2447134.464414246, "armc": 211.62613913878516},
+    {"point": ",alAql", "event": "rise", "jdUt": 2447134.4696946363, "armc": 213.5322844554436},
+    {"point": ",alBoo", "event": "upper_transit", "jdUt": 2447134.470363033, "armc": 213.77356609609134},
+    {"point": ",NGC869", "event": "lower_transit", "jdUt": 2447134.4724889663, "armc": 214.54099757568068},
+    {"point": ",alUMi", "event": "lower_transit", "jdUt": 2447134.4736688538, "armc": 214.96692004965695},
+    {"point": ",alCnc", "event": "set", "jdUt": 2447134.4774289355, "armc": 216.3242557075358},
+    {"point": ",epCMa", "event": "set", "jdUt": 2447134.4774674005, "armc": 216.33814102894098},
+    {"point": ",deCMa", "event": "set", "jdUt": 2447134.477678798, "armc": 216.41445255419356},
+    {"point": ",alCen", "event": "upper_transit", "jdUt": 2447134.486728063, "armc": 219.68110753872887},
+    {"point": ",alLyr", "event": "rise", "jdUt": 2447134.4924528026, "armc": 221.74765661532268},
+    {"point": ",al-2Lib", "event": "upper_transit", "jdUt": 2447134.4946659836, "armc": 222.54658326425943},
+    {"point": ",deCap", "event": "rise", "jdUt": 2447134.5024578, "armc": 225.35931736233582},
+    {"point": ",alCet", "event": "lower_transit", "jdUt": 2447134.502616266, "armc": 225.41652129495662},
+    {"point": ",bePer", "event": "lower_transit", "jdUt": 2447134.506587158, "armc": 226.84995650899472},
+    {"point": ",beAqr", "event": "rise", "jdUt": 2447134.5123710856, "armc": 228.93787156301366},
+    {"point": ",beLib", "event": "upper_transit", "jdUt": 2447134.512774184, "armc": 229.08338427641354},
+    {"point": ",alDel", "event": "rise", "jdUt": 2447134.517432235, "armc": 230.76487409790738},
+    {"point": ",ga-1Leo", "event": "set", "jdUt": 2447134.5174341425, "armc": 230.7655626234212},
+    {"point": ",alPer", "event": "lower_transit", "jdUt": 2447134.5177236493, "armc": 230.87007041305657},
+    {"point": ",alPsA", "event": "rise", "jdUt": 2447134.5201565647, "armc": 231.74831802939767},
+    {"point": ",alCrB", "event": "upper_transit", "jdUt": 2447134.5251163812, "armc": 233.53874079595218},
+    {"point": ",alLeo", "event": "set", "jdUt": 2447134.5255980715, "armc": 233.7126240896257},
+    {"point": ",etTau", "event": "lower_transit", "jdUt": 2447134.5338637196, "armc": 236.69640467741274},
+    {"point": ",alHya", "event": "set", "jdUt": 2447134.5363065624, "armc": 237.57823595555337},
+    {"point": ",alPhe", "event": "rise", "jdUt": 2447134.539329233, "armc": 238.66937681423522},
+    {"point": ",alAqr", "event": "rise", "jdUt": 2447134.545882406, "armc": 241.03497845800405},
+    {"point": ",deLeo", "event": "set", "jdUt": 2447134.5534401163, "armc": 243.7632036128353},
+    {"point": ",etUMa", "event": "set", "jdUt": 2447134.5576884174, "armc": 245.29677945621782},
+    {"point": ",alSco", "event": "upper_transit", "jdUt": 2447134.5628486574, "armc": 247.15955220595464},
+    {"point": ",alCar", "event": "set", "jdUt": 2447134.5641748356, "armc": 247.63828354746906},
+    {"point": ",alTau", "event": "lower_transit", "jdUt": 2447134.5674266363, "armc": 248.81213706806355},
+    {"point": ",alTrA", "event": "upper_transit", "jdUt": 2447134.5757774026, "armc": 251.82664411973218},
+    {"point": ",beLeo", "event": "set", "jdUt": 2447134.590144974, "armc": 257.0131317356458},
+    {"point": ",beOri", "event": "lower_transit", "jdUt": 2447134.594249807, "armc": 258.49491754908814},
+    {"point": ",alHer", "event": "upper_transit", "jdUt": 2447134.594314676, "armc": 258.5183343095481},
+    {"point": ",ga-2Vel", "event": "set", "jdUt": 2447134.5955066904, "armc": 258.9486345359045},
+    {"point": ",alAur", "event": "lower_transit", "jdUt": 2447134.5955281626, "armc": 258.95638565928044},
+    {"point": ",gaOri", "event": "lower_transit", "jdUt": 2447134.6015389124, "armc": 261.12618028956564},
+    {"point": ",beTau", "event": "lower_transit", "jdUt": 2447134.6022641207, "armc": 261.38797010798555},
+    {"point": ",alCyg", "event": "rise", "jdUt": 2447134.6062948136, "armc": 262.842992517036},
+    {"point": ",laSco", "event": "upper_transit", "jdUt": 2447134.6072550314, "armc": 263.18961739011536},
+    {"point": ",alOph", "event": "upper_transit", "jdUt": 2447134.608357704, "armc": 263.5876663470982},
+    {"point": ",epOri", "event": "lower_transit", "jdUt": 2447134.6092382986, "armc": 263.905548472626},
+    {"point": ",thSco", "event": "upper_transit", "jdUt": 2447134.6097896877, "armc": 264.10459203008577},
+    {"point": ",alCol", "event": "lower_transit", "jdUt": 2447134.611742744, "armc": 264.80961747964375},
+    {"point": ",M6", "event": "upper_transit", "jdUt": 2447134.611936388, "armc": 264.87952013668126},
+    {"point": ",zeOri", "event": "lower_transit", "jdUt": 2447134.612388431, "armc": 265.04270119553865},
+    {"point": ",alPeg", "event": "rise", "jdUt": 2447134.6164347557, "armc": 266.50336645499283},
+    {"point": ",alCrt", "event": "set", "jdUt": 2447134.6193833575, "armc": 267.56776946130697},
+    {"point": ",M7", "event": "upper_transit", "jdUt": 2447134.6212849044, "armc": 268.254200686898},
+    {"point": ",alOri", "event": "lower_transit", "jdUt": 2447134.622339218, "armc": 268.6347927647419},
+    {"point": ",beAur", "event": "lower_transit", "jdUt": 2447134.625201815, "armc": 269.668149253349},
+    {"point": ",alCom", "event": "set", "jdUt": 2447134.640140556, "armc": 275.0608208586232},
+    {"point": ",beCMa", "event": "lower_transit", "jdUt": 2447134.6414881595, "armc": 275.54728651458726},
+    {"point": ",epSgr", "event": "upper_transit", "jdUt": 2447134.6422888385, "armc": 275.8363201594335},
+    {"point": ",alCar", "event": "lower_transit", "jdUt": 2447134.642546128, "armc": 275.9291979861206},
+    {"point": ",bePeg", "event": "rise", "jdUt": 2447134.6447431473, "armc": 276.72229049325017},
+    {"point": ",epVir", "event": "set", "jdUt": 2447134.6479462213, "armc": 277.878554339403},
+    {"point": ",M22", "event": "upper_transit", "jdUt": 2447134.6508035036, "armc": 278.9099923369494},
+    {"point": ",alLyr", "event": "upper_transit", "jdUt": 2447134.651400532, "armc": 279.12551108700575},
+    {"point": ",gaGem", "event": "lower_transit", "jdUt": 2447134.651770312, "armc": 279.2589962878149},
+    {"point": ",alCMa", "event": "lower_transit", "jdUt": 2447134.657034313, "armc": 281.15922526809976},
+    {"point": ",epCMa", "event": "lower_transit", "jdUt": 2447134.666407756, "armc": 284.54290405710174},
+    {"point": ",deCMa", "event": "lower_transit", "jdUt": 2447134.673158737, "armc": 286.97991148821166},
+    {"point": ",alBoo", "event": "set", "jdUt": 2447134.6821437106, "armc": 290.2233583334206},
+    {"point": ",alSgr", "event": "upper_transit", "jdUt": 2447134.683623124, "armc": 290.75740537482767},
+    {"point": ",deVel", "event": "set", "jdUt": 2447134.687799731, "armc": 292.2651006631532},
+    {"point": ",alGem", "event": "lower_transit", "jdUt": 2447134.6911174855, "armc": 293.462762613274},
+    {"point": ",alAnd", "event": "rise", "jdUt": 2447134.692074163, "armc": 293.80810944528093},
+    {"point": ",alCMi", "event": "lower_transit", "jdUt": 2447134.694467114, "armc": 294.6719304710124},
+    {"point": ",beGem", "event": "lower_transit", "jdUt": 2447134.698560836, "armc": 296.1497054917765},
+    {"point": ",alAql", "event": "upper_transit", "jdUt": 2447134.702423609, "armc": 297.5441112641871},
+    {"point": ",alVir", "event": "set", "jdUt": 2447134.7056257157, "armc": 298.70002597408},
+    {"point": ",alPsc", "event": "rise", "jdUt": 2447134.715261164, "armc": 302.17828491178017},
+    {"point": ",ga-2Vel", "event": "lower_transit", "jdUt": 2447134.7155821696, "armc": 302.29416329097165},
+    {"point": ",alCrB", "event": "set", "jdUt": 2447134.71965045, "armc": 303.7627543297714},
+    {"point": ",alCar", "event": "rise", "jdUt": 2447134.720917962, "armc": 304.22030796487945},
+    {"point": ",epCar", "event": "lower_transit", "jdUt": 2447134.7246603495, "armc": 305.5712562778887},
+    {"point": ",alPav", "event": "upper_transit", "jdUt": 2447134.726319299, "armc": 306.17011330827006},
+    {"point": ",alDel", "event": "upper_transit", "jdUt": 2447134.7362791877, "armc": 309.76549051025864},
+    {"point": ",alCyg", "event": "upper_transit", "jdUt": 2447134.737618381, "armc": 310.24892016621476},
+    {"point": ",deVel", "event": "lower_transit", "jdUt": 2447134.739963898, "armc": 311.0956181541777},
+    {"point": ",alCnc", "event": "lower_transit", "jdUt": 2447134.749283625, "armc": 314.4599061122445},
+    {"point": ",beAnd", "event": "rise", "jdUt": 2447134.7533815927, "armc": 315.9392138435622},
+    {"point": ",alCet", "event": "rise", "jdUt": 2447134.7594708037, "armc": 318.13733182568427},
+    {"point": ",beCar", "event": "lower_transit", "jdUt": 2447134.7598379776, "armc": 318.2698763560869},
+    {"point": ",alAri", "event": "rise", "jdUt": 2447134.7605266795, "armc": 318.5184878700439},
+    {"point": ",alCep", "event": "upper_transit", "jdUt": 2447134.7634239835, "armc": 319.5643731390559},
+    {"point": ",alHya", "event": "lower_transit", "jdUt": 2447134.769479348, "armc": 321.7502729872651},
+    {"point": ",beAqr", "event": "upper_transit", "jdUt": 2447134.772190563, "armc": 322.72898280605966},
+    {"point": ",al-2Lib", "event": "set", "jdUt": 2447134.7747060684, "armc": 323.63704428918254},
+    {"point": ",beLib", "event": "set", "jdUt": 2447134.77964785, "armc": 325.4209566652068},
+    {"point": ",deCap", "event": "upper_transit", "jdUt": 2447134.7828934, "armc": 326.5925538242382},
+    {"point": ",alCol", "event": "rise", "jdUt": 2447134.7862591967, "armc": 327.80755818173964},
+    {"point": ",deVel", "event": "rise", "jdUt": 2447134.792128627, "armc": 329.92633855618107},
+    {"point": ",alAqr", "event": "upper_transit", "jdUt": 2447134.79590539, "armc": 331.2896957957793},
+    {"point": ",alGru", "event": "upper_transit", "jdUt": 2447134.797511416, "armc": 331.8694482602433},
+    {"point": ",alLeo", "event": "lower_transit", "jdUt": 2447134.79769007, "armc": 331.9339397050604},
+    {"point": ",ga-1Leo", "event": "lower_transit", "jdUt": 2447134.80570992, "armc": 334.8289907809492},
+    {"point": ",alLyr", "event": "set", "jdUt": 2447134.8103477387, "armc": 336.5031769630437},
+    {"point": ",alHer", "event": "set", "jdUt": 2447134.816138449, "armc": 338.5935405310754},
+    {"point": ",beOri", "event": "rise", "jdUt": 2447134.828169369, "armc": 342.93653041252907},
+    {"point": ",etTau", "event": "rise", "jdUt": 2447134.831515176, "armc": 344.14431886874826},
+    {"point": ",alPsA", "event": "upper_transit", "jdUt": 2447134.8318012627, "armc": 344.2475919860369},
+    {"point": ",alCrt", "event": "lower_transit", "jdUt": 2447134.833318677, "armc": 344.79535675745365},
+    {"point": ",alOph", "event": "set", "jdUt": 2447134.833838009, "armc": 344.98282817807916},
+    {"point": ",ga-2Vel", "event": "rise", "jdUt": 2447134.8356580967, "armc": 345.63985385165023},
+    {"point": ",alUMa", "event": "lower_transit", "jdUt": 2447134.835966839, "armc": 345.7513053951124},
+    {"point": ",bePeg", "event": "upper_transit", "jdUt": 2447134.8360901144, "armc": 345.7958060651908},
+    {"point": ",alPeg", "event": "upper_transit", "jdUt": 2447134.8367643375, "armc": 346.03919093795196},
+    {"point": ",deLeo", "event": "lower_transit", "jdUt": 2447134.843213103, "armc": 348.36710288173254},
+    {"point": ",alTau", "event": "rise", "jdUt": 2447134.848488354, "armc": 350.2713930933312},
+    {"point": ",bePer", "event": "rise", "jdUt": 2447134.854436579, "armc": 352.4186171737093},
+    {"point": ",epCMa", "event": "rise", "jdUt": 2447134.855348451, "armc": 352.7477898752481},
+    {"point": ",beCMa", "event": "rise", "jdUt": 2447134.8560258774, "armc": 352.99233108773774},
+    {"point": ",epOri", "event": "rise", "jdUt": 2447134.8563134107, "armc": 353.09612648272264},
+    {"point": ",zeOri", "event": "rise", "jdUt": 2447134.858087563, "armc": 353.7365700544799},
+    {"point": ",gaOri", "event": "rise", "jdUt": 2447134.8627084326, "armc": 355.4046378410174},
+    {"point": ",alSco", "event": "set", "jdUt": 2447134.8660963606, "armc": 356.6276313494261},
+    {"point": ",beLeo", "event": "lower_transit", "jdUt": 2447134.8674332653, "armc": 357.1102348090974},
+    {"point": ",deCMa", "event": "rise", "jdUt": 2447134.868639015, "armc": 357.5454932286105},
+    {"point": ",alCyg", "event": "set", "jdUt": 2447134.8689413304, "armc": 357.6546246962681},
+    {"point": ",alCMa", "event": "rise", "jdUt": 2447134.8741811346, "armc": 359.546119024549},
+    {"point": ",alAnd", "event": "upper_transit", "jdUt": 2447134.8808153844, "armc": 1.940988230216874},
+    {"point": ",alOri", "event": "rise", "jdUt": 2447134.8855262036, "armc": 3.641526485940801},
+    {"point": ",alPhe", "event": "upper_transit", "jdUt": 2447134.893243213, "armc": 6.427256484796658},
+    {"point": ",alCru", "event": "lower_transit", "jdUt": 2447134.8933626064, "armc": 6.470355729998914},
+    {"point": ",gaCru", "event": "lower_transit", "jdUt": 2447134.896532636, "armc": 7.61469107806289},
+    {"point": ",alCas", "event": "upper_transit", "jdUt": 2447134.9030158967, "armc": 9.955055317682763},
+    {"point": ",beCru", "event": "lower_transit", "jdUt": 2447134.907968528, "armc": 11.742884359350342},
+    {"point": ",beTau", "event": "rise", "jdUt": 2447134.9110470046, "armc": 12.854170312809288},
+    {"point": ",epUMa", "event": "lower_transit", "jdUt": 2447134.912485234, "armc": 13.373350516564187},
+    {"point": ",alPer", "event": "rise", "jdUt": 2447134.9128756756, "armc": 13.51429435251032},
+    {"point": ",epVir", "event": "lower_transit", "jdUt": 2447134.918074933, "armc": 15.391151798971862},
+    {"point": ",beAnd", "event": "upper_transit", "jdUt": 2447134.9232669785, "armc": 17.2654059260625},
+    {"point": ",alCom", "event": "lower_transit", "jdUt": 2447134.923494416, "armc": 17.347507555163816},
+    {"point": ",M6", "event": "set", "jdUt": 2447134.9306594757, "armc": 19.933991608090423},
+    {"point": ",gaGem", "event": "rise", "jdUt": 2447134.9326752257, "armc": 20.66164847294499},
+    {"point": ",alVir", "event": "lower_transit", "jdUt": 2447134.9339859593, "armc": 21.134804542670338},
+    {"point": ",alAql", "event": "set", "jdUt": 2447134.9351522354, "armc": 21.555813542817305},
+    {"point": ",laSco", "event": "set", "jdUt": 2447134.9410704207, "armc": 23.69219368441395},
+    {"point": ",alEri", "event": "upper_transit", "jdUt": 2447134.942828014, "armc": 24.32665972558607},
+    {"point": ",M7", "event": "set", "jdUt": 2447134.9476121496, "armc": 26.053664192784254},
+    {"point": ",M22", "event": "set", "jdUt": 2447134.9480955033, "armc": 26.228147930673572},
+    {"point": ",etUMa", "event": "lower_transit", "jdUt": 2447134.949576534, "armc": 26.76277877558573},
+    {"point": ",alCMi", "event": "rise", "jdUt": 2447134.953596774, "armc": 28.214027918919214},
+    {"point": ",alDel", "event": "set", "jdUt": 2447134.9551258315, "armc": 28.76599579037105},
+    {"point": ",alPsc", "event": "upper_transit", "jdUt": 2447134.959539585, "armc": 30.35929753802577},
+    {"point": ",beCen", "event": "lower_transit", "jdUt": 2447134.9605626436, "armc": 30.72860711157466},
+    {"point": ",alDra", "event": "lower_transit", "jdUt": 2447134.961341706, "armc": 31.00983752452555},
+    {"point": ",alAri", "event": "upper_transit", "jdUt": 2447134.96304945, "armc": 31.626308607829912},
+    {"point": ",thSco", "event": "set", "jdUt": 2447134.966415746, "armc": 32.84149333702027},
+    {"point": ",alAur", "event": "rise", "jdUt": 2447134.966758115, "armc": 32.9650836735816},
+    {"point": ",epSgr", "event": "set", "jdUt": 2447134.967378321, "armc": 33.188969119521346},
+    {"point": ",alBoo", "event": "lower_transit", "jdUt": 2447134.9689975, "armc": 33.773469487188834},
+    {"point": ",NGC869", "event": "upper_transit", "jdUt": 2447134.971124468, "armc": 34.54127448572399},
+    {"point": ",alUMi", "event": "upper_transit", "jdUt": 2447134.9723307802, "armc": 34.97673596690316},
+    {"point": ",alCen", "event": "lower_transit", "jdUt": 2447134.9853622634, "armc": 39.68091483228591},
+    {"point": ",beAur", "event": "rise", "jdUt": 2447134.9910507435, "armc": 41.734374714306114},
+    {"point": ",al-2Lib", "event": "lower_transit", "jdUt": 2447134.993300465, "armc": 42.546491946651315},
+    {"point": ",alCet", "event": "upper_transit", "jdUt": 2447135.001251455, "armc": 45.41668551092653},
+    {"point": ",alHya", "event": "rise", "jdUt": 2447135.002652509, "armc": 45.92244602287059},
+    {"point": ",bePer", "event": "upper_transit", "jdUt": 2447135.005222497, "armc": 46.85017486491222},
+    {"point": ",beGem", "event": "rise", "jdUt": 2447135.0059442753, "armc": 47.11072648247142},
+    {"point": ",alGem", "event": "rise", "jdUt": 2447135.0088895396, "armc": 48.17392474400748},
+    {"point": ",beLib", "event": "lower_transit", "jdUt": 2447135.0114086564, "armc": 49.083289823544646},
+    {"point": ",alPer", "event": "upper_transit", "jdUt": 2447135.0163590973, "armc": 50.870328139030676},
+    {"point": ",alCnc", "event": "rise", "jdUt": 2447135.0211386913, "armc": 52.595693157347114},
+    {"point": ",alCrB", "event": "lower_transit", "jdUt": 2447135.0237507764, "armc": 53.53861847833792},
+    {"point": ",bePeg", "event": "set", "jdUt": 2447135.0274365977, "armc": 54.869147207962385},
+    {"point": ",alSgr", "event": "set", "jdUt": 2447135.0303972797, "armc": 55.93791099527175},
+    {"point": ",beAqr", "event": "set", "jdUt": 2447135.032009625, "armc": 56.51994453907645},
+    {"point": ",etTau", "event": "upper_transit", "jdUt": 2447135.032498984, "armc": 56.69659622520584},
+    {"point": ",alAqr", "event": "set", "jdUt": 2447135.0459280247, "armc": 61.544287621981084},
+    {"point": ",alCrt", "event": "rise", "jdUt": 2447135.0472542676, "armc": 62.023042332985256},
+    {"point": ",alPeg", "event": "set", "jdUt": 2447135.057093485, "armc": 65.57485888203303},
+    {"point": ",alSco", "event": "lower_transit", "jdUt": 2447135.061483063, "armc": 67.15943370539298},
+    {"point": ",deCap", "event": "set", "jdUt": 2447135.0633286075, "armc": 67.82564891150406},
+    {"point": ",alTau", "event": "upper_transit", "jdUt": 2447135.0660619023, "armc": 68.81232922504603},
+    {"point": ",alAnd", "event": "set", "jdUt": 2447135.0695561008, "armc": 70.07368483908476},
+    {"point": ",alLeo", "event": "rise", "jdUt": 2447135.069782439, "armc": 70.15538975885835},
+    {"point": ",alTrA", "event": "lower_transit", "jdUt": 2447135.0744112055, "armc": 71.8263081410825},
+    {"point": ",beOri", "event": "upper_transit", "jdUt": 2447135.0928850616, "armc": 78.49510575336126},
+    {"point": ",alHer", "event": "lower_transit", "jdUt": 2447135.092949056, "armc": 78.51820682796398},
+    {"point": ",beAnd", "event": "set", "jdUt": 2447135.093151752, "armc": 78.59137712413661},
+    {"point": ",ga-1Leo", "event": "rise", "jdUt": 2447135.0939860577, "armc": 78.89254956401413},
+    {"point": ",alAur", "event": "upper_transit", "jdUt": 2447135.094163654, "armc": 78.95665926085542},
+    {"point": ",gaOri", "event": "upper_transit", "jdUt": 2447135.100174183, "armc": 81.12637423104371},
+    {"point": ",beTau", "event": "upper_transit", "jdUt": 2447135.1008994686, "armc": 81.38819195569579},
+    {"point": ",laSco", "event": "lower_transit", "jdUt": 2447135.1058893497, "armc": 83.18946759046497},
+    {"point": ",alOph", "event": "lower_transit", "jdUt": 2447135.1069920785, "armc": 83.58753689035825},
+    {"point": ",epOri", "event": "upper_transit", "jdUt": 2447135.107873567, "armc": 83.90574159634986},
+    {"point": ",thSco", "event": "lower_transit", "jdUt": 2447135.108423962, "armc": 84.10442626859475},
+    {"point": ",alCol", "event": "upper_transit", "jdUt": 2447135.110378077, "armc": 84.809833808436},
+    {"point": ",M6", "event": "lower_transit", "jdUt": 2447135.110570728, "armc": 84.87937808303826},
+    {"point": ",zeOri", "event": "upper_transit", "jdUt": 2447135.1110237013, "armc": 85.04289500127629},
+    {"point": ",alPer", "event": "set", "jdUt": 2447135.1198419165, "armc": 88.22614446370198},
+    {"point": ",M7", "event": "lower_transit", "jdUt": 2447135.1199192223, "armc": 88.25405076050163},
+    {"point": ",alOri", "event": "upper_transit", "jdUt": 2447135.1209745063, "armc": 88.63499315571391},
+    {"point": ",beAur", "event": "upper_transit", "jdUt": 2447135.1238373243, "armc": 89.66842949853094},
+    {"point": ",deLeo", "event": "rise", "jdUt": 2447135.1329864096, "armc": 92.9711183096531}
+   ],
+   "noRiseOrSet": [
+    [
+     ",NGC869",
+     "rise"
+    ],
+    [
+     ",NGC869",
+     "set"
+    ],
+    [
+     ",alCas",
+     "rise"
+    ],
+    [
+     ",alCas",
+     "set"
+    ],
+    [
+     ",alCen",
+     "rise"
+    ],
+    [
+     ",alCen",
+     "set"
+    ],
+    [
+     ",alCep",
+     "rise"
+    ],
+    [
+     ",alCep",
+     "set"
+    ],
+    [
+     ",alCru",
+     "rise"
+    ],
+    [
+     ",alCru",
+     "set"
+    ],
+    [
+     ",alDra",
+     "rise"
+    ],
+    [
+     ",alDra",
+     "set"
+    ],
+    [
+     ",alEri",
+     "rise"
+    ],
+    [
+     ",alEri",
+     "set"
+    ],
+    [
+     ",alPav",
+     "rise"
+    ],
+    [
+     ",alPav",
+     "set"
+    ],
+    [
+     ",alTrA",
+     "rise"
+    ],
+    [
+     ",alTrA",
+     "set"
+    ],
+    [
+     ",alUMa",
+     "rise"
+    ],
+    [
+     ",alUMa",
+     "set"
+    ],
+    [
+     ",alUMi",
+     "rise"
+    ],
+    [
+     ",alUMi",
+     "set"
+    ],
+    [
+     ",beCar",
+     "rise"
+    ],
+    [
+     ",beCar",
+     "set"
+    ],
+    [
+     ",beCen",
+     "rise"
+    ],
+    [
+     ",beCen",
+     "set"
+    ],
+    [
+     ",beCru",
+     "rise"
+    ],
+    [
+     ",beCru",
+     "set"
+    ],
+    [
+     ",epCar",
+     "rise"
+    ],
+    [
+     ",epCar",
+     "set"
+    ],
+    [
+     ",gaCru",
+     "rise"
+    ],
+    [
+     ",gaCru",
+     "set"
+    ]
+   ]
+  },
+  {
+   "name": "sydney-1987/almanac",
+   "utc": "1987-12-05T03:20:00Z",
+   "lat": -33.8688,
+   "lng": 151.2093,
+   "elevation": 0,
+   "horizon": "almanac",
+   "window": {
+    "startJdUt": 2447134.138888889,
+    "endJdUt": 2447135.138888889
+   },
+   "events": [
+    {"point": ",beCMa", "event": "upper_transit", "jdUt": 2447134.142853714, "armc": 95.54739207492628},
+    {"point": ",epSgr", "event": "lower_transit", "jdUt": 2447134.14365355, "armc": 95.83612146102365},
+    {"point": ",alCar", "event": "upper_transit", "jdUt": 2447134.1439119326, "armc": 95.92939381033443},
+    {"point": ",beLeo", "event": "rise", "jdUt": 2447134.145435832, "armc": 96.47949966126197},
+    {"point": ",alPsA", "event": "set", "jdUt": 2447134.1485794606, "armc": 97.61430456048072},
+    {"point": ",M22", "event": "lower_transit", "jdUt": 2447134.1521682735, "armc": 98.90981461566389},
+    {"point": ",alLyr", "event": "lower_transit", "jdUt": 2447134.152765282, "armc": 99.12532613504976},
+    {"point": ",gaGem", "event": "upper_transit", "jdUt": 2447134.1531358324, "armc": 99.25908953535196},
+    {"point": ",alCMa", "event": "upper_transit", "jdUt": 2447134.158399855, "armc": 101.15932622645522},
+    {"point": ",bePer", "event": "set", "jdUt": 2447134.161844752, "armc": 102.40288470996734},
+    {"point": ",alVir", "event": "rise", "jdUt": 2447134.1630983567, "armc": 102.85541812098876},
+    {"point": ",epCMa", "event": "upper_transit", "jdUt": 2447134.16777333, "armc": 104.54301657604611},
+    {"point": ",alAri", "event": "set", "jdUt": 2447134.1704875845, "armc": 105.52282355119775},
+    {"point": ",deCMa", "event": "upper_transit", "jdUt": 2447134.174524294, "armc": 106.98001792810373},
+    {"point": ",alGru", "event": "set", "jdUt": 2447134.18134771, "armc": 109.44317333364319},
+    {"point": ",alSgr", "event": "lower_transit", "jdUt": 2447134.1849878337, "armc": 110.75720583609211},
+    {"point": ",epVir", "event": "rise", "jdUt": 2447134.188959779, "armc": 112.19102127500997},
+    {"point": ",alGem", "event": "upper_transit", "jdUt": 2447134.1924830154, "armc": 113.46285906359338},
+    {"point": ",alCMi", "event": "upper_transit", "jdUt": 2447134.1958326036, "armc": 114.6720124512679},
+    {"point": ",beGem", "event": "upper_transit", "jdUt": 2447134.1999263503, "armc": 116.14979636522236},
+    {"point": ",alAql", "event": "lower_transit", "jdUt": 2447134.20378846, "armc": 117.54396275184558},
+    {"point": ",alCom", "event": "rise", "jdUt": 2447134.2075173277, "armc": 118.89003051952375},
+    {"point": ",alPsc", "event": "set", "jdUt": 2447134.2084737043, "armc": 119.23526875723735},
+    {"point": ",al-2Lib", "event": "rise", "jdUt": 2447134.212584676, "armc": 120.7192707497224},
+    {"point": ",ga-2Vel", "event": "upper_transit", "jdUt": 2447134.216947821, "armc": 122.29430351720555},
+    {"point": ",epCar", "event": "upper_transit", "jdUt": 2447134.2260261565, "armc": 125.57145261325275},
+    {"point": ",alPav", "event": "lower_transit", "jdUt": 2447134.227683878, "armc": 126.16986636522978},
+    {"point": ",alAur", "event": "set", "jdUt": 2447134.2281030235, "armc": 126.32117186999403},
+    {"point": ",alDel", "event": "lower_transit", "jdUt": 2447134.2376440503, "armc": 129.7653458993526},
+    {"point": ",etTau", "event": "set", "jdUt": 2447134.238415581, "armc": 130.0438575065749},
+    {"point": ",alCyg", "event": "lower_transit", "jdUt": 2447134.238983145, "armc": 130.2487399135021},
+    {"point": ",deVel", "event": "upper_transit", "jdUt": 2447134.241329609, "armc": 131.0957798018897},
+    {"point": ",beLib", "event": "rise", "jdUt": 2447134.24393815, "armc": 132.037425721521},
+    {"point": ",alCet", "event": "set", "jdUt": 2447134.247691335, "armc": 133.39227185493763},
+    {"point": ",thSco", "event": "rise", "jdUt": 2447134.2497631926, "armc": 134.14018272428802},
+    {"point": ",alCnc", "event": "upper_transit", "jdUt": 2447134.250649091, "armc": 134.4599793045707},
+    {"point": ",alPhe", "event": "set", "jdUt": 2447134.2532065925, "armc": 135.3832007787439},
+    {"point": ",alBoo", "event": "rise", "jdUt": 2447134.2564902524, "armc": 136.5685549872934},
+    {"point": ",alSco", "event": "rise", "jdUt": 2447134.2573175645, "armc": 136.86720277264823},
+    {"point": ",beCar", "event": "upper_transit", "jdUt": 2447134.261204022, "armc": 138.2701582840644},
+    {"point": ",beAur", "event": "set", "jdUt": 2447134.262976191, "armc": 138.90988592269923},
+    {"point": ",alCep", "event": "lower_transit", "jdUt": 2447134.264788548, "armc": 139.56412084121678},
+    {"point": ",laSco", "event": "rise", "jdUt": 2447134.270626249, "armc": 141.6714472273835},
+    {"point": ",alHya", "event": "upper_transit", "jdUt": 2447134.2708448092, "armc": 141.75034442109984},
+    {"point": ",beAqr", "event": "lower_transit", "jdUt": 2447134.2735554413, "armc": 142.72884377228303},
+    {"point": ",deCap", "event": "lower_transit", "jdUt": 2447134.2842582692, "armc": 146.59241138757034},
+    {"point": ",alTau", "event": "set", "jdUt": 2447134.2884087777, "armc": 148.09068549508748},
+    {"point": ",M6", "event": "rise", "jdUt": 2447134.2906936225, "armc": 148.91548177327945},
+    {"point": ",M7", "event": "rise", "jdUt": 2447134.2922983384, "armc": 149.49476120652542},
+    {"point": ",beTau", "event": "set", "jdUt": 2447134.295828205, "armc": 150.76899253205198},
+    {"point": ",alAqr", "event": "lower_transit", "jdUt": 2447134.297270275, "armc": 151.2895591940059},
+    {"point": ",alGru", "event": "lower_transit", "jdUt": 2447134.298876165, "armc": 151.86926239991598},
+    {"point": ",alLeo", "event": "upper_transit", "jdUt": 2447134.2990555265, "armc": 151.9340093515288},
+    {"point": ",ga-1Leo", "event": "upper_transit", "jdUt": 2447134.307075387, "armc": 154.829064095522},
+    {"point": ",epSgr", "event": "rise", "jdUt": 2447134.314563773, "armc": 157.5322642906194},
+    {"point": ",alCrB", "event": "rise", "jdUt": 2447134.3282995443, "armc": 162.49068098426494},
+    {"point": ",alPsA", "event": "lower_transit", "jdUt": 2447134.33316611, "armc": 164.24744146700738},
+    {"point": ",alSgr", "event": "rise", "jdUt": 2447134.33372611, "armc": 164.44959347405916},
+    {"point": ",alCrt", "event": "upper_transit", "jdUt": 2447134.33468414, "armc": 164.7954286252929},
+    {"point": ",alUMa", "event": "upper_transit", "jdUt": 2447134.3373326156, "armc": 165.75149038291107},
+    {"point": ",bePeg", "event": "lower_transit", "jdUt": 2447134.33745496, "armc": 165.79565502663502},
+    {"point": ",alPeg", "event": "lower_transit", "jdUt": 2447134.3381292126, "armc": 166.03905048677336},
+    {"point": ",etUMa", "event": "rise", "jdUt": 2447134.3395406622, "armc": 166.54856359084314},
+    {"point": ",gaOri", "event": "set", "jdUt": 2447134.3423090205, "armc": 167.54790126313134},
+    {"point": ",deLeo", "event": "upper_transit", "jdUt": 2447134.3445785753, "armc": 168.367178075808},
+    {"point": ",M22", "event": "rise", "jdUt": 2447134.3513028044, "armc": 170.7945284821286},
+    {"point": ",alOri", "event": "set", "jdUt": 2447134.3610979933, "armc": 174.33045140795846},
+    {"point": ",beOri", "event": "set", "jdUt": 2447134.362283729, "armc": 174.7584850114216},
+    {"point": ",epOri", "event": "set", "jdUt": 2447134.3640872855, "armc": 175.40954306549463},
+    {"point": ",zeOri", "event": "set", "jdUt": 2447134.3686143775, "armc": 177.0437584422785},
+    {"point": ",beLeo", "event": "upper_transit", "jdUt": 2447134.3687987337, "armc": 177.11030840294276},
+    {"point": ",alHer", "event": "rise", "jdUt": 2447134.37047738, "armc": 177.71627576631732},
+    {"point": ",gaGem", "event": "set", "jdUt": 2447134.3729079785, "armc": 178.5936869290257},
+    {"point": ",alGem", "event": "set", "jdUt": 2447134.3758306727, "armc": 179.64873768194118},
+    {"point": ",epUMa", "event": "rise", "jdUt": 2447134.377703313, "armc": 180.32473394313072},
+    {"point": ",alOph", "event": "rise", "jdUt": 2447134.380886418, "armc": 181.4737892766414},
+    {"point": ",alAnd", "event": "lower_transit", "jdUt": 2447134.3821802116, "armc": 181.94083030664973},
+    {"point": ",beGem", "event": "set", "jdUt": 2447134.393504642, "armc": 186.02878749896004},
+    {"point": ",alPhe", "event": "lower_transit", "jdUt": 2447134.394608003, "armc": 186.4270850695616},
+    {"point": ",alCru", "event": "upper_transit", "jdUt": 2447134.39472838, "armc": 186.4705393352753},
+    {"point": ",gaCru", "event": "upper_transit", "jdUt": 2447134.3978983117, "armc": 187.61483937206094},
+    {"point": ",alCas", "event": "lower_transit", "jdUt": 2447134.404380491, "armc": 189.95481326769385},
+    {"point": ",beCru", "event": "upper_transit", "jdUt": 2447134.4093342456, "armc": 191.74304774184688},
+    {"point": ",epUMa", "event": "upper_transit", "jdUt": 2447134.413850979, "armc": 193.37352380127572},
+    {"point": ",alGru", "event": "rise", "jdUt": 2447134.4164052233, "armc": 194.2955694400314},
+    {"point": ",epVir", "event": "upper_transit", "jdUt": 2447134.4194404157, "armc": 195.39123042566595},
+    {"point": ",beAnd", "event": "lower_transit", "jdUt": 2447134.4246317507, "armc": 197.26522801878474},
+    {"point": ",alCom", "event": "upper_transit", "jdUt": 2447134.4248599145, "armc": 197.34759187871967},
+    {"point": ",beCMa", "event": "set", "jdUt": 2447134.4290245594, "armc": 198.85096908149734},
+    {"point": ",alVir", "event": "upper_transit", "jdUt": 2447134.435351439, "armc": 201.1348819380423},
+    {"point": ",alCMi", "event": "set", "jdUt": 2447134.437271776, "armc": 201.82809621343517},
+    {"point": ",alCol", "event": "set", "jdUt": 2447134.4398432, "armc": 202.75634345753102},
+    {"point": ",alCMa", "event": "set", "jdUt": 2447134.4419400115, "armc": 203.5132623151028},
+    {"point": ",alEri", "event": "lower_transit", "jdUt": 2447134.4441926475, "armc": 204.32643165893498},
+    {"point": ",epUMa", "event": "set", "jdUt": 2447134.449998036, "armc": 206.42209379921434},
+    {"point": ",etUMa", "event": "upper_transit", "jdUt": 2447134.4509422323, "armc": 206.76293512380556},
+    {"point": ",alPsc", "event": "lower_transit", "jdUt": 2447134.4609044255, "armc": 210.35914421798108},
+    {"point": ",beCen", "event": "upper_transit", "jdUt": 2447134.4619284086, "armc": 210.7287874607909},
+    {"point": ",alDra", "event": "upper_transit", "jdUt": 2447134.4627077063, "armc": 211.0101027600404},
+    {"point": ",alAri", "event": "lower_transit", "jdUt": 2447134.464414246, "armc": 211.62613913878516},
+    {"point": ",alAql", "event": "rise", "jdUt": 2447134.467739127, "armc": 212.826373640654},
+    {"point": ",alBoo", "event": "upper_transit", "jdUt": 2447134.470363033, "armc": 213.77356609609134},
+    {"point": ",NGC869", "event": "lower_transit", "jdUt": 2447134.4724889663, "armc": 214.54099757568068},
+    {"point": ",alUMi", "event": "lower_transit", "jdUt": 2447134.4736688538, "armc": 214.96692004965695},
+    {"point": ",alCnc", "event": "set", "jdUt": 2447134.4794122605, "armc": 217.04020763203908},
+    {"point": ",epCMa", "event": "set", "jdUt": 2447134.4798412547, "armc": 217.19506839081842},
+    {"point": ",deCMa", "event": "set", "jdUt": 2447134.479960464, "armc": 217.2381012370277},
+    {"point": ",alCen", "event": "upper_transit", "jdUt": 2447134.486728063, "armc": 219.68110753872887},
+    {"point": ",alLyr", "event": "rise", "jdUt": 2447134.489541553, "armc": 220.6967371808411},
+    {"point": ",al-2Lib", "event": "upper_transit", "jdUt": 2447134.4946659836, "armc": 222.54658326425943},
+    {"point": ",deCap", "event": "rise", "jdUt": 2447134.500413917, "armc": 224.62150491970883},
+    {"point": ",alCet", "event": "lower_transit", "jdUt": 2447134.502616266, "armc": 225.41652129495662},
+    {"point": ",bePer", "event": "lower_transit", "jdUt": 2447134.506587158, "armc": 226.84995650899472},
+    {"point": ",beAqr", "event": "rise", "jdUt": 2447134.510433855, "armc": 228.23855906123927},
+    {"point": ",beLib", "event": "upper_transit", "jdUt": 2447134.512774184, "armc": 229.08338427641354},
+    {"point": ",alDel", "event": "rise", "jdUt": 2447134.5153982067, "armc": 230.03061892471896},
+    {"point": ",alPer", "event": "lower_transit", "jdUt": 2447134.5177236493, "armc": 230.87007041305657},
+    {"point": ",alPsA", "event": "rise", "jdUt": 2447134.5177531466, "armc": 230.88071852084786},
+    {"point": ",ga-1Leo", "event": "set", "jdUt": 2447134.519538743, "armc": 231.5252932415854},
+    {"point": ",alCrB", "event": "upper_transit", "jdUt": 2447134.5251163812, "armc": 233.53874079595218},
+    {"point": ",alLeo", "event": "set", "jdUt": 2447134.5275828266, "armc": 234.42909224078363},
+    {"point": ",etTau", "event": "lower_transit", "jdUt": 2447134.5338637196, "armc": 236.69640467741274},
+    {"point": ",alPhe", "event": "rise", "jdUt": 2447134.5360099697, "armc": 237.47117023322147},
+    {"point": ",alHya", "event": "set", "jdUt": 2447134.538262707, "armc": 238.28437622392798},
+    {"point": ",alAqr", "event": "rise", "jdUt": 2447134.543959481, "armc": 240.34083006589407},
+    {"point": ",deLeo", "event": "set", "jdUt": 2447134.555559022, "armc": 244.5280981731642},
+    {"point": ",etUMa", "event": "set", "jdUt": 2447134.5623433017, "armc": 246.97712605127919},
+    {"point": ",alSco", "event": "upper_transit", "jdUt": 2447134.5628486574, "armc": 247.15955220595464},
+    {"point": ",alTau", "event": "lower_transit", "jdUt": 2447134.5674266363, "armc": 248.81213706806355},
+    {"point": ",alCar", "event": "set", "jdUt": 2447134.5711546317, "armc": 250.15789000143042},
+    {"point": ",alTrA", "event": "upper_transit", "jdUt": 2447134.5757774026, "armc": 251.82664411973218},
+    {"point": ",beLeo", "event": "set", "jdUt": 2447134.5921613597, "armc": 257.7410180481455},
+    {"point": ",beOri", "event": "lower_transit", "jdUt": 2447134.594249807, "armc": 258.49491754908814},
+    {"point": ",alHer", "event": "upper_transit", "jdUt": 2447134.594314676, "armc": 258.5183343095481},
+    {"point": ",alAur", "event": "lower_transit", "jdUt": 2447134.5955281626, "armc": 258.95638565928044},
+    {"point": ",ga-2Vel", "event": "set", "jdUt": 2447134.5996960225, "armc": 260.4609234097627},
+    {"point": ",gaOri", "event": "lower_transit", "jdUt": 2447134.6015389124, "armc": 261.12618028956564},
+    {"point": ",beTau", "event": "lower_transit", "jdUt": 2447134.6022641207, "armc": 261.38797010798555},
+    {"point": ",alCyg", "event": "rise", "jdUt": 2447134.602624121, "armc": 261.517925102292},
+    {"point": ",laSco", "event": "upper_transit", "jdUt": 2447134.6072550314, "armc": 263.18961739011536},
+    {"point": ",alOph", "event": "upper_transit", "jdUt": 2447134.608357704, "armc": 263.5876663470982},
+    {"point": ",epOri", "event": "lower_transit", "jdUt": 2447134.6092382986, "armc": 263.905548472626},
+    {"point": ",thSco", "event": "upper_transit", "jdUt": 2447134.6097896877, "armc": 264.10459203008577},
+    {"point": ",alCol", "event": "lower_transit", "jdUt": 2447134.611742744, "armc": 264.80961747964375},
+    {"point": ",M6", "event": "upper_transit", "jdUt": 2447134.611936388, "armc": 264.87952013668126},
+    {"point": ",zeOri", "event": "lower_transit", "jdUt": 2447134.612388431, "armc": 265.04270119553865},
+    {"point": ",alPeg", "event": "rise", "jdUt": 2447134.614411535, "armc": 265.7730128132127},
+    {"point": ",M7", "event": "upper_transit", "jdUt": 2447134.6212849044, "armc": 268.254200686898},
+    {"point": ",alCrt", "event": "set", "jdUt": 2447134.6214623675, "armc": 268.3182623076586},
+    {"point": ",alOri", "event": "lower_transit", "jdUt": 2447134.622339218, "armc": 268.6347927647419},
+    {"point": ",beAur", "event": "lower_transit", "jdUt": 2447134.625201815, "armc": 269.668149253349},
+    {"point": ",beCMa", "event": "lower_transit", "jdUt": 2447134.6414881595, "armc": 275.54728651458726},
+    {"point": ",alCom", "event": "set", "jdUt": 2447134.642202082, "armc": 275.80500233283743},
+    {"point": ",epSgr", "event": "upper_transit", "jdUt": 2447134.6422888385, "armc": 275.8363201594335},
+    {"point": ",bePeg", "event": "rise", "jdUt": 2447134.6424176125, "armc": 275.8828057195906},
+    {"point": ",alCar", "event": "lower_transit", "jdUt": 2447134.642546128, "armc": 275.9291979861206},
+    {"point": ",epVir", "event": "set", "jdUt": 2447134.649920645, "armc": 278.5912930913933},
+    {"point": ",M22", "event": "upper_transit", "jdUt": 2447134.6508035036, "armc": 278.9099923369494},
+    {"point": ",alLyr", "event": "upper_transit", "jdUt": 2447134.651400532, "armc": 279.12551108700575},
+    {"point": ",gaGem", "event": "lower_transit", "jdUt": 2447134.651770312, "armc": 279.2589962878149},
+    {"point": ",alCMa", "event": "lower_transit", "jdUt": 2447134.657034313, "armc": 281.15922526809976},
+    {"point": ",epCMa", "event": "lower_transit", "jdUt": 2447134.666407756, "armc": 284.54290405710174},
+    {"point": ",deCMa", "event": "lower_transit", "jdUt": 2447134.673158737, "armc": 286.97991148821166},
+    {"point": ",alSgr", "event": "upper_transit", "jdUt": 2447134.683623124, "armc": 290.75740537482767},
+    {"point": ",alBoo", "event": "set", "jdUt": 2447134.684235437, "armc": 290.97844157485565},
+    {"point": ",alAnd", "event": "rise", "jdUt": 2447134.689711593, "armc": 292.9552555757752},
+    {"point": ",alGem", "event": "lower_transit", "jdUt": 2447134.6911174855, "armc": 293.462762613274},
+    {"point": ",alCMi", "event": "lower_transit", "jdUt": 2447134.694467114, "armc": 294.6719304710124},
+    {"point": ",beGem", "event": "lower_transit", "jdUt": 2447134.698560836, "armc": 296.1497054917765},
+    {"point": ",deVel", "event": "set", "jdUt": 2447134.699337544, "armc": 296.4300860046411},
+    {"point": ",alAql", "event": "upper_transit", "jdUt": 2447134.702423609, "armc": 297.5441112641871},
+    {"point": ",alVir", "event": "set", "jdUt": 2447134.707604113, "armc": 299.4141990989402},
+    {"point": ",alPsc", "event": "rise", "jdUt": 2447134.7133355364, "armc": 301.4831608817924},
+    {"point": ",alCar", "event": "rise", "jdUt": 2447134.7139381683, "armc": 301.70070234429176},
+    {"point": ",ga-2Vel", "event": "lower_transit", "jdUt": 2447134.7155821696, "armc": 302.29416329097165},
+    {"point": ",alCrB", "event": "set", "jdUt": 2447134.721932752, "armc": 304.58663263726953},
+    {"point": ",epCar", "event": "lower_transit", "jdUt": 2447134.7246603495, "armc": 305.5712562778887},
+    {"point": ",alPav", "event": "upper_transit", "jdUt": 2447134.726319299, "armc": 306.17011330827006},
+    {"point": ",alDel", "event": "upper_transit", "jdUt": 2447134.7362791877, "armc": 309.76549051025864},
+    {"point": ",alCyg", "event": "upper_transit", "jdUt": 2447134.737618381, "armc": 310.24892016621476},
+    {"point": ",deVel", "event": "lower_transit", "jdUt": 2447134.739963898, "armc": 311.0956181541777},
+    {"point": ",alCnc", "event": "lower_transit", "jdUt": 2447134.749283625, "armc": 314.4599061122445},
+    {"point": ",beAnd", "event": "rise", "jdUt": 2447134.750699861, "armc": 314.97114709029034},
+    {"point": ",alCet", "event": "rise", "jdUt": 2447134.7575415205, "armc": 317.4408882332578},
+    {"point": ",alAri", "event": "rise", "jdUt": 2447134.7583413348, "armc": 317.7296097226286},
+    {"point": ",beCar", "event": "lower_transit", "jdUt": 2447134.7598379776, "armc": 318.2698763560869},
+    {"point": ",alCep", "event": "upper_transit", "jdUt": 2447134.7634239835, "armc": 319.5643731390559},
+    {"point": ",alHya", "event": "lower_transit", "jdUt": 2447134.769479348, "armc": 321.7502729872651},
+    {"point": ",beAqr", "event": "upper_transit", "jdUt": 2447134.772190563, "armc": 322.72898280605966},
+    {"point": ",al-2Lib", "event": "set", "jdUt": 2447134.7767469315, "armc": 324.37376662644726},
+    {"point": ",deVel", "event": "rise", "jdUt": 2447134.780590792, "armc": 325.7613453070098},
+    {"point": ",beLib", "event": "set", "jdUt": 2447134.781609876, "armc": 326.12922000261096},
+    {"point": ",deCap", "event": "upper_transit", "jdUt": 2447134.7828934, "armc": 326.5925538242382},
+    {"point": ",alCol", "event": "rise", "jdUt": 2447134.7836426324, "armc": 326.8630159385293},
+    {"point": ",alAqr", "event": "upper_transit", "jdUt": 2447134.79590539, "armc": 331.2896957957793},
+    {"point": ",alGru", "event": "upper_transit", "jdUt": 2447134.797511416, "armc": 331.8694482602433},
+    {"point": ",alLeo", "event": "lower_transit", "jdUt": 2447134.79769007, "armc": 331.9339397050604},
+    {"point": ",ga-1Leo", "event": "lower_transit", "jdUt": 2447134.80570992, "armc": 334.8289907809492},
+    {"point": ",alLyr", "event": "set", "jdUt": 2447134.8132591476, "armc": 337.55415389299765},
+    {"point": ",alHer", "event": "set", "jdUt": 2447134.8181516556, "armc": 339.3202792483983},
+    {"point": ",beOri", "event": "rise", "jdUt": 2447134.826216244, "armc": 342.23148025005975},
+    {"point": ",etTau", "event": "rise", "jdUt": 2447134.829312348, "armc": 343.34912934835535},
+    {"point": ",ga-2Vel", "event": "rise", "jdUt": 2447134.831468764, "armc": 344.12756480306973},
+    {"point": ",alPsA", "event": "upper_transit", "jdUt": 2447134.8318012627, "armc": 344.2475919860369},
+    {"point": ",alCrt", "event": "lower_transit", "jdUt": 2447134.833318677, "armc": 344.79535675745365},
+    {"point": ",alOph", "event": "set", "jdUt": 2447134.835828645, "armc": 345.701419399382},
+    {"point": ",alUMa", "event": "lower_transit", "jdUt": 2447134.835966839, "armc": 345.7513053951124},
+    {"point": ",bePeg", "event": "upper_transit", "jdUt": 2447134.8360901144, "armc": 345.7958060651908},
+    {"point": ",alPeg", "event": "upper_transit", "jdUt": 2447134.8367643375, "armc": 346.03919093795196},
+    {"point": ",deLeo", "event": "lower_transit", "jdUt": 2447134.843213103, "armc": 348.36710288173254},
+    {"point": ",alTau", "event": "rise", "jdUt": 2447134.8464449476, "armc": 349.53375260898554},
+    {"point": ",bePer", "event": "rise", "jdUt": 2447134.8513301443, "armc": 351.2972386732827},
+    {"point": ",epCMa", "event": "rise", "jdUt": 2447134.8529747557, "armc": 351.8909198287065},
+    {"point": ",beCMa", "event": "rise", "jdUt": 2447134.8539521126, "armc": 352.24373168369914},
+    {"point": ",epOri", "event": "rise", "jdUt": 2447134.854389691, "armc": 352.4016911446321},
+    {"point": ",zeOri", "event": "rise", "jdUt": 2447134.856162889, "armc": 353.0417902852733},
+    {"point": ",gaOri", "event": "rise", "jdUt": 2447134.860769136, "armc": 354.70457948849696},
+    {"point": ",deCMa", "event": "rise", "jdUt": 2447134.8663573493, "armc": 356.7218445394221},
+    {"point": ",beLeo", "event": "lower_transit", "jdUt": 2447134.8674332653, "armc": 357.1102348090974},
+    {"point": ",alSco", "event": "set", "jdUt": 2447134.8683792977, "armc": 357.4517389434764},
+    {"point": ",alCMa", "event": "rise", "jdUt": 2447134.8721289868, "armc": 358.8053230218748},
+    {"point": ",alCyg", "event": "set", "jdUt": 2447134.872612023, "armc": 358.9796921172165},
+    {"point": ",alAnd", "event": "upper_transit", "jdUt": 2447134.8808153844, "armc": 1.940988230216874},
+    {"point": ",alCas", "event": "rise", "jdUt": 2447134.881941582, "armc": 2.3475294522584136},
+    {"point": ",alOri", "event": "rise", "jdUt": 2447134.883580708, "armc": 2.9392304248746086},
+    {"point": ",alPhe", "event": "upper_transit", "jdUt": 2447134.893243213, "armc": 6.427256484796658},
+    {"point": ",alCru", "event": "lower_transit", "jdUt": 2447134.8933626064, "armc": 6.470355729998914},
+    {"point": ",gaCru", "event": "lower_transit", "jdUt": 2447134.896532636, "armc": 7.61469107806289},
+    {"point": ",alCas", "event": "upper_transit", "jdUt": 2447134.9030158967, "armc": 9.955055317682763},
+    {"point": ",beCru", "event": "lower_transit", "jdUt": 2447134.907968528, "armc": 11.742884359350342},
+    {"point": ",alPer", "event": "rise", "jdUt": 2447134.9080586666, "armc": 11.775423075026879},
+    {"point": ",beTau", "event": "rise", "jdUt": 2447134.908700489, "armc": 12.007111754485834},
+    {"point": ",epUMa", "event": "lower_transit", "jdUt": 2447134.912485234, "armc": 13.373350516564187},
+    {"point": ",epVir", "event": "lower_transit", "jdUt": 2447134.918074933, "armc": 15.391151798971862},
+    {"point": ",beAnd", "event": "upper_transit", "jdUt": 2447134.9232669785, "armc": 17.2654059260625},
+    {"point": ",alCom", "event": "lower_transit", "jdUt": 2447134.923494416, "armc": 17.347507555163816},
+    {"point": ",alCas", "event": "set", "jdUt": 2447134.9240894094, "armc": 17.562291722398243},
+    {"point": ",gaGem", "event": "rise", "jdUt": 2447134.930632932, "armc": 19.924409739747546},
+    {"point": ",M6", "event": "set", "jdUt": 2447134.9331786064, "armc": 20.843361729210244},
+    {"point": ",alVir", "event": "lower_transit", "jdUt": 2447134.9339859593, "armc": 21.134804542670338},
+    {"point": ",alAql", "event": "set", "jdUt": 2447134.937107586, "armc": 22.261667042728106},
+    {"point": ",alEri", "event": "upper_transit", "jdUt": 2447134.942828014, "armc": 24.32665972558607},
+    {"point": ",laSco", "event": "set", "jdUt": 2447134.943883283, "armc": 24.707596740527265},
+    {"point": ",etUMa", "event": "lower_transit", "jdUt": 2447134.949576534, "armc": 26.76277877558573},
+    {"point": ",M7", "event": "set", "jdUt": 2447134.9502709936, "armc": 27.01346881064029},
+    {"point": ",M22", "event": "set", "jdUt": 2447134.950303736, "armc": 27.02528838727295},
+    {"point": ",alCMi", "event": "rise", "jdUt": 2447134.9516628813, "armc": 27.515920331503878},
+    {"point": ",alDel", "event": "set", "jdUt": 2447134.957159701, "armc": 29.500193480061796},
+    {"point": ",alPsc", "event": "upper_transit", "jdUt": 2447134.959539585, "armc": 30.35929753802577},
+    {"point": ",beCen", "event": "lower_transit", "jdUt": 2447134.9605626436, "armc": 30.72860711157466},
+    {"point": ",alDra", "event": "lower_transit", "jdUt": 2447134.961341706, "armc": 31.00983752452555},
+    {"point": ",alAur", "event": "rise", "jdUt": 2447134.962954067, "armc": 31.591876782805627},
+    {"point": ",alAri", "event": "upper_transit", "jdUt": 2447134.96304945, "armc": 31.626308607829912},
+    {"point": ",alBoo", "event": "lower_transit", "jdUt": 2447134.9689975, "armc": 33.773469487188834},
+    {"point": ",thSco", "event": "set", "jdUt": 2447134.969815436, "armc": 34.068732642648854},
+    {"point": ",epSgr", "event": "set", "jdUt": 2447134.9700133232, "armc": 34.14016716843821},
+    {"point": ",NGC869", "event": "upper_transit", "jdUt": 2447134.971124468, "armc": 34.54127448572399},
+    {"point": ",alUMi", "event": "upper_transit", "jdUt": 2447134.9723307802, "armc": 34.97673596690316},
+    {"point": ",alCen", "event": "lower_transit", "jdUt": 2447134.9853622634, "armc": 39.68091483228591},
+    {"point": ",beAur", "event": "rise", "jdUt": 2447134.987428053, "armc": 40.426635239585266},
+    {"point": ",al-2Lib", "event": "lower_transit", "jdUt": 2447134.993300465, "armc": 42.546491946651315},
+    {"point": ",alHya", "event": "rise", "jdUt": 2447135.0006963643, "armc": 45.2163057486631},
+    {"point": ",alCet", "event": "upper_transit", "jdUt": 2447135.001251455, "armc": 45.41668551092653},
+    {"point": ",beGem", "event": "rise", "jdUt": 2447135.0036174688, "armc": 46.27078263067739},
+    {"point": ",bePer", "event": "upper_transit", "jdUt": 2447135.005222497, "armc": 46.85017486491222},
+    {"point": ",alGem", "event": "rise", "jdUt": 2447135.006404741, "armc": 47.276948081911996},
+    {"point": ",beLib", "event": "lower_transit", "jdUt": 2447135.0114086564, "armc": 49.083289823544646},
+    {"point": ",alPer", "event": "upper_transit", "jdUt": 2447135.0163590973, "armc": 50.870328139030676},
+    {"point": ",alCnc", "event": "rise", "jdUt": 2447135.0191553663, "armc": 51.8797412258391},
+    {"point": ",alCrB", "event": "lower_transit", "jdUt": 2447135.0237507764, "armc": 53.53861847833792},
+    {"point": ",bePeg", "event": "set", "jdUt": 2447135.0297621326, "armc": 55.70863198683958},
+    {"point": ",etTau", "event": "upper_transit", "jdUt": 2447135.032498984, "armc": 56.69659622520584},
+    {"point": ",alSgr", "event": "set", "jdUt": 2447135.03351945, "armc": 57.06496983444174},
+    {"point": ",beAqr", "event": "set", "jdUt": 2447135.0339468555, "armc": 57.219257047090196},
+    {"point": ",alCrt", "event": "rise", "jdUt": 2447135.0451754164, "armc": 61.272606802752364},
+    {"point": ",alAqr", "event": "set", "jdUt": 2447135.04785095, "armc": 62.23843618849628},
+    {"point": ",alPeg", "event": "set", "jdUt": 2447135.059116705, "armc": 66.30521236115726},
+    {"point": ",alSco", "event": "lower_transit", "jdUt": 2447135.061483063, "armc": 67.15943370539298},
+    {"point": ",deCap", "event": "set", "jdUt": 2447135.0653724903, "armc": 68.56346136143759},
+    {"point": ",alTau", "event": "upper_transit", "jdUt": 2447135.0660619023, "armc": 68.81232922504603},
+    {"point": ",alLeo", "event": "rise", "jdUt": 2447135.067797684, "armc": 69.43892160117849},
+    {"point": ",alAnd", "event": "set", "jdUt": 2447135.0719186696, "armc": 70.92653837740909},
+    {"point": ",alTrA", "event": "lower_transit", "jdUt": 2447135.0744112055, "armc": 71.8263081410825},
+    {"point": ",ga-1Leo", "event": "rise", "jdUt": 2447135.0918814577, "armc": 78.1328191061823},
+    {"point": ",beOri", "event": "upper_transit", "jdUt": 2447135.0928850616, "armc": 78.49510575336126},
+    {"point": ",alHer", "event": "lower_transit", "jdUt": 2447135.092949056, "armc": 78.51820682796398},
+    {"point": ",alAur", "event": "upper_transit", "jdUt": 2447135.094163654, "armc": 78.95665926085542},
+    {"point": ",beAnd", "event": "set", "jdUt": 2447135.095833484, "armc": 79.55944405092839},
+    {"point": ",gaOri", "event": "upper_transit", "jdUt": 2447135.100174183, "armc": 81.12637423104371},
+    {"point": ",beTau", "event": "upper_transit", "jdUt": 2447135.1008994686, "armc": 81.38819195569579},
+    {"point": ",laSco", "event": "lower_transit", "jdUt": 2447135.1058893497, "armc": 83.18946759046497},
+    {"point": ",alOph", "event": "lower_transit", "jdUt": 2447135.1069920785, "armc": 83.58753689035825},
+    {"point": ",epOri", "event": "upper_transit", "jdUt": 2447135.107873567, "armc": 83.90574159634986},
+    {"point": ",thSco", "event": "lower_transit", "jdUt": 2447135.108423962, "armc": 84.10442626859475},
+    {"point": ",alCol", "event": "upper_transit", "jdUt": 2447135.110378077, "armc": 84.809833808436},
+    {"point": ",M6", "event": "lower_transit", "jdUt": 2447135.110570728, "armc": 84.87937808303826},
+    {"point": ",zeOri", "event": "upper_transit", "jdUt": 2447135.1110237013, "armc": 85.04289500127629},
+    {"point": ",M7", "event": "lower_transit", "jdUt": 2447135.1199192223, "armc": 88.25405076050163},
+    {"point": ",alOri", "event": "upper_transit", "jdUt": 2447135.1209745063, "armc": 88.63499315571391},
+    {"point": ",beAur", "event": "upper_transit", "jdUt": 2447135.1238373243, "armc": 89.66842949853094},
+    {"point": ",alPer", "event": "set", "jdUt": 2447135.1246587667, "armc": 89.96495842540298},
+    {"point": ",deLeo", "event": "rise", "jdUt": 2447135.1308675045, "armc": 92.20622390979759}
+   ],
+   "noRiseOrSet": [
+    [
+     ",NGC869",
+     "rise"
+    ],
+    [
+     ",NGC869",
+     "set"
+    ],
+    [
+     ",alCen",
+     "rise"
+    ],
+    [
+     ",alCen",
+     "set"
+    ],
+    [
+     ",alCep",
+     "rise"
+    ],
+    [
+     ",alCep",
+     "set"
+    ],
+    [
+     ",alCru",
+     "rise"
+    ],
+    [
+     ",alCru",
+     "set"
+    ],
+    [
+     ",alDra",
+     "rise"
+    ],
+    [
+     ",alDra",
+     "set"
+    ],
+    [
+     ",alEri",
+     "rise"
+    ],
+    [
+     ",alEri",
+     "set"
+    ],
+    [
+     ",alPav",
+     "rise"
+    ],
+    [
+     ",alPav",
+     "set"
+    ],
+    [
+     ",alTrA",
+     "rise"
+    ],
+    [
+     ",alTrA",
+     "set"
+    ],
+    [
+     ",alUMa",
+     "rise"
+    ],
+    [
+     ",alUMa",
+     "set"
+    ],
+    [
+     ",alUMi",
+     "rise"
+    ],
+    [
+     ",alUMi",
+     "set"
+    ],
+    [
+     ",beCar",
+     "rise"
+    ],
+    [
+     ",beCar",
+     "set"
+    ],
+    [
+     ",beCen",
+     "rise"
+    ],
+    [
+     ",beCen",
+     "set"
+    ],
+    [
+     ",beCru",
+     "rise"
+    ],
+    [
+     ",beCru",
+     "set"
+    ],
+    [
+     ",epCar",
+     "rise"
+    ],
+    [
+     ",epCar",
+     "set"
+    ],
+    [
+     ",gaCru",
+     "rise"
+    ],
+    [
+     ",gaCru",
+     "set"
+    ]
+   ]
+  }
+ ]
+}
