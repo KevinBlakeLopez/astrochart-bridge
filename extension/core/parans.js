@@ -43,7 +43,7 @@ const NEXT_SEARCH_DAYS = 1 / 1440;
 const FIRST_JD = julianDay("1582-10-15T00:00:00Z");
 const END_JD = julianDay("3000-01-01T00:00:00Z");
 // Metres: the elevations the engine takes.
-const ELEVATION_LIMITS = Object.freeze({ lowest: -500, highest: 25_000 });
+export const ELEVATION_LIMITS = Object.freeze({ lowest: -500, highest: 25_000 });
 
 const refused = (reason) => ({ kind: "refused", reason });
 const instant = (jd) => ({ jd, utc: utcFromJulianDay(jd) });

@@ -16,7 +16,7 @@ const leftOut = (file) => LEFT_OUT.some((path) => file === path || file.startsWi
 const PAGES = readdirSync(extension).filter((name) => name.endsWith(".html") && !leftOut(name));
 
 test("the store zips leave out only the web app's home page and service worker, and parans until a page uses them, and each path listed exists", () => {
-  assert.deepEqual(LEFT_OUT, ["index.html", "home.css", "home.js", "sw.js", "core/parans.js"]);
+  assert.deepEqual(LEFT_OUT, ["index.html", "home.css", "home.js", "sw.js", "core/parans.js", "parans-model.js"]);
   for (const path of LEFT_OUT) assert.ok(existsSync(new URL(path, extension)), path);
 });
 
@@ -31,7 +31,7 @@ test("no page the extension ships loads anything the store zips leave out", () =
 // What parans load must be a page's too, or left out with them.
 test("everything Helioscope and parans load is left out of the store zips, unless a page loads it too", () => {
   const usedByPages = new Set(PAGES.flatMap((page) => [...loadedBy(page)]));
-  for (const start of ["helioscope-engine.js", "core/helioscope.js", "core/parans.js"]) {
+  for (const start of ["helioscope-engine.js", "core/helioscope.js", "core/parans.js", "parans-model.js"]) {
     for (const file of loadedBy(start)) {
       assert.ok(leftOut(file) || usedByPages.has(file), `${start} loads ${file}, which would ship unused`);
     }
