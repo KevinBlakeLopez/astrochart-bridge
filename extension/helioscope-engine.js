@@ -1,6 +1,6 @@
-// Swiss Ephemeris for Helioscope and parans, from vendor/swisseph/
+// Swiss Ephemeris for Helioscope, parans and declinations, from vendor/swisseph/
 // (@kuntay/swisseph 0.2.2, AGPL-3.0-or-later). This is the only file that
-// loads its WebAssembly. It makes the calls Helioscope and parans need and
+// loads its WebAssembly. It makes the calls those pages need and
 // reports what Swiss Ephemeris found; what that means for a chart is decided
 // in core/helioscope.js.
 //
@@ -28,6 +28,9 @@ import { createSwissEph } from "./vendor/swisseph/dist/index.js";
 
 // swephexp.h
 const SEFLG_MOSEPH = 4;
+const SEFLG_EQUATORIAL = 2048;
+// swe_calc_ut's "body" for the obliquity and nutation.
+const SE_ECL_NUT = -1;
 const SE_SUN = 0;
 const SE_CALC_RISE = 1;
 const SE_CALC_SET = 2;
@@ -73,6 +76,15 @@ const BODIES = Object.freeze({
 const EPHEMERIS_FILE = /^[a-z0-9_]+\.se1$/;
 // What Swiss Ephemeris says when a body's file isn't loaded.
 const FILE_NOT_FOUND = /SwissEph file '[^']+' not found/;
+
+// The house system asked for when only the Ascendant, MC and Vertex are
+// wanted, which every system shares. Porphyry is defined at every latitude:
+// Placidus, beyond the polar circles, falls back to Porphyry and returns -1.
+const PORPHYRY = "O".charCodeAt(0);
+// swe_houses_ex writes cusps[0] to cusps[12], and ascmc[0] to ascmc[9]:
+// the Ascendant, MC, ARMC and Vertex first.
+const CUSP_DOUBLES = 13;
+const ASCMC_DOUBLES = 10;
 
 // The four angles, as astro-research's parans-v1 calls swe_rise_trans: the
 // transits are at hour angle 0 and 180. The disc and the refraction apply to
@@ -160,6 +172,7 @@ export async function createEngine({ atmosphere = {}, observer = {}, ephemerisFi
   const phenoUt = cwrap("swe_pheno_ut", 5);
   const visLimitMag = cwrap("swe_vis_limit_mag", 8);
   const sidTime = cwrap("swe_sidtime", 1);
+  const housesEx = cwrap("swe_houses_ex", 7);
   const buffers = {
     geo: wasm._malloc(3 * DOUBLE),
     atm: wasm._malloc(4 * DOUBLE),
@@ -168,6 +181,8 @@ export async function createEngine({ atmosphere = {}, observer = {}, ephemerisFi
     xx: wasm._malloc(6 * DOUBLE),
     attr: wasm._malloc(20 * DOUBLE),
     tret: wasm._malloc(10 * DOUBLE),
+    cusps: wasm._malloc(CUSP_DOUBLES * DOUBLE),
+    ascmc: wasm._malloc(ASCMC_DOUBLES * DOUBLE),
     name: wasm._malloc(STRING_BYTES),
     serr: wasm._malloc(STRING_BYTES),
   };
@@ -342,6 +357,66 @@ export async function createEngine({ atmosphere = {}, observer = {}, ephemerisFi
     });
   }
 
+  /**
+   * A body's geocentric apparent right ascension and declination, on the true
+   * equator of date, in degrees: its actual position, ecliptic latitude
+   * included. The planets are Moshier's; Ceres and the dwarf planets come from
+   * their asteroid files, and without a body's file the call fails.
+   *
+   * @param {number} jd  Julian Day (UT)
+   * @param {keyof typeof BODIES} body
+   * @returns {{ kind: "computed", rightAscension: number, declination: number } | Failure}
+   */
+  function equatorialPosition(jd, body) {
+    live();
+    const ipl = bodyNumber(body);
+    if (!isDate(jd)) return INVALID;
+    write(buffers.xx, [Number.NaN, Number.NaN]);
+    clearError();
+    const ret = calcUt(jd, ipl, SEFLG_MOSEPH | SEFLG_EQUATORIAL, buffers.xx, buffers.serr);
+    if (ret < 0) {
+      const serr = error();
+      return { kind: "failed", reason: FILE_NOT_FOUND.test(serr) ? "no-ephemeris-file" : "engine-error", serr };
+    }
+    const failure = flagsFailure(ret);
+    if (failure) return failure;
+    const [rightAscension, declination] = read(buffers.xx, 2);
+    if (![rightAscension, declination].every(Number.isFinite)) return { kind: "failed", reason: "not-finite", serr: error() };
+    return { kind: "computed", rightAscension, declination };
+  }
+
+  /**
+   * The Ascendant, MC and Vertex at jd and place, as ecliptic longitudes in
+   * degrees, with the ARMC, and the true obliquity of the ecliptic that turns
+   * them into declinations. No house system's cusps are involved: Swiss
+   * Ephemeris works these three out the same way in each. On the equator the
+   * Vertex is an equinox, which Swiss Ephemeris gives as 0°.
+   *
+   * @param {number} jd  Julian Day (UT)
+   * @param {{ lat: number, lng: number }} place  degrees north and east
+   * @returns {{ kind: "computed", ascendant: number, midheaven: number, vertex: number, armc: number,
+   *   obliquity: number } | Failure}
+   */
+  function angles(jd, place) {
+    live();
+    if (!isDate(jd) || !isLatLng(place)) return INVALID;
+    write(buffers.ascmc, Array(ASCMC_DOUBLES).fill(Number.NaN));
+    // Porphyry returns 0, or -1 for a mistake; it never falls back.
+    if (housesEx(jd, 0, place.lat, place.lng, PORPHYRY, buffers.cusps, buffers.ascmc) < 0) {
+      return { kind: "failed", reason: "engine-error" };
+    }
+    const [ascendant, midheaven, armc, vertex] = read(buffers.ascmc, 4);
+    write(buffers.xx, [Number.NaN]);
+    clearError();
+    const failure = flagsFailure(calcUt(jd, SE_ECL_NUT, SEFLG_MOSEPH, buffers.xx, buffers.serr));
+    if (failure) return failure;
+    // xx[0] is the true obliquity, xx[1] the mean.
+    const [obliquity] = read(buffers.xx, 1);
+    const values = { ascendant, midheaven, vertex, armc, obliquity };
+    if (!Object.values(values).every(Number.isFinite)) return { kind: "failed", reason: "not-finite" };
+    return { kind: "computed", ...values };
+  }
+
   /** Frees the engine's memory. It can't be used afterwards. */
   function dispose() {
     if (disposed) return;
@@ -365,6 +440,8 @@ export async function createEngine({ atmosphere = {}, observer = {}, ephemerisFi
     limitingMagnitude,
     angularEvent,
     armc,
+    equatorialPosition,
+    angles,
     dispose,
   });
 }
@@ -438,7 +515,7 @@ function planetNumber(planet) {
 
 function bodyNumber(body) {
   if (!Object.hasOwn(BODIES, body)) {
-    throw new Error(`angularEvent takes a body: ${Object.keys(BODIES).join(", ")}; got ${body}`);
+    throw new Error(`The engine takes a body: ${Object.keys(BODIES).join(", ")}; got ${body}`);
   }
   return BODIES[body];
 }
@@ -475,12 +552,13 @@ function angularEventFlags(event, horizon) {
 const isDate = (jd) => Number.isFinite(jd) && jd >= FIRST_JD && jd <= LAST_JD;
 
 function isPlace(place) {
-  const { lat, lng, elevation } = place ?? {};
-  return [lat, lng, elevation].every(Number.isFinite) &&
-    Math.abs(lat) <= 90 &&
-    Math.abs(lng) <= 180 &&
-    elevation >= LOWEST &&
-    elevation <= HIGHEST;
+  const { elevation } = place ?? {};
+  return isLatLng(place) && Number.isFinite(elevation) && elevation >= LOWEST && elevation <= HIGHEST;
+}
+
+function isLatLng(place) {
+  const { lat, lng } = place ?? {};
+  return Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180;
 }
 
 /**

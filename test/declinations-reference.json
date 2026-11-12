@@ -1,0 +1,677 @@
+{
+ "generatedBy": "tools/make-declinations-reference.py",
+ "binding": "pysweph 20260201",
+ "swissEphemeris": "2.10.03",
+ "flags": "moshier, and on sepl_18 and semo_18 for deDeclinations",
+ "files": {
+  "s136108.se1": "48a46d498031b060d55de5465a1416864baef19e23a76f470aa233b3b8547f78",
+  "s136199.se1": "b26cd86e1d0a6f6d1b3a45ec9b3de7771d540f281f56a0b86c9e828c3aaba152",
+  "s136472.se1": "81bd2f212fadc2b855ef05b0537ac1e4927e0caae4702954ef29b8862565d63d",
+  "se20000.se1": "27a7009e7722401801c13240cb5032ae01a5d55b1a8d9c4abc2e845563ff71da",
+  "se28978.se1": "0a05bff0237f69c834d422b4f1b0262c556a76b18e5374d36d99f901d8908253",
+  "se90377.se1": "2ee55a7cbe1644f820671e957b0036f8c9dcf168398e20173f2c58fc6a42d292",
+  "se90482.se1": "fc45f7dd52561881e322044cc14c2bf430fca60c44732f342286324a9da63f25",
+  "seas_12.se1": "3345555097e2080f4e2582026a6008ebbccfdca27600ba48019ca9c6e3e7a211",
+  "seas_18.se1": "a2cd8fc33807c78ca9a700c91c2e042258b12fc4796519e00781440b5ad8b2e2",
+  "seas_24.se1": "1b4160a4d289c3d2df55efcc016d407a1516c079b725b2bf2b073a70211aa391"
+ },
+ "deFiles": {
+  "sepl_18.se1": "ca1393ceab3a44fbc895887cf789c68819ae6a1cbc9b22225872dbe4ccd99a66",
+  "semo_18.se1": "1ca07bd67c24374d77226180c20a4f9996cba013697894810518e7eb582ca4f7"
+ },
+ "houseSystem": "porphyry",
+ "results": [
+  {
+   "name": "london-2024",
+   "utc": "2024-04-10T14:30:00Z",
+   "lat": 51.5074,
+   "lng": -0.1278,
+   "jdUt": 2460411.1041666665,
+   "obliquity": 23.438680573186577,
+   "armc": 56.68366039469399,
+   "points": {
+    "ascendant": {
+     "longitude": 156.56086565406594,
+     "declination": 9.103696926136838
+    },
+    "midheaven": {
+     "longitude": 58.90790239947912,
+     "declination": 19.91486247333145
+    },
+    "vertex": {
+     "longitude": 309.3510906789311,
+     "declination": -17.913668179796172
+    },
+    "ceres": {
+     "rightAscension": 289.8931084801017,
+     "declination": -23.607710281507263
+    },
+    "eris": {
+     "rightAscension": 26.872406020530647,
+     "declination": -0.45853800771432546
+    },
+    "makemake": {
+     "rightAscension": 200.2791206752559,
+     "declination": 21.869038792905375
+    },
+    "haumea": {
+     "rightAscension": 219.0981634222132,
+     "declination": 15.080052547469181
+    },
+    "varuna": {
+     "rightAscension": 131.6382054801438,
+     "declination": 27.226783216212855
+    },
+    "ixion": {
+     "rightAscension": 277.00288829431406,
+     "declination": -31.34626406178893
+    },
+    "orcus": {
+     "rightAscension": 157.93196790617245,
+     "declination": -12.752543115889843
+    },
+    "sedna": {
+     "rightAscension": 60.12928540077224,
+     "declination": 8.599327962640997
+    },
+    "sun": {
+     "rightAscension": 19.59646574456023,
+     "declination": 8.273217880046676
+    },
+    "moon": {
+     "rightAscension": 43.30013111589365,
+     "declination": 19.409062865213492
+    },
+    "mercury": {
+     "rightAscension": 20.841162209222205,
+     "declination": 11.471059530217087
+    },
+    "venus": {
+     "rightAscension": 6.758470660271798,
+     "declination": 1.294673885124033
+    },
+    "mars": {
+     "rightAscension": 346.19251165365495,
+     "declination": -7.261329544601003
+    },
+    "jupiter": {
+     "rightAscension": 47.22968983682142,
+     "declination": 16.825660062621434
+    },
+    "saturn": {
+     "rightAscension": 346.5226713732868,
+     "declination": -7.6011019717480925
+    },
+    "uranus": {
+     "rightAscension": 48.91235501523326,
+     "declination": 17.815572455590015
+    },
+    "neptune": {
+     "rightAscension": 358.8859392416514,
+     "declination": -1.8154165562825149
+    },
+    "pluto": {
+     "rightAscension": 304.9643197207771,
+     "declination": -22.609348272497503
+    }
+   },
+   "deDeclinations": {
+    "ceres": -23.607709169501824,
+    "eris": -0.4585380178564835,
+    "makemake": 21.86903882782907,
+    "haumea": 15.080052555450765,
+    "varuna": 27.226783306889125,
+    "ixion": -31.346263985112806,
+    "orcus": -12.752543172105025,
+    "sedna": 8.599327952919527,
+    "sun": 8.273216933504479,
+    "moon": 19.40929083627058,
+    "mercury": 11.471063922815594,
+    "venus": 1.2946728943033377,
+    "mars": -7.261330057346951,
+    "jupiter": 16.825633074818455,
+    "saturn": -7.60111782704759,
+    "uranus": 17.81555907939002,
+    "neptune": -1.815429289960507,
+    "pluto": -22.609350134161964
+   }
+  },
+  {
+   "name": "tromso-2024",
+   "utc": "2024-06-21T12:00:00Z",
+   "lat": 69.6492,
+   "lng": 18.9553,
+   "jdUt": 2460483.0,
+   "obliquity": 23.43838731911904,
+   "armc": 109.13119931759381,
+   "points": {
+    "ascendant": {
+     "longitude": 189.59263967593552,
+     "declination": -3.8005800471167177
+    },
+    "midheaven": {
+     "longitude": 107.65463068363023,
+     "declination": 22.273539023861
+    },
+    "vertex": {
+     "longitude": 24.495943938425103,
+     "declination": 9.492812163169223
+    },
+    "ceres": {
+     "rightAscension": 289.8467655870037,
+     "declination": -28.070935179637207
+    },
+    "eris": {
+     "rightAscension": 27.47715811963265,
+     "declination": -0.25150363651165086
+    },
+    "makemake": {
+     "rightAscension": 199.38415015584366,
+     "declination": 21.760394307705376
+    },
+    "haumea": {
+     "rightAscension": 218.005693590922,
+     "declination": 15.200523300183079
+    },
+    "varuna": {
+     "rightAscension": 132.3368295433896,
+     "declination": 26.890143254583318
+    },
+    "ixion": {
+     "rightAscension": 275.787571523657,
+     "declination": -31.648847616606687
+    },
+    "orcus": {
+     "rightAscension": 157.85336147847323,
+     "declination": -12.250538882761902
+    },
+    "sedna": {
+     "rightAscension": 61.01897105807572,
+     "declination": 8.796077019773978
+    },
+    "sun": {
+     "rightAscension": 90.65631217524134,
+     "declination": 23.43684915224982
+    },
+    "moon": {
+     "rightAscension": 262.93175993118604,
+     "declination": -28.041659922253373
+    },
+    "mercury": {
+     "rightAscension": 99.72720744323728,
+     "declination": 24.85330491565856
+    },
+    "venus": {
+     "rightAscension": 95.6944360104572,
+     "declination": 23.929348949633095
+    },
+    "mars": {
+     "rightAscension": 37.02021084118506,
+     "declination": 13.538370253692543
+    },
+    "jupiter": {
+     "rightAscension": 64.37287710203634,
+     "declination": 20.638729194330665
+    },
+    "saturn": {
+     "rightAscension": 350.9955414378515,
+     "declination": -5.994254255574441
+    },
+    "uranus": {
+     "rightAscension": 52.990382792795266,
+     "declination": 18.826833949553897
+    },
+    "neptune": {
+     "rightAscension": 0.413202727262974,
+     "declination": -1.2059041989573203
+    },
+    "pluto": {
+     "rightAscension": 304.57839622207035,
+     "declination": -22.893514217349512
+    }
+   },
+   "deDeclinations": {
+    "ceres": -28.07093848917026,
+    "eris": -0.2515036926494451,
+    "makemake": 21.760394204497846,
+    "haumea": 15.200523197225767,
+    "varuna": 26.890143109909193,
+    "ixion": -31.648847781867282,
+    "orcus": -12.250538972551082,
+    "sedna": 8.79607695368126,
+    "sun": 23.436843393631822,
+    "moon": -28.041637066795428,
+    "mercury": 24.853300371163897,
+    "venus": 23.92934062008072,
+    "mars": 13.538373225385078,
+    "jupiter": 20.63870816274654,
+    "saturn": -5.994270710127321,
+    "uranus": 18.82682071469946,
+    "neptune": -1.205917274246799,
+    "pluto": -22.89351979570157
+   }
+  },
+  {
+   "name": "sydney-1987",
+   "utc": "1987-12-05T03:20:00Z",
+   "lat": -33.8688,
+   "lng": 151.2093,
+   "jdUt": 2447134.638888889,
+   "obliquity": 23.443228333778208,
+   "armc": 274.60898706259167,
+   "points": {
+    "ascendant": {
+     "longitude": 3.890728572209487,
+     "declination": 1.5468868204336608
+    },
+    "midheaven": {
+     "longitude": 274.22997959571944,
+     "declination": -23.375567149902043
+    },
+    "vertex": {
+     "longitude": 194.02278439493028,
+     "declination": -5.531889671454979
+    },
+    "ceres": {
+     "rightAscension": 291.6721825089984,
+     "declination": -27.547492780257503
+    },
+    "eris": {
+     "rightAscension": 21.515151933449285,
+     "declination": -10.309245309662622
+    },
+    "makemake": {
+     "rightAscension": 167.7622378726866,
+     "declination": 35.928241689283084
+    },
+    "haumea": {
+     "rightAscension": 186.1338033778045,
+     "declination": 22.665647890082305
+    },
+    "varuna": {
+     "rightAscension": 83.43899835831856,
+     "declination": 19.043209642677628
+    },
+    "ixion": {
+     "rightAscension": 230.9858721153412,
+     "declination": -11.684659453558416
+    },
+    "orcus": {
+     "rightAscension": 128.27272502722903,
+     "declination": 4.637235540135821
+    },
+    "sedna": {
+     "rightAscension": 40.58557432073759,
+     "declination": 3.5193936454096058
+    },
+    "sun": {
+     "rightAscension": 250.97000129396395,
+     "declination": -22.290243673018274
+    },
+    "moon": {
+     "rightAscension": 67.7688800419533,
+     "declination": 26.655671464886098
+    },
+    "mercury": {
+     "rightAscension": 240.44278830043157,
+     "declination": -20.327491775050618
+    },
+    "venus": {
+     "rightAscension": 279.65143585428274,
+     "declination": -24.598337750441424
+    },
+    "mars": {
+     "rightAscension": 215.089292972178,
+     "declination": -13.257992278440343
+    },
+    "jupiter": {
+     "rightAscension": 18.96134743269035,
+     "declination": 6.479930909701009
+    },
+    "saturn": {
+     "rightAscension": 261.69106182660204,
+     "declination": -22.077493029189707
+    },
+    "uranus": {
+     "rightAscension": 265.6845612609979,
+     "declination": -23.546589163993506
+    },
+    "neptune": {
+     "rightAscension": 277.34235742331066,
+     "declination": -22.30596090574759
+    },
+    "pluto": {
+     "rightAscension": 223.5576816683972,
+     "declination": -0.19494722538758333
+    }
+   },
+   "deDeclinations": {
+    "ceres": -27.547492842154835,
+    "eris": -10.309245339191044,
+    "makemake": 35.92824168171706,
+    "haumea": 22.66564785727836,
+    "varuna": 19.043209605953074,
+    "ixion": -11.684659504555162,
+    "orcus": 4.637235488319804,
+    "sedna": 3.519393612851078,
+    "sun": -22.29024507796333,
+    "moon": 26.655705319418658,
+    "mercury": -20.32749508824854,
+    "venus": -24.598341318986247,
+    "mars": -13.258002971158987,
+    "jupiter": 6.4798831719713315,
+    "saturn": -22.077472159833896,
+    "uranus": -23.546586481151806,
+    "neptune": -22.30596406781357,
+    "pluto": -0.19487827593732945
+   }
+  },
+  {
+   "name": "equator-2010",
+   "utc": "2010-03-20T17:00:00Z",
+   "lat": 0.0,
+   "lng": -78.4678,
+   "jdUt": 2455276.2083333335,
+   "obliquity": 23.438883049862316,
+   "armc": 354.65260955282815,
+   "points": {
+    "ascendant": {
+     "longitude": 85.09159826008433,
+     "declination": 23.34781913551572
+    },
+    "midheaven": {
+     "longitude": 354.17485766915263,
+     "declination": -2.3137096415626845
+    },
+    "vertex": {
+     "longitude": 180.0,
+     "declination": 2.791040819287568e-15
+    },
+    "ceres": {
+     "rightAscension": 270.2586262660159,
+     "declination": -21.17996853695298
+    },
+    "eris": {
+     "rightAscension": 24.75000053511643,
+     "declination": -4.223672082361514
+    },
+    "makemake": {
+     "rightAscension": 188.87656373866915,
+     "declination": 28.43570802361161
+    },
+    "haumea": {
+     "rightAscension": 206.4177095948147,
+     "declination": 19.040664304694793
+    },
+    "varuna": {
+     "rightAscension": 112.19247161154745,
+     "declination": 26.13404318959116
+    },
+    "ixion": {
+     "rightAscension": 255.83202272374862,
+     "declination": -24.4535204846362
+    },
+    "orcus": {
+     "rightAscension": 146.01391494657156,
+     "declination": -6.258098675339687
+    },
+    "sedna": {
+     "rightAscension": 51.7881213394978,
+     "declination": 6.600514619015131
+    },
+    "sun": {
+     "rightAscension": 359.9795831280471,
+     "declination": -0.008795314358290616
+    },
+    "moon": {
+     "rightAscension": 52.58688019372008,
+     "declination": 23.10267617856335
+    },
+    "mercury": {
+     "rightAscension": 5.852733703084049,
+     "declination": 1.7523569089165283
+    },
+    "venus": {
+     "rightAscension": 15.445028545283492,
+     "declination": 5.587135253710618
+    },
+    "mars": {
+     "rightAscension": 123.87449766446062,
+     "declination": 23.16073270481634
+    },
+    "jupiter": {
+     "rightAscension": 346.19042034777476,
+     "declination": -6.945550635822158
+    },
+    "saturn": {
+     "rightAscension": 182.29656434773545,
+     "declination": 1.8020611712042487
+    },
+    "uranus": {
+     "rightAscension": 357.3190010007488,
+     "declination": -1.944444753434251
+    },
+    "neptune": {
+     "rightAscension": 329.737041610274,
+     "declination": -12.783084399966514
+    },
+    "pluto": {
+     "rightAscension": 275.6007638141504,
+     "declination": -18.22426775343808
+    }
+   },
+   "deDeclinations": {
+    "ceres": -21.179969860411784,
+    "eris": -4.223672095381232,
+    "makemake": 28.43570800919908,
+    "haumea": 19.040664304059906,
+    "varuna": 26.1340430941275,
+    "ixion": -24.453520575383394,
+    "orcus": -6.258098682102555,
+    "sedna": 6.6005145962565255,
+    "sun": -0.008795693165948392,
+    "moon": 23.1026596356838,
+    "mercury": 1.752353129705093,
+    "venus": 5.587124375012239,
+    "mars": 23.16074998487873,
+    "jupiter": -6.945525612714687,
+    "saturn": 1.8020713990521653,
+    "uranus": -1.9444450659737917,
+    "neptune": -12.783049134126856,
+    "pluto": -18.224209324988482
+   }
+  },
+  {
+   "name": "london-1700",
+   "utc": "1700-06-01T12:00:00Z",
+   "lat": 51.5074,
+   "lng": -0.1278,
+   "jdUt": 2342124.0,
+   "obliquity": 23.475691057435313,
+   "armc": 69.81411464728677,
+   "points": {
+    "ascendant": {
+     "longitude": 165.78138727245025,
+     "declination": 5.615152062705467
+    },
+    "midheaven": {
+     "longitude": 71.36496237416331,
+     "declination": 22.17737855769786
+    },
+    "vertex": {
+     "longitude": 327.6174767999626,
+     "declination": -12.31870417355091
+    },
+    "ceres": {
+     "rightAscension": 115.76640006030966,
+     "declination": 27.70140461138799
+    },
+    "eris": {
+     "rightAscension": 196.93579647673107,
+     "declination": 12.866100972088216
+    },
+    "makemake": {
+     "rightAscension": 180.84425117553064,
+     "declination": 31.586970623650444
+    },
+    "haumea": {
+     "rightAscension": 175.94119144087298,
+     "declination": 25.902957967975624
+    },
+    "varuna": {
+     "rightAscension": 70.88505582452648,
+     "declination": 15.881731151214614
+    },
+    "ixion": {
+     "rightAscension": 194.76304108544034,
+     "declination": 11.972673596070301
+    },
+    "orcus": {
+     "rightAscension": 74.90678338797942,
+     "declination": 25.591170585530907
+    },
+    "sedna": {
+     "rightAscension": 339.5977171618532,
+     "declination": -12.213340097341828
+    },
+    "sun": {
+     "rightAscension": 69.2405342031788,
+     "declination": 22.10291255717698
+    },
+    "moon": {
+     "rightAscension": 247.46245918683678,
+     "declination": -16.79392883370536
+    },
+    "mercury": {
+     "rightAscension": 48.13587572057434,
+     "declination": 13.856276067410947
+    },
+    "venus": {
+     "rightAscension": 117.01367328402365,
+     "declination": 23.616015923755015
+    },
+    "mars": {
+     "rightAscension": 217.86055317866763,
+     "declination": -16.15609068920827
+    },
+    "jupiter": {
+     "rightAscension": 304.32449793222116,
+     "declination": -20.157126417295682
+    },
+    "saturn": {
+     "rightAscension": 345.8832188029925,
+     "declination": -8.023855358590918
+    },
+    "uranus": {
+     "rightAscension": 100.03461833410239,
+     "declination": 23.504359023971944
+    },
+    "neptune": {
+     "rightAscension": 7.3370738241964775,
+     "declination": 1.5546874679736635
+    },
+    "pluto": {
+     "rightAscension": 133.78871582711253,
+     "declination": 24.854508763254927
+    }
+   },
+   "deDeclinations": null
+  },
+  {
+   "name": "sydney-2900",
+   "utc": "2900-01-01T00:00:00Z",
+   "lat": -33.8688,
+   "lng": 151.2093,
+   "jdUt": 2780263.5,
+   "obliquity": 23.324992582967326,
+   "armc": 252.2447795624493,
+   "points": {
+    "ascendant": {
+     "longitude": 345.0275580937053,
+     "declination": -5.871309069431789
+    },
+    "midheaven": {
+     "longitude": 253.61487134527596,
+     "declination": -22.325359365442786
+    },
+    "vertex": {
+     "longitude": 133.0240560578843,
+     "declination": 16.825823708845
+    },
+    "ceres": {
+     "rightAscension": 338.6915260632415,
+     "declination": -18.601316055709113
+    },
+    "eris": {
+     "rightAscension": 319.1673748112709,
+     "declination": -60.39232947950219
+    },
+    "makemake": {
+     "rightAscension": 171.37478477567086,
+     "declination": 33.270409128549
+    },
+    "haumea": {
+     "rightAscension": 255.1608074492057,
+     "declination": 2.176432150870037
+    },
+    "varuna": {
+     "rightAscension": 186.12591004278545,
+     "declination": 14.938043666663933
+    },
+    "ixion": {
+     "rightAscension": 176.64285548995574,
+     "declination": 22.95773298081956
+    },
+    "orcus": {
+     "rightAscension": 28.280328632732825,
+     "declination": 31.479433446528237
+    },
+    "sedna": {
+     "rightAscension": 245.9925643287295,
+     "declination": -9.542004832182828
+    },
+    "sun": {
+     "rightAscension": 281.3759513723661,
+     "declination": -22.91435243526417
+    },
+    "moon": {
+     "rightAscension": 25.270828476273955,
+     "declination": 13.158610423279338
+    },
+    "mercury": {
+     "rightAscension": 258.97623493119,
+     "declination": -21.229069067582742
+    },
+    "venus": {
+     "rightAscension": 234.95697152111296,
+     "declination": -16.79684332648652
+    },
+    "mars": {
+     "rightAscension": 215.0152544904365,
+     "declination": -12.520159390242151
+    },
+    "jupiter": {
+     "rightAscension": 348.65225619520606,
+     "declination": -6.038860543699897
+    },
+    "saturn": {
+     "rightAscension": 265.08150364112345,
+     "declination": -21.882969056962416
+    },
+    "uranus": {
+     "rightAscension": 226.5214550080926,
+     "declination": -16.95103990590999
+    },
+    "neptune": {
+     "rightAscension": 127.12929822705405,
+     "declination": 18.430845851739804
+    },
+    "pluto": {
+     "rightAscension": 97.26435570784548,
+     "declination": 15.487488414689517
+    }
+   },
+   "deDeclinations": null
+  }
+ ]
+}
