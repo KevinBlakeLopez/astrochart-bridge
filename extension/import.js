@@ -10,7 +10,7 @@ import { isHorFile } from "./core/morinus-hor.js";
 import { isExtensionCopy } from "./extension-copy.js";
 import { viewForHorFile } from "./hor-model.js";
 import { localizePage } from "./messages/index.js";
-import { chartToShare, viewForHelioscopeRefusal, viewForParansRefusal } from "./popup-model.js";
+import { chartToShare, viewForDeclinationsRefusal, viewForHelioscopeRefusal, viewForParansRefusal } from "./popup-model.js";
 import { paragraph, render } from "./view.js";
 import { openPage, openLink as openWebLink, showHomeLink } from "./web-page.js";
 import { keepForOffline } from "./web-app.js";
@@ -85,14 +85,16 @@ function show(view, warning) {
 
 // A chart, with Send to Stellarium Desktop in the extension, as in the popup;
 // without it on the web, or should Stellarium's side fail. A refusal is drawn
-// as it is. Which planets were visible and Parans open Helioscope's page and
-// the parans page in a tab with the chart in its link, but not its name or
+// as it is. Which planets were visible, Parans and Declinations open
+// Helioscope's page, the parans page and the declinations page in a tab with
+// the chart in its link, but not its name or
 // town, as on the screenshot and paste pages, and a chart the link can't
 // carry says why, with Cancel back to the chart.
 function showChart({ view, chart }) {
   const pages = {
     helioscope: { page: "helioscope.html", refusal: viewForHelioscopeRefusal },
     parans: { page: "parans.html", refusal: viewForParansRefusal },
+    declinations: { page: "declinations.html", refusal: viewForDeclinationsRefusal },
   };
   const onButton = async (button, sky, screen) => {
     if (!Object.hasOwn(pages, button.does)) return openLink(button, sky);

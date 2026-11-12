@@ -339,9 +339,14 @@ export const helioscopeButton = () => ({ label: text().popup.buttons.helioscope,
 // Which planets were visible, wherever that goes.
 export const paransButton = () => ({ label: text().popup.buttons.parans, does: "parans", secondary: true });
 
-// A screen's buttons, then Which planets were visible, Parans and Share…:
-// every screen with a chart of its own ends with these.
-export const chartButtons = (buttons) => [...buttons, helioscopeButton(), paransButton(), shareButton()];
+// Opens the declinations page in a tab the same way, to see the parallels and
+// contra-parallels of the chart's dwarf planets. It goes right after Parans,
+// wherever that goes.
+export const declinationsButton = () => ({ label: text().popup.buttons.declinations, does: "declinations", secondary: true });
+
+// A screen's buttons, then Which planets were visible, Parans, Declinations
+// and Share…: every screen with a chart of its own ends with these.
+export const chartButtons = (buttons) => [...buttons, helioscopeButton(), paransButton(), declinationsButton(), shareButton()];
 
 // The labels over a screen's two kinds of action, when it has both.
 export const groupLabels = () => ({ ...text().popup.groups });
@@ -350,8 +355,8 @@ export const groupLabels = () => ({ ...text().popup.groups });
  * The order view.js draws a screen's actions in, in labelled groups. The ways
  * to see the sky, Open Stellarium Web and Send to Stellarium Desktop, go under
  * See the sky, with the line that says which is the default, then Which
- * planets were visible and Parans, so that line stays beside the buttons
- * it's about.
+ * planets were visible, Parans and Declinations, so that line stays beside
+ * the buttons it's about.
  * Every other action goes under Take the chart elsewhere: Share…, Open chart in
  * Astro-Seek, the AAF file and the astro.com step among them. The group with
  * the screen's main button comes first.
@@ -389,7 +394,7 @@ export function actionGroups(view) {
 
   const sky = [
     ...actions.filter((action) => opensSky(action) || action.kind === "default-choice"),
-    ...actions.filter(({ button }) => button?.does === "helioscope" || button?.does === "parans"),
+    ...actions.filter(({ button }) => ["helioscope", "parans", "declinations"].includes(button?.does)),
   ];
   const elsewhere = actions.filter((action) => !sky.includes(action));
   if (!actions.some(opensSky) || elsewhere.length === 0) return [{ label: null, actions }];
@@ -495,6 +500,22 @@ export function viewForParansRefusal(reason) {
   return {
     state: "parans-refused",
     message: reason === "before-gregorian" ? words.paransBeforeGregorian : words.paransRefused,
+    code: reason,
+    notes: [],
+    buttons: [],
+  };
+}
+
+/**
+ * The same for the declinations page's link.
+ *
+ * @param {string} reason
+ */
+export function viewForDeclinationsRefusal(reason) {
+  const words = text().popup;
+  return {
+    state: "declinations-refused",
+    message: reason === "before-gregorian" ? words.declinationsBeforeGregorian : words.declinationsRefused,
     code: reason,
     notes: [],
     buttons: [],

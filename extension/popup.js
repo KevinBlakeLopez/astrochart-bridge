@@ -25,6 +25,7 @@ import {
   viewForAstroComNotFilled,
   viewForAstroComTab,
   viewForAstroSeekSave,
+  viewForDeclinationsRefusal,
   viewForHelioscopeRefusal,
   viewForParansRefusal,
   viewForShareRefusal,
@@ -244,7 +245,7 @@ function showChart(base) {
 }
 
 // What a chart screen's own buttons do: open a link, Share…, Which planets
-// were visible or Parans, whose refusals go back to the screen on Cancel, or
+// were visible, Parans or Declinations, whose refusals go back to the screen on Cancel, or
 // one of Read a different chart's other ways. desktop-page.js takes the
 // desktop ones.
 function chartButtons(button, sky, screen) {
@@ -268,13 +269,15 @@ async function share(sky, back, onButton) {
 }
 
 // The pages that work something out from the chart, by their button: Which
-// planets were visible opens Helioscope's, and Parans the parans page.
+// planets were visible opens Helioscope's, Parans the parans page, and
+// Declinations the declinations page.
 const WORKED_OUT = {
   helioscope: { page: "helioscope.html", refusal: viewForHelioscopeRefusal },
   parans: { page: "parans.html", refusal: viewForParansRefusal },
+  declinations: { page: "declinations.html", refusal: viewForDeclinationsRefusal },
 };
 
-// Either opens its page in a tab, with the chart in its link as Share… puts
+// Each opens its page in a tab, with the chart in its link as Share… puts
 // it there, but never its name or town: the page needs only the moment and
 // the place.
 async function openWorkedOut({ page, refusal }, sky, back, onButton) {

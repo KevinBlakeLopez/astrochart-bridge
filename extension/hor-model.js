@@ -13,6 +13,7 @@ import {
   helioscopeButton,
   nameFromText,
   offsetText,
+  declinationsButton,
   paransButton,
   viewFor,
   withAstroSeekSave,
@@ -99,8 +100,9 @@ export function viewForHorChart(result, options) {
           ...astroSeekWarnings(chart.lng),
         ],
         notes: [...view.notes, ...(morinus.timeBasis === "zone" ? [words.hor.zoneNote] : []), ...astroSeekNotes()],
-        // As for an AAF chart: no Share… here, so Which planets were visible and Parans end the buttons.
-        buttons: [...astroSeekButtons(), helioscopeButton(), paransButton()],
+        // As for an AAF chart: no Share… here, so Which planets were visible,
+        // Parans and Declinations end the buttons.
+        buttons: [...astroSeekButtons(), helioscopeButton(), paransButton(), declinationsButton()],
         ...(view.sky ? { next: astroComStepFor(options)(view.sky, { local: chart.local, name: nameFromText(chart.name), town: chart.place, gender }) } : {}),
       },
       { town: chart.place, name: nameFromText(chart.name), gender },

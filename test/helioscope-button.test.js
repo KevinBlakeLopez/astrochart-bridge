@@ -1,7 +1,8 @@
-// Which planets were visible and Parans: the chart screens' ways to
-// Helioscope's page and the parans page. They go wherever Share… goes, in that
-// order, and like Share… each opens a page in a tab with the chart in its
-// link, here helioscope.html or parans.html, with no name or town. popup.js,
+// Which planets were visible, Parans and Declinations: the chart screens'
+// ways to Helioscope's page, the parans page and the declinations page. They
+// go wherever Share… goes, in that order, and like Share… each opens a page in
+// a tab with the chart in its link, here helioscope.html, parans.html or
+// declinations.html, with no name or town. popup.js,
 // screenshot.js, paste.js, import.js and chart.js open them; their part is in
 // the manual test checklist.
 import { test } from "node:test";
@@ -14,16 +15,19 @@ import { fromFragment, toFragment, toPortable } from "../extension/core/portable
 import { withDesktopSend } from "../extension/desktop-model.js";
 import { chartFromLink } from "../extension/helioscope-model.js";
 import { viewForHorFile } from "../extension/hor-model.js";
+import { chartFromLink as declinationsChartFromLink } from "../extension/declinations-model.js";
 import { chartFromLink as paransChartFromLink } from "../extension/parans-model.js";
 import { viewForEntry } from "../extension/paste-model.js";
 import {
   actionGroups,
   chartToShare,
+  declinationsButton,
   groupLabels,
   helioscopeButton,
   paransButton,
   viewFor,
   viewForAstroCom,
+  viewForDeclinationsRefusal,
   viewForHelioscopeRefusal,
   viewForParansRefusal,
   viewForSky,
@@ -41,14 +45,16 @@ const LA = { timeZone: "America/Los_Angeles" };
 const NY_SKY = { utc: "2024-04-17T12:00:00Z", lat: 40.716667, lng: -74 };
 const HELIOSCOPE = "Which planets were visible";
 const PARANS = "Parans";
+const DECLINATIONS = "Declinations";
 const labels = (view) => view.buttons.map(({ label }) => label);
 
 test("the buttons are secondary ones, and their screen's script opens the page", () => {
   assert.deepEqual(helioscopeButton(), { label: "Which planets were visible", does: "helioscope", secondary: true });
   assert.deepEqual(paransButton(), { label: "Parans", does: "parans", secondary: true });
+  assert.deepEqual(declinationsButton(), { label: "Declinations", does: "declinations", secondary: true });
 });
 
-test("every chart screen that offers Share… offers both right before it, Which planets were visible first, a horary chart's too", () => {
+test("every chart screen that offers Share… offers all three right before it, in order, a horary chart's too", () => {
   const astroCom = {
     kind: "natal", site: "astro-com", local: "2024-04-17T23:00:00", zoneLabel: null, lat: 40.716667, lng: -74,
     utc: "2024-04-18T03:00:00Z", utcSource: "declared", offsetMinutes: -240,
@@ -84,15 +90,16 @@ test("every chart screen that offers Share… offers both right before it, Which
   for (const [name, view] of Object.entries(screens)) {
     const shown = labels(view);
     assert.ok(shown.includes("Share…"), `${name}: ${shown.join(", ")}`);
-    assert.equal(shown.indexOf(HELIOSCOPE), shown.indexOf("Share…") - 2, `${name}: ${shown.join(", ")}`);
-    assert.equal(shown.indexOf(PARANS), shown.indexOf("Share…") - 1, `${name}: ${shown.join(", ")}`);
+    assert.equal(shown.indexOf(HELIOSCOPE), shown.indexOf("Share…") - 3, `${name}: ${shown.join(", ")}`);
+    assert.equal(shown.indexOf(PARANS), shown.indexOf("Share…") - 2, `${name}: ${shown.join(", ")}`);
+    assert.equal(shown.indexOf(DECLINATIONS), shown.indexOf("Share…") - 1, `${name}: ${shown.join(", ")}`);
   }
 });
 
 test("a screen that doesn't offer Share… doesn't offer them either: a Stellarium tab's, the astro.com step and a refused page", () => {
   // A Stellarium tab's sky has no birthplace time for the link to carry.
-  assert.doesNotMatch(JSON.stringify(viewForSky(NY_SKY)), /"helioscope"|"parans"/);
-  assert.doesNotMatch(JSON.stringify(viewForAstroCom(NY_SKY)), /"helioscope"|"parans"/);
+  assert.doesNotMatch(JSON.stringify(viewForSky(NY_SKY)), /"helioscope"|"parans"|"declinations"/);
+  assert.doesNotMatch(JSON.stringify(viewForAstroCom(NY_SKY)), /"helioscope"|"parans"|"declinations"/);
   assert.equal(viewFor(analyze("transit-sydney-2026-11-01")).buttons, undefined);
 });
 
@@ -104,16 +111,16 @@ const chartScreen = (result, default_) => withDesktopSend(withAafExport(viewFor(
 test("they go under See the sky, after the Stellarium buttons and the line about which is the default", () => {
   const result = analyze("ny-2024-04-17");
   assert.deepEqual(groupsOf(chartScreen(result)), [
-    [SKY, "Open Stellarium Web", "desktop", HELIOSCOPE, PARANS],
+    [SKY, "Open Stellarium Web", "desktop", HELIOSCOPE, PARANS, DECLINATIONS],
     [ELSEWHERE, "Share…", "download", "next"],
   ]);
   assert.deepEqual(groupsOf(chartScreen(result, { preferred: true })), [
-    [SKY, "desktop", "Open Stellarium Web", "default-choice", HELIOSCOPE, PARANS],
+    [SKY, "desktop", "Open Stellarium Web", "default-choice", HELIOSCOPE, PARANS, DECLINATIONS],
     [ELSEWHERE, "Share…", "download", "next"],
   ]);
 });
 
-test("their link carries the chart without its name or town, and Helioscope's page and the parans page read it back as the same chart", () => {
+test("their link carries the chart without its name or town, and Helioscope's page, the parans page and the declinations page read it back as the same chart", () => {
   const result = analyze("ny-2024-04-17");
   const view = viewFor(result, { ...LA, town: "New York" });
   // As the popup builds it for helioscope.html: no labels, even for a chart that has them.
@@ -136,6 +143,7 @@ test("their link carries the chart without its name or town, and Helioscope's pa
   };
   assert.deepEqual(chartFromLink(`#${toFragment(shared.chart)}`), expected);
   assert.deepEqual(paransChartFromLink(`#${toFragment(shared.chart)}`), expected);
+  assert.deepEqual(declinationsChartFromLink(`#${toFragment(shared.chart)}`), expected);
 });
 
 test("a chart their link can't carry says why, with Cancel back to the chart, as Share… does", () => {
@@ -155,6 +163,14 @@ test("a chart their link can't carry says why, with Cancel back to the chart, as
     buttons: [],
   });
   assert.equal(viewForParansRefusal("unknown-field").message, "AstroChart Bridge can't work out the parans for this chart.");
+  assert.deepEqual(viewForDeclinationsRefusal("before-gregorian"), {
+    state: "declinations-refused",
+    message: "AstroChart Bridge can't work out the declinations for a chart dated before 15 October 1582 yet: it can't tell which calendar the date is in.",
+    code: "before-gregorian",
+    notes: [],
+    buttons: [],
+  });
+  assert.equal(viewForDeclinationsRefusal("unknown-field").message, "AstroChart Bridge can't work out the declinations for this chart.");
 });
 
 // --- The import page: AAF and Morinus files ---
@@ -172,10 +188,10 @@ test("the import page's AAF and Morinus screens end See the sky with them, witho
     "a horary Morinus chart": viewForHorFile(horFile("horary"), LA).items[0].view,
   };
   for (const [name, view] of Object.entries(screens)) {
-    assert.deepEqual(view.buttons.slice(-2), [helioscopeButton(), paransButton()], name);
+    assert.deepEqual(view.buttons.slice(-3), [helioscopeButton(), paransButton(), declinationsButton()], name);
     assert.equal(labels(view).includes("Share…"), false, name);
     const [sky] = groupsOf(view);
-    assert.deepEqual([sky[0], ...sky.slice(-2)], [SKY, HELIOSCOPE, PARANS], name);
+    assert.deepEqual([sky[0], ...sky.slice(-3)], [SKY, HELIOSCOPE, PARANS, DECLINATIONS], name);
   }
 });
 
@@ -226,9 +242,9 @@ test("the receiving page offers them under See the sky, before the buttons that 
   for (const options of [{ ...LA }, { ...LA, canFill: true, canShare: true, canShareFiles: true }]) {
     const view = viewForImport(receivedChart(), options);
     const [sky, elsewhere] = groupsOf(view);
-    assert.deepEqual(sky, [SKY, "Open Stellarium Web", HELIOSCOPE, PARANS]);
+    assert.deepEqual(sky, [SKY, "Open Stellarium Web", HELIOSCOPE, PARANS, DECLINATIONS]);
     assert.equal(elsewhere[0], ELSEWHERE);
-    assert.ok(!elsewhere.includes(HELIOSCOPE) && !elsewhere.includes(PARANS));
+    assert.ok(![HELIOSCOPE, PARANS, DECLINATIONS].some((label) => elsewhere.includes(label)));
   }
 });
 

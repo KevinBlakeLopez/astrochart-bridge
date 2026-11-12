@@ -12,6 +12,7 @@ import {
   astroSeekWarnings,
   helioscopeButton,
   nameFromText,
+  declinationsButton,
   paransButton,
   viewFor,
 } from "./popup-model.js";
@@ -149,13 +150,14 @@ export function viewForImport(
   const includesNotes = boxes.length === 0 ? [] : [words.includesNote, ...(remembers ? [words.remembersNote] : [])];
   const shareLink = canCopy && canShare;
   const own = pageButtons();
-  // Which planets were visible and Parans, as on the other chart screens: they
+  // Which planets were visible, Parans and Declinations, as on the other chart screens: they
   // go under See the sky, and their links never carry the name or town,
   // whatever the boxes say, since they don't pass the chart on.
   const buttons = [
     ...astroSeekButtons(),
     helioscopeButton(),
     paransButton(),
+    declinationsButton(),
     ...(shareLink ? [own.shareLink] : []),
     ...(canCopy ? [own.copyLink, own.showQr] : []),
     own.downloadFile,

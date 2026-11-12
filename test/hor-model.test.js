@@ -37,6 +37,7 @@ test("a Morinus chart opens like an AAF chart, with its name, birthplace and the
     { label: "Save in Astro-Seek…", saves: { town: "New York", name: "Test", gender: null }, secondary: true },
     { label: "Which planets were visible", does: "helioscope", secondary: true },
     { label: "Parans", does: "parans", secondary: true },
+    { label: "Declinations", does: "declinations", secondary: true },
   ]);
   assert.deepEqual(view.notes, [...plain.notes, ZONE_NOTE, astroSeekNotes()[0], astroSeekSaveNamedNote()]);
   assert.deepEqual(view.warnings, []);

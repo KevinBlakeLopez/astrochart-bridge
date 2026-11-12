@@ -6,8 +6,8 @@ import { loadedBy } from "../tools/loaded-by.mjs";
 // The paths tools/package-stores.sh leaves out of the zip the Chrome Web
 // Store and Firefox Add-ons take. Helioscope's were, until its page arrived
 // on 9 November 2026 (docs/HELIOSCOPE_V1_FEASIBILITY.md §9), and the parans
-// page's until the popup and the chart page opened it, on 11 November. The
-// declinations page's are, until they open it.
+// page's until the popup and the chart page opened it, on 11 November, and
+// the declinations page's until they opened it, on 12 November.
 const LEFT_OUT = readFileSync(new URL("../tools/store-leave-out.txt", import.meta.url), "utf8")
   .split("\n")
   .filter((line) => line !== "" && !line.startsWith("#"));
@@ -16,12 +16,8 @@ const leftOut = (file) => LEFT_OUT.some((path) => file === path || file.startsWi
 // The pages the zip keeps: every page in extension/ but the site's own home page.
 const PAGES = readdirSync(extension).filter((name) => name.endsWith(".html") && !leftOut(name));
 
-test("the store zips leave out only the web app's home page and service worker, and the declinations page until it's opened, and each path listed exists", () => {
-  assert.deepEqual(LEFT_OUT, [
-    "index.html", "home.css", "home.js", "sw.js",
-    "declinations.html", "declinations.css", "declinations.js", "declinations-model.js", "declinations-view.js",
-    "core/declinations.js",
-  ]);
+test("the store zips leave out only the web app's home page and service worker, and each path listed exists", () => {
+  assert.deepEqual(LEFT_OUT, ["index.html", "home.css", "home.js", "sw.js"]);
   for (const path of LEFT_OUT) assert.ok(existsSync(new URL(path, extension)), path);
 });
 
@@ -32,11 +28,11 @@ test("no page the extension ships loads anything the store zips leave out", () =
   }
 });
 
-// Everything Helioscope and parans load must be a page's, since none of it is
-// left out.
-test("everything Helioscope and parans load is left out of the store zips, unless a page loads it too", () => {
+// Everything Helioscope, parans and declinations load must be a page's,
+// since none of it is left out.
+test("everything Helioscope, parans and declinations load is left out of the store zips, unless a page loads it too", () => {
   const usedByPages = new Set(PAGES.flatMap((page) => [...loadedBy(page)]));
-  for (const start of ["helioscope-engine.js", "core/helioscope.js", "core/parans.js", "parans-model.js"]) {
+  for (const start of ["helioscope-engine.js", "core/helioscope.js", "core/parans.js", "parans-model.js", "core/declinations.js", "declinations-model.js"]) {
     for (const file of loadedBy(start)) {
       assert.ok(leftOut(file) || usedByPages.has(file), `${start} loads ${file}, which would ship unused`);
     }

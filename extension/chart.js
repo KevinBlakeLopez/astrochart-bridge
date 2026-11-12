@@ -180,6 +180,9 @@ function fileForSharing(chart) {
   }
 }
 
+// The pages that work something out from the chart, by their button.
+const WORKED_OUT_PAGES = { helioscope: "helioscope.html", parans: "parans.html", declinations: "declinations.html" };
+
 // The click is the confirmation: the notes above the buttons say what each
 // one sends where. Destinations open in a new tab with no opener or referrer.
 async function onButton(button) {
@@ -210,11 +213,11 @@ async function onButton(button) {
     share({ title: text().chart.shareTitle, files: [shareableFile] });
     return;
   }
-  // Helioscope's page or the parans page beside this one, in either copy,
-  // with the chart in its link but not its name or town. Opened before
-  // anything is awaited, so Safari still counts the click.
-  if (does === "helioscope" || does === "parans") {
-    if (chart !== null) openPage(does === "parans" ? "parans.html" : "helioscope.html", chartToPassOn(chart, {}), location.href);
+  // Helioscope's page, the parans page or the declinations page beside this
+  // one, in either copy, with the chart in its link but not its name or town.
+  // Opened before anything is awaited, so Safari still counts the click.
+  if (Object.hasOwn(WORKED_OUT_PAGES, does)) {
+    if (chart !== null) openPage(WORKED_OUT_PAGES[does], chartToPassOn(chart, {}), location.href);
     return;
   }
   if (url) window.open(url, "_blank", "noopener,noreferrer");

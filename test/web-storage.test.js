@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { DEFAULT_SETTINGS, helioscopeSettings, setHelioscopeSettings } from "../extension/helioscope-model.js";
 import { DEFAULT_SETTINGS as PARANS_DEFAULTS, paransSettings, setParansSettings } from "../extension/parans-model.js";
+import { declinationsSettings, setDeclinationsSettings } from "../extension/declinations-model.js";
 import { webStorageArea } from "../extension/web-storage.js";
 
 // A stand-in for localStorage: getItem, setItem and removeItem, keeping
@@ -58,6 +59,17 @@ test("on the web, the parans page's settings are kept in localStorage beside Hel
   await setParansSettings(area, PARANS_DEFAULTS);
   // Helioscope's are left as they were.
   assert.deepEqual(Object.fromEntries(localStorage.items), { "astrochart-bridge:helioscope-settings": '{"elevation":120}' });
+});
+
+test("on the web, the declinations page's orb is kept in localStorage beside the parans page's settings, and forgotten at the default", async () => {
+  const localStorage = memoryStorage({ "astrochart-bridge:parans-settings": '{"orb":0.5}' });
+  const area = webStorageArea({ localStorage });
+  assert.deepEqual(await declinationsSettings(area), { orb: 1 });
+  await setDeclinationsSettings(area, { orb: 1.5 });
+  assert.equal(localStorage.items.get("astrochart-bridge:declinations-settings"), '{"orb":1.5}');
+  assert.deepEqual(await declinationsSettings(area), { orb: 1.5 });
+  await setDeclinationsSettings(area, { orb: 1 });
+  assert.deepEqual(Object.fromEntries(localStorage.items), { "astrochart-bridge:parans-settings": '{"orb":0.5}' });
 });
 
 test("a browser that won't let the page use localStorage leaves it nowhere to keep anything", () => {
