@@ -11,3 +11,11 @@ index.html
 home.css
 home.js
 sw.js
+#
+# The declinations page, until the chart screens open it.
+declinations.html
+declinations.css
+declinations.js
+declinations-model.js
+declinations-view.js
+core/declinations.js

@@ -142,6 +142,16 @@ export default {
         "AstroChart Bridge, © 2026 Kevin Blake Lopez, works this out on this device with Swiss Ephemeris, © 1997–2021 Astrodienst AG, through swisseph-wasm. All three are free software: you may share and change them under the GNU Affero General Public License, version 3 or later. They come with no warranty.",
       source: "Source code and licence",
     },
+    declinations: {
+      title: "AstroChart Bridge: declinations",
+      heading: "Declinations",
+      intro: "The parallels and contra-parallels of Ceres and the dwarf planets with the chart's Ascendant, MC, Vertex and planets.",
+      orb: "Orb",
+      working: "Working out the declinations…",
+      notice:
+        "AstroChart Bridge, © 2026 Kevin Blake Lopez, works this out on this device with Swiss Ephemeris, © 1997–2021 Astrodienst AG, through swisseph-wasm. All three are free software: you may share and change them under the GNU Affero General Public License, version 3 or later. They come with no warranty.",
+      source: "Source code and licence",
+    },
     // astro-com-page.js's, on the pages that stay open while a form fills in.
     astroComFilled: "AstroChart Bridge filled in astro.com's form in its tab.",
     astroSeekFilled: "AstroChart Bridge filled in Astro-Seek's form in its tab. Check Gender there, then press Add person.",
@@ -1071,5 +1081,56 @@ export default {
       other: "The parans can't be worked out for this chart.",
     },
     elevationRefused: ELEVATION_RANGE,
+  },
+  declinations: {
+    decimal: ".",
+    // The points as the page names them, in a list or a table.
+    names: {
+      ascendant: "Ascendant", midheaven: "MC", vertex: "Vertex",
+      sun: "Sun", moon: "Moon", mercury: "Mercury", venus: "Venus", mars: "Mars",
+      jupiter: "Jupiter", saturn: "Saturn", uranus: "Uranus", neptune: "Neptune", pluto: "Pluto",
+      ceres: "Ceres", eris: "Eris", makemake: "Makemake", haumea: "Haumea", varuna: "Varuna", ixion: "Ixion", orcus: "Orcus",
+      sedna: "Sedna",
+    },
+    // orb is as its radio button says it: "1°", "0.5°".
+    withinOrb: (orb) => `Parallels and contra-parallels within ${orb}`,
+    none: (orb) => `None of the dwarf planets is parallel or contra-parallel to the Ascendant, MC, Vertex or a planet within ${orb}.`,
+    columns: { contact: "Contact", orb: "Orb" },
+    // "Eris – Sun", then "Parallel" under it.
+    pair: (dwarfPlanet, partner) => `${dwarfPlanet} – ${partner}`,
+    contacts: { parallel: "Parallel", "contra-parallel": "Contra-parallel" },
+    // "0°20′", then "7°10′ S and 7°30′ S" under it.
+    both: (first, second) => `${first} and ${second}`,
+    // "7°10′ S", "23°26′ N"
+    side: (degrees, side) => `${degrees} ${{ north: "N", south: "S" }[side] ?? side}`,
+    declinationsHeading: "Every declination",
+    assumptionsHeading: "Assumptions",
+    assumptions: {
+      ephemeris: "Ephemeris",
+      ephemerisValue: (version) => `Swiss Ephemeris ${version}, Moshier`,
+      dwarfPlanets: "Dwarf planets",
+      dwarfPlanetsValue: "From Astrodienst's asteroid files, made from JPL's DE441, with the Sun and Earth from Moshier",
+      time: "Time",
+      timeValue: "The chart's UTC, taken as UT",
+      position: "Positions",
+      positionValue: "Each body's actual place, its latitude included, not its zodiacal degree: seen from the Earth's centre, on the true equator of the date",
+      angles: "Angles",
+      // "23°26′"
+      anglesValue: (obliquity) => `The Ascendant, MC and Vertex as points on the ecliptic, at its true obliquity of ${obliquity}`,
+      orb: "Orb",
+      orbValue: (orb) => `Within ${orb} of declination, ${orb} itself included`,
+    },
+    mirrorNote:
+      "The Descendant, IC and anti-Vertex have the declinations of the Ascendant, MC and Vertex on the other side of the equator, so a parallel to one of them is a contra-parallel to its partner.",
+    empty: "This page works out the parallels and contra-parallels of a chart's dwarf planets. Open it from a chart in AstroChart Bridge.",
+    failed: (body) => `Swiss Ephemeris couldn't work out ${inSentence(body)}'s declination, so the contacts can't be worked out.`,
+    anglesFailed: "Swiss Ephemeris couldn't work out the Ascendant, MC and Vertex, so the contacts can't be worked out.",
+    refusals: {
+      "date-out-of-range": "AstroChart Bridge works out declinations only for dates from 15 October 1582 to the end of 2999.",
+      "invalid-coordinates": "This chart's place isn't a latitude and longitude on the globe.",
+      "at-pole": "At the poles the Ascendant, MC and Vertex aren't defined, so the contacts can't be worked out.",
+      "engine-failed": "Swiss Ephemeris couldn't start in this browser, so the declinations can't be worked out.",
+      other: "The declinations can't be worked out for this chart.",
+    },
   },
 };
